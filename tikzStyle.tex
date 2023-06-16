@@ -1,0 +1,39 @@
+\tikzset{block/.style={draw,rectangle,text centered, text width=#1}}
+\tikzset{block/.default={draw,rectangle}}
+\tikzset{arc/.style={-latex}}
+\tikzset{back/.style={latex-}}
+\tikzset{connect/.style={draw, circle, fill=black, scale=.3}}
+\tikzset{br/.style n args={2}{ below=#1 of #2, anchor= south west}}
+\tikzset{bl/.style n args={2}{ below=#1 of #2, anchor= south east}}
+\tikzset{ar/.style n args={2}{ above=#1 of #2.south east}}
+\tikzset{al/.style n args={2}{ above=#1 of #2.south west}}
+\tikzset{bolded/.style={line width= 2 pt}}
+
+\tikzset{com/.style={draw, ellipse, thick, text centered, text width=3cm}}
+
+
+\tikzset{
+    max width/.style args={#1}{
+        execute at begin node={\begin{varwidth}{#1}},
+        execute at end node={\end{varwidth}}
+    }
+}
+\tikzset{
+    set width/.style args={#1}{
+    	text width=#1,
+        execute at begin node={\begin{varwidth}{#1}},
+        execute at end node={\end{varwidth}}
+    }
+}
+
+\tikzset{conclusion/.style={draw=blue, rectangle, rounded corners, thick, max width=4cm}}
+\tikzset{evidences/.style={draw=blue, rectangle, rounded corners,  fill=blue!20, text color= white, thick, text centered}}
+\tikzset{strategy/.style={trapezium,trapezium left angle=60, trapezium right angle=120,draw, text centered}}
+\tikzset{softStrategy/.style={trapezium,draw, fill=yellow!20, text centered}}
+\tikzset{backing/.style={draw,  trapezium, trapezium left angle=60, trapezium right angle = 90}}
+\tikzset{defeater/.style={draw=red!80,  trapezium, trapezium left angle=90, trapezium right angle = 120}}
+
+\newcommand{\eventFigAbove}[1]{\hspace{1cm} #1\\ \vspace{.1cm}\Huge\Lightning}
+\newcommand{\eventFigBelow}[1]{{\Huge\rotatebox{180}{\Lightning}}\\ \vspace{.1cm} #1}
+\newcommand{\eventFigRight}[1]{  {\Huge\rotatebox{270}\Lightning} \vspace{.1cm} #1}
+\newcommand{\eventFigLeft}[1]{ #1 \vspace{.1cm} {\Huge\rotatebox{90}\Lightning}}

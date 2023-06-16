@@ -1,0 +1,10 @@
+lazy val root = (project in file("."))
+  .settings(
+    name := "myProject",
+    version := "1.0.0",
+    scalaVersion := "3.2.2",
+    sbtVersion := "1.8.2",
+    scalacOptions := Seq("-unchecked", "-deprecation", "-feature"),
+    resolvers ++= Resolver.sonatypeOssRepos("releases"),
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+  )
