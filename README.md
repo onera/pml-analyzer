@@ -24,6 +24,19 @@ The compilation of a PML model can be easily performed
 with [SBT](https://www.scala-sbt.org/). Installation procedures may vary depending on your system (Windows, OSX, Linux), 
 please follow the official guidelines for your system.
 
+### Monosat
+
+The [Monosat](https://github.com/sambayless/monosat) enables PML Analyzer to perform interference analysis.
+You should add the monosat.jar library to your class path (or put it in the lib folder) and ensure that the library (.so for Linux,
+.dylib for Mac, .dll for Windows) is accessible from the java library path. If not update it by running sbt or the executable with the VM option:
+```shell
+# to run SBT with a given library path
+java -jar -Djava.library.path=yourPath sbt-launch.jar 
+
+# to run a JAR
+java -jar -Djava.library.path=yourPath youJar.jar 
+```
+
 ## Using the PML analyzer
 
 ### Overview
@@ -96,12 +109,6 @@ To compile and run the PHYLOG patterns example please enter the following comman
  sbt runMain views.patterns.examples.PhylogPatterns
 ```
 
-To compile and run the PHYLOG pattern instances example please enter the following commands:
-```sbtshell
- sbt runMain views.patterns.examples.PhylogPatternsInstances
-```
-
-
 #### Modelling
 Various benchmark systems for platform modeling are provided 
 in the ``pml.examples`` package. These benchmarks can be used as a starting point to
@@ -109,12 +116,7 @@ your modeling activity.
 
 To compile and run the Keystone example please enter the following commands:
 ```sbtshell
- sbt runMain pml.examples.keystone.KeystoneExport
-```
-
-To compile and run the SimplePlatform example please enter the following commands:
-```sbtshell
- sbt runMain pml.examples.simple.SimpleExport
+ sbt runMain pml.examples.keystone.SimpleKeystoneExport
 ```
 
 #### Analysis
@@ -123,10 +125,7 @@ These benchmarks can be used as a starting point to
 your analysis activity. For instance, we can carry out the interference analysis of the Keystone platform with
  ```sbtshell
  # example of a PML model where an IDP interference model is generated
- sbt runMain views.interference.examples.KeystoneExport
-
- # example of a PML model where a Cecilia export is generated 
-sbt runMain views.dependability.examples.KeystoneExport
+ sbt runMain views.interference.examples.SimpleKeystoneInterferenceGeneration
  ```
 
 If the tool is running on a Unix System you can use the Makefile to compile the DOT and LaTeX generated file:
@@ -148,15 +147,17 @@ The available projects can be obtained by running:
 ```sbtshell
  sbt projects
 ```
-A project can then be selected by running:
-```sbtshell
- sbt project projectName
-```
+
 To export a project as a FATJAR, simply select the project to export with the previous command and then run:
 ```sbtshell
  sbt assembly
 ```
-The resulting FATJAR will be produced in projectName/target/scalaXXX  
+The resulting FATJAR will be produced in projectName/target/scala3.2.2
+
+If your system contains a docker engine, you can build a docker image by running the following command:
+```sbtshell
+ sbt docker
+```
 
 ### External tools
 
@@ -165,12 +166,3 @@ to connect some backend analysis tools to directly perform analyses out of your 
   * for interference analysis: [IDP](https://dtai.cs.kuleuven.be/software/idp/try) or [Monosat](https://github.com/sambayless/monosat)
   * for the safety analysis: [CeciliaOCAS]() or [OpenAltarica](https://www.openaltarica.fr/docs-downloads/) 
 
-The Monosat tool can be integrated as a dynamic library. To do so be sure that the library (.so for Linux, 
-.dylib for Mac, .dll for Windows) is accessible from the java library path. If not update it by running sbt or the executable with the VM option:
-```shell
-# to run SBT with a given library path
-java -jar -Djava.library.path=yourPath sbt-launch.jar 
-
-# to run a JAR
-java -jar -Djava.library.path=yourPath youJar.jar 
-```

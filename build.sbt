@@ -56,7 +56,7 @@ lazy val dockerSettings = Seq(
       copy((Compile / doc / target).value, "doc")
       copy(binlib, "binlib")
       copy(artifact, artifactTargetPath)
-      copy(Seq(base / "AUTHORS.txt", base / "lesser.txt", base / "minimalBuildSBT.txt", base / "LICENCE_PML_Analyzer.txt", base / "Makefile"), "./")
+      copy(Seq(base / "AUTHORS.txt", base / "lesser.txt", base / "minimalBuildSBT.txt", base / "LICENCE.txt", base / "Makefile"), "./")
       customInstruction("RUN", "mv minimalBuildSBT.txt build.sbt")
       env("LD_LIBRARY_PATH" -> "/home/user/code/binlib:${LD_LIBRARY_PATH}")
       customInstruction("RUN", "chown -R user /home/user && chgrp -R user /home/user")
