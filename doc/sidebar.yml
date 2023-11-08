@@ -1,0 +1,32 @@
+index: index.md
+subsection:
+  - title: Getting started
+    index: doc/reference/gettingStarted/index.md
+    directory: reference/gettingStarted
+    subsection:
+     - page: reference/gettingStarted/getting_started_SBT.md
+     - page: reference/gettingStarted/getting_started_docker.md
+     - page: reference/gettingStarted/external_dependency.md
+  - title: Using PML
+    index: doc/reference/usePML/index.md
+    directory: reference/usePML
+    subsection:
+      - page: reference/usePML/editing_PML_model.md
+      - page: reference/usePML/pml_examples.md
+  - title: Examples
+    directory: example
+    subsection:
+      - title: Simple Keystone
+        index: doc/example/simpleKeystone/index.md
+        subsection:
+          - page: example/simpleKeystone/platform.md
+          - page: example/simpleKeystone/software.md
+          - page: example/simpleKeystone/routing.md
+          - page: example/simpleKeystone/library.md
+          - page: example/simpleKeystone/slicing.md
+          - page: example/simpleKeystone/specification.md
+          - page: example/simpleKeystone/export.md
+      - title: Simple T1042
+        page: example/simpleT1042/index.md
+
+
