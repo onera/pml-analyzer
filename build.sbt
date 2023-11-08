@@ -87,7 +87,14 @@ lazy val assemblySettings = Seq(
 
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
 lazy val commonSettings = Seq(
-  organization := "onera",
+  organization := "io.github.onera",
+  homepage := Some(url("https://github.com/onera/pml-analyzer")),
+  scmInfo := Some(ScmInfo(url("https://github.com/onera/pml-analyzer"), "git@github.com:onera/pml-analyzer.git")) ,
+  developers := List (Developer("kevin-delmas", "kevin-delmas", "kevin.delmas@onera.fr", url("https://www.onera.fr/en/staff/kevin-delmas"))) ,
+  licenses +=("LGPL-2.1", url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")) ,
+  publishMavenStyle := true,
+  crossPaths := false,
+  publishTo := Some(Opts.resolver.sonatypeStaging),
   version := "1.0.0",
   scalaVersion := "3.2.2",
   sbtVersion := "1.8.2",
