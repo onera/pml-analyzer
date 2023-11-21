@@ -1,13 +1,22 @@
 # PML analyzer
 
-The PML analyzer is an open source API providing a simple DSL to build 
-a description of the architecture of your chip based on the PHYLOG Model Language (PML). 
-From this representation a set of safety and interference model templates can be generated to perfom safety and 
+The PML analyzer is an open source API providing a simple DSL to build
+a description of the architecture of your chip based on the PHYLOG Model Language (PML).
+From this representation a set of safety and interference model templates can be generated to perfom safety and
 interference analyses of your platform.
 
 The only dependencies of the PML analyzer are:
 + The Java Runtime Environment version 8 [JRE 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) or newer.
 + The Simple Build Tool [SBT](https://www.scala-sbt.org/)
+
+## Configurations
+
+### build.sbt
+
+To get the version X.Y.Z of pml analyzer simply add the following line to your build.sbt file:
+```scala
+libraryDependencies += "io.github.onera" % "pml_analyzer" % "X.Y.Z"
+```
 
 ## Installing dependencies
 
@@ -36,6 +45,13 @@ java -jar -Djava.library.path=yourPath sbt-launch.jar
 # to run a JAR
 java -jar -Djava.library.path=yourPath youJar.jar 
 ```
+### Cecilia
+
+It is possible to export PML models as [CeciliaOCAS](https://satodev.com/nos-produits/cecilia-workshop/) or [OpenAltarica](https://www.openaltarica.fr/docs-downloads/) models and perform automatic analyses or simulation out of these models.
+
+### IDP
+
+It is possible to use [IDP](https://dtai.cs.kuleuven.be/software/idp/try) as an alternative to MONOSAT to perform the interference analyses out of your PML model.
 
 ## Using the PML analyzer
 
@@ -51,14 +67,10 @@ or unlinking entities) are provided in the ``pml.operators``  package.
 Exporters to [yuml](https://yuml.me/diagram) and [graphviz](http://www.graphviz.org/) are provided in the ``pml.exporters`` package.  
         
 The compilation of a PML model can be easily perform with [SBT](https://www.scala-sbt.org/) 
-+ First launch sbt in the project repository (this operation may take some time)
-```sbtshell
- sbt 
+Simply run the following command in the project repository (this operation may take some time)
+```shell
+ sbt runMain pathToYourModel
 ```
-+ Once sbt is ready to receive command launch the compilation and execution of your PML model 
-```sbtshell
- runMain pathToYourModel
- ```
 
 ### Editing a PML Model
 
@@ -75,8 +87,8 @@ your modeling activity.
 
 To edit PML model with Intellij please follow the installation steps given by [JetBrain](https://www.jetbrains.com).
 The installation can be made for any platform and does not require any administrator privilege.
-Once the Intellij is installed please download the Scala and SBT Executor plugins.
-
+Once the Intellij IDE is installed please download the Scala and SBT Executor plugins.
+More information are available on the  [Intellij Scala 3 support guide](https://dotty.epfl.ch/3.0.0/docs/usage/ide-support.html)
 #### Creating a project with Intellij
 
 The build specifications and project structure are provided with the PML source code.
@@ -101,7 +113,7 @@ dynamic library of monosat by editing your run configuration and adding to VM op
 
 #### Argumentation patterns
 
-The justification patterns considered for the CAST32-A are provided in the ``views.patterns`` package. 
+The justification patterns considered for the AMC20-193 (former CAST32-A) are provided in the ``views.patterns`` package. 
 These patterns  can be used as a starting point to start your argumentation activity.
 
 To compile and run the PHYLOG patterns example please enter the following commands:
@@ -116,7 +128,7 @@ your modeling activity.
 
 To compile and run the Keystone example please enter the following commands:
 ```sbtshell
- sbt runMain pml.examples.keystone.SimpleKeystoneExport
+ sbt runMain pml.examples.simpleKeystone.SimpleKeystoneExport
 ```
 
 #### Analysis
@@ -124,8 +136,8 @@ For each view (interference, patterns and dependability) examples are provided i
 These benchmarks can be used as a starting point to
 your analysis activity. For instance, we can carry out the interference analysis of the Keystone platform with
  ```sbtshell
- # example of a PML model where an IDP interference model is generated
- sbt runMain views.interference.examples.SimpleKeystoneInterferenceGeneration
+ # example of a PML model where a MONOSAT based interference identification is performed
+ sbt runMain views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration
  ```
 
 If the tool is running on a Unix System you can use the Makefile to compile the DOT and LaTeX generated file:
@@ -140,7 +152,7 @@ make patterns
 make png
 ``` 
 
-### Packaging
+### Package your model
 
 All projects can be packaged into a single FATJAR containing all non-native dependencies.
 The available projects can be obtained by running:
@@ -158,11 +170,3 @@ If your system contains a docker engine, you can build a docker image by running
 ```sbtshell
  sbt docker
 ```
-
-### External tools
-
-The PML modeling does not rely on any external dependency. Nevertheless, it is possible
-to connect some backend analysis tools to directly perform analyses out of your PML model:
-  * for interference analysis: [IDP](https://dtai.cs.kuleuven.be/software/idp/try) or [Monosat](https://github.com/sambayless/monosat)
-  * for the safety analysis: [CeciliaOCAS]() or [OpenAltarica](https://www.openaltarica.fr/docs-downloads/) 
-
