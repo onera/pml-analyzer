@@ -36,5 +36,4 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
-      - name: Generate Makefiles
-        run: cmake -DJAVA=ON .
+          build-args: '-DJAVA=ON'
