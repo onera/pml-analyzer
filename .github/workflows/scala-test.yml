@@ -27,8 +27,6 @@ jobs:
           java-version: '8'
           distribution: 'temurin'
           cache: 'sbt'
-      - name: Configure Project
-        uses: threeal/cmake-action@v1.3.0
       - name: Get Monosat
         uses: actions/checkout@v3
         with:
@@ -36,5 +34,7 @@ jobs:
           path: monosat
       - name: Move to Monosat
         run: cd monosat
+      - name: Configure Project
+        uses: threeal/cmake-action@v1.3.0
       - name: Generate Makefiles
         run: cmake -DJAVA=ON .
