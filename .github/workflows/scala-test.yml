@@ -37,3 +37,7 @@ jobs:
         with:
           source-dir: 'monosat'
           build-args: '-DJAVA=ON'
+      - name: Move to Monosat build
+        run: cd monosat
+      - name: Compile Monosat
+        run: make
