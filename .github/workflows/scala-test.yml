@@ -43,5 +43,7 @@ jobs:
       - name: Install Monosat
         run: sudo make install
         working-directory: 'monosat/build'
+      - name: Moving monosat.jar
+        run: cp monosat/build/monosat.jar lib
       - name: Run tests
         run: sbt test
