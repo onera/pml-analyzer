@@ -37,9 +37,11 @@ jobs:
         with:
           source-dir: 'monosat'
           args: '-DJAVA=ON'
-      - name: Compile Monosat
-        run: make
-        working-directory: 'monosat/build'
-      - name: Install Monosat
-        run: sudo make install
-        working-directory: 'monosat/build'
+#      - name: Compile Monosat
+#        run: make
+#        working-directory: 'monosat/build'
+#      - name: Install Monosat
+#        run: sudo make install
+#        working-directory: 'monosat/build'
+      - name: Run tests
+        run: sbt tests
