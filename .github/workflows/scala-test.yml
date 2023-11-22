@@ -1,9 +1,7 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Workflow building PML and performing basic tests
+# The command sbt test should end successfully to perform your branch merge on master
 
-name: Scala CI v0
+name: Scala CI
 
 on:
   push:
@@ -65,21 +63,17 @@ jobs:
 
       # If cache miss put monosat.jar in local lib
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
-        name: Moving monosat.jar
-        run: cp monosat/build/monosat.jar lib
-
-      # If cache miss put monosat.so in local lib
-      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
-        name: Moving monosat.so
+        name: Moving monosat.jar and monosat.so
         run: |
+          cp monosat/build/monosat.jar lib
           mkdir binlib
           cp monosat/build/libmonosat.so binlib
 
       - name: Set env
-        run: echo "LD_LIBRARY_PATH=binlib" >> $GITHUB_ENV
+        run: echo "LD_LIBRARY_PATH=$PWD/binlib" >> $GITHUB_ENV
 
-#      - name: Run tests
-#        run: sbt test
-#
-#      - name: Perform an interference analysis
-#        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
+      - name: Run tests
+        run: sbt test
+
+      - name: Perform an interference analysis
+        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
