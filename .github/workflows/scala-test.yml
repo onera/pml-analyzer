@@ -21,33 +21,61 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK 8
         uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'temurin'
           cache: 'sbt'
-      - name: Get Monosat
+
+      # Since monosat compilation is time-consuming try first to find the binaries in cache
+      - name: Cache Monosat JAR and SO
+        id: cache-monosat
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-monosat-module
+        with:
+          path: monosat/build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      # If cache miss first get monosat source files
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Get Monosat
+        continue-on-error: true
         uses: actions/checkout@v3
         with:
           repository: sambayless/monosat
           path: monosat
-      - name: Configure Project
+
+      # If cache miss configure project
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Configure Project
+        continue-on-error: true
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
           args: '-DJAVA=ON'
-      - name: Compile Monosat
+
+      # If cache miss compile monosat
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Compile Monosat
+        continue-on-error: true
         run: make
         working-directory: 'monosat/build'
+
       - name: Install Monosat
         run: sudo make install
         working-directory: 'monosat/build'
+
       - name: Moving monosat.jar
         run: cp monosat/build/monosat.jar lib
+
       - name: Set env
         run: echo "LD_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
+
       - name: Run tests
         run: sbt test
+
       - name: Perform an interference analysis
         run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
