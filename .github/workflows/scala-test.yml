@@ -32,11 +32,12 @@ jobs:
         with:
           repository: sambayless/monosat
           path: monosat
+          ref: 1.4.0
       - name: Configure Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
-          build-args: '-DJAVA=ON'
-      - name: Compile Monosat
-        run: make
-        working-directory: 'monosat/build'
+          args: '-DJAVA=ON'
+#      - name: Compile Monosat
+#        run: make
+#        working-directory: 'monosat/build'
