@@ -76,7 +76,7 @@ jobs:
           cp monosat/build/libmonosat.so binlib
 
       - name: Set env
-        run: echo "LD_LIBRARY_PATH=binlib >> $GITHUB_ENV
+        run: echo "LD_LIBRARY_PATH=binlib" >> $GITHUB_ENV
 
 #      - name: Run tests
 #        run: sbt test
