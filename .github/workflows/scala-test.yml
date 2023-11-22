@@ -32,9 +32,9 @@ jobs:
         with:
           repository: sambayless/monosat
           path: monosat
-      - name: Move to Monosat
-        run: cd monosat
       - name: Configure Project
         uses: threeal/cmake-action@v1.3.0
+        with:
+          source-dir: 'monosat'
       - name: Generate Makefiles
         run: cmake -DJAVA=ON .
