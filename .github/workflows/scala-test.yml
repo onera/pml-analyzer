@@ -36,7 +36,9 @@ jobs:
         env:
           cache-name: cache-monosat-module
         with:
-          path: monosat/build
+          path: |
+            lib/monosat.jar
+            /usr/local/lib/libmonosat.so
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       # If cache miss first get monosat source files
@@ -61,11 +63,15 @@ jobs:
         run: make
         working-directory: 'monosat/build'
 
-      - name: Install Monosat
+      # If cache miss install monosat
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Install Monosat
         run: sudo make install
         working-directory: 'monosat/build'
 
-      - name: Moving monosat.jar
+      # If cache miss put monosat.jar in local lib
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Moving monosat.jar
         run: cp monosat/build/monosat.jar lib
 
       - name: Set env
