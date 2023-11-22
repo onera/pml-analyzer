@@ -47,3 +47,5 @@ jobs:
         run: cp monosat/build/monosat.jar lib
       - name: Run tests
         run: sbt test
+      - name: Perform an interference analysis
+        run: sbt runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration
