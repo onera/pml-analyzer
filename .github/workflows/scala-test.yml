@@ -38,7 +38,7 @@ jobs:
         with:
           path: |
             lib/monosat.jar
-            /usr/local/lib/libmonosat.so
+            binlib/libmonosat.so
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
       # If cache miss first get monosat source files
@@ -63,19 +63,20 @@ jobs:
         run: make
         working-directory: 'monosat/build'
 
-      # If cache miss install monosat
-      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
-        name: Install Monosat
-        run: sudo make install
-        working-directory: 'monosat/build'
-
       # If cache miss put monosat.jar in local lib
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
         name: Moving monosat.jar
         run: cp monosat/build/monosat.jar lib
 
+      # If cache miss put monosat.so in local lib
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Moving monosat.so
+        run: |
+          mkdir binlib
+          cp monosat/build/libmonosat.so binlib
+
       - name: Set env
-        run: echo "LD_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
+        run: echo "LD_LIBRARY_PATH=binlib >> $GITHUB_ENV
 
 #      - name: Run tests
 #        run: sbt test
