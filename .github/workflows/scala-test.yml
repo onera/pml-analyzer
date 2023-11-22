@@ -37,19 +37,17 @@ jobs:
         with:
           source-dir: 'monosat'
           args: '-DJAVA=ON'
-#      - name: Compile Monosat
-#        run: make
-#        working-directory: 'monosat/build'
-#      - name: Install Monosat
-#        run: sudo make install
-#        working-directory: 'monosat/build'
-#      - name: Moving monosat.jar
-#        run: cp monosat/build/monosat.jar lib
+      - name: Compile Monosat
+        run: make
+        working-directory: 'monosat/build'
+      - name: Install Monosat
+        run: sudo make install
+        working-directory: 'monosat/build'
+      - name: Moving monosat.jar
+        run: cp monosat/build/monosat.jar lib
       - name: Set env
         run: echo "LD_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
-      - name: Test env
-        run: ls $LD_LIBRARY_PATH
-#      - name: Run tests
-#        run: sbt test
-#      - name: Perform an interference analysis
-#        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
+      - name: Run tests
+        run: sbt test
+      - name: Perform an interference analysis
+        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
