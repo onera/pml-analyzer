@@ -44,4 +44,4 @@ jobs:
 #        run: sudo make install
 #        working-directory: 'monosat/build'
       - name: Run tests
-        run: sbt tests
+        run: sbt test
