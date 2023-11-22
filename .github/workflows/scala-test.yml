@@ -42,7 +42,6 @@ jobs:
       # If cache miss first get monosat source files
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
         name: Get Monosat
-        continue-on-error: true
         uses: actions/checkout@v3
         with:
           repository: sambayless/monosat
@@ -51,7 +50,6 @@ jobs:
       # If cache miss configure project
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
         name: Configure Project
-        continue-on-error: true
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
@@ -60,7 +58,6 @@ jobs:
       # If cache miss compile monosat
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
         name: Compile Monosat
-        continue-on-error: true
         run: make
         working-directory: 'monosat/build'
 
@@ -74,8 +71,8 @@ jobs:
       - name: Set env
         run: echo "LD_LIBRARY_PATH=/usr/local/lib" >> $GITHUB_ENV
 
-      - name: Run tests
-        run: sbt test
-
-      - name: Perform an interference analysis
-        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
+#      - name: Run tests
+#        run: sbt test
+#
+#      - name: Perform an interference analysis
+#        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"

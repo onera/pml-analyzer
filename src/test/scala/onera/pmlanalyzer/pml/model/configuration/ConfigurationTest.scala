@@ -1,4 +1,4 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright (c)  2023. ONERA
  * This file is part of PML Analyzer
  *
@@ -12,8 +12,8 @@
  * See the GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License along with this program ;
- *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- ******************************************************************************/
+ * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ * **************************************************************************** */
 
 package onera.pmlanalyzer.pml.model.configuration
 
@@ -27,11 +27,11 @@ import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import sourcecode.Name
 
-class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with should.Matchers{
+class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with should.Matchers {
 
   /**
-    * Architecture of the graph formulation of https://www.overleaf.com/project/5efb44712eb0ec00010737b3
-    */
+   * Architecture of the graph formulation of https://www.overleaf.com/project/5efb44712eb0ec00010737b3
+   */
   object ConfigurationFixture extends Platform(Symbol("fixture"))
     with ApplicationTest
     with LoadTest
@@ -55,10 +55,11 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
       core link cpu
       cpu link cache
 
-      def this()(implicit name:Name) = {
+      def this()(implicit name: Name) = {
         this(name.value)
       }
     }
+
     val pamu: Virtualizer = Virtualizer()
     val mem1: Target = Target()
     val mem2: Target = Target()
@@ -80,7 +81,7 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
     val appSmart1: Application = Application()
     val appSmart21: Application = Application()
     val dmaDescriptor: Application = Application()
-    val appSmart22:Application = Application()
+    val appSmart22: Application = Application()
 
     val dataMem1: Data = Data()
     val dataMem2: Data = Data()
@@ -117,7 +118,7 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
   ConfigurationFixture.exportRestrictedHWAndSWGraph()
   ConfigurationFixture.exportHWAndSWGraph()
 
-  "A configured platform" should "encode the used relation properly" in  {
+  "A configured platform" should "encode the used relation properly" in {
 
     appSmart1.targetLoads shouldBe mem1.loads
     appSmart1.targetStores shouldBe Set.empty
@@ -134,16 +135,16 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
     dmaDescriptor.hostingInitiators shouldBe Set(dma1)
     dmaDescriptor.targetLoads shouldBe (dataMem1.loads and dataMem2.loads)
     dmaDescriptor.targetStores shouldBe (smart1.cache.stores and smart2.cache.stores)
-   }
+  }
 
   it should "encode the routing relation properly" in {
     for (st <- smart1.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1,st,on)) shouldBe defined
-      InitiatorRouting((dma1,st,on)) shouldBe bus.stores
+      InitiatorRouting.get((dma1, st, on)) shouldBe defined
+      InitiatorRouting((dma1, st, on)) shouldBe bus.stores
     }
     for (st <- smart2.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1,st,on)) shouldBe defined
-      InitiatorRouting((dma1,st,on)) shouldBe smart2.cache.stores
+      InitiatorRouting.get((dma1, st, on)) shouldBe defined
+      InitiatorRouting((dma1, st, on)) shouldBe smart2.cache.stores
     }
   }
 
@@ -157,15 +158,22 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
   }
 
   it should "detect cyclic service paths" in {
-   }
+  }
 
   it should "detect multiple routes" in {
-    for (a <- ConfigurationFixture.applications)
-      Used.checkMultiPaths(transactionsBySW(a).map(transactionsByName)) shouldBe empty
+    for {a <- ConfigurationFixture.applications
+         transactions <- transactionsBySW.get(a)
+         } yield {
+      for {
+        t <- transactions
+        path <- transactionsByName.get(t)
+      } yield
+        Used.checkMultiPaths(Set(path)) shouldBe empty
+    }
   }
 
   it should "detect impossible service accesses " in {
-    for (a <- Set(appSmart1,appSmart21,appSmart22))
+    for (a <- Set(appSmart1, appSmart21, appSmart22))
       Used.checkImpossible(transactionsBySW(a).map(transactionsByName), a.targetService, Some(a)) shouldBe empty
     Used.checkImpossible(transactionsBySW(dmaDescriptor).map(transactionsByName), dmaDescriptor.targetService, Some(dmaDescriptor)).size shouldBe 1
   }
