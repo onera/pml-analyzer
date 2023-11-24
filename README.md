@@ -1,3 +1,17 @@
+<div align="center">
+        <picture>
+                <img src="doc/_assets/images/phylog_logo.gif" alt="Library Banner">
+        </picture>
+</div>
+<br>
+
+<!-- Badge section -->
+<div align="center">
+   <a href="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml">
+        <img alt="Tests" src="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml/badge.svg"></a>
+</div>
+<br>
+
 # PML analyzer
 
 The PML analyzer is an open source API providing a simple DSL to build
