@@ -9,6 +9,8 @@
 <div align="center">
    <a href="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml">
         <img alt="Tests" src="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml/badge.svg"></a>
+   <a href="https://github.com/onera/pml-analyzer/LICENSE">
+        <img alt="License LGPL" src="https://img.shields.io/badge/License-LGPLv2.1-efefef"></a>
 </div>
 <br>
 
