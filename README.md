@@ -7,6 +7,8 @@
 
 <!-- Badge section -->
 <div align="center">
+   <a href="https://github.com/onera/pml-analyzer/README.md">
+        <img alt="License LGPL" src="https://img.shields.io/badge/scala-3.2.2+-red"></a>
    <a href="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml">
         <img alt="Tests" src="https://github.com/onera/pml-analyzer/actions/workflows/scala-test.yml/badge.svg"></a>
    <a href="https://github.com/onera/pml-analyzer/LICENSE">
