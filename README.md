@@ -1,6 +1,6 @@
 <div align="center">
         <picture>
-                <img src="doc/_assets/images/phylog_logo.gif" alt="Library Banner">
+                <img src="doc/_assets/images/phylog2.png" alt="Library Banner">
         </picture>
 </div>
 <br>
