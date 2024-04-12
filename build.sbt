@@ -6,7 +6,6 @@ val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
-
 lazy val modelCode = taskKey[Seq[(String,File)]]("files to be embedded in docker")
 
 lazy val dockerProxySetting = (
@@ -123,3 +122,9 @@ lazy val PMLAnalyzer = (project in file("."))
   .settings(
     name := "pml_analyzer")
 
+
+// Fork a new JVM on every sbt run task
+// Fixes an issue with the classloader complaining that the Monosat library is
+// "already loaded in another classloader" on successive runs of the analysis
+// in the same sbt instance.
+fork := true

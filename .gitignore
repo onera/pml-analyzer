@@ -1,0 +1,11 @@
+# PML
+/analysis/
+
+# sbt
+# https://www.scala-sbt.org/release/docs/Directories.html
+/project/target/
+/project/project/
+/target/
+
+# IDE
+/.idea/
