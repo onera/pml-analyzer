@@ -82,23 +82,49 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     * (the name of the value enclosing the object)
     * @example {{{
     *          val mySimpleTransporter = SimpleTransporter()
-    *          }}}
-    * @param basics       the set of basic services provided, if empty a default store and load services are added
-    * @param implicitName implicitly retrieved name from the declaration context
-    * @param p            implicitly retrieved relation linking components to their provided services
-    * @param owner        implicitly retrieved name of the platform
+    * }}}
+    * @param basics              the set of basic services provided, if empty a default store and load services are added
+    * @param withDefaultServices add default Load/Store services on creation
+    * @param implicitName        implicitly retrieved name from the declaration context
+    * @param p                   implicitly retrieved relation linking components to their provided services
+    * @param owner               implicitly retrieved name of the platform
     * @return the physical component
     * @group publicConstructor
     */
-  def apply(basics: Set[Service] = Set.empty)(implicit implicitName: Name,
-                                              p: ProvideRelation[Hardware, Service],
-                                              owner: Owner): T =
-    apply(Symbol(implicitName.value), basics)
+  def apply(basics: Set[Service] = Set.empty, withDefaultServices: Boolean = true)(implicit implicitName: Name,
+                                                                                   p: ProvideRelation[Hardware, Service],
+                                                                                   owner: Owner): T =
+    apply(Symbol(implicitName.value), basics, withDefaultServices)
 
   /**
     * A physical component can be defined by its name and the basic services it provides
     * A transporter is only defined by its name, so if the transporter already exists it will
     * simply add the services provided by basics
+    *
+    * @param name                the physical component name
+    * @param basics              the set of basic services provided, if empty a default store and load services are added
+    * @param withDefaultServices add default Load/Store services on creation
+    * @param p                   implicitly retrieved relation linking components to their provided services
+    * @param owner               implicitly retrieved name of the platform
+    * @return the physical component
+    * @group publicConstructor
+    */
+  def apply(name: Symbol, basics: Set[Service], withDefaultServices: Boolean)(implicit
+                                                                               p: ProvideRelation[Hardware, Service],
+                                                                               owner: Owner): T = {
+    val formattedName = formatName(name, owner)
+    val result = _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
+    val mutableBasic = collection.mutable.Set(basics.toSeq: _*)
+    if (withDefaultServices && !basics.exists(_.isInstanceOf[Load]))
+      mutableBasic += Load(Symbol(s"${formattedName.name}_load"))
+    if (withDefaultServices && !basics.exists(_.isInstanceOf[Store]))
+      mutableBasic += Store(Symbol(s"${formattedName.name}_store"))
+    p.add(result, mutableBasic)
+    result
+  }
+
+  /**
+    * A physical component can be defined by its name and the basic services it provides
     *
     * @param name   the physical component name
     * @param basics the set of basic services provided, if empty a default store and load services are added
@@ -110,15 +136,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   def apply(name: Symbol, basics: Set[Service])(implicit
                                                 p: ProvideRelation[Hardware, Service],
                                                 owner: Owner): T = {
-    val formattedName = formatName(name, owner)
-    val result = _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
-    val mutableBasic = collection.mutable.Set(basics.toSeq: _*)
-    if (!basics.exists(_.isInstanceOf[Load]))
-      mutableBasic += Load(Symbol(s"${formattedName.name}_load"))
-    if (!basics.exists(_.isInstanceOf[Store]))
-      mutableBasic += Store(Symbol(s"${formattedName.name}_store"))
-    p.add(result, mutableBasic)
-    result
+    apply(name, basics, true)
   }
 
   /**
@@ -131,5 +149,5 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol)(implicit p: ProvideRelation[Hardware, Service],
                           owner: Owner): T =
-    apply(name, Set.empty)
+    apply(name, Set.empty, true)
 }

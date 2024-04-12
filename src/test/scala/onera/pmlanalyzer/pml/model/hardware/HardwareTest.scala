@@ -26,4 +26,16 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
       h.services.size shouldBe 2
     }
   }
+
+  it should "have no services when specified" in {
+    val t: Target = Target(withDefaultServices=false)
+    val s: SimpleTransporter = SimpleTransporter(withDefaultServices=false)
+    val i: Initiator = Initiator(withDefaultServices=false)
+    val v: Virtualizer = Virtualizer(withDefaultServices=false)
+
+    for (h <- List(t, s, i, v)) {
+      h.services shouldBe empty
+    }
+  }
+
 }
