@@ -28,14 +28,27 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "have no services when specified" in {
-    val t: Target = Target(withDefaultServices=false)
-    val s: SimpleTransporter = SimpleTransporter(withDefaultServices=false)
-    val i: Initiator = Initiator(withDefaultServices=false)
-    val v: Virtualizer = Virtualizer(withDefaultServices=false)
+    val t: Target = Target(withDefaultServices = false)
+    val s: SimpleTransporter = SimpleTransporter(withDefaultServices = false)
+    val i: Initiator = Initiator(withDefaultServices = false)
+    val v: Virtualizer = Virtualizer(withDefaultServices = false)
 
     for (h <- List(t, s, i, v)) {
       h.services shouldBe empty
     }
+  }
+
+  it should "have only specified services when specified" in {
+    val t: Target = Target(Set(Load("a"), Load("b")), false)
+    t.services.size shouldEqual 2
+    exactly(2, t.services) shouldBe a [Load]
+
+    val s = Target(Set(Store("a")), false)
+    s.services.size shouldEqual 1
+    exactly(1, s.services) shouldBe a[Store]
+
+    val i = Target(Set.empty, false)
+    i.services.size shouldEqual 0
   }
 
 }
