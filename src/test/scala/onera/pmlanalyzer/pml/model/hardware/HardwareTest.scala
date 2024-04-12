@@ -49,6 +49,9 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
 
     val i = Target(Set.empty, false)
     i.services.size shouldEqual 0
+
+    val j = Target(Symbol("j"), false)
+    j.services.size shouldEqual 0
   }
 
 }

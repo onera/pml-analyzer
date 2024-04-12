@@ -150,4 +150,19 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   def apply(name: Symbol)(implicit p: ProvideRelation[Hardware, Service],
                           owner: Owner): T =
     apply(name, Set.empty, true)
+
+
+  /**
+    * A physical component can be defined only its name, the services will be defined by default
+    *
+    * @group publicConstructor
+    * @param name  the physical component name
+    * @param withDefaultServices add default Load/Store services on creation
+    * @param p     implicitly retrieved relation linking components to their provided services
+    * @param owner implicitly retrieved name of the platform
+    * @return the physical component
+    */
+  def apply(name: Symbol, withDefaultServices: Boolean)(implicit p: ProvideRelation[Hardware, Service],
+                          owner: Owner): T =
+    apply(name, Set.empty, withDefaultServices)
 }
