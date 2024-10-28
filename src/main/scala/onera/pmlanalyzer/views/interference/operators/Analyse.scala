@@ -46,7 +46,7 @@ import scala.language.postfixOps
   * Base trait providing proof that an element is analysable with monosat
   * @tparam T the type of the component (contravariant)
   */
-private[operators] trait Analyse[-T] {
+trait Analyse[-T] {
   def computeInterference(
                            x:T,
                            maxSize: Int,
@@ -55,6 +55,7 @@ private[operators] trait Analyse[-T] {
 
   def printGraph(platform: T): File
 
+  def getSemanticsSize(platform: T, max: Int): Map[Int,BigInt]
 }
 
 object Analyse {
@@ -131,6 +132,9 @@ object Analyse {
                                   verboseResultFile: Boolean = false
                               )(using ev: Analyse[T], p:Provided[T,Hardware]): Set[File] =
          Await.result(ev.computeInterference(self, self.initiators.size, ignoreExistingAnalysisFiles, verboseResultFile),timeout)
+         
+       def getSemanticsSize(using ev: Analyse[T],p:Provided[T,Hardware]) : Map[Int, BigInt]=
+         ev.getSemanticsSize(self,self.initiators.size) 
      }
    }
 
@@ -156,14 +160,14 @@ object Analyse {
 
 
     /**
-      * Sequential version of MONOSAT-based interference computation
-      * The parallelization is impossible, MONOSAT is tied to a native library so cannot ensure that parallel calls
-      * are safe (TOO BAD)
-      *
-      * @param platform the platform for which the interference are computed, must contained the extra information
-      *                 for the interference calculus
-      * @return the files containing the results of the interference calculus
-      */
+     * Sequential version of MONOSAT-based interference computation
+     * The parallelization is impossible, MONOSAT is tied to a native library so cannot ensure that parallel calls
+     * are safe (TOO BAD)
+     *
+     * @param platform the platform for which the interference are computed, must contained the extra information
+     *                 for the interference calculus
+     * @return the files containing the results of the interference calculus
+     */
     def computeInterference(
                              platform: ConfiguredPlatform,
                              maxSize: Int,
@@ -217,7 +221,7 @@ object Analyse {
 
         println(Message.startingNonExclusiveScenarioEstimationInfo(platform.fullName))
         val estimateNonExclusiveScenarioStart = System.currentTimeMillis().toFloat
-        val nonExclusiveScenarios = getNonExclusiveScenarioSetCard(platform, sizes.max)
+        val nonExclusiveScenarios = getSemanticsSize(platform, sizes.max)
         println(Message.successfulNonExclusiveScenarioEstimationInfo(platform.fullName,
           (System.currentTimeMillis().toFloat - estimateNonExclusiveScenarioStart) * 1E-3))
         for {(k, v) <- problem.litToNodeSet
@@ -230,7 +234,7 @@ object Analyse {
 
         println(Message.iterationCompletedInfo(1, sizes.max,
           (System.currentTimeMillis() - assessmentStartDate) * 1E-3))
-        for(size <- sizes) {
+        for (size <- sizes) {
           assert(nbITF(size) <= nonExclusiveScenarios(size), s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios")
           assert(nbFree(size) <= nonExclusiveScenarios(size), s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios")
         }
@@ -250,7 +254,7 @@ object Analyse {
             s.assertTrue(not(monosat.Logic.and(cube.values.toSeq.asJava)))
           }
           s.close()
-          println(Message.iterationCompletedInfo(size,sizes.max, (System.currentTimeMillis() - iterationStartDate) * 1E-3))
+          println(Message.iterationCompletedInfo(size, sizes.max, (System.currentTimeMillis() - iterationStartDate) * 1E-3))
           if (size == 2)
             assert(nbITF(2) + nbFree(2) == nonExclusiveScenarios(2), "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios")
           assert(nbITF(size) <= nonExclusiveScenarios(size), s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios")
@@ -281,7 +285,7 @@ object Analyse {
           w.flush()
           w.close()
         }
-        println(Message.analysisCompletedInfo("Interference analysis",computationTime))
+        println(Message.analysisCompletedInfo("Interference analysis", computationTime))
         files
       }
     }
@@ -291,14 +295,14 @@ object Analyse {
     private def nodeId(s: Set[Service]): NodeId = Symbol(s.toList.map(_.toString).sorted.mkString("<", "$", ">"))
 
     /**
-      * Definition of the core problem without cardinality constraints on interference sets
-      *
-      * @param platform the platform on which the interference analysis is performed
-      * @return the variables and constraints to be instantiated in a MONOSAT Solver
-      */
+     * Definition of the core problem without cardinality constraints on interference sets
+     *
+     * @param platform the platform on which the interference analysis is performed
+     * @return the variables and constraints to be instantiated in a MONOSAT Solver
+     */
     private def computeProblemConstraints(
-                                   platform: ConfiguredPlatform,
-                                   maxSize: Int): Problem = {
+                                           platform: ConfiguredPlatform,
+                                           maxSize: Int): Problem = {
 
       // Utilitarian functions
       val addNode: Set[Service] => MNode = immutableHashMapMemo { ss => MNode(nodeId(ss)) }
@@ -516,7 +520,7 @@ object Analyse {
 
     private def updateResultFile(writer: Map[Int, FileWriter], m: Map[Int, Set[Set[UserScenarioId]]]): Unit = {
       for ((k, v) <- m; ss <- v)
-        writer(k).write(s"${scenarioSetId(ss.map(s => PhysicalScenarioId(s.id)))}\n")
+        writer(k).write(s"${multiTransactionId(ss.map(s => PhysicalScenarioId(s.id)))}\n")
     }
 
     private def updateNumber(nbITF: mutable.Map[Int, Int], m: Map[Int, Set[Set[UserScenarioId]]]): Unit = {
@@ -542,143 +546,143 @@ object Analyse {
             channels(k) = v
         }
     }
-  }
 
-  /**
-    * Compute the number of possible scenario sets for a given platform, this result can be used to estimate
-    * the proportion of itf or free scenario sets over all possible sets. It can be used to check
-    * that 2-ift + 2-free = 2-non-exclusive (for higher cardinalities, the estimation of k-redundant is needed)
-    *
-    * @param platform the studied platform
-    * @return the number of scenario sets per size
-    */
-  def getNonExclusiveScenarioSetCard(platform: ConfiguredPlatform, max: Int): Map[Int, BigInt] = platform match {
-    case app: (ApplicativeTableBasedInterferenceSpecification & TransactionLibrary) =>
-      getNonExclusiveScenarioSetCardApp(app, max)
-    case _ =>
-      getNonExclusiveScenarioSetCardNoApp(platform, max)
-  }
-
-  def getNonExclusiveScenarioSetCardNoApp(platform: ConfiguredPlatform, max: Int): Map[Int, BigInt] = {
-    val scenario = platform.purifiedScenarios
-    val exclusive = platform.finalExclusive(scenario.keySet)
-    val factory = new SymbolBDDFactory()
-    val bdd = getNonExclusiveKBDD(scenario.keySet.toSeq, exclusive, max, factory)
-
-    // for each cardinality, compute the number of satisfying assignments of the BDD encoding scenario sets
-    // containing exactly k non exclusive scenarios
-    val result = platform match {
-      case l: TransactionLibrary =>
-        val weightMap = scenario
-          .transform((_, v) => l.scenarioUserName(v))
-          .map(kv => kv._1.id -> kv._2.size)
-          .filter(_._2 >= 1)
-        bdd.transform((_, v) => factory.getPathCount(v, weightMap))
+    /**
+     * Compute the number of possible scenario sets for a given platform, this result can be used to estimate
+     * the proportion of itf or free scenario sets over all possible sets. It can be used to check
+     * that 2-ift + 2-free = 2-non-exclusive (for higher cardinalities, the estimation of k-redundant is needed)
+     *
+     * @param platform the studied platform
+     * @return the number of scenario sets per size
+     */
+    def getSemanticsSize(platform: ConfiguredPlatform, max: Int): Map[Int, BigInt] = platform match {
+      case app: (ApplicativeTableBasedInterferenceSpecification & TransactionLibrary) =>
+        getSemanticsSizeWithApp(app, max)
       case _ =>
-        bdd.transform((_, v) => factory.getPathCount(v))
+        getSemanticsSizeWithoutApp(platform, max)
     }
-    factory.dispose()
-    result
-  }
 
-  def getNonExclusiveKBDD[T](values: Seq[T], exclusive: Map[T, Set[T]], max: Int, factory: SymbolBDDFactory): Map[Int, BDD] = {
-    val symbols = values.map(x => x -> factory.getVar(Symbol(x.toString))).toMap
+    private def getSemanticsSizeWithoutApp(platform: ConfiguredPlatform, max: Int): Map[Int, BigInt] = {
+      val scenario = platform.purifiedScenarios
+      val exclusive = platform.finalExclusive(scenario.keySet)
+      val factory = new SymbolBDDFactory()
+      val bdd = getNonExclusiveKBDD(scenario.keySet.toSeq, exclusive, max, factory)
 
-    // when a scenario s is selected then at no other scenarios is exclusive with it
-    // \bigwedge_{s \in scenarioVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
-    val isExclusive = factory.andBDD(exclusive.map(p =>
-      symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
-    ))
-
-    (2 to max).map(k =>
-      k -> factory.mkExactlyK(values.map(x => Symbol(x.toString)), k).and(isExclusive)
-    ).toMap
-  }
-
-  def getNonExclusiveScenarioSetCardApp(platform: ConfiguredLibraryBasedPlatform, max: Int): Map[Int, BigInt] = {
-    val factory = new SymbolBDDFactory()
-    val result = getNonExclusiveKBDD(
-      platform.scenarioByUserName.keys.toSeq,
-      platform.finalUserScenarioExclusive,
-      max,
-      factory).transform((_, v) => factory.getPathCount(v))
-    factory.dispose()
-    result
-  }
-
-  /**
-    * Compute the number of k-redundant scenario sets for a given platform, it can be used to check that
-    * for all size, k-free + k-itf + k-redundant = k-non-exclusive
-    *
-    * @param platform the platform to analyse
-    * @param free     the interference free scenario sets
-    * @param itf      the interference scenario sets
-    * @return the number of k-redundant per size
-    */
-  @deprecated("poor performance computation of k-redundant cardinal since based on a building out of free and itf" +
-    "results that are classically very large")
-  def getRedundantCard(
-                        platform: ConfiguredPlatform,
-                        free: Set[Set[PhysicalScenarioId]],
-                        itf: Set[Set[PhysicalScenarioId]]): Map[Int, BigInt] = {
-    val idToScenario = platform.purifiedScenarios
-    val exclusive = idToScenario.keySet.groupMapReduce(t => t)(t => idToScenario.keySet.filter(platform.finalExclusive(t, _)))(_ ++ _)
-    val allResults = free ++ itf
-    val scenarioToScenarioSet = allResults
-      .flatMap(ss => ss.map(s => s -> ss))
-      .groupMap(_._1)(_._2)
-    val scenarioVar = idToScenario.keys.toSeq
-    val nonEmptyChannelResults = platform
-      .channelNonEmpty(allResults)
-    val factory = new SymbolBDDFactory()
-
-
-    val isNonExclusive = exclusive.foldLeft(factory.one())((acc, p) => acc.and(
-      factory.getVar(p._1.id).imp(
-        p._2.foldLeft(factory.zero())((orAcc, s) => orAcc.or(factory.getVar(s.id))).not())
-    ))
-    // if s in scenarioVar is selected then at least one free or itf is selected
-    val sSelect: BDD = factory.andBDD(
-      scenarioToScenarioSet.map(p =>
-        factory
-          .getVar(p._1.id)
-          .imp(factory.orBDD(p._2.map(ss =>
-            factory.getVar(InterferenceSpecification.scenarioSetId(ss).id))))))
-    // if a result is selected then all of its scenarios are selected
-    val resultSelect: BDD = factory.andBDD(
-      allResults.map(ss =>
-        factory.getVar(InterferenceSpecification.scenarioSetId(ss).id)
-          .imp(factory.andBDD(ss.map(s => factory.getVar(s.id))))))
-    // if an itf is selected then all itfs owning an interference channel with the itf must be discarded
-    // i.e. all the itfs sharing a common service with itf or using an exclusive service with itf
-    val emptyChannel = factory.andBDD(nonEmptyChannelResults.map(p =>
-      factory.getVar(InterferenceSpecification.scenarioSetId(p._1).id).imp(
-        factory.orBDD(p._2.map(ss => factory.getVar(InterferenceSpecification.scenarioSetId(ss).id))).not()
-      )
-    ))
-    // the selection must contains at least one interference
-    val atLeastOneITF: BDD = factory.orBDD(itf
-      .map(InterferenceSpecification.scenarioSetId)
-      .map(s => factory.getVar(s.id)))
-    val staticCst = isNonExclusive
-      .and(sSelect)
-      .and(resultSelect)
-      .and(atLeastOneITF)
-      .and(emptyChannel)
-    (2 to platform.initiators.size).map(k =>
-      k -> {
-        val exactlyK = factory.mkExactlyK(scenarioVar.map(_.id), k)
-        // the selected itf or free must have a cardinality strictly lower than k
-        val restrictedITFAndFree: BDD = factory.andBDD(
-          allResults
-            .filter(ss => ss.size >= k)
-            .map(InterferenceSpecification.scenarioSetId)
-            .map(ss => factory.getVar(ss.id).not))
-        factory.getPathCount(
-          exactlyK
-            .and(restrictedITFAndFree)
-            .and(staticCst))
+      // for each cardinality, compute the number of satisfying assignments of the BDD encoding scenario sets
+      // containing exactly k non exclusive scenarios
+      val result = platform match {
+        case l: TransactionLibrary =>
+          val weightMap = scenario
+            .transform((_, v) => l.scenarioUserName(v))
+            .map(kv => kv._1.id -> kv._2.size)
+            .filter(_._2 >= 1)
+          bdd.transform((_, v) => factory.getPathCount(v, weightMap))
+        case _ =>
+          bdd.transform((_, v) => factory.getPathCount(v))
       }
-    ).toMap
+      factory.dispose()
+      result
+    }
+
+    private def getNonExclusiveKBDD[T](values: Seq[T], exclusive: Map[T, Set[T]], max: Int, factory: SymbolBDDFactory): Map[Int, BDD] = {
+      val symbols = values.map(x => x -> factory.getVar(Symbol(x.toString))).toMap
+
+      // when a scenario s is selected then at no other scenarios is exclusive with it
+      // \bigwedge_{s \in scenarioVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
+      val isExclusive = factory.andBDD(exclusive.map(p =>
+        symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
+      ))
+
+      (2 to max).map(k =>
+        k -> factory.mkExactlyK(values.map(x => Symbol(x.toString)), k).and(isExclusive)
+      ).toMap
+    }
+
+    private def getSemanticsSizeWithApp(platform: ConfiguredLibraryBasedPlatform, max: Int): Map[Int, BigInt] = {
+      val factory = new SymbolBDDFactory()
+      val result = getNonExclusiveKBDD(
+        platform.scenarioByUserName.keys.toSeq,
+        platform.finalUserScenarioExclusive,
+        max,
+        factory).transform((_, v) => factory.getPathCount(v))
+      factory.dispose()
+      result
+    }
+
+    /**
+     * Compute the number of k-redundant scenario sets for a given platform, it can be used to check that
+     * for all size, k-free + k-itf + k-redundant = k-non-exclusive
+     *
+     * @param platform the platform to analyse
+     * @param free     the interference free scenario sets
+     * @param itf      the interference scenario sets
+     * @return the number of k-redundant per size
+     */
+    @deprecated("poor performance computation of k-redundant cardinal since based on a building out of free and itf" +
+      "results that are classically very large")
+    def getRedundantCard(
+                          platform: ConfiguredPlatform,
+                          free: Set[Set[PhysicalScenarioId]],
+                          itf: Set[Set[PhysicalScenarioId]]): Map[Int, BigInt] = {
+      val idToScenario = platform.purifiedScenarios
+      val exclusive = idToScenario.keySet.groupMapReduce(t => t)(t => idToScenario.keySet.filter(platform.finalExclusive(t, _)))(_ ++ _)
+      val allResults = free ++ itf
+      val scenarioToMultiTransaction = allResults
+        .flatMap(ss => ss.map(s => s -> ss))
+        .groupMap(_._1)(_._2)
+      val scenarioVar = idToScenario.keys.toSeq
+      val nonEmptyChannelResults = platform
+        .channelNonEmpty(allResults)
+      val factory = new SymbolBDDFactory()
+
+
+      val isNonExclusive = exclusive.foldLeft(factory.one())((acc, p) => acc.and(
+        factory.getVar(p._1.id).imp(
+          p._2.foldLeft(factory.zero())((orAcc, s) => orAcc.or(factory.getVar(s.id))).not())
+      ))
+      // if s in scenarioVar is selected then at least one free or itf is selected
+      val sSelect: BDD = factory.andBDD(
+        scenarioToMultiTransaction.map(p =>
+          factory
+            .getVar(p._1.id)
+            .imp(factory.orBDD(p._2.map(ss =>
+              factory.getVar(InterferenceSpecification.multiTransactionId(ss).id))))))
+      // if a result is selected then all of its scenarios are selected
+      val resultSelect: BDD = factory.andBDD(
+        allResults.map(ss =>
+          factory.getVar(InterferenceSpecification.multiTransactionId(ss).id)
+            .imp(factory.andBDD(ss.map(s => factory.getVar(s.id))))))
+      // if an itf is selected then all itfs owning an interference channel with the itf must be discarded
+      // i.e. all the itfs sharing a common service with itf or using an exclusive service with itf
+      val emptyChannel = factory.andBDD(nonEmptyChannelResults.map(p =>
+        factory.getVar(InterferenceSpecification.multiTransactionId(p._1).id).imp(
+          factory.orBDD(p._2.map(ss => factory.getVar(InterferenceSpecification.multiTransactionId(ss).id))).not()
+        )
+      ))
+      // the selection must contains at least one interference
+      val atLeastOneITF: BDD = factory.orBDD(itf
+        .map(InterferenceSpecification.multiTransactionId)
+        .map(s => factory.getVar(s.id)))
+      val staticCst = isNonExclusive
+        .and(sSelect)
+        .and(resultSelect)
+        .and(atLeastOneITF)
+        .and(emptyChannel)
+      (2 to platform.initiators.size).map(k =>
+        k -> {
+          val exactlyK = factory.mkExactlyK(scenarioVar.map(_.id), k)
+          // the selected itf or free must have a cardinality strictly lower than k
+          val restrictedITFAndFree: BDD = factory.andBDD(
+            allResults
+              .filter(ss => ss.size >= k)
+              .map(InterferenceSpecification.multiTransactionId)
+              .map(ss => factory.getVar(ss.id).not))
+          factory.getPathCount(
+            exactlyK
+              .and(restrictedITFAndFree)
+              .and(staticCst))
+        }
+      ).toMap
+    }
   }
 }

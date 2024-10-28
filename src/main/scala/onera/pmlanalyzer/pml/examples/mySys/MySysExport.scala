@@ -20,8 +20,8 @@ package onera.pmlanalyzer.pml.examples.mySys
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.examples.mySys.{MySysApplicativeTableBasedInterferenceSpecification, MySysPhysicalTableBasedInterferenceSpecification}
-
+import onera.pmlanalyzer.views.interference.examples.mySys.{MySysInterferenceSpecification, MyProcInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.exporters.*
 /**
  * Program entry point to export several version of Keystone
  */
@@ -35,8 +35,8 @@ object MySysExport extends App {
   object MySys extends MyProcPlatform
     with MySysLibraryConfiguration
     with MyProcRoutingConfiguration
-    with MySysPhysicalTableBasedInterferenceSpecification
-    with MySysApplicativeTableBasedInterferenceSpecification
+    with MyProcInterferenceSpecification
+    with MySysInterferenceSpecification
 
   // Export only HW used by SW (explicit)
   MySys.exportRestrictedHWAndSWGraph()
@@ -64,4 +64,5 @@ object MySysExport extends App {
   // Export the transactions defined by the user
   MySys.exportUserScenarios()
 
+  MySys.exportSemanticsSize()
 }

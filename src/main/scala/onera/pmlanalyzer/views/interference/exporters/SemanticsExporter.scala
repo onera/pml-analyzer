@@ -15,17 +15,29 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.interference
+package onera.pmlanalyzer.views.interference.exporters
 
-//FIXME The usage of exporters is not illustrated in examples
-/**
-  * Package containing the interference related exporters
-  * {{{
-  * scala> import onera.pmlanalyzer.views.interference.exporters._
-  * }}}
-  * The available extension methods are provided in [[IDPExporter.Ops]] and [[InterferenceGraphExporter.Ops]]
-  * Example of usages are provided in ???
-  */
-package object exporters extends IDPExporter.Ops
-  with InterferenceGraphExporter.Ops 
-  with SemanticsExporter.Ops
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
+import onera.pmlanalyzer.pml.operators.Provided
+import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.pml.exporters.FileManager
+
+import java.io.{File, FileWriter}
+
+object SemanticsExporter {
+  trait Ops {
+    extension[T<: Platform](self:T) {
+      def exportSemanticsSize()(using ev: Analyse[T],p:Provided[T,Hardware]): File  = {
+        val file = FileManager.exportDirectory.getFile(self.fullName + "SemanticsSize.txt")
+        val writer = new FileWriter(file)
+        val semantics = self.getSemanticsSize
+        writer.write("Multi-transaction cardinal, Number\n")
+        for( (i,n) <- semantics)
+          writer.write(s"$i, $n\n")
+        writer.close()
+        file
+      }
+    }
+  }
+
+}

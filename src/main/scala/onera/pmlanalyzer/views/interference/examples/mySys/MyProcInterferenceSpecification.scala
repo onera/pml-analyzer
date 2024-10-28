@@ -43,7 +43,7 @@ import onera.pmlanalyzer.views.interference.operators.*
   *  }
   * }}}
   */
-trait MySysPhysicalTableBasedInterferenceSpecification extends PhysicalTableBasedInterferenceSpecification {
+trait MyProcInterferenceSpecification extends PhysicalTableBasedInterferenceSpecification {
   self: MyProcPlatform =>
 
   //Encoding of Rule 1 and Rule 2

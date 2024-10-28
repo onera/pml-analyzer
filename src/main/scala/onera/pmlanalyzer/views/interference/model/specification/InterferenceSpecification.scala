@@ -148,7 +148,7 @@ trait InterferenceSpecification
     * @param t the identifier of the transaction
     * @return the path of the transaction
     */
-  final def purify(t: PhysicalTransactionId): PhysicalTransaction = transactionsByName.get(t) match {
+  private final def purify(t: PhysicalTransactionId): PhysicalTransaction = transactionsByName.get(t) match {
     case Some(h :: tail) =>
       (h +: (transactionInterfereWith(t).toList.sortBy(_.name.name) ++ tail)).filterNot(transactionNotInterfereWith(t))
     case _ => Nil
@@ -337,18 +337,18 @@ object InterferenceSpecification {
 
   case class PhysicalScenarioId(id: Symbol) extends Id
 
-  case class PhysicalScenarioSetId(id: Symbol) extends Id
+  case class PhysicalMultiTransactionId(id: Symbol) extends Id
 
   case class ChannelId(id: Symbol) extends Id
 
-  def scenarioSetId(t: Iterable[PhysicalScenarioId]): PhysicalScenarioSetId =
-    PhysicalScenarioSetId(Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >")))
+  def multiTransactionId(t: Iterable[PhysicalScenarioId]): PhysicalMultiTransactionId =
+    PhysicalMultiTransactionId(Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >")))
 
   def channelId(t: Set[Service]): ChannelId =
     ChannelId(Symbol(t.map(_.toString).toArray.sorted.mkString("{ ", ", ", " }")))
 
-  def groupedScenarioLitId(s: Set[PhysicalScenarioId]): PhysicalScenarioSetId =
-    PhysicalScenarioSetId(Symbol(scenarioSetId(s).id.name.replace(" ", "")))
+  def groupedScenarioLitId(s: Set[PhysicalScenarioId]): PhysicalMultiTransactionId =
+    PhysicalMultiTransactionId(Symbol(multiTransactionId(s).id.name.replace(" ", "")))
 
 
   trait Default extends InterferenceSpecification {
