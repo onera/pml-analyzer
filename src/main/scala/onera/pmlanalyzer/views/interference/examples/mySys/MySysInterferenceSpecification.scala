@@ -30,7 +30,7 @@ import onera.pmlanalyzer.views.interference.operators.*
   * {{{app3 notInterfereWith TeraNet.periph_bus.loads}}}
   * @see [[views.interference.operators.Exclusive.Ops]] for interfere operator definition
   */
-trait MySysApplicativeTableBasedInterferenceSpecification extends ApplicativeTableBasedInterferenceSpecification {
+trait MySysInterferenceSpecification extends ApplicativeTableBasedInterferenceSpecification {
   self: MyProcPlatform with MySysTransactionLibrary with MySysLibraryConfiguration with MySysSoftwareAllocation   =>
 
   app22 exclusiveWith app3

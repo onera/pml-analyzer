@@ -15,17 +15,21 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.interference
+package onera.pmlanalyzer.views.interference.examples.mySys
 
-//FIXME The usage of exporters is not illustrated in examples
+import onera.pmlanalyzer.pml.examples.mySys.MySysExport.*
+import onera.pmlanalyzer.views.interference.operators.*
+
+import scala.concurrent.duration.*
+import scala.language.postfixOps
+
 /**
-  * Package containing the interference related exporters
-  * {{{
-  * scala> import onera.pmlanalyzer.views.interference.exporters._
-  * }}}
-  * The available extension methods are provided in [[IDPExporter.Ops]] and [[InterferenceGraphExporter.Ops]]
-  * Example of usages are provided in ???
+  * Compute the interference of the SimpleKeystone defined in [[pml.examples.mySys.MySysExport]]
   */
-package object exporters extends IDPExporter.Ops
-  with InterferenceGraphExporter.Ops 
-  with SemanticsExporter.Ops
+object MySysInterferenceGeneration extends App {
+    // Compute only up to 2-ite and 2-free
+    MySys.computeKInterference(2, 2 hours)
+
+    // Compute all ite and itf for benchmarks
+    MySys.computeAllInterference( 2 hours, ignoreExistingAnalysisFiles = true)
+}

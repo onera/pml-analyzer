@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.exporters.UMLExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, UMLExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenarioId, scenarioSetId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenarioId, multiTransactionId}
 
 import java.io.FileWriter
 
@@ -29,9 +29,9 @@ object InterferenceGraphExporter {
   trait Ops {
     implicit class InterferenceGraphExporterOps(x: Platform with InterferenceSpecification) extends UMLExporter.Ops {
       def exportGraph(it: Set[PhysicalScenarioId]): Unit = {
-        val scenarioSetName = scenarioSetId(it.map(x => PhysicalScenarioId(x.id)))
+        val multiTransactionName = multiTransactionId(it.map(x => PhysicalScenarioId(x.id)))
         implicit val writer: FileWriter = new FileWriter(FileManager.exportDirectory.getFile(
-          s"${x.fullName}_${if(scenarioSetName.id.name.length >= 100) scenarioSetName.hashCode.toString else scenarioSetName}.dot"
+          s"${x.fullName}_${if(multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString else multiTransactionName}.dot"
         ))
         DOTServiceOnly.resetService()
         DOTServiceOnly.writeHeader

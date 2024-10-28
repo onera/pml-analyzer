@@ -15,17 +15,13 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.interference
+package onera.pmlanalyzer.views.interference.examples
 
-//FIXME The usage of exporters is not illustrated in examples
 /**
-  * Package containing the interference related exporters
-  * {{{
-  * scala> import onera.pmlanalyzer.views.interference.exporters._
-  * }}}
-  * The available extension methods are provided in [[IDPExporter.Ops]] and [[InterferenceGraphExporter.Ops]]
-  * Example of usages are provided in ???
-  */
-package object exporters extends IDPExporter.Ops
-  with InterferenceGraphExporter.Ops 
-  with SemanticsExporter.Ops
+ *  Package containing an example on a simplification of a TI Keystone platform
+ *  @see [[MyProcPhysicalTableBasedInterferenceSpecification]] provides an example of hardware interference assumption modelling
+ *  @see [[MySysInterferenceSpecification]] provides an example of application interference assumption modelling
+ *  @see [[MySysInterferenceGeneration]] provides an example of interference analysis for the simplified
+ *       Keystone platform
+ */
+package object mySys
