@@ -15,10 +15,10 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.examples.simpleKeystone
+package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
 
@@ -34,8 +34,8 @@ import scala.language.postfixOps
   * {{{input_d hostedBy MemorySubsystem.sram}}}
   * @see [[pml.operators.Use.Ops]] for hostedBy operator definition
   */
-trait SimpleSoftwareAllocation {
-  self: SimpleKeystonePlatform =>
+trait MySysSoftwareAllocation {
+  self: MyProcPlatform =>
 
   /* -----------------------------------------------------------
     * Application declaration
@@ -81,37 +81,41 @@ trait SimpleSoftwareAllocation {
 
   /** Data written by [[SimpleKeystonePlatform.eth]] in [[SimpleKeystonePlatform.MemorySubsystem.sram]] and read by [[app21]]
     * @group data */
-  val input_d: Data = Data()
+  val ethernet_frame: Data = Data()
   /** Data written by [[app21]] in [[SimpleKeystonePlatform.ddr]] and read by [[app1]]
     * @group data */
-  val d1: Data = Data()
+  val input_app1: Data = Data()
   /** Interrupt read by [[app1]]
     * @group data */
-  val interrupt1: Data = Data()
+  val interrupt_code: Data = Data()
   /** Data written by [[app1]] in [[SimpleKeystonePlatform.ddr]] and read by [[app22]]
     *  @group data */
-  val d2: Data = Data()
+  val output_app1: Data = Data()
   /** Data written by [[app22]] in [[SimpleKeystonePlatform.MemorySubsystem.sram]] and read by [[SimpleKeystonePlatform.dma]]
     *  @group data*/
-  val output_d: Data = Data()
+  val spi_frame: Data = Data()
   /** Register value written by [[app21]] in [[SimpleKeystonePlatform.dma_reg]]
     *  @group data */
   val dma_reg_value: Data = Data()
   /** [[SimpleKeystonePlatform.spi]] frame put by [[SimpleKeystonePlatform.dma]] on the [[SimpleKeystonePlatform.spi]] port
     *  @group data */
   val output_spi_frame: Data = Data()
+  /** Private cache of [[app1]]
+   *  @group data */
+  val app1_cache: Data = Data()
 
   /* -----------------------------------------------------------
     * Data allocation
     * ----------------------------------------------------------- */
 
-  input_d hostedBy MemorySubsystem.sram
-  d1 hostedBy ddr
-  interrupt1 hostedBy mpic
-  d2 hostedBy ddr
-  output_d hostedBy MemorySubsystem.sram
+  input_app1 hostedBy ddr
+  interrupt_code hostedBy mpic
+  app1_cache hostedBy ARM0.cache
+  output_app1 hostedBy ddr
+  spi_frame hostedBy MemorySubsystem.sram
   dma_reg_value hostedBy dma_reg
   output_spi_frame hostedBy spi
+  ethernet_frame hostedBy MemorySubsystem.sram
 
   /* -----------------------------------------------------------
     * Application allocation
