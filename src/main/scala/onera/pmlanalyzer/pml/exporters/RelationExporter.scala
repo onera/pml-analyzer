@@ -249,9 +249,14 @@ object RelationExporter {
         import platform._
         for {
           (n,s) <- scenarioByUserName.toSeq.sortBy(_._1.toString)
-          t <- s.map(transactionsByName).toSeq.sortBy(_.toString())
+          t = s.map(transactionsByName).map( x =>
+            if(s.size <= 1)
+             x.mkString("\u2219")
+            else
+              x.mkString("(","\u2219",")")
+          ).toSeq.sorted
         }
-          writer.write(s"$n, ${t.mkString("\u2219")}\n")
+          writer.write(s"$n, ${t.mkString("+")}\n")
         writer.flush()
         writer.close()
       }
