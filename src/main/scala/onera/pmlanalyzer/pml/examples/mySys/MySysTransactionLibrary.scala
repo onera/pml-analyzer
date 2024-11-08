@@ -81,9 +81,9 @@ trait MySysTransactionLibrary extends TransactionLibrary {
    * @group transaction_def */
   val t24: Transaction = Transaction(app22 read output_app1)
 
-  /** t25: [[MySysSoftwareAllocation.app22]] writs the transformation in [[MyProcPlatform.MemorySubsystem.sram]]
+  /** t25: [[MySysSoftwareAllocation.app22]] writes the transformation in [[MyProcPlatform.MemorySubsystem.sram]]
    * @group transaction_def */
-  val t25: Transaction = Transaction(app22 read spi_frame)
+  val t25: Transaction = Transaction(app22 write spi_frame)
 
   /** t26: [[MySysSoftwareAllocation.app22]]  wakes up the [[MyProcPlatform.dma]] by
     * writing the address of the [[MyProcPlatform.spi]]

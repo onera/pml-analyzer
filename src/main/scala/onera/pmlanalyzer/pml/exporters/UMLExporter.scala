@@ -17,13 +17,14 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.hardware._
+import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{ArtificialService, Service}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
 
 import java.io.{FileWriter, Writer}
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.immutable.{AbstractSet, SortedSet}
+import scala.collection.mutable.HashMap as MHashMap
 
 object UMLExporter {
 
@@ -158,6 +159,36 @@ object UMLExporter {
         exporter.exportUMLSW(platform,sw)(writer)
         writer.close()
       }
+
+      def exportRestrictedServiceGraphWithInterfere()(implicit exporter: DOTRelationExporter
+        with RestrictedPlatformExporter
+        with NullHWNamer
+        with NullSWNamer
+        with NullServiceNamer
+        with NullServiceExporter
+        with FullServiceSetNamer
+        with FullServiceSetExporter
+        with NullHWExporter
+        with NullSWExporter): Unit = {
+        val writer = getWriter(umlExportName(exporter))
+        exporter.exportUML(platform)(writer)
+        writer.close()
+      }
+
+      def exportServiceGraphWithInterfere()(implicit exporter: DOTRelationExporter
+        with FullPlatformExporter
+        with NullHWNamer
+        with NullSWNamer
+        with NullServiceNamer
+        with NullServiceExporter
+        with FullServiceSetNamer
+        with FullServiceSetExporter
+        with NullHWExporter
+        with NullSWExporter): Unit = {
+        val writer = getWriter(umlExportName(exporter))
+        exporter.exportUML(platform)(writer)
+        writer.close()
+      }
     }
   }
 
@@ -217,6 +248,66 @@ object UMLExporter {
         """.stripMargin)
 
     def writeFooter(implicit writer: Writer): Unit = writeElement("}")
+  }
+
+  trait ServiceSetNamer{
+
+    protected val _memoServiceSetId: MHashMap[Set[Service], String] = MHashMap.empty
+
+    def getElement(x: Set[Service]): Option[String] 
+
+    def getName(x: Set[Service]): String 
+
+    def getId(x: Set[Service])(implicit writer: Writer): Option[String] 
+  }
+  
+  trait FullServiceSetNamer extends ServiceSetNamer {
+    def getElement(x: Set[Service]): Some[String] =
+      Some(s"""${getName(x)}[label = "{${getName(x)}}", fillcolor=green]""")
+
+    def getName(x: Set[Service]): String =
+      if (x.size == 1)
+        x.head.name.name
+      else if (x.size == 2 && (x.head.name.name.split("_").init sameElements x.last.name.name.split("_").init)) {
+        val prefix = x.head.name.name.split("_").init.mkString("_")
+        val suffix = List(x.head.name.name.split("_").last,x.last.name.name.split("_").last).sorted
+        s"${prefix}_${suffix.mkString("_")}"
+      } else
+        x.toList.map(_.name.name).sorted.mkString("_")
+
+    def getId(x: Set[Service])(implicit writer: Writer): Some[String] = Some(_memoServiceSetId.getOrElseUpdate(x, {
+      writeElement(getElement(x).value)
+      getName(x)
+    }))
+  }
+  
+  trait NullServiceSetNamer extends ServiceSetNamer {
+    def getElement(x: Set[Service]): Option[String] = None
+
+    def getName(x: Set[Service]): String = ""
+
+    override def getId(x: Set[Service])(implicit writer: Writer): Option[String] = None
+  }
+
+  trait ServiceSetExporter{
+    def resetServiceSet(): Unit
+
+    def exportUML(from: Set[Service], to: Set[Service])(implicit writer: Writer): Unit
+  }
+
+  trait FullServiceSetExporter extends ServiceSetExporter{
+    self: ServiceSetNamer with RelationExporter =>
+
+    def resetServiceSet(): Unit = _memoServiceSetId.clear()
+
+    def exportUML(from: Set[Service], to: Set[Service])(implicit writer: Writer): Unit = {
+      for {f <- getId(from); t <- getId(to)} yield writeAssociation(f, t)
+    }
+  }
+
+  trait NullServiceSetExporter extends ServiceSetExporter {
+    def resetServiceSet(): Unit = {}
+    def exportUML(from: Set[Service], to: Set[Service])(implicit writer: Writer): Unit = {}
   }
 
   trait ServiceNamer {
@@ -430,7 +521,6 @@ object UMLExporter {
                                    uB: Used[Application, Service],
                                    pPB: Provided[Hardware, Service]): Unit = {
       for {s <- getElement(sw)} yield writeElement(s)
-      //      for {c <- sw.targetService; s <- getId(sw); cs <- getId(c)} yield writeAssociation(s, cs, "use") //Activate to see target services
       for {c <- sw.hostingInitiators; s <- getId(sw); cs <- getId(c)} yield writeAssociation(s, cs)
       for {c <- sw.hostingInitiators; b <- c.services; s <- getId(sw); bs <- getId(b)} yield writeAssociation(s, bs)
     }
@@ -494,6 +584,8 @@ object UMLExporter {
       with HWNamer
       with SWExporter
       with SWNamer
+      with ServiceSetNamer
+      with ServiceSetExporter
       with ServiceExporter
       with PlatformNamer
       with RelationExporter =>
@@ -511,6 +603,7 @@ object UMLExporter {
       import platform._
       resetService()
       resetHW()
+      resetServiceSet()
       writeHeader
       for {c <- platform.applications; s <- getId(platform); cs <- getId(c)} yield writeComposition(s, cs)
       for {c <- platform.directHardware; s <- getId(platform); cs <- getId(c)} yield writeComposition(s, cs)
@@ -525,6 +618,9 @@ object UMLExporter {
           exportUML(p._1, _)
         }
       }
+      val serviceSetGraph = platform.fullServiceGraphWithInterfere()
+      val serviceSetLinks = (serviceSetGraph flatMap { p => p._2 map { x => Set(p._1, x) } }).toSet
+      serviceSetLinks foreach { p => exportUML(p.head, p.last) }
       writeFooter
       writer.flush()
     }
@@ -535,6 +631,8 @@ object UMLExporter {
       with HWNamer
       with SWExporter
       with SWNamer
+      with ServiceSetNamer
+      with ServiceSetExporter
       with ServiceExporter
       with PlatformNamer
       with RelationExporter =>
@@ -552,6 +650,7 @@ object UMLExporter {
       import platform._
       resetService()
       resetHW()
+      resetServiceSet()
       writeHeader
       val hwGraph = platform.hardwareGraph()
       val hwLinks = hwGraph.keySet flatMap { k => hwGraph(k) map { x => Set(k, x) } }
@@ -559,15 +658,16 @@ object UMLExporter {
       for {hw <- hwComponents; p <- getId(platform); hwName <- getId(hw)} yield writeComposition(p, hwName)
       hwLinks foreach { p => exportUML(p.head, p.last) }
       platform.applications foreach exportUML
-      val serviceGraph = platform.applications flatMap {
-        platform.serviceGraphOf
-      }
+      val serviceGraph = platform.serviceGraph()
       val serviceLinks = serviceGraph flatMap { p => p._2 map { x => Set(p._1, x) } }
       serviceLinks foreach { p => exportUML(p.head, p.last) }
+      val serviceSetGraph = platform.serviceGraphWithInterfere()
+      val serviceSetLinks = (serviceSetGraph flatMap { p => p._2 map { x => Set(p._1, x) } }).toSet
+      serviceSetLinks foreach { p => exportUML(p.head, p.last) }
       writeFooter
       writer.flush()
     }
-
+    
     /**
       * Export the hardware and services used by a given software in the platform
       * @param platform the platform owing the software
@@ -604,6 +704,8 @@ object UMLExporter {
       with FullDOTSWNamer
       with FullDOTServiceNamer
       with FullServiceExporter
+      with FullServiceSetNamer
+      with FullServiceSetExporter
       with FullHWExporter
       with FullSWExporter {
       val name: Symbol = Symbol("Full")
@@ -616,6 +718,8 @@ object UMLExporter {
       with NullSWNamer
       with FullDOTServiceNamer
       with FullServiceExporter
+      with NullServiceSetNamer
+      with NullServiceSetExporter
       with NullHWExporter
       with NullSWExporter {
       val name: Symbol = Symbol("Service")
@@ -628,10 +732,40 @@ object UMLExporter {
       with FullDOTSWNamer
       with NullServiceNamer
       with NullServiceExporter
+      with NullServiceSetNamer
+      with NullServiceSetExporter
       with FullHWExporter
       with FullSWExporter {
       val name: Symbol = Symbol("HWAndSW")
     }
+
+  implicit object DOTServiceSet extends DOTRelationExporter
+    with FullPlatformExporter
+    with NullPlatformNamer
+    with NullHWNamer
+    with NullSWNamer
+    with NullServiceNamer
+    with NullServiceExporter
+    with FullServiceSetNamer
+    with FullServiceSetExporter
+    with NullHWExporter
+    with NullSWExporter {
+    val name: Symbol = Symbol("ServiceWithInterfere")
+  }
+
+  implicit object DOTRestrictedServiceSet extends DOTRelationExporter
+    with RestrictedPlatformExporter
+    with NullPlatformNamer
+    with NullHWNamer
+    with NullSWNamer
+    with NullServiceNamer
+    with NullServiceExporter
+    with FullServiceSetNamer
+    with FullServiceSetExporter
+    with NullHWExporter
+    with NullSWExporter {
+    val name: Symbol = Symbol("RestrictedServiceWithInterfere")
+  }
 
     implicit object DOTServiceAndSWClosureOnly extends DOTRelationExporter
       with RestrictedPlatformExporter
@@ -640,6 +774,8 @@ object UMLExporter {
       with FullDOTSWNamer
       with FullDOTServiceNamer
       with FullServiceExporter
+      with NullServiceSetNamer
+      with NullServiceSetExporter
       with NullHWExporter
       with FullSWExporter {
       val name: Symbol = Symbol("RestrictedServiceAndSW")
@@ -652,6 +788,8 @@ object UMLExporter {
       with FullDOTSWNamer
       with NullServiceNamer
       with NullServiceExporter
+      with NullServiceSetNamer
+      with NullServiceSetExporter
       with FullHWExporter
       with FullSWExporter {
       val name: Symbol = Symbol("RestrictedHWAndSW")
