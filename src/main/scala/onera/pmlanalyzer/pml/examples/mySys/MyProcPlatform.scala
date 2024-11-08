@@ -157,10 +157,6 @@ class MyProcPlatform(name: Symbol) extends Platform(name) {
     * @group target
     */
   val mpic: Target = Target()
-  /** Target modelling SPI registers 
-    * @group target
-    */
-  val spi_reg: Target = Target()
   /** Target modelling DMA registers 
     * @group target
     */
@@ -191,7 +187,6 @@ class MyProcPlatform(name: Symbol) extends Platform(name) {
 
   // Accesses to peripherals
   TeraNet.config_bus link dma_reg
-  TeraNet.config_bus link spi_reg
 
   // Accesses to config registers
   axi_bus link mpic

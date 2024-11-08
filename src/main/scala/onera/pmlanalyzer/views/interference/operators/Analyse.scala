@@ -134,7 +134,9 @@ object Analyse {
          Await.result(ev.computeInterference(self, self.initiators.size, ignoreExistingAnalysisFiles, verboseResultFile),timeout)
          
        def getSemanticsSize(using ev: Analyse[T],p:Provided[T,Hardware]) : Map[Int, BigInt]=
-         ev.getSemanticsSize(self,self.initiators.size) 
+         ev.getSemanticsSize(self,self.initiators.size)
+
+       def exportAnalysisGraph()(using ev:Analyse[T]): Unit = ev.printGraph(self)
      }
    }
 
@@ -335,6 +337,9 @@ object Analyse {
 
       // the actual path will be the service that can be a channel, ie
       // a service that is a service (or exclusive to a service) of a different and non exclusive transaction
+      //FIXME If a scenario, the following computation consider that one of the services used by
+      // several atomic transactions could be an interference channel that is obviously false
+      // and complexify the graph for no reason
       val pathT: Map[PhysicalScenarioId, Set[PhysicalTransaction]] = initialPathT
         .view
         .mapValues(s =>

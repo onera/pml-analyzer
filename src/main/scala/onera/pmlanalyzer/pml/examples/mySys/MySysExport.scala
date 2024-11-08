@@ -22,6 +22,7 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.examples.mySys.{MySysInterferenceSpecification, MyProcInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.views.interference.operators.*
 /**
  * Program entry point to export several version of Keystone
  */
@@ -40,8 +41,18 @@ object MySysExport extends App {
 
   // Export only HW used by SW (explicit)
   MySys.exportRestrictedHWAndSWGraph()
+
   // Export HW and SW graph whether used or not
   MySys.exportHWAndSWGraph()
+
+  // Export Service graph whether used or not and considering that all services are non-exclusive
+  MySys.exportServiceGraph()
+
+  // Export Service graph considering and SW
+  MySys.exportRestrictedServiceAndSWGraph()
+
+  // Export Service graph considering that all services are non-exclusive
+  MySys.exportServiceGraphWithInterfere()
 
   // Export individually the Service graph of each software
   MySys.applications foreach { s => MySys.exportRestrictedServiceGraphForSW(s) }
@@ -65,4 +76,6 @@ object MySysExport extends App {
   MySys.exportUserScenarios()
 
   MySys.exportSemanticsSize()
+
+  MySys.exportAnalysisGraph()
 }
