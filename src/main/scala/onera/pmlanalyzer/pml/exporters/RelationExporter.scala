@@ -198,7 +198,7 @@ object RelationExporter {
         for {
           (n,t) <- transactionsByName.toSeq.sortBy(_.toString())
         }
-          writer.write(s"$n, ${t.mkString("\u2219")}\n")
+          writer.write(s"$n, ${t.mkString("::")}\n")
         writer.flush()
         writer.close()
       }
@@ -233,7 +233,7 @@ object RelationExporter {
         for {
           (n,t) <- transactionByUserName.toSeq.sortBy(_.toString())
         } yield
-          writer.write(s"$n, ${transactionsByName(t).mkString("\u2219")}\n")
+          writer.write(s"$n, ${transactionsByName(t).mkString("::")}\n")
         writer.flush()
         writer.close()
       }
@@ -251,9 +251,9 @@ object RelationExporter {
           (n,s) <- scenarioByUserName.toSeq.sortBy(_._1.toString)
           t = s.map(transactionsByName).map( x =>
             if(s.size <= 1)
-             x.mkString("\u2219")
+             x.mkString("::")
             else
-              x.mkString("(","\u2219",")")
+              x.mkString("(","::",")")
           ).toSeq.sorted
         }
           writer.write(s"$n, ${t.mkString("+")}\n")
