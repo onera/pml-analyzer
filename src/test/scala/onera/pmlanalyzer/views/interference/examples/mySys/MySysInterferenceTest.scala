@@ -21,4 +21,9 @@ class MySysInterferenceTest extends AnyFlatSpec with should.Matchers {
       fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
     }
   }
+
+  "For MySys, the semantics reduction" should "consistent with paper" in {
+    MySys.computeSemanticReduction() shouldEqual (BigDecimal(37)/17)
+    MySys.computeGraphReduction() shouldEqual (BigDecimal(71)/28)
+  }
 }

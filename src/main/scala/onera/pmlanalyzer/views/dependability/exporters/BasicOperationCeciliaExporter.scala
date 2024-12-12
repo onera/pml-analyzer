@@ -79,7 +79,7 @@ trait BasicOperationCeciliaExporter {
       Flow(Symbol("i1"), tyype, In) :: Flow(Symbol("i2"), tyype, In) :: Flow(Symbol("o"), CeciliaBoolean, Out) :: Nil,
       Nil,
       Nil,
-      s"""assert
+      """assert
          |o = (i1 = i2);
          |icone = (if o then 1 else 2);
        """.stripMargin)
@@ -301,7 +301,7 @@ trait BasicOperationCeciliaExporter {
 
   def authorizeOperator[FM: IsFinite]: OperatorModel = {
     val tyype = typeModel[FM]
-    val initial = Flow(Symbol(s"initial"), tyype, In)
+    val initial = Flow(Symbol("initial"), tyype, In)
     val reject = Flow(Symbol("reject"), CeciliaBoolean, In)
     val output = Flow(Symbol(s"authorize${nameOf[FM].name}"), tyype, Out)
     OperatorModel(

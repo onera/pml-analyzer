@@ -56,6 +56,8 @@ trait Analyse[-T] {
   def printGraph(platform: T): File
 
   def getSemanticsSize(platform: T, max: Int): Map[Int,BigInt]
+
+  def getGraphSize(platform:T): (BigInt, BigInt)
 }
 
 object Analyse {
@@ -137,6 +139,8 @@ object Analyse {
          ev.getSemanticsSize(self,self.initiators.size)
 
        def exportAnalysisGraph()(using ev:Analyse[T]): Unit = ev.printGraph(self)
+
+       def getAnanlysisGraphSize()(using ev:Analyse[T]): (BigInt, BigInt) = ev.getGraphSize(self)
      }
    }
 
@@ -148,6 +152,15 @@ object Analyse {
     * A platform is analysable
     */
   given Analyse[ConfiguredPlatform] with {
+
+    def getGraphSize(platform: ConfiguredPlatform): (BigInt, BigInt) = {
+      val problem = computeProblemConstraints(platform, platform.initiators.size)
+      val dummySolver = new Solver()
+      val graph = problem.serviceGraph.toGraph(dummySolver)
+      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()))
+      dummySolver.close()
+      result
+    }
 
     def printGraph(platform: ConfiguredPlatform): File = {
       val problem = computeProblemConstraints(platform, platform.initiators.size)

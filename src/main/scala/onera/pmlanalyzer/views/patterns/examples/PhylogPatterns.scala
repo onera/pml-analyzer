@@ -49,8 +49,7 @@ object PhylogPatterns extends App {
         size 8
         width patternWidth).
       strategy ("DO178: Implementation compliant with specification \\\\ DO254: Hardware usage compliant with specification" size 11 ).
-      evidence (alterationMitigated).
-      `given` ("Mitigation means implementation verified \\\\ (DO178B/C compliance)").
+      evidence (alterationMitigated).`given` ("Mitigation means implementation verified \\\\ (DO178B/C compliance)").
       `given`("Hardware configuration verified \\\\ (DO254 compliance)")
 
 
@@ -62,8 +61,8 @@ object PhylogPatterns extends App {
       strategy("Safety Analysis at platform level").
       evidence("Real-time objectives are fulfilled").
       `given`("Safety objectives $\\mathcal{R}eq$,\\\\ configuration settings \\\\and application mapping").
-      `given`(s"Mitigation means of RU2, RU3 and (E7)").
-      `given`(s"Critical alteration from RU2")
+      `given`("Mitigation means of RU2, RU3 and (E7)").
+      `given`("Critical alteration from RU2")
 
   val equipmentAnalysis =  conclusion("Errors contained within equipment" short "equipmentAnalysis" size 8).
     strategy("Safety analysis at equipment level").

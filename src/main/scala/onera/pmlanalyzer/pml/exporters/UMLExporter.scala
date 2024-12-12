@@ -160,7 +160,7 @@ object UMLExporter {
         writer.close()
       }
 
-      def exportRestrictedServiceGraphWithInterfere()(implicit exporter: DOTRelationExporter
+      def exportRestrictedSystemServiceGraph()(implicit exporter: DOTRelationExporter
         with RestrictedPlatformExporter
         with NullHWNamer
         with NullSWNamer
@@ -175,7 +175,7 @@ object UMLExporter {
         writer.close()
       }
 
-      def exportServiceGraphWithInterfere()(implicit exporter: DOTRelationExporter
+      def exportSystemServiceGraph()(implicit exporter: DOTRelationExporter
         with FullPlatformExporter
         with NullHWNamer
         with NullSWNamer

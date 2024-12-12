@@ -63,7 +63,7 @@ object LatexCodePrinter{
 
     private def print(conclusion: Claim)(implicit printer: FileWriter, spacing:Int): Unit = {
       addSpacing
-      printer.write(s"\\texttt{Claim:} \\\\\n")
+      printer.write("\\texttt{Claim:} \\\\\n")
       print(s"${ids(conclusion)} ${conclusion.label}")(printer,spacing + 1)
       print(conclusion.strategy)
       print(conclusion.evidences.toList)
@@ -77,7 +77,7 @@ object LatexCodePrinter{
 
     private def print(strategy: Strategy)(implicit printer: FileWriter, spacing:Int): Unit = {
       addSpacing
-      printer.write(s"\\texttt{Strategy:} \\\\\n")
+      printer.write("\\texttt{Strategy:} \\\\\n")
       print(s"${ids(strategy)} ${strategy.label}")(printer,spacing + 1)
       for (b <- strategy.backing) yield print(b)(printer,spacing + 1)
       for (b <- strategy.defeater) yield print(b)(printer,spacing + 1)
@@ -85,13 +85,13 @@ object LatexCodePrinter{
 
     private def print(backing: Backing)(implicit printer: FileWriter, spacing:Int): Unit = {
       addSpacing
-      printer.write(s"\\texttt{Backing:} \\\\\n")
+      printer.write("\\texttt{Backing:} \\\\\n")
       print(backing.label)(printer,spacing + 1)
     }
 
     private def print(defeater: Defeater)(implicit printer: FileWriter, spacing:Int): Unit = {
       addSpacing
-      printer.write(s"\\texttt{Defeaters:} \\\\\n")
+      printer.write("\\texttt{Defeaters:} \\\\\n")
       print(defeater.label)(printer,spacing + 1)
     }
 
@@ -100,7 +100,7 @@ object LatexCodePrinter{
         case Nil =>
         case l =>
           addSpacing
-          printer.write(s"\\texttt{Givens}:\\\\\n")
+          printer.write("\\texttt{Givens}:\\\\\n")
           l foreach( g =>
             print(s"${ids(g)} ${g.label}")(printer,spacing +1 )
           )
@@ -109,7 +109,7 @@ object LatexCodePrinter{
         case Nil =>
         case l =>
           addSpacing
-          printer.write(s"\\texttt{Evidences}:\\\\\n")
+          printer.write("\\texttt{Evidences}:\\\\\n")
           l foreach(e => {
             print(s"${ids(e)} ${e.label}")(printer,spacing +1)
           })

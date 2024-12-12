@@ -26,7 +26,7 @@ import onera.pmlanalyzer.views.dependability.operators.*
 abstract class Transporter [FM: IsCriticityOrdering : IsFinite : IsShadowOrdering](implicit owner: Owner) extends  Component  {
   val loadI: InputPort[List[Request[FM]]] = InputPort[List[Request[FM]]](Symbol("loadI"))
   val initialState: FM = min[FM]
-  val fMAutomaton: SimpleFMAutomaton[FM] = SimpleFMAutomaton[FM](AutomatonId(Symbol(s"fmAutomaton")),initialState)
+  val fMAutomaton: SimpleFMAutomaton[FM] = SimpleFMAutomaton[FM](AutomatonId(Symbol("fmAutomaton")),initialState)
   val storeO : OutputPort[Request[FM]]
 }
 

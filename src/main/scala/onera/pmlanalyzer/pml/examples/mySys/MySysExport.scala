@@ -52,7 +52,7 @@ object MySysExport extends App {
   MySys.exportRestrictedServiceAndSWGraph()
 
   // Export Service graph considering that all services are non-exclusive
-  MySys.exportServiceGraphWithInterfere()
+  MySys.exportSystemServiceGraph()
 
   // Export individually the Service graph of each software
   MySys.applications foreach { s => MySys.exportRestrictedServiceGraphForSW(s) }
