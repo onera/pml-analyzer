@@ -17,11 +17,6 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Hardware, Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
-import onera.pmlanalyzer.pml.model.relations.ProvideRelation
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Data
-import onera.pmlanalyzer.pml.model.utils.Owner
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
@@ -133,7 +128,7 @@ object Provided {
         * @return set of declared component
         */
        def directHardware: Set[Hardware] = {
-        import self._
+        import self.*
         Initiator.allDirect ++ Target.allDirect ++ Virtualizer.allDirect ++ SimpleTransporter.allDirect ++ Composite.allDirect
       }
     }
@@ -205,7 +200,7 @@ object Provided {
   given[L <: Platform: Typeable]: Provided[L, Hardware] with {
 
     def apply(a: L): Set[Hardware] = {
-      import a._
+      import a.*
       Initiator.all ++ Target.all ++ Virtualizer.all ++ SimpleTransporter.all
     }
 

@@ -24,13 +24,13 @@ trait Event  {
   override def toString: String = name.name
 }
 
-case class SynchroEvent(name:Symbol, synchronizedEvents: Set[Event]) extends Event
+final case class SynchroEvent(name:Symbol, synchronizedEvents: Set[Event]) extends Event
 
 trait ConcreteEvent extends Event {
   val owner: ModeAutomaton[_]
 }
 
-case class StochasticEvent[T](name:Symbol, owner:ModeAutomaton[T]) extends ConcreteEvent
+final case class StochasticEvent[T](name:Symbol, owner:ModeAutomaton[T]) extends ConcreteEvent
 
 object StochasticEvent{
   def apply[T](name: Symbol, owner: ModeAutomaton[T]): StochasticEvent[T] = {
@@ -40,13 +40,13 @@ object StochasticEvent{
   }
 }
 
-case class DetermisticEvent[T](name:Symbol, owner:ModeAutomaton[T], delay:Int) extends ConcreteEvent {
+final case class DeterministicEvent[T](name:Symbol, owner:ModeAutomaton[T], delay:Int) extends ConcreteEvent {
   override def toString: String = name.name
 }
 
-object DetermisticEvent{
-  def apply[T](name: Symbol, owner: ModeAutomaton[T], delay:Int): DetermisticEvent[T] = {
-    val r = new DetermisticEvent[T](name, owner,delay)
+object DeterministicEvent{
+  def apply[T](name: Symbol, owner: ModeAutomaton[T], delay:Int): DeterministicEvent[T] = {
+    val r = new DeterministicEvent[T](name, owner,delay)
     Simulator.addEvent(r)
     r
   }

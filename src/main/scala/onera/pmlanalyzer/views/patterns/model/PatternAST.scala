@@ -27,22 +27,22 @@ trait PatternAST {
 
 sealed trait Evidence extends PatternAST
 
-case class Backing(label:String, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST
+final case class Backing(label:String, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST
 
-case class Defeater(label:String, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST
+final case class Defeater(label:String, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST
 
-case class Strategy(label:String, backing: Option[Backing] = None, defeater: Option[Defeater]=None, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST{
+final case class Strategy(label:String, backing: Option[Backing] = None, defeater: Option[Defeater]=None, implementation:Option[String] = None, textWidth:Option[Int] = None) extends PatternAST{
   def backing(s:String) : Strategy =
     copy(backing = Some(Backing(s)))
   def defeater(s:String): Strategy =
     copy(defeater = Some(Defeater(s)))
 }
 
-case class FinalEvidence(label:String, implementation:Option[String] = None, textWidth: Option[Int] = None, refOf:Option[Claim]=None) extends Evidence
+final case class FinalEvidence(label:String, implementation:Option[String] = None, textWidth: Option[Int] = None, refOf:Option[Claim]=None) extends Evidence
 
-case class Given(label:String, implementation:Option[String] = None, textWidth: Option[Int] = None) extends Evidence
+final case class Given(label:String, implementation:Option[String] = None, textWidth: Option[Int] = None) extends Evidence
 
-case class Claim(label:String, short:Option[String], implementation:Option[String], textWidth:Option[Int], width:Option[Int], strategy: Strategy, evidences: Evidence*) extends Evidence {
+final case class Claim(label:String, short:Option[String], implementation:Option[String], textWidth:Option[Int], width:Option[Int], strategy: Strategy, evidences: Evidence*) extends Evidence {
   def evidence (s:String) : Claim =
     Claim(label, short, implementation, textWidth, width, strategy, evidences :+ FinalEvidence(s):_*)
   def evidence (b:Builder) : Claim =
@@ -69,14 +69,14 @@ object Claim{
     val evidenceIdByLevel = collection.mutable.HashMap.empty[Int,Int].withDefaultValue(0)
     val givenIdByLevel = collection.mutable.HashMap.empty[Int,Int].withDefaultValue(0)
 
-    def getFreshId(level:Int, c:collection.mutable.Map[Int,Int]) : () => Int = {
-      c(level) = c(level) + 1
-      val x = c(level)
-      () => (0 until level).map(i => c(i)).sum + x
+    def getFreshId(level:Int, ids:collection.mutable.Map[Int,Int]) : () => Int = {
+      ids(level) = ids(level) + 1
+      val x = ids(level)
+      () => (0 until level).map(i => ids(i)).sum + x
     }
 
-    def byLevel(c: Claim, currentLevel: Int) : Map[PatternAST, () => String] = {
-      val cId = (for {s <- c.short if currentLevel == 0} yield () => s"($s)") getOrElse {
+    def byLevel(claim: Claim, currentLevel: Int) : Map[PatternAST, () => String] = {
+      val cId = (for {s <- claim.short if currentLevel == 0} yield () => s"($s)") getOrElse {
         val x = getFreshId(currentLevel,evidenceIdByLevel)
         () => s"(E${x()})"
       }
@@ -84,7 +84,7 @@ object Claim{
         val x = getFreshId(currentLevel,strategyIdByLevel)
         () => s"(W${x()})"
       }
-      c.evidences.flatMap{
+      claim.evidences.flatMap{
         case f:FinalEvidence =>
           val x = getFreshId(currentLevel + 1,evidenceIdByLevel )
           Set(f -> (() => s"(E${x()})"))
@@ -93,13 +93,13 @@ object Claim{
           Set(g ->  (() => s"(G${x()})"))
         case c:Claim =>
           byLevel(c,currentLevel + 1)
-      }.toMap + (c -> cId) + (c.strategy -> sId)
+      }.toMap + (claim -> cId) + (claim.strategy -> sId)
     }
     byLevel(c,0).transform((_,v) => v())
   }
 }
 
-case class Builder(content:String, short:Option[String], implementation:Option[String], textWidth:Option[Int], width:Option[Int]) {
+final case class Builder(content:String, short:Option[String], implementation:Option[String], textWidth:Option[Int], width:Option[Int]) {
   def short(s:String) : Builder =
     Builder(content,Some(s),implementation,textWidth, width)
   def size(s:Int) : Builder =

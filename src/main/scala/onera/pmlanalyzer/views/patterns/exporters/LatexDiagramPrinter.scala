@@ -50,7 +50,7 @@ object LatexDiagramPrinter {
     def printDiagram(): File = {
       val writer = new FileWriter(file)
       writer.write(
-        s"""
+        """
            |\\ifdefined\\standalone
            |\\documentclass{standalone}
            |\\usepackage[utf8]{inputenc}

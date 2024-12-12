@@ -17,15 +17,12 @@
 
 package onera.pmlanalyzer.views.interference.model.specification
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.operators.{Provided, *}
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.relations.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 

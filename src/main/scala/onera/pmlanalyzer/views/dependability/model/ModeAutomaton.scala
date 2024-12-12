@@ -100,7 +100,7 @@ object SimpleFMAutomaton {
 class InputFMAutomaton[T: IsCriticityOrdering : IsFinite : IsShadowOrdering](val id: AutomatonId, val initialState: T) extends FMAutomaton[T] {
   val in: InputPort[T] = InputPort(Symbol("i"))
   val inputPorts: Set[InputPort[T]] = Set(in)
-  val epsilon: DetermisticEvent[T] = DetermisticEvent(Symbol("espilon"), this, 0)
+  val epsilon: DeterministicEvent[T] = DeterministicEvent(Symbol("espilon"), this, 0)
   val events: Set[Event] = allWithNone[T].map(x => StochasticEvent(x.name, this)).toSet[Event] + epsilon
   val eventMap: Map[Symbol, Event] = events.map(e => e.name -> e).toMap
   val transitions: Set[Transition[T]] =

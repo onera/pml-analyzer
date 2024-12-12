@@ -47,7 +47,7 @@ case object Local extends Orientation{
   val name: String = "local"
 }
 
-case class Configuration(name: Symbol, conf: Map[State, String]) {
+final case class Configuration(name: Symbol, conf: Map[State, String]) {
   def toElem: Elem = {
     <alta.config name={name.name}>
       {conf.map(p => <alta.init name={p._1.name.name} value={p._2}/>)}
@@ -55,7 +55,7 @@ case class Configuration(name: Symbol, conf: Map[State, String]) {
   }
 }
 
-case class State(name: Symbol, tyype: CeciliaType, ini: String) {
+final case class State(name: Symbol, tyype: CeciliaType, ini: String) {
   def toElem: Elem = tyype match {
     case CeciliaBoolean => <alta.state name={name.name} type="bool" value={ini}/>
     case tyype: EnumeratedType => <alta.state name={name.name} refID={tyype.parent.id.toString} refPath={tyype.parent.absolutePath} value={ini}/>
@@ -65,14 +65,14 @@ case class State(name: Symbol, tyype: CeciliaType, ini: String) {
   override def toString: String = name.name
 }
 
-case class Flow(name: Symbol, tyype: CeciliaType, orientation: Orientation) {
+final case class Flow(name: Symbol, tyype: CeciliaType, orientation: Orientation) {
   private var _owner: Option[BlockModel[_]] = None
 
   override def toString: String = name.name
 
   def add(to: BlockModel[_]): Unit = _owner = Some(to)
 
-  def owner: BlockModel[_] = _owner.get
+  def owner: Option[BlockModel[_]] = _owner
 
   def toElem(x: Int, y: Int, id: Int): Elem = tyype match {
     case CeciliaBoolean =>
@@ -98,6 +98,16 @@ sealed trait Model {
 }
 
 object Model {
+
+  def linksToElem(links:List[(Flow,Flow)]) = {
+    for {
+      ((from, to), id) <- links.zipWithIndex
+      oFrom <- from.owner
+      oTo <- to.owner
+    } yield {
+        <alta.link id={id.toString} from={s"${from.name.name}[${oFrom.idOf(from)}]"} to={s"${to.name.name}[${oTo.idOf(to)}]"}/>
+    }
+  }
 
   trait ModelDescriptor[T] {
     private val families = collection.mutable.HashMap.empty[Path, FamilyFolder[T]]
@@ -292,7 +302,7 @@ sealed trait BlockModel[T] extends Model.EquiBlockFlowPlacer {
   val name: Symbol
   val parent: VersionFolder[T]
   val icon: ImageModel
-  val simul: List[ImageModel]
+  val simulationIcons: List[ImageModel]
   val flows: List[Flow]
   val code: String
 }
@@ -301,7 +311,7 @@ sealed trait EventModel {
   val name: Symbol
 }
 
-case class SynchroEventModel(name: Symbol, events: List[EventModel], tyype: String) extends EventModel
+final case class SynchroEventModel(name: Symbol, events: List[EventModel], tyype: String) extends EventModel
 
 sealed trait ConcreteEventModel extends EventModel {
   val law: Elem
@@ -313,7 +323,7 @@ sealed trait ConcreteEventModel extends EventModel {
   }
 }
 
-case class DeterministicEventModel(name: Symbol) extends ConcreteEventModel {
+final case class DeterministicEventModel(name: Symbol) extends ConcreteEventModel {
   val law: Elem = {
     <law type="Dirac">
       <parameter.value value="0.0"/>
@@ -321,7 +331,7 @@ case class DeterministicEventModel(name: Symbol) extends ConcreteEventModel {
   }
 }
 
-case class StochastiqueEventModel(name: Symbol, lambda: Double = 10e-4) extends ConcreteEventModel {
+final case class StochasticEventModel(name: Symbol, lambda: Double = 10e-4) extends ConcreteEventModel {
   val law: Elem = {
     <law type="exponential">
       <parameter.value value={lambda.toString}/>
@@ -329,15 +339,15 @@ case class StochastiqueEventModel(name: Symbol, lambda: Double = 10e-4) extends 
   }
 }
 
-case class ComponentModel(
-                           name: Symbol,
-                           parent: VersionFolder[ComponentModel],
-                           icon: ImageModel,
-                           simul: List[ImageModel],
-                           flows: List[Flow],
-                           events: List[ConcreteEventModel],
-                           states: List[State],
-                           code: String
+final case class ComponentModel(
+                                 name: Symbol,
+                                 parent: VersionFolder[ComponentModel],
+                                 icon: ImageModel,
+                                 simulationIcons: List[ImageModel],
+                                 flows: List[Flow],
+                                 events: List[ConcreteEventModel],
+                                 states: List[State],
+                                 code: String
                          ) extends BlockModel[ComponentModel] {
   parent.add(this)
   flows.foreach(_.add(this))
@@ -345,7 +355,7 @@ case class ComponentModel(
   def toElem: Elem = {
     <cec.model nature="component" format="XML" encoding="UTF-8">
       <cec.component width={icon.width.toString} height={icon.height.toString} auto-move="true" border="false">
-        <alta.icon refID={icon.parent.id.toString} refPath={icon.parent.absolutePath}/>{simul.map(s => <alta.simul refID={s.parent.id.toString} refPath={s.parent.absolutePath}/>)}{flows.map(flow => flow.toElem(position(flow)._1, position(flow)._2, idOf(flow)))}{states.map(_.toElem)}{events.map(_.toElem)}
+        <alta.icon refID={icon.parent.id.toString} refPath={icon.parent.absolutePath}/>{simulationIcons.map(s => <alta.simul refID={s.parent.id.toString} refPath={s.parent.absolutePath}/>)}{flows.map(flow => flow.toElem(position(flow)._1, position(flow)._2, idOf(flow)))}{states.map(_.toElem)}{events.map(_.toElem)}
         <alta.code>{code}</alta.code>
       </cec.component>
     </cec.model>
@@ -376,7 +386,7 @@ object ComponentModel {
 }
 
 
-case class SubComponent(name: Symbol, tyype: BlockModel[_], x: Int = 0, y: Int = 0, mirrorV: Boolean = false, mirrorH: Boolean = false) {
+final case class SubComponent(name: Symbol, tyype: BlockModel[_], x: Int = 0, y: Int = 0, mirrorV: Boolean = false, mirrorH: Boolean = false) {
   def toElem: Elem = {
       <alta.sub name={name.name} refID={tyype.parent.id.toString} refPath={tyype.parent.absolutePath}/>
   }
@@ -388,7 +398,7 @@ class EquipmentModel(
                       val name: Symbol,
                       val parent: VersionFolder[EquipmentModel],
                       val icon: ImageModel,
-                      val simul: List[ImageModel],
+                      val simulationIcons: List[ImageModel],
                       val flows: List[Flow],
                       val subs: List[SubComponent],
                       val links: List[(Flow, Flow)],
@@ -400,7 +410,7 @@ class EquipmentModel(
   def toElem: Elem = {
     <cec.model nature="equipment" format="XML" encoding="UTF-8">
       <cec.equipment width={icon.width.toString} height={icon.height.toString} auto-move="true" border="false">
-        <alta.icon refID={icon.parent.id.toString} refPath={icon.parent.absolutePath}/>{simul.map(s => <alta.simul refID={s.parent.id.toString} refPath={s.parent.absolutePath}/>)}{flows.map(flow => flow.toElem(position(flow)._1, position(flow)._2, idOf(flow)))}{subs.map(_.toElem)}{links.zipWithIndex.map(l => <alta.link id={l._2.toString} from={s"${l._1._1.name.name}[${l._1._1.owner.idOf(l._1._1)}]"} to={s"${l._1._2.name.name}[${l._1._2.owner.idOf(l._1._2)}]"}/>)}{sync.map(s => {
+        <alta.icon refID={icon.parent.id.toString} refPath={icon.parent.absolutePath}/>{simulationIcons.map(s => <alta.simul refID={s.parent.id.toString} refPath={s.parent.absolutePath}/>)}{flows.map(flow => flow.toElem(position(flow)._1, position(flow)._2, idOf(flow)))}{subs.map(_.toElem)}{Model.linksToElem(links)}{sync.map(s => {
         <alta.sync name={s.name.name} type={s.tyype}>
           {s.events.map(e => <alta.event name={e.name.name}/>)}
         </alta.sync>
@@ -443,7 +453,7 @@ class SystemModel(val name: Symbol,
   def toElem: Elem = {
     <cec.model nature="system.local" format="XML" encoding="UTF-8">
       <cec.mbsa>
-        {subs.map(s => <alta.sub name={s.name.name} refID={s.tyype.parent.id.toString} refPath={s.tyype.parent.absolutePath}/>)}{links.zipWithIndex.map(l => <alta.link id={l._2.toString} from={s"${l._1._1.name.name}[${l._1._1.owner.idOf(l._1._1)}]"} to={s"${l._1._2.name.name}[${l._1._2.owner.idOf(l._1._2)}]"}/>)}{sync.map(s => {
+        {subs.map(s => <alta.sub name={s.name.name} refID={s.tyype.parent.id.toString} refPath={s.tyype.parent.absolutePath}/>)}{Model.linksToElem(links)}{sync.map(s => {
         <alta.sync name={s.name.name} type={s.tyype}>
           {s.events.map(e => <alta.event name={e.name.name}/>)}
         </alta.sync>
@@ -548,7 +558,7 @@ object OperatorModel {
   }
 }
 
-case class FailureConditions(fc : Set[(String,String)], size:Int) extends Model {
+final case class FailureConditions(fc : Set[(String,String)], size:Int) extends Model {
   def fileName(f:String,v: String): String = s"${f.replace(".","_")}_is_$v.seq"
   def toElem: Elem = {
     <targets outputType="file">

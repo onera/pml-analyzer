@@ -34,13 +34,13 @@ trait Owner {
   val componentOwner :  mutable.HashMap[Component, Component] = mutable.HashMap.empty
 }
 
-case class System(name:Symbol) {
+ class System(val name:Symbol) {
 
   implicit val context: Builder[SubComponent] with Linker with Owner = new Builder[SubComponent] with Linker with Owner {}
 
   override def toString: String = name.name
 
-  implicit class listExtensionMethods[T](l:List[OutputPort[T]]) {
+  extension[T](l:List[OutputPort[T]]) {
     def |+|(that : OutputPort[T]) : List[OutputPort[T]] =   l :+ that
     def |++|(that : List[OutputPort[T]]) : List[OutputPort[T]] =  l ++ that
   }

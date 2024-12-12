@@ -32,7 +32,7 @@ trait AutomatonCeciliaExporter {
       val events =
         allOf[T].flatMap(to => allOf[T].collect({
           case from if from < to =>
-            StochastiqueEventModel(x.eventMap(to.name).name)
+            StochasticEventModel(x.eventMap(to.name).name)
         })).toList.distinct
       val transitions =
         allOf[T].flatMap(to => allOf[T].collect({
@@ -80,7 +80,7 @@ trait AutomatonCeciliaExporter {
       val events =
         allOf[T].flatMap(to => allOf[T].collect({
           case from if from < to =>
-            StochastiqueEventModel(x.eventMap(to.name).name)
+            StochasticEventModel(x.eventMap(to.name).name)
         })).toList.distinct :+ DeterministicEventModel(x.epsilon.name)
       val transitionsFailure =
         allOf[T].flatMap(to => allOf[T].collect({

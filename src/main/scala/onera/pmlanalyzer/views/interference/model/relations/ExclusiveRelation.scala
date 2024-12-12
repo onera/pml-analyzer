@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-case class ExclusiveRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends AntiReflexiveSymmetricEndomorphism[A](iniValues)
+final case class ExclusiveRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends AntiReflexiveSymmetricEndomorphism[A](iniValues)
 
 object ExclusiveRelation{
   trait GeneralInstances {

@@ -65,37 +65,37 @@ object ExprImplicits {
   implicit class TargetExtension[T](d:Target[T]) {
     def fmIs(v:Expr[T]): (TargetId,Expr[T]) = d.id -> v
   }
-  case class If[T](b:BoolExpr) {
+  final case class If[T](b:BoolExpr) {
     def Then(t:Expr[T]) : IT[T] = IT(b,t)
   }
-  case class IT[T](b:BoolExpr,t:Expr[T]) {
+  final case class IT[T](b:BoolExpr,t:Expr[T]) {
     def Else[U >: T](e: Expr[U]): ITE[U] = ITE(b, t, e)
   }
 }
 
-case class ITE[T](i:BoolExpr, t: Expr[T], e:Expr[T]) extends Expr[T]{
+final case class ITE[T](i:BoolExpr, t: Expr[T], e:Expr[T]) extends Expr[T]{
   def eval(): Option[T] = for(vi <- i.eval(); vt <- t.eval(); ve <- e.eval()) yield if(vi) vt else ve
 }
 
-case class Const[T](x:T) extends Expr[T]{
+final case class Const[T](x:T) extends Expr[T]{
   def eval():Some[T] = Some(x)
 }
 
-case class DMap[T](m:Map[TargetId,Expr[T]]) extends Expr[Map[TargetId,T]]{
+final case class DMap[T](m:Map[TargetId,Expr[T]]) extends Expr[Map[TargetId,T]]{
   def eval(): Option[Map[TargetId, T]] = {
     val values = m.transform((_,v) => v.eval())
     if(values.values.exists(_.isEmpty))
       None
     else
-      Some(values.transform((_,v) => v.get))
+      Some(values.collect({case (k,Some(v)) => k -> v}))
   }
 }
 
-case class Of[T](m:Variable[Map[TargetId,T]], id:TargetId) extends Expr[T]{
+final case class Of[T](m:Variable[Map[TargetId,T]], id:TargetId) extends Expr[T]{
   def eval(): Option[T] = for {mv <- m.eval(); vv <- mv.get(id)} yield vv
 }
 
-case class Worst[T](l:Expr[T]*)(implicit ev:IsCriticityOrdering[T], evF:IsFinite[T]) extends Expr[T] {
+final case class Worst[T](l:Expr[T]*)(implicit ev:IsCriticityOrdering[T], evF:IsFinite[T]) extends Expr[T] {
   val ordering : IsCriticityOrdering[T] = ev
   val finite : IsFinite[T] = evF
   def eval(): Option[T] = {
@@ -107,7 +107,7 @@ case class Worst[T](l:Expr[T]*)(implicit ev:IsCriticityOrdering[T], evF:IsFinite
   }
 }
 
-case class Best[T](l:Expr[T]*)(implicit evO:IsCriticityOrdering[T], evF:IsFinite[T]) extends Expr[T] {
+final case class Best[T](l:Expr[T]*)(implicit evO:IsCriticityOrdering[T], evF:IsFinite[T]) extends Expr[T] {
   val ordering : IsCriticityOrdering[T] = evO
   val finite : IsFinite[T] = evF
   def eval(): Option[T] = {
@@ -121,11 +121,11 @@ case class Best[T](l:Expr[T]*)(implicit evO:IsCriticityOrdering[T], evF:IsFinite
 
 sealed trait BoolExpr extends Expr[Boolean]
 
-case class Equal(l:Expr[_], r:Expr[_]) extends BoolExpr {
+final case class Equal(l:Expr[_], r:Expr[_]) extends BoolExpr {
   def eval() : Option[Boolean] = for {vl <- l.eval(); vr <- r.eval()} yield vr == vl
 }
 
-case class And(l:BoolExpr*) extends BoolExpr {
+final case class And(l:BoolExpr*) extends BoolExpr {
   override def eval(): Option[Boolean] = {
     val and = for {e <- l; ve <- e.eval()} yield ve
     if(and.size != l.size)
@@ -135,7 +135,7 @@ case class And(l:BoolExpr*) extends BoolExpr {
   }
 }
 
-case class Or(l:BoolExpr*) extends BoolExpr {
+final case class Or(l:BoolExpr*) extends BoolExpr {
   override def eval(): Option[Boolean] = {
     val or = for {e <- l; ve <- e.eval()} yield ve
     if(or.size != l.size)
@@ -145,7 +145,7 @@ case class Or(l:BoolExpr*) extends BoolExpr {
   }
 }
 
-case class Not(n:BoolExpr) extends BoolExpr {
+final case class Not(n:BoolExpr) extends BoolExpr {
   override def eval(): Option[Boolean] =
     for {vn <- n.eval()} yield !vn
 }
@@ -168,12 +168,12 @@ object Variable {
 //  implicit def defLocalVar[T](f: => Option[T]) : LocalVariable[T] = LocalVariable(() => f)
 }
 
-case class OutputPort[T](id : VariableId, evalFun : () => Option[T]) extends Variable[T] {
+final case class OutputPort[T](id : VariableId, evalFun : () => Option[T]) extends Variable[T] {
   def eval(): Option[T] = for( x <- evalFun()) yield x
   def |+|(that : OutputPort[T]) : List[OutputPort[T]] =  this :: that :: Nil
 }
 
-case class LocalVariable[T](id: VariableId, evalFun : () => Option[T]) extends Variable[T] {
+final case class LocalVariable[T](id: VariableId, evalFun : () => Option[T]) extends Variable[T] {
   def eval(): Option[T] = for( x <- evalFun()) yield x
 }
 

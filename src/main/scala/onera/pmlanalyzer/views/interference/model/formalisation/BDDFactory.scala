@@ -27,7 +27,6 @@ import scala.collection.mutable
 class SymbolBDDFactory extends GenBDDFactory[Symbol] {
   protected val _factory: JavaBDDFactory = initFactory(500, 500)
   protected val varMap: mutable.HashMap[Symbol, Int] = mutable.HashMap.empty
-  protected var _varCount = 0
   protected val nbOfVar: Int = 500
 }
 
@@ -398,7 +397,6 @@ trait GenBDDFactory[Var] extends BaseBDDFactory[Var, JavaBDD] {
     implicit def toJavaBDD(variable: Var): JavaBDD = getVar(variable)
   }
 
-  protected var _varCount: Int
   protected val _factory: JavaBDDFactory
   protected val nbOfVar: Int
   protected val varMap: mutable.HashMap[Var, Int]
@@ -431,11 +429,10 @@ trait GenBDDFactory[Var] extends BaseBDDFactory[Var, JavaBDD] {
       case Some(i) =>
         getIthVar(i)
       case None =>
-        _varCount = _varCount + 1
-
-        if ((_varCount % nbOfVar) == 0)
-          _factory.setVarNum(_varCount + nbOfVar)
-        val bdd = _factory.ithVar(_varCount)
+        val varId = varMap.size + 1
+        if ((varId % nbOfVar) == 0)
+          _factory.setVarNum(varMap.size + nbOfVar)
+        val bdd = _factory.ithVar(varId)
         varMap += (variable -> bdd.`var`() )
         bdd
     }
@@ -447,7 +444,6 @@ trait GenBDDFactory[Var] extends BaseBDDFactory[Var, JavaBDD] {
   def reset(): Unit = {
     varMap.clear()
     _factory.reset()
-    _varCount = 0
     _factory.setVarNum(nbOfVar)
   }
 
@@ -583,7 +579,6 @@ trait GenBDDFactory[Var] extends BaseBDDFactory[Var, JavaBDD] {
   def dispose(): Unit = {
     _factory.done()
     varMap.clear()
-    _varCount = 0
   }
 
   /**

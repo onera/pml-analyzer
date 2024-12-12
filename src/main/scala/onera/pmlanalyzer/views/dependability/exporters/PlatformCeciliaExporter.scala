@@ -33,7 +33,7 @@ import scala.xml.XML
 trait PlatformCeciliaExporter {
   self: BasicOperationCeciliaExporter with SystemCeciliaExporter with TypeCeciliaExporter =>
 
-  implicit class platformExportOps[
+  implicit class PlatformExportOps[
     FM : IsCriticityOrdering : IsFinite : IsShadowOrdering, 
     T <: Platform with DependabilitySpecification.Aux[FM] : Typeable](a: T) {
     def exportAsCeciliaWithFM(): Unit = {

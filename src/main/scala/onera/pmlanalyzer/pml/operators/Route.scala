@@ -88,7 +88,7 @@ object Route {
       * @param a the initiator
       * @param targets the set of targets
       */
-    case class SimpleRouteIdentifyRouter(a: Initiator, targets: Iterable[Target]) {
+    final case class SimpleRouteIdentifyRouter(a: Initiator, targets: Iterable[Target]) {
 
       /**
         * PML keyword to specify the hardware routing the transactions
@@ -148,7 +148,7 @@ object Route {
       * @param router the router
       * @param forbid if it is a blocking or routing constraint
       */
-    case class SimpleRouterIdentifyNext(a: Initiator, targets: Iterable[Target], router: Hardware, forbid:Boolean) {
+    final case class SimpleRouterIdentifyNext(a: Initiator, targets: Iterable[Target], router: Hardware, forbid:Boolean) {
 
       /**
         * PML keyword to specify the link from [[router]] that is routed or blocked

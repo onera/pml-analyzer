@@ -47,17 +47,17 @@ trait Assert extends ProblemElement {
   def assert(s: Solver): Unit
 }
 
-case class SimpleAssert(l: ALit) extends Assert {
+final case class SimpleAssert(l: ALit) extends Assert {
   def assert(s: Solver): Unit = s.assertTrue(l.toLit(s))
 }
 
-case class AssertPB(l: Set[ALit], comp: Comparison, k: Int) extends Assert {
+final case class AssertPB(l: Set[ALit], comp: Comparison, k: Int) extends Assert {
   def assert(s: Solver): Unit = s.assertPB(l.map(_.toLit(s)).toSeq.asJava, comp, k)
 }
 
-case class MNode(id: NodeId) extends ProblemElement
+final case class MNode(id: NodeId) extends ProblemElement
 
-case class MGraph(nodes: Set[MNode], edges: Set[MEdge]) extends ProblemElement {
+final case class MGraph(nodes: Set[MNode], edges: Set[MEdge]) extends ProblemElement {
   val toGraph: Solver => Graph = immutableHashMapMemo {
     s => {
       val g = new Graph(s)
@@ -77,37 +77,37 @@ case class MGraph(nodes: Set[MNode], edges: Set[MEdge]) extends ProblemElement {
   }
 }
 
-case class MEdge(from: MNode, to: MNode, id: EdgeId) extends ProblemElement
+final case class MEdge(from: MNode, to: MNode, id: EdgeId) extends ProblemElement
 
-case class MEdgeLit(edge: MEdge, graph: MGraph) extends ALit {
+final case class MEdgeLit(edge: MEdge, graph: MGraph) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => graph.toGraph(s).getEdge(edge.id.name).l }
 }
 
-case class MLit(id: LitId) extends ALit {
+final case class MLit(id: LitId) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => new Lit(s, id.name) }
 }
 
-case class And(l: ALit*) extends ALit {
+final case class And(l: ALit*) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => and(l.map(_.toLit(s)).asJava) }
 }
 
-case class Or(l: ALit*) extends ALit {
+final case class Or(l: ALit*) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => or(l.map(_.toLit(s)).asJava) }
 }
 
-case class Implies(l: ALit, r: ALit) extends ALit {
+final case class Implies(l: ALit, r: ALit) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => implies(l.toLit(s), r.toLit(s)) }
 }
 
-case class Not(l: ALit) extends ALit {
+final case class Not(l: ALit) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => not(l.toLit(s)) }
 }
 
-case class Equal(l: ALit, r: ALit) extends ALit {
+final case class Equal(l: ALit, r: ALit) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => equal(l.toLit(s), r.toLit(s)) }
 }
 
-case class Reaches(graph: MGraph, from: MNode, to: MNode) extends ALit {
+final case class Reaches(graph: MGraph, from: MNode, to: MNode) extends ALit {
   val toLit: Solver => Lit = immutableHashMapMemo { s => {
     val g = graph.toGraph(s)
     g.reaches(g.getNode(from.id.name), g.getNode(to.id.name))
@@ -134,7 +134,7 @@ class Problem(val platform: Platform with InterferenceSpecification,
 
   def decodeUserModel(physicalModel: Set[PhysicalScenarioId]): Set[Set[UserScenarioId]] = platform match {
     case _ if physicalModel.isEmpty => Set.empty
-    case _ if maxSize.isDefined && physicalModel.size > maxSize.get => Set.empty
+    case _ if maxSize.exists(physicalModel.size > _) => Set.empty
     case spec: TransactionLibrary =>
       val scenario = idToScenario
         .view
@@ -167,7 +167,7 @@ class Problem(val platform: Platform with InterferenceSpecification,
 
   //FIXME Are we integrating exclusive service in the channel even if not used in the scenario?
   def decodeChannel(model: Set[PhysicalScenarioId]): Channel = {
-    if (maxSize.isDefined && model.size > maxSize.get)
+    if (maxSize.exists(model.size > _))
       Set.empty
     else
       nodeToScenario
@@ -176,8 +176,8 @@ class Problem(val platform: Platform with InterferenceSpecification,
         .flatMap(nodeToServices)
   }
 
-  def decodeModel(model: Set[MLit], isFree: Boolean): Set[Set[PhysicalScenarioId]] = {
-    if (maxSize.isDefined && model.size > maxSize.get)
+  def decodeModel(model: Set[MLit], modelIsFree: Boolean): Set[Set[PhysicalScenarioId]] = {
+    if (maxSize.exists(model.size > _))
       Set.empty
     else if (model.size == 1 && groupedScenarios(model.head).size == 1) {
       Set.empty
@@ -194,7 +194,7 @@ class Problem(val platform: Platform with InterferenceSpecification,
       for {m <- maxSize} yield s.assertPB(variables.values.toSeq.asJava, LEQ, m)
       if (model.size == 1)
         s.assertPB(variables.values.toSeq.asJava, GEQ, 2)
-      if (isFree)
+      if (modelIsFree)
         model
           .filter(m => litToNodeSet(m).exists(_.nonEmpty))
           .foreach(l => s.assertAtMostOne(groupedScenarios(l).map(variables).asJava))

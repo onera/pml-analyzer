@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
 import sourcecode.Name
 
-case class EquivalenceRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends ReflexiveSymmetricEndomorphism[A](iniValues)
+final case class EquivalenceRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends ReflexiveSymmetricEndomorphism[A](iniValues)
 
 object EquivalenceRelation{
   trait Instances {

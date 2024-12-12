@@ -79,7 +79,7 @@ trait BasicOperationCeciliaExporter {
       Flow(Symbol("i1"), tyype, In) :: Flow(Symbol("i2"), tyype, In) :: Flow(Symbol("o"), CeciliaBoolean, Out) :: Nil,
       Nil,
       Nil,
-      s"""assert
+      """assert
          |o = (i1 = i2);
          |icone = (if o then 1 else 2);
        """.stripMargin)
@@ -136,7 +136,7 @@ trait BasicOperationCeciliaExporter {
     (s"$subName.${model.result}",worstAssertions,SubComponent(Symbol(subName),model.model))
   })
 
-  private case class BestModelHelper[T: IsFinite : IsCriticityOrdering](size: Int) {
+  private final case class BestModelHelper[T: IsFinite : IsCriticityOrdering](size: Int) {
     val tyype: EnumeratedType  = typeModel[T]
     val inputs: List[Flow] = (1 to size).map(i => Flow(Symbol(s"i$i"), tyype, In)).toList
     val operatorModel: OperatorModel = minOperator[T](size)
@@ -181,7 +181,7 @@ trait BasicOperationCeciliaExporter {
     (s"$subName.${model.result}",worstAssertions,SubComponent(Symbol(subName),model.model))
   })
 
-  private case class WorstModelHelper[T: IsFinite : IsCriticityOrdering](size: Int) {
+  private final case class WorstModelHelper[T: IsFinite : IsCriticityOrdering](size: Int) {
     private val tyype = typeModel[T]
     val inputs: List[Flow] = (1 to size).map(i => Flow(Symbol(s"i$i"), tyype, In)).toList
     val result: Flow =  Flow(Symbol("o"), tyype,Out)
@@ -276,7 +276,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  case class WorstSchedulerTopHelper(size:Int) {
+  final case class WorstSchedulerTopHelper(size:Int) {
     val sonDirection: List[Flow] = (1 to size).map(i => Flow(Symbol(s"sonDirection$i"), typeModel[Direction.Value], In)).toList
     val fireOrders: List[Flow] =  (1 to size).map(i => Flow(Symbol(s"sonFire$i"), typeModel[Fire.Value], Out)).toList
     private val fireOrdersAssertions = fireOrders.zip(sonDirection).map( p =>
@@ -301,7 +301,7 @@ trait BasicOperationCeciliaExporter {
 
   def authorizeOperator[FM: IsFinite]: OperatorModel = {
     val tyype = typeModel[FM]
-    val initial = Flow(Symbol(s"initial"), tyype, In)
+    val initial = Flow(Symbol("initial"), tyype, In)
     val reject = Flow(Symbol("reject"), CeciliaBoolean, In)
     val output = Flow(Symbol(s"authorize${nameOf[FM].name}"), tyype, Out)
     OperatorModel(

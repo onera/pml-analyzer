@@ -255,7 +255,7 @@ object PostProcess {
         .map(s => {
           val split = s.split(":")
           val services = split.head.split("[{, }]").filter(_.nonEmpty).toSeq
-          val size = split.last.split(" ").filter(_.nonEmpty).head.toInt
+          val size = (for {s <- split.last.split(" ").find(_.nonEmpty)} yield s.toInt).getOrElse(-1)
           services -> size
         })
         .toSeq

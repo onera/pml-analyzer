@@ -22,7 +22,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 import scala.collection.mutable.Set as MSet
 
-case class TransparentSet[T]private(value:MSet[T])(using n:Name){
+final case class TransparentSet[T]private(value:MSet[T])(using n:Name){
   val name:String = n.value
 }
 

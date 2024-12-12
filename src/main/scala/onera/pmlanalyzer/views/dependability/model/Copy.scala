@@ -17,4 +17,4 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-case class Copy(targetNeeded:Set[TargetId], targetWritten:Set[TargetId])
+final case class Copy(targetNeeded:Set[TargetId], targetWritten:Set[TargetId])

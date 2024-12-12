@@ -512,7 +512,7 @@ object Analyse {
       writer write
         s"""Platform Name: ${platform.name.name}
            |File:  ${platform.sourceFile.value}
-           |Date: ${java.time.LocalDateTime.now().toString}
+           |Date: ${java.time.LocalDateTime.now()}
            |------------------------------------------
            |""".stripMargin
 

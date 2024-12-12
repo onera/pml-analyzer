@@ -24,4 +24,4 @@ package onera.pmlanalyzer.views.dependability.model
   * @param computeNewState the new state when the transaction will be fired
   * @tparam T the type of the owner state
   */
-case class Transition[T](guard:() => Boolean, e:Event, computeNewState: () => T)
+final case class Transition[T](guard:() => Boolean, e:Event, computeNewState: () => T)

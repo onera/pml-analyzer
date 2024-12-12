@@ -38,7 +38,7 @@ trait IdBuilder[T<:Id]{
   }
 }
 
-case class VariableId private(name:Symbol) extends Id
+final case class VariableId private(name:Symbol) extends Id
 
 object VariableId extends IdBuilder[VariableId]{
   val noneId = new VariableId(Symbol("none"))
@@ -56,7 +56,7 @@ object TargetId extends IdBuilder[TargetId]{
   def apply(name: Symbol): TargetId = _memo.getOrElseUpdate(name, new TargetId(name))
 }
 
-case class SoftwareId private(name:Symbol) extends Id {
+final case class SoftwareId private(name:Symbol) extends Id {
   override def toString: String = name.name
 }
 
@@ -66,11 +66,11 @@ object SoftwareId extends IdBuilder[SoftwareId]{
   def apply(name: Symbol): SoftwareId = _memo.getOrElseUpdate(name, new SoftwareId(name))
 }
 
-case class TransporterId(name:Symbol) extends Id {
+final case class TransporterId(name:Symbol) extends Id {
   override def toString: String = name.name
 }
 
-case class InitiatorId private(name:Symbol) extends Id {
+final case class InitiatorId private(name:Symbol) extends Id {
   override def toString: String = name.name
 }
 
@@ -80,4 +80,4 @@ object InitiatorId extends IdBuilder[InitiatorId]{
   def apply(name: Symbol): InitiatorId = _memo.getOrElseUpdate(name, new InitiatorId(name))
 }
 
-case class AutomatonId(name:Symbol) extends Id
+final case class AutomatonId(name:Symbol) extends Id

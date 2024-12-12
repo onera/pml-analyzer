@@ -46,7 +46,7 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
     val smart1: Core = new Core()
     val smart2: Core = new Core()
 
-    class Core(name: Symbol) extends Composite(name) {
+    class Core(coreName: Symbol) extends Composite(coreName) {
 
       val core: Initiator = Initiator()
       val cache: Target = Target()

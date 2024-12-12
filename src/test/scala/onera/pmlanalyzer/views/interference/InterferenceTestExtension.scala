@@ -69,10 +69,10 @@ sealed trait ScenarioComparison {
   val s: Seq[String]
 }
 
-case class Missing(s: Seq[String]) extends ScenarioComparison {
+final case class Missing(s: Seq[String]) extends ScenarioComparison {
   override def toString: String = s.mkString("||") + " not found"
 }
 
-case class Unknown(s: Seq[String]) extends ScenarioComparison {
+final case class Unknown(s: Seq[String]) extends ScenarioComparison {
   override def toString: String = s.mkString("||") + " not expected"
 }

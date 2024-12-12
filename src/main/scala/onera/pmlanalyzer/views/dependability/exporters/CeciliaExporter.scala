@@ -28,7 +28,7 @@ trait CeciliaExporter[T] {
 }
 
 trait CeciliaExporterOps {
-  implicit class ceciliaOps[T, O](x: T) {
+  implicit class CeciliaOps[T, O](x: T) {
     def toCecilia(implicit ev: CeciliaExporter.Aux[T, O]): O = ev.toCecilia(x)
     val ceciliaExportName : String = CeciliaExporter.ceciliaExportName(x)
     def exportAsCecilia(implicit ev: CeciliaExporter.Aux[T, O]) : Unit = {
