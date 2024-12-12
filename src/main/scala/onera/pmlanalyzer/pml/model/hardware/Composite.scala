@@ -72,21 +72,21 @@ abstract class Composite(n: Symbol, _owner:Owner) extends Hardware {
 
   /**
     * Alternative constructor without implicit owner
-    * @param name the name of the composite
+    * @param compositeName the name of the composite
     * @param dummy dummy argument to avoid method signature conflict
-    * @param owner the implicit owner
+    * @param implicitOwner the implicit owner
     */
-  def this(name: Symbol, dummy: Int = 0)(implicit owner: Owner) = {
-    this(name, owner)
+  def this(compositeName: Symbol, dummy: Int = 0)(implicit implicitOwner: Owner) = {
+    this(compositeName, implicitOwner)
   }
 
   /**
     * Alternative constructor without name, nor owner
     * @param implicitName the implicit name provided by the enclosing object
-    * @param owner the implicit owner
+    * @param implicitOwner the implicit owner
     */
-  def this()(implicit implicitName: Name, owner: Owner) = {
-    this(Symbol(implicitName.value), owner)
+  def this()(implicit implicitName: Name, implicitOwner: Owner) = {
+    this(Symbol(implicitName.value), implicitOwner)
   }
 }
 

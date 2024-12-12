@@ -59,6 +59,8 @@ object RelationExporter {
       * @param platform the platform providing the export features
       */
     implicit class Ops(platform: Platform) {
+      import platform._
+
       private val routingExportName: String = platform.fullName + "RouteTable.txt"
       private val swAllocationExportName: String = platform.fullName + "AllocationTable.txt"
       private val dataAllocationExportName: String = platform.fullName + "DataTable.txt"
@@ -79,7 +81,7 @@ object RelationExporter {
         */
       def exportRouteTable(): Unit = {
         val writer = getWriter(routingExportName)
-        writer.write(s"Initiator, TargetService, Router, NextService(s)\n")
+        writer.write("Initiator, TargetService, Router, NextService(s)\n")
         platform.InitiatorRouting._values
           .map(p => s"${p._1._1}, ${p._1._2}, ${p._1._3}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n")
           .toSeq
@@ -97,7 +99,7 @@ object RelationExporter {
         */
       def exportAllocationTable(): Unit = {
         val writer = getWriter(swAllocationExportName)
-        writer.write(s"Software, Initiator(s)\n")
+        writer.write("Software, Initiator(s)\n")
         platform.SWUseInitiator._values
           .map(p => s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n")
           .toSeq
@@ -115,8 +117,7 @@ object RelationExporter {
         */
       def exportDataAllocationTable(): Unit = {
         val writer = getWriter(dataAllocationExportName)
-        writer.write(s"Data, Target\n")
-        import platform._
+        writer.write("Data, Target\n")
         for (d <- Data.all.toSeq.sortBy(_.name.name))
           writer.write(s"$d, ${d.hostingTargets.mkString(",")}\n")
         writer.flush()
@@ -131,7 +132,7 @@ object RelationExporter {
         */
       def exportSWTargetUsageTable(): Unit = {
         val writer = getWriter(swTargetUsage)
-        writer.write(s"Software, Target Service(s)\n")
+        writer.write("Software, Target Service(s)\n")
         platform.SWUseService._values
           .map(p => s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n")
           .toSeq
@@ -153,8 +154,7 @@ object RelationExporter {
         */
       def exportDeactivatedComponents(): Unit = {
         val writer = getWriter(componentStatus)
-        writer.write(s"Component, Activated, Used\n")
-        import platform._
+        writer.write("Component, Activated, Used\n")
         val restricted = platform.hardwareGraph()
         val hwLinks = restricted flatMap { p => p._2 map { x => (p._1, x) } }
         val used = hwLinks.flatMap { p => Set(p._1, p._2) }.toSet
@@ -193,7 +193,7 @@ object RelationExporter {
         */
       def exportPhysicalTransactions(): Unit = {
         val writer = getWriter(transactionTable)
-        writer.write(s"Transaction Name, Transaction Path\n")
+        writer.write("Transaction Name, Transaction Path\n")
         import platform._
         for {
           (n,t) <- transactionsByName.toSeq.sortBy(_.toString())
@@ -210,6 +210,8 @@ object RelationExporter {
       * @param platform the configured platform with a library
       */
     implicit class OpsLibrary(platform: Platform with TransactionLibrary) {
+      
+      import platform._
 
       private def getWriter(name: String): FileWriter = {
         val file = FileManager.exportDirectory.getFile(name)
@@ -227,8 +229,7 @@ object RelationExporter {
         */
       def exportUserTransactions(): Unit = {
         val writer = getWriter(transactionTable)
-        writer.write(s"Transaction Name, Transaction Path\n")
-        import platform._
+        writer.write("Transaction Name, Transaction Path\n")
         for {
           (n,t) <- transactionByUserName.toSeq.sortBy(_.toString())
         } yield
@@ -245,8 +246,7 @@ object RelationExporter {
         */
       def exportUserScenarios(): Unit = {
         val writer = getWriter(scenarioTable)
-        writer.write(s"Scenario Name, Scenario Path\n")
-        import platform._
+        writer.write("Scenario Name, Scenario Path\n")
         for {
           (n,s) <- scenarioByUserName.toSeq.sortBy(_._1.toString)
           t = s.map(transactionsByName).map( x =>

@@ -333,13 +333,13 @@ object InterferenceSpecification {
     def compare(that: Id): Int = id.name.compare(that.id.name)
   }
 
-  case class PhysicalTransactionId(id: Symbol) extends Id
+  final case class PhysicalTransactionId(id: Symbol) extends Id
 
-  case class PhysicalScenarioId(id: Symbol) extends Id
+  final case class PhysicalScenarioId(id: Symbol) extends Id
 
-  case class PhysicalMultiTransactionId(id: Symbol) extends Id
+  final case class PhysicalMultiTransactionId(id: Symbol) extends Id
 
-  case class ChannelId(id: Symbol) extends Id
+  final case class ChannelId(id: Symbol) extends Id
 
   def multiTransactionId(t: Iterable[PhysicalScenarioId]): PhysicalMultiTransactionId =
     PhysicalMultiTransactionId(Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >")))

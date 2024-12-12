@@ -44,9 +44,9 @@ object Simulator {
         }
     }
 
-    val immediate = fireable.collect { case e@DetermisticEvent(_, _, 0) => e }
+    val immediate = fireable.collect { case e@DeterministicEvent(_, _, 0) => e }
     if (immediate.isEmpty) {
-      val det = fireable.collect { case e@DetermisticEvent(_, _, i) if i != 0 => e }
+      val det = fireable.collect { case e@DeterministicEvent(_, _, i) if i != 0 => e }
       if (det.nonEmpty) {
         val min = det.minBy(_.delay).delay
         det.filter(_.delay == min) match {

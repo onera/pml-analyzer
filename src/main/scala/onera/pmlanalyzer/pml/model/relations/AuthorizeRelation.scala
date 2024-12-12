@@ -27,7 +27,7 @@ import onera.pmlanalyzer.pml.model.software.Application
   * @tparam L the left type
   * @tparam R the right type
   */
-case class AuthorizeRelation[L, R] private(iniValues: Map[L, Set[R]]) extends Relation[L, R](iniValues)
+final case class AuthorizeRelation[L, R] private(iniValues: Map[L, Set[R]]) extends Relation[L, R](iniValues)
 
 object AuthorizeRelation {
   /**

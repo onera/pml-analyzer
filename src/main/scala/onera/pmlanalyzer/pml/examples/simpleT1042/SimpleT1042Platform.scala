@@ -37,7 +37,7 @@ class SimpleT1042Platform(name: Symbol) extends Platform(name) {
     * ----------------------------------------------------------- */
 
   // Composite representing cores and their internal L1 cache
-  class CachedCore(name: Symbol) extends Composite(name) {
+  class CachedCore(coreName: Symbol) extends Composite(coreName) {
 
     def this()(implicit implicitName: Name) = {
       this(implicitName.value)

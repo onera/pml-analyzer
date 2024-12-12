@@ -28,7 +28,7 @@ import sourcecode.Name
   * @tparam L the left type
   * @tparam R the right type
   */
-case class RoutingRelation[L, R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L, R](iniValues)
+final case class RoutingRelation[L, R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L, R](iniValues)
 
 object RoutingRelation {
   /**

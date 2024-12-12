@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.service.Service
 import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-case class NotInterfereRelation[L,R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L,R](iniValues)
+final case class NotInterfereRelation[L,R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L,R](iniValues)
 
 object NotInterfereRelation{
   trait Instances {

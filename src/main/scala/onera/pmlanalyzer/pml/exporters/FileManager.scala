@@ -55,11 +55,11 @@ object FileManager {
 
     /**
       * find recursively a file by its name
-      * @param name name of the file to find
+      * @param fileName name of the file to find
       * @return the java File if found
       */
-    def locate(name: String) : Option[File] =
-      OutputDirectory.recursiveLocateFirstFile(directory, (f: File) => f.getName == name)
+    def locate(fileName: String) : Option[File] =
+      OutputDirectory.recursiveLocateFirstFile(directory, (f: File) => f.getName == fileName)
 
   }
 

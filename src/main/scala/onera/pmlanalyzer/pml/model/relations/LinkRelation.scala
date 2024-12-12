@@ -27,7 +27,7 @@ import sourcecode.Name
   * @param iniValues initial values of the relation
   * @tparam A the elements type
   */
-case class LinkRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends Endomorphism[A](iniValues)
+final case class LinkRelation[A] private(iniValues: Map[A, Set[A]])(using n:Name) extends Endomorphism[A](iniValues)
 
 object LinkRelation {
   /**

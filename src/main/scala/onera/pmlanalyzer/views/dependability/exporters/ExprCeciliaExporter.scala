@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.dependability.operators.allOf
 trait ExprCeciliaExporter {
   self:BasicOperationCeciliaExporter with TypeCeciliaExporter =>
 
-  case class AssertionHelper(result:Map[TargetId,String], subComponentAssertions: Map[SubComponent, Seq[String]])
+  final case class AssertionHelper(result:Map[TargetId,String], subComponentAssertions: Map[SubComponent, Seq[String]])
 
   implicit def ExprCeciliaExporter[T] : Aux[Expr[T], AssertionHelper] = new CeciliaExporter[Expr[T]]{
     type R = AssertionHelper
@@ -80,7 +80,7 @@ trait ExprCeciliaExporter {
         AssertionHelper(allOf[TargetId].map(t => t -> s"$m^$id").toMap, Map.empty)
       case Worst(l*) if l.size == 1 =>
         toCecilia(l.head)
-      case w@Worst(l*) if l.size > 1 =>
+      case w@Worst(l*) =>
         val lR = l.map(toCecilia)
         val lMap = lR.foldLeft(Map.empty[TargetId,List[String]])((acc,m) => {
           m.result.transform((k,v) => (for{a <- acc.get(k)} yield a :+ v) getOrElse List(v))

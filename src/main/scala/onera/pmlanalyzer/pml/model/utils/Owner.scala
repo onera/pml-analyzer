@@ -22,4 +22,4 @@ package onera.pmlanalyzer.pml.model.utils
   *
   * @param s the owner's name
   */
-case class Owner(s: Symbol)
+final case class Owner(s: Symbol)

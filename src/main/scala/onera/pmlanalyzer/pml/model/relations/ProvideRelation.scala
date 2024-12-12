@@ -28,7 +28,7 @@ import sourcecode.Name
   * @tparam L the left type
   * @tparam R the right type
   */
-case class ProvideRelation[L, R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L, R](iniValues)
+final case class ProvideRelation[L, R] private(iniValues: Map[L, Set[R]])(using n:Name) extends Relation[L, R](iniValues)
 
 object ProvideRelation {
   /**

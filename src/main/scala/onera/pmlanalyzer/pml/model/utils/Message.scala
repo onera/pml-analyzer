@@ -33,7 +33,7 @@ object Message {
     s"[WARNING] The physical transaction $userName is not possible, check your link and route constraints"
 
   inline def impossibleRouteWarning(t:Service, from:Option[Application]): String =
-    s"""[WARNING] The target service $t cannot be reached ${if (from.isDefined) s"from ${from.get}" else ""}"""
+    s"""[WARNING] The target service $t cannot be reached ${if (from.isDefined) s"from ${from.getOrElse("unknown application")}" else ""}"""
 
   inline def multiPathTransactionWarning(userName: UserTransactionId, list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]): String =
     s"""[WARNING] The transaction $userName addresses multiple physical transactions:

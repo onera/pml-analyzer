@@ -17,23 +17,26 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
-import onera.pmlanalyzer.views.dependability.exporters.Folder.date
-import onera.pmlanalyzer.views.dependability.exporters.Model._
+import onera.pmlanalyzer.views.dependability.exporters.Folder.{date, initialId}
+import onera.pmlanalyzer.views.dependability.exporters.Model.*
 
-import java.lang.{System => OS}
+import java.lang.System as OS
+import scala.collection.mutable
 import scala.xml.Elem
 
 sealed trait Folder {
-  val id: Int = Folder.folderNb
+  val id: Int = Folder.foldersIds.size + 1 + initialId
   val name: Symbol
   lazy val absolutePath: String
-  Folder.folderNb = Folder.folderNb + 1
+  Folder.foldersIds += (id -> this)
 
   override def toString: String = s"Folder(name=${name.name},id=$id)"
 }
 
 object Folder {
-  var folderNb = 100
+
+  private val initialId : Int = 100
+  private val foldersIds: mutable.Map[Int, Folder] = mutable.Map.empty
   val date: Long = OS.currentTimeMillis()
 }
 
@@ -90,7 +93,7 @@ object SubFamilyFolder {
   def apply[T](name: Symbol, parent:FamilyFolder[T])(implicit m: ModelDescriptor[T]): SubFamilyFolder[T] = m.getFolder(name,parent)
 }
 
-case class EntityFolder[T](name: Symbol, parent: SubFolder[T])(implicit m: ModelDescriptor[T]) extends SubFolder[T] {
+final case class EntityFolder[T](name: Symbol, parent: SubFolder[T])(implicit m: ModelDescriptor[T]) extends SubFolder[T] {
   private val elements = scala.collection.mutable.Set.empty[VersionFolder[T]]
   def getVersionNb : Int = elements.size
   parent match {
@@ -111,7 +114,7 @@ case class EntityFolder[T](name: Symbol, parent: SubFolder[T])(implicit m: Model
   }
 }
 
-case class VersionFolder[T](parent: EntityFolder[T])(implicit m: ModelDescriptor[T]) extends CeciliaFolder {
+final case class VersionFolder[T](parent: EntityFolder[T])(implicit m: ModelDescriptor[T]) extends CeciliaFolder {
   val name: Symbol = Symbol((parent.getVersionNb + 1).toString)
   override lazy val absolutePath: String = s"${parent.absolutePath};${name.name}"
   private var model: Option[T] = None

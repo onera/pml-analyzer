@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-case class InterfereRelation[L,R] private(iniValues: Map[L, Set[R]]) extends Relation[L,R](iniValues)
+final case class InterfereRelation[L,R] private(iniValues: Map[L, Set[R]]) extends Relation[L,R](iniValues)
 
 //FIXME TO ENSURE CORRECTNESS THE INTERFERE ENDOMORPHISMS SHOULD BE ANTI-REFLEXIVE AND SYMMETRIC TO BE
 //  CONSISTENT WITH INTERFERENCE SPECIFICATION BASE TRAIT

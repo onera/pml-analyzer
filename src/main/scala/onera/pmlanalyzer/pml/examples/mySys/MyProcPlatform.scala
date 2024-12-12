@@ -101,7 +101,7 @@ class MyProcPlatform(name: Symbol) extends Platform(name) {
   /** Composite representing Keystone ARM cores and their internal L1 cache 
     * @group composite_def 
     */
-  class ARMCore(name: Symbol) extends Composite(name) {
+  class ARMCore(armName: Symbol) extends Composite(armName) {
 
     /**
       * Enable to provide the name implicitly

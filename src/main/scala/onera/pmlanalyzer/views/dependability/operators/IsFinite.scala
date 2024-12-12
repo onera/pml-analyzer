@@ -27,7 +27,7 @@ trait IsFinite[T] {
 
 trait IsFiniteOps {
 
-  implicit class hasName[T](x: T)(implicit ev: IsFinite[T]) {
+  implicit class HasName[T](x: T)(implicit ev: IsFinite[T]) {
     def name: Symbol = ev.name(x)
   }
 
