@@ -1,31 +1,33 @@
-/*******************************************************************************
- * Copyright (c)  2023. ONERA
- * This file is part of PML Analyzer
- *
- * PML Analyzer is free software ;
- * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation ;
- * either version 2 of  the License, or (at your option) any later version.
- *
- * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this program ;
- *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- ******************************************************************************/
+/** *****************************************************************************
+  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
+  *
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
+  *
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
 
 package onera.pmlanalyzer.pml
 
-/**
-  * Package containing the extension methods to export PML model as tables or Graphviz.
+/** Package containing the extension methods to export PML model as tables or
+  * Graphviz.
   *
   * Must be imported as following to enable export extension
   * {{{import onera.pmlanalyzer.pml.exporters._}}}
   *
-  * The available extension methods are provided in [[UMLExporter.Ops]] and [[RelationExporter.Ops]]
+  * The available extension methods are provided in [[UMLExporter.Ops]] and
+  * [[RelationExporter.Ops]]
   *
-  * Example of usages are provided in [[pml.examples.simpleKeystone.SimpleKeystoneExport]]
+  * Example of usages are provided in
+  * [[pml.examples.simpleKeystone.SimpleKeystoneExport]]
   */
-package object exporters extends UMLExporter.Ops
-  with RelationExporter.Ops
+package object exporters extends UMLExporter.Ops with RelationExporter.Ops

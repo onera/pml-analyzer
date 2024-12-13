@@ -1,35 +1,38 @@
-/*******************************************************************************
- * Copyright (c)  2023. ONERA
- * This file is part of PML Analyzer
- *
- * PML Analyzer is free software ;
- * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation ;
- * either version 2 of  the License, or (at your option) any later version.
- *
- * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this program ;
- *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- ******************************************************************************/
+/** *****************************************************************************
+  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
+  *
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
+  *
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
 
 package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.model.utils.Message
 import sourcecode.Name
 
-abstract class ReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(using n:Name) extends Endomorphism[A](iniValues)  {
-  override def add(a: A, b: A): Unit ={
+abstract class ReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(
+    using n: Name
+) extends Endomorphism[A](iniValues) {
+  override def add(a: A, b: A): Unit = {
     super.add(a, b)
     super.add(b, a)
     super.add(a, a)
     super.add(b, b)
   }
 
-  override def remove(a: A, b: A): Unit = if(a != b){
+  override def remove(a: A, b: A): Unit = if (a != b) {
     super.remove(a, b)
     super.remove(b, a)
-  } else println(Message.errorReflexivityViolation(a,name))
+  } else println(Message.errorReflexivityViolation(a, name))
 }

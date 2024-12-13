@@ -1,19 +1,21 @@
 /** *****************************************************************************
-  * Copyright (c) 2021. ONERA
-  * This file is part of PML Analyzer
+  * Copyright (c) 2021. ONERA This file is part of PML Analyzer
   *
-  * PML Analyzer is free software ;
-  * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
-  * License as published by the Free Software Foundation ;
-  * either version 2 of  the License, or (at your option) any later version.
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
   *
-  * PML  Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
-  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  * See the GNU Lesser General Public License for more details.
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
   *
-  * You should have received a copy of the GNU Lesser General Public License along with this program ;
-  * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
-  * **************************************************************************** */
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  * ****************************************************************************
+  */
 
 package onera.pmlanalyzer.views.interference
 
@@ -29,24 +31,41 @@ import scala.language.postfixOps
 
 object InterferenceTestExtension {
 
-  extension (x:ConfiguredPlatform) {
+  extension (x: ConfiguredPlatform) {
 
-    def test(max: Int, expectedResultsDirectoryPath: String): Future[Seq[Seq[ScenarioComparison]]] = {
-      x.computeKInterference(List(max, x.initiators.size).min, ignoreExistingAnalysisFiles = true, verboseResultFile = false) map {
-        resultFiles => {
+    def test(
+        max: Int,
+        expectedResultsDirectoryPath: String
+    ): Future[Seq[Seq[ScenarioComparison]]] = {
+      x.computeKInterference(
+        List(max, x.initiators.size).min,
+        ignoreExistingAnalysisFiles = true,
+        verboseResultFile = false
+      ) map { resultFiles =>
+        {
           for {
             i <- 2 to List(max, x.initiators.size).min
-            fileITF <- FileManager.extractResource(s"$expectedResultsDirectoryPath/${x.fullName}_itf_$i.txt")
-            fileFree <- FileManager.extractResource(s"$expectedResultsDirectoryPath/${x.fullName}_free_$i.txt")
-            rITFFile <- resultFiles.find(_.getName == s"${x.fullName}_itf_$i.txt")
-            rFreeFile <- resultFiles.find(_.getName == s"${x.fullName}_free_$i.txt")
+            fileITF <- FileManager.extractResource(
+              s"$expectedResultsDirectoryPath/${x.fullName}_itf_$i.txt"
+            )
+            fileFree <- FileManager.extractResource(
+              s"$expectedResultsDirectoryPath/${x.fullName}_free_$i.txt"
+            )
+            rITFFile <- resultFiles.find(
+              _.getName == s"${x.fullName}_itf_$i.txt"
+            )
+            rFreeFile <- resultFiles.find(
+              _.getName == s"${x.fullName}_free_$i.txt"
+            )
           } yield {
             List(fileITF, fileFree)
               .zip(List(rITFFile, rFreeFile))
               .flatMap(p => {
                 val expected = PostProcess.parseScenarioFile(p._1)
                 val found = PostProcess.parseScenarioFile(Source.fromFile(p._2))
-                expected.diff(found).map(s => Missing(s)) ++ found.diff(expected).map(s => Unknown(s))
+                expected.diff(found).map(s => Missing(s)) ++ found
+                  .diff(expected)
+                  .map(s => Unknown(s))
               })
           }
         }

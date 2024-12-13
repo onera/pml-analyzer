@@ -102,6 +102,7 @@ lazy val commonSettings = Seq(
   sbtVersion := "1.8.2",
   scalafixOnCompile := true,
   semanticdbEnabled := true,
+  scalafmtOnCompile := true,
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
     scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),

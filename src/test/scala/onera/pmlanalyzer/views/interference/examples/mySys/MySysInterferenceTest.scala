@@ -16,7 +16,8 @@ class MySysInterferenceTest extends AnyFlatSpec with should.Matchers {
   private val expectedResultsDirectoryPath = "mySys"
 
   "For MySys, the interference analysis" should "find the verified interference" in {
-    val diff = Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
+    val diff =
+      Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
     if (diff.exists(_.nonEmpty)) {
       fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
     }
