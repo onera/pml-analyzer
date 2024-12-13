@@ -18,8 +18,6 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
-import scala.language.higherKinds
-
 trait IsMergeable[C[_, _]] {
   def mergeWith[K, V](first: C[K, V], that: C[K, V], f: (V, V) => V): C[K, V]
 }

@@ -131,7 +131,7 @@ sealed trait Model {
 
 object Model {
 
-  def linksToElem(links: List[(Flow, Flow)]) = {
+  def linksToElem(links: List[(Flow, Flow)]): Seq[Elem] = {
     for {
       ((from, to), id) <- links.zipWithIndex
       oFrom <- from.owner

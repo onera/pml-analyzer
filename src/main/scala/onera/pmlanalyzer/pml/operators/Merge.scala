@@ -46,11 +46,6 @@ object Merge {
   trait Ops {
 
     /** Extension method class
-      *
-      * @param x
-      *   the element on which keyword can be used
-      * @tparam L
-      *   the concrete type of the element
       */
     extension [L](x: L) {
 

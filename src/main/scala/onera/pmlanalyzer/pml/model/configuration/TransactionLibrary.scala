@@ -186,8 +186,6 @@ trait TransactionLibrary {
       * @param name
       *   the implicit name of the transaction (deduced from val used during
       *   instantiation)
-      * @param t
-      *   the type tag used to distinguish application loads and stores
       * @tparam A
       *   the type of requests
       * @return
@@ -233,8 +231,6 @@ trait TransactionLibrary {
       *   explicit name of the transaction
       * @param iniTgt
       *   the application/target service used
-      * @param t
-      *   the type tag used to distinguish application loads and stores
       * @tparam A
       *   the type of requests
       * @return
@@ -295,10 +291,6 @@ trait TransactionLibrary {
       *   the set of initiator/target of right member
       * @param name
       *   the implicitly derived name
-      * @param tA
-      *   the type tag of left member to solve erasure issue
-      * @param tB
-      *   the type tag of right member to solve erasure issue
       * @tparam A
       *   the type of left request
       * @tparam B

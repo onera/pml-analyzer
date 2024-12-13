@@ -151,7 +151,7 @@ final case class VersionFolder[T](parent: EntityFolder[T])(implicit
       case x: RecordType     => "record"
       case x: EnumeratedType => "enum"
       case _                 => ""
-    }) getOrElse ("")
+    }) getOrElse ""
   }
   def toElem: Elem = m.getVersionFamilyFlag match {
     case None =>

@@ -629,7 +629,7 @@ object UMLExporter {
         c <- sw.hostingInitiators; s <- getId(sw); cs <- getId(c)
       } yield writeAssociation(s, cs)
       for {
-        c <- sw.hostingInitiators; b <- c.services; s <- getId(sw);
+        c <- sw.hostingInitiators; b <- c.services; s <- getId(sw)
         bs <- getId(b)
       } yield writeAssociation(s, bs)
     }
