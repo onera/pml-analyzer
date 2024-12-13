@@ -41,7 +41,7 @@ object InterferenceTestExtension {
       BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
     }
 
-    @deprecated("Inefficient implementation, should only count the model without storing them in files")
+    //    @deprecated("Inefficient implementation, should only count the model without storing them in files")
     def computeSemanticReduction(): BigDecimal = Await.result(
       x.computeKInterference(x.initiators.size, ignoreExistingAnalysisFiles = true, verboseResultFile = false)
         .map(resultFiles =>
