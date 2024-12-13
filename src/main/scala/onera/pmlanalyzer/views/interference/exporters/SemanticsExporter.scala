@@ -17,51 +17,32 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.Provided
 import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.pml.exporters.FileManager
 
 import java.io.{File, FileWriter}
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-import scala.io.Source
-import scala.language.postfixOps
 
 object SemanticsExporter {
   trait Ops {
     extension [T <: Platform](self: T) {
-
-      def exportSemanticsSize(ignoreExistingFiles: Boolean = false)(using
+      def exportSemanticsSize()(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): File = {
-        val semantics =
-          self.getSemanticsSize(ignoreExistingFiles).toSeq.sortBy(_._1)
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticSizeFileName(self)
+          self.fullName + "SemanticsSize.txt"
         )
         val writer = new FileWriter(file)
+        val semantics = self.getSemanticsSize.toSeq.sortBy(_._1)
         writer.write("Multi-transaction cardinal, Number\n")
         for ((i, n) <- semantics)
           writer.write(s"$i, $n\n")
         writer.close()
         file
       }
-
-      def exportSemanticReduction()(using
-                                    ev: Analyse[T],
-                                    p: Provided[T, Hardware]
-      ): File = {
-        val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticsReductionFileName(self)
-        )
-        val writer = new FileWriter(file)
-        writer.write("Semantics Reduction is\n")
-        writer.write(self.computeSemanticReduction().toString())
-        writer.close()
-        file
-      }
     }
   }
+
 }
