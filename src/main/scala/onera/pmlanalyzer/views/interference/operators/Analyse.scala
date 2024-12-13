@@ -201,7 +201,8 @@ object Analyse {
   given Analyse[ConfiguredPlatform] with {
 
     def getGraphSize(platform: ConfiguredPlatform): (BigInt, BigInt) = {
-      val problem = computeProblemConstraints(platform, platform.initiators.size)
+      val problem =
+        computeProblemConstraints(platform, platform.initiators.size)
       val dummySolver = new Solver()
       val graph = problem.serviceGraph.toGraph(dummySolver)
       val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()))
