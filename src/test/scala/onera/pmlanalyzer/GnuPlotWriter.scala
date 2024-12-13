@@ -141,10 +141,10 @@ object GnuPlotWriter {
          |set term x11
          |set xlabel "$xlabel"
          |set ylabel "$ylabel"
-         |${if (logScale) s"""set logscale y""" else ""}
-         |${if (logScale) s"""set logscale x""" else ""}
+         |${if (logScale) """set logscale y""" else ""}
+         |${if (logScale) """set logscale x""" else ""}
          |unset key
-         |${if (drawXY) s"""plot x with lines title "x=y" """ else ""}
+         |${if (drawXY) """plot x with lines title "x=y" """ else ""}
          |$plotData
          |set term ${if (toTex) "latex" else "png"}
          |set out "${outputFile.getAbsolutePath}"
