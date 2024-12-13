@@ -25,8 +25,6 @@ import sourcecode.Enclosing
   * @group transporter_class
   * @note
   *   this class should not be specialised in user models
-  * @param name
-  *   the name of the node
   * @param enclosing
   *   the implicit context that can be used to find the source code location of
   *   the node definition

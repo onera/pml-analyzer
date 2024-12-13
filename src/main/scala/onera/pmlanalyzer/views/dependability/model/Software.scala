@@ -90,10 +90,10 @@ class Descriptor[FM: IsCriticityOrdering: IsFinite] private (
       for (loadStatus <- loadI.eval()) yield {
         val copies = transferts.map(t =>
           t -> worst(
-            (t.targetNeeded
+            t.targetNeeded
               .map(
                 loadStatus
-              ))
+              )
               .toSeq: _*
           ) // TODO Raise error when the status cannot be computed => connection error
         )

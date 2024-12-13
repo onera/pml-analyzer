@@ -43,7 +43,7 @@ trait BasicOperationCeciliaExporter {
     }
 
   def variablePathName(x: DepSystem, v: Variable[_]): String = {
-    s"${pathName(x, x.context.portOwner(v.id)).mkString(".")}.${v}"
+    s"${pathName(x, x.context.portOwner(v.id)).mkString(".")}.$v"
   }
 
   def mkVariableName(

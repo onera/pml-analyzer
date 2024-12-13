@@ -43,7 +43,7 @@ trait ExprCeciliaExporter {
             keys.map(k => k -> s"${lMap.result(k)} = ${rMap.result(k)}").toMap,
             lMap.subComponentAssertions ++ rMap.subComponentAssertions
           )
-        case And(l @ _*) =>
+        case And(l*) =>
           val lR = l.map(boolExprToHelper)
           val keys = lR.foldLeft(allOf[TargetId].toSet)((acc, m) =>
             acc.intersect(m.result.keySet)
@@ -53,7 +53,7 @@ trait ExprCeciliaExporter {
             lR.map(_.subComponentAssertions).reduce(_ ++ _)
           )
 
-        case Or(l @ _*) =>
+        case Or(l*) =>
           val lR = l.map(boolExprToHelper)
           val keys = lR.foldLeft(allOf[TargetId].toSet)((acc, m) =>
             acc.intersect(m.result.keySet)

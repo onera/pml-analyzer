@@ -176,11 +176,6 @@ object Use {
     }
 
     /** Extension method class
-      *
-      * @param self
-      *   the element on which keyword can be used
-      * @tparam L
-      *   the concrete type of the element
       */
     extension [L <: Data](self: L) {
 
