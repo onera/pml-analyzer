@@ -1,19 +1,21 @@
 /** *****************************************************************************
- * Copyright (c)  2023. ONERA
- * This file is part of PML Analyzer
- *
- * PML Analyzer is free software ;
- * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation ;
- * either version 2 of  the License, or (at your option) any later version.
- *
- * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this program ;
- * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- * **************************************************************************** */
+  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
+  *
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
+  *
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  * ****************************************************************************
+  */
 
 package onera.pmlanalyzer.pml.model.configuration
 
@@ -27,18 +29,22 @@ import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import sourcecode.Name
 
-class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with should.Matchers {
+class ConfigurationTest
+    extends AnyFlatSpec
+    with ScalaCheckPropertyChecks
+    with should.Matchers {
 
-  /**
-   * Architecture of the graph formulation of https://www.overleaf.com/project/5efb44712eb0ec00010737b3
-   */
-  object ConfigurationFixture extends Platform(Symbol("fixture"))
-    with ApplicationTest
-    with LoadTest
-    with StoreTest
-    with TargetTest
-    with SimpleTransporterTest
-    with SmartTest {
+  /** Architecture of the graph formulation of
+    * https://www.overleaf.com/project/5efb44712eb0ec00010737b3
+    */
+  object ConfigurationFixture
+      extends Platform(Symbol("fixture"))
+      with ApplicationTest
+      with LoadTest
+      with StoreTest
+      with TargetTest
+      with SimpleTransporterTest
+      with SmartTest {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()
@@ -74,7 +80,7 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
     bus link mem2
     bus link pcie
 
-    //add direct access of dma to caches
+    // add direct access of dma to caches
     pamu link smart1.cache
     pamu link smart2.cache
 
@@ -97,16 +103,14 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
     appSmart21 write dataMem1
     appSmart22 read dataMem2
 
-
-
-    //WARNING THE USAGE OF COPIES BY DESCRIPTOR MUST BE DONE AFTER SPECIFYING THEM
+    // WARNING THE USAGE OF COPIES BY DESCRIPTOR MUST BE DONE AFTER SPECIFYING THEM
     dmaDescriptor hostedBy dma1
     dmaDescriptor read dataMem1
     dmaDescriptor write smart1.cache
     dmaDescriptor read dataMem2
     dmaDescriptor write smart2.cache
 
-    //THIS ROUTE IS VOLUNTARY IMPOSSIBLE SINCE BUS CANNOT ACCESS TO CACHES
+    // THIS ROUTE IS VOLUNTARY IMPOSSIBLE SINCE BUS CANNOT ACCESS TO CACHES
     dma1 targeting smart1.cache useLink pamu to bus
     dma1 targeting smart2.cache useLink pamu to smart2.cache
 
@@ -150,35 +154,45 @@ class ConfigurationTest extends AnyFlatSpec with ScalaCheckPropertyChecks with s
 
   it should "derive the used transaction properly" in {
     transactionsBySW(appSmart1).size shouldBe 1
-    mem1.loads should contain(transactionsByName(transactionsBySW(appSmart1).head).last)
+    mem1.loads should contain(
+      transactionsByName(transactionsBySW(appSmart1).head).last
+    )
     transactionsBySW(appSmart21).size shouldBe 1
     transactionsBySW(appSmart22).size shouldBe 1
-    //One transaction is missing
+    // One transaction is missing
     transactionsBySW(dmaDescriptor).size shouldBe 3
   }
 
-  it should "detect cyclic service paths" in {
-  }
+  it should "detect cyclic service paths" in {}
 
   it should "detect multiple routes" in {
-    for {a <- ConfigurationFixture.applications
-         transactions <- transactionsBySW.get(a)
-         } yield {
+    for {
+      a <- ConfigurationFixture.applications
+      transactions <- transactionsBySW.get(a)
+    } yield {
       for {
         t <- transactions
         path <- transactionsByName.get(t)
-      } yield
-        Used.checkMultiPaths(Set(path)) shouldBe empty
+      } yield Used.checkMultiPaths(Set(path)) shouldBe empty
     }
   }
 
   it should "detect impossible service accesses " in {
     for (a <- Set(appSmart1, appSmart21, appSmart22))
-      Used.checkImpossible(transactionsBySW(a).map(transactionsByName), a.targetService, Some(a)) shouldBe empty
-    Used.checkImpossible(transactionsBySW(dmaDescriptor).map(transactionsByName), dmaDescriptor.targetService, Some(dmaDescriptor)).size shouldBe 1
+      Used.checkImpossible(
+        transactionsBySW(a).map(transactionsByName),
+        a.targetService,
+        Some(a)
+      ) shouldBe empty
+    Used
+      .checkImpossible(
+        transactionsBySW(dmaDescriptor).map(transactionsByName),
+        dmaDescriptor.targetService,
+        Some(dmaDescriptor)
+      )
+      .size shouldBe 1
   }
 
   ConfigurationFixture.exportRestrictedHWAndSWGraph()
-
 
 }

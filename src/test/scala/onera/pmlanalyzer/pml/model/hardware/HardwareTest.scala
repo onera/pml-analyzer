@@ -21,8 +21,8 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     val v: Virtualizer = Virtualizer()
 
     for (h <- List(t, s, i, v)) {
-      exactly(1, h.services) shouldBe a [Load]
-      exactly(1, h.services) shouldBe a [Store]
+      exactly(1, h.services) shouldBe a[Load]
+      exactly(1, h.services) shouldBe a[Store]
       h.services.size shouldBe 2
     }
   }
@@ -39,9 +39,10 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "have only specified services when specified" in {
-    val t: Target = Target(Set(Load("a"), Load("b")), withDefaultServices = false)
+    val t: Target =
+      Target(Set(Load("a"), Load("b")), withDefaultServices = false)
     t.services.size shouldEqual 2
-    exactly(2, t.services) shouldBe a [Load]
+    exactly(2, t.services) shouldBe a[Load]
 
     val s = Target(Set(Store("a")), withDefaultServices = false)
     s.services.size shouldEqual 1
