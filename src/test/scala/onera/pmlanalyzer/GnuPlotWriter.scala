@@ -145,7 +145,7 @@ object GnuPlotWriter {
          |${if (logScale) s"""set logscale x""" else ""}
          |unset key
          |${if (drawXY) s"""plot x with lines title "x=y" """ else ""}
-         |${plotData}
+         |$plotData
          |set term ${if (toTex) "latex" else "png"}
          |set out "${outputFile.getAbsolutePath}"
          |rep
