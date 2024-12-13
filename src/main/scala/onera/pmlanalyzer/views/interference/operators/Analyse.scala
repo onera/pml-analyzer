@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.views.interference.operators
 
@@ -61,6 +60,8 @@ trait Analyse[-T] {
   def printGraph(platform: T): File
 
   def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
+
+  def getGraphSize(platform: T): (BigInt, BigInt)
 }
 
 object Analyse {
@@ -187,6 +188,9 @@ object Analyse {
 
       def exportAnalysisGraph()(using ev: Analyse[T]): Unit =
         ev.printGraph(self)
+
+      def getAnanlysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
+        ev.getGraphSize(self)
     }
   }
 
@@ -197,6 +201,15 @@ object Analyse {
   /** A platform is analysable
     */
   given Analyse[ConfiguredPlatform] with {
+
+    def getGraphSize(platform: ConfiguredPlatform): (BigInt, BigInt) = {
+      val problem = computeProblemConstraints(platform, platform.initiators.size)
+      val dummySolver = new Solver()
+      val graph = problem.serviceGraph.toGraph(dummySolver)
+      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()))
+      dummySolver.close()
+      result
+    }
 
     def printGraph(platform: ConfiguredPlatform): File = {
       val problem =
