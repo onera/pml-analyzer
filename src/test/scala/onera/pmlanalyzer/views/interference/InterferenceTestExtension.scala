@@ -36,7 +36,10 @@ object InterferenceTestExtension {
 
     def computeGraphReduction(): BigDecimal = {
       val graph = x.fullServiceGraphWithInterfere()
-      val systemGraphSize = (graph.keySet ++ graph.values.flatten).size + graph.flatMap(p => p._2 map { x => Set(p._1, x) }).toSet.size
+      val systemGraphSize = (graph.keySet ++ graph.values.flatten).size + graph
+        .flatMap(p => p._2 map { x => Set(p._1, x) })
+        .toSet
+        .size
       println(s"System graph size is: $systemGraphSize")
       val (nodeSize, edgeSize) = x.getAnanlysisGraphSize()
       println(s"Interference channel graph size is: ${nodeSize + edgeSize}")
@@ -45,17 +48,23 @@ object InterferenceTestExtension {
 
     //    @deprecated("Inefficient implementation, should only count the model without storing them in files")
     def computeSemanticReduction(): BigDecimal = Await.result(
-      x.computeKInterference(x.initiators.size, ignoreExistingAnalysisFiles = true, verboseResultFile = false)
-        .map(resultFiles =>
-          BigDecimal(x.getSemanticsSize.filter(_._1 >= 3).values.sum) /
-            (for {
-              i <- 3 to x.initiators.size
-              resultFile <- resultFiles.find(_.getName == s"${x.fullName}_itf_$i.txt") ++
-                resultFiles.find(_.getName == s"${x.fullName}_free_$i.txt")
-            } yield {
-              PostProcess.parseScenarioFile(Source.fromFile(resultFile)).length
-            }).sum),
-      1 minute)
+      x.computeKInterference(
+        x.initiators.size,
+        ignoreExistingAnalysisFiles = true,
+        verboseResultFile = false
+      ).map(resultFiles =>
+        BigDecimal(x.getSemanticsSize.filter(_._1 >= 3).values.sum) /
+          (for {
+            i <- 3 to x.initiators.size
+            resultFile <- resultFiles
+              .find(_.getName == s"${x.fullName}_itf_$i.txt") ++
+              resultFiles.find(_.getName == s"${x.fullName}_free_$i.txt")
+          } yield {
+            PostProcess.parseScenarioFile(Source.fromFile(resultFile)).length
+          }).sum
+      ),
+      1 minute
+    )
 
     def test(
         max: Int,
