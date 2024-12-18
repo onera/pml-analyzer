@@ -9,6 +9,7 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
     this(Symbol(implicitName.value))
   }
 
+
   object rosace extends Composite {
 
     object cg0 extends Composite {
@@ -39,6 +40,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
 
         C1 link bus
@@ -46,6 +49,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
         C2 link bus
 
         C3 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -86,6 +91,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
 
         C1 link bus
@@ -93,6 +100,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
         C2 link bus
 
         C3 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -113,9 +122,17 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
+
+
+      L0_0 link cl0.input_port
+
       cl0.output_port link L0_0
 
+      L0_0 link cl1.input_port
+
       cl1.output_port link L0_0
+
+      input_port link L0_0
 
       L0_0 link output_port
     }
@@ -141,6 +158,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
       val ddr_ctrl: SimpleTransporter = SimpleTransporter()
 
       val input_port: SimpleTransporter = SimpleTransporter()
+
+
 
       ddr_ctrl link BK0
 
@@ -171,6 +190,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
       val spi_reg: Target = Target()
 
+
+
       input_port link bus
 
       bus link dma_reg
@@ -184,6 +205,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
     val pf_bus: SimpleTransporter = SimpleTransporter()
 
+
+
     pf_bus link ddr.input_port
 
     pf_bus link cfg_bus.input_port
@@ -196,5 +219,8 @@ class HbusCl2C4B8Platform(name: Symbol) extends Platform(name) {
 
     pf_bus link eth
   }
+
+
+
 
 }
