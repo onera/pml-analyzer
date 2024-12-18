@@ -54,6 +54,17 @@ trait DbusC2D8B8RoutingConstraints {
     rosace.dg0.cl0.C7_SRAM
   )
 
+  private val srams: Seq[Target] = Seq(
+    rosace.dg0.cl0.C0_SRAM,
+    rosace.dg0.cl0.C1_SRAM,
+    rosace.dg0.cl0.C2_SRAM,
+    rosace.dg0.cl0.C3_SRAM,
+    rosace.dg0.cl0.C4_SRAM,
+    rosace.dg0.cl0.C5_SRAM,
+    rosace.dg0.cl0.C6_SRAM,
+    rosace.dg0.cl0.C7_SRAM,
+  )
+
   for {
     i <- cores
     target <- Target.all
