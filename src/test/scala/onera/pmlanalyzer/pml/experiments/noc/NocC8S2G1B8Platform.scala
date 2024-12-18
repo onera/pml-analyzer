@@ -29,8 +29,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -53,8 +51,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
         val l2: Target = Target()
 
         C0 link bus
-
-        input_port link bus
 
         bus link output_port
 
@@ -79,8 +75,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -103,8 +97,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
         val l2: Target = Target()
 
         C0 link bus
-
-        input_port link bus
 
         bus link output_port
 
@@ -129,8 +121,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -153,8 +143,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
         val l2: Target = Target()
 
         C0 link bus
-
-        input_port link bus
 
         bus link output_port
 
@@ -179,8 +167,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -203,8 +189,6 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
         val l2: Target = Target()
 
         C0 link bus
-
-        input_port link bus
 
         bus link output_port
 
@@ -231,63 +215,33 @@ class NocC8S2G1B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
-      L0_0 link cl0.input_port
-
       cl0.output_port link L0_0
-
-      L0_0 link cl1.input_port
 
       cl1.output_port link L0_0
 
-      L0_1 link cl2.input_port
-
       cl2.output_port link L0_1
-
-      L0_1 link cl3.input_port
 
       cl3.output_port link L0_1
 
-      L0_2 link cl4.input_port
-
       cl4.output_port link L0_2
-
-      L0_2 link cl5.input_port
 
       cl5.output_port link L0_2
 
-      L0_3 link cl6.input_port
-
       cl6.output_port link L0_3
-
-      L0_3 link cl7.input_port
 
       cl7.output_port link L0_3
 
-      L1_0 link L0_0
-
       L0_0 link L1_0
-
-      L1_0 link L0_1
 
       L0_1 link L1_0
 
-      L1_1 link L0_2
-
       L0_2 link L1_1
-
-      L1_1 link L0_3
 
       L0_3 link L1_1
 
-      L2_0 link L1_0
-
       L1_0 link L2_0
 
-      L2_0 link L1_1
-
       L1_1 link L2_0
-
-      input_port link L2_0
 
       L2_0 link output_port
     }

@@ -244,8 +244,4 @@ trait DbusC4D4B8TransactionLibrary extends TransactionLibrary {
     Scenario(app_dma write rosace.ddr.BK6, app_dma read rosace.eth)
   tr_dma_eth_BK6.used
 
-  val tr_dma_eth_rosace_dg0_cl0_C2_SRAM: Scenario =
-    Scenario(app_dma write rosace.dg0.cl0.C2_SRAM, app_dma read rosace.eth)
-  tr_dma_eth_rosace_dg0_cl0_C2_SRAM.used
-
 }
