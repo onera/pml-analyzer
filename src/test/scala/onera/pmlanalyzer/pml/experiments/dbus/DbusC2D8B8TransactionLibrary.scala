@@ -153,4 +153,13 @@ trait DbusC2D8B8TransactionLibrary extends TransactionLibrary {
   val tr_dma_eth_BK6: Scenario = Scenario(app_dma write rosace.ddr.BK6, app_dma read rosace.eth)
   tr_dma_eth_BK6.used
 
+  val tr_dma_eth_rosace_dg0_cl0_C2_SRAM: Scenario = Scenario(app_dma write rosace.dg0.cl0.C2_SRAM, app_dma read rosace.eth)
+  tr_dma_eth_rosace_dg0_cl0_C2_SRAM.used
+
+  val tr_dma_eth_rosace_dg0_cl0_C4_SRAM: Scenario = Scenario(app_dma write rosace.dg0.cl0.C4_SRAM, app_dma read rosace.eth)
+  tr_dma_eth_rosace_dg0_cl0_C4_SRAM.used
+
+  val tr_dma_eth_rosace_dg0_cl0_C6_SRAM: Scenario = Scenario(app_dma write rosace.dg0.cl0.C6_SRAM, app_dma read rosace.eth)
+  tr_dma_eth_rosace_dg0_cl0_C6_SRAM.used
+
 }
