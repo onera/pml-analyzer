@@ -4,7 +4,6 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
-
 trait NocC4S2G1B8TransactionLibrary extends TransactionLibrary {
   self: NocC4S2G1B8Platform with NocC4S2G1B8Software =>
 

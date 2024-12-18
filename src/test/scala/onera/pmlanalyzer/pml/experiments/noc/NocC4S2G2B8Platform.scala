@@ -29,8 +29,6 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -54,8 +52,6 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -69,15 +65,9 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
-      L0_0 link cl0.input_port
-
       cl0.output_port link L0_0
 
-      L0_0 link cl1.input_port
-
       cl1.output_port link L0_0
-
-      input_port link L0_0
 
       L0_0 link output_port
     }
@@ -100,8 +90,6 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -125,8 +113,6 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
         C0 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -140,15 +126,9 @@ class NocC4S2G2B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
-      L0_0 link cl0.input_port
-
       cl0.output_port link L0_0
 
-      L0_0 link cl1.input_port
-
       cl1.output_port link L0_0
-
-      input_port link L0_0
 
       L0_0 link output_port
     }

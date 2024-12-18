@@ -47,8 +47,6 @@ class DbusC4D2B8Platform(name: Symbol) extends Platform(name) {
 
         C3 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_L1
@@ -65,8 +63,6 @@ class DbusC4D2B8Platform(name: Symbol) extends Platform(name) {
       val input_port: SimpleTransporter = SimpleTransporter()
 
       val output_port: SimpleTransporter = SimpleTransporter()
-
-      input_port link cl0.input_port
 
       cl0.output_port link output_port
     }
@@ -93,8 +89,6 @@ class DbusC4D2B8Platform(name: Symbol) extends Platform(name) {
 
         C1 link bus
 
-        input_port link bus
-
         bus link output_port
 
         C0 link C0_SRAM
@@ -105,8 +99,6 @@ class DbusC4D2B8Platform(name: Symbol) extends Platform(name) {
       val input_port: SimpleTransporter = SimpleTransporter()
 
       val output_port: SimpleTransporter = SimpleTransporter()
-
-      input_port link cl0.input_port
 
       cl0.output_port link output_port
     }
