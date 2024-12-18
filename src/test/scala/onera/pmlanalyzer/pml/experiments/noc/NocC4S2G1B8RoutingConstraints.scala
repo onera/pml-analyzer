@@ -8,7 +8,7 @@ import scala.language.postfixOps
 trait NocC4S2G1B8RoutingConstraints {
   self: NocC4S2G1B8Platform =>
 
-  private val dma_targets: Seq[Target] = Seq(
+  val dma_targets = Seq(
     rosace.ddr.BK0,
     rosace.ddr.BK1,
     rosace.ddr.BK2,
@@ -20,7 +20,7 @@ trait NocC4S2G1B8RoutingConstraints {
     rosace.eth,
   )
 
-  private val cluster_inputs: Seq[Hardware] = Seq(
+  val cluster_inputs = Seq(
     rosace.cg0.cl0.input_port,
     rosace.cg0.cl1.input_port,
     rosace.cg0.cl2.input_port,
@@ -28,7 +28,7 @@ trait NocC4S2G1B8RoutingConstraints {
     rosace.cg0.input_port,
   )
 
-  private val cluster_outputs: Seq[Hardware] = Seq(
+  val cluster_outputs = Seq(
     rosace.cg0.cl0.output_port,
     rosace.cg0.cl1.output_port,
     rosace.cg0.cl2.output_port,
@@ -36,14 +36,11 @@ trait NocC4S2G1B8RoutingConstraints {
     rosace.cg0.output_port,
   )
 
-  private val cores: Seq[Initiator] = Seq(
+  val cores = Seq(
     rosace.cg0.cl0.C0,
     rosace.cg0.cl1.C0,
     rosace.cg0.cl2.C0,
     rosace.cg0.cl3.C0,
-  )
-
-  private val srams: Seq[Target] = Seq(
   )
 
   for {
@@ -60,14 +57,6 @@ trait NocC4S2G1B8RoutingConstraints {
     in_port <- cluster_inputs
   } {
     i targeting target blockedBy in_port
-  }
-
-  for {
-    i <- Seq(rosace.dma)
-    target <- srams
-    out_port <- cluster_outputs
-  } {
-    i targeting target blockedBy out_port
   }
 
 }
