@@ -81,4 +81,12 @@ trait NocC8S4G1B8RoutingConstraints {
     i targeting target blockedBy out_port
   }
 
+  for {
+    i <- Seq(rosace.dma)
+    target <- srams
+    out_port <- cluster_outputs
+  } {
+    i targeting target blockedBy out_port
+  }
+
 }
