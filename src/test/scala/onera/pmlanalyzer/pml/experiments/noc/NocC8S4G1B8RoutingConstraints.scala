@@ -58,6 +58,9 @@ trait NocC8S4G1B8RoutingConstraints {
   private val srams: Seq[Target] = Seq(
   )
 
+  private val srams: Seq[Target] = Seq(
+  )
+
   for {
     i <- cores
     in_port <- cluster_inputs
@@ -71,6 +74,14 @@ trait NocC8S4G1B8RoutingConstraints {
     in_port <- cluster_inputs
   } {
     i targeting Target.all blockedBy in_port
+  }
+
+  for {
+    i <- Seq(rosace.dma)
+    target <- srams
+    out_port <- cluster_outputs
+  } {
+    i targeting target blockedBy out_port
   }
 
   for {
