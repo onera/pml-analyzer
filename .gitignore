@@ -1,5 +1,6 @@
 # PML
 /analysis/
+/export/
 
 # sbt
 # https://www.scala-sbt.org/release/docs/Directories.html
@@ -9,3 +10,5 @@
 
 # IDE
 /.idea/
+
+*.scala.semanticdb
