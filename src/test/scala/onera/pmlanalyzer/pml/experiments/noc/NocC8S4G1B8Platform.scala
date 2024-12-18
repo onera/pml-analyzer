@@ -9,6 +9,7 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
     this(Symbol(implicitName.value))
   }
 
+
   object rosace extends Composite {
 
     object cg0 extends Composite {
@@ -27,7 +28,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -50,7 +55,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -73,7 +82,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -96,7 +109,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -119,7 +136,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -142,7 +163,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -165,7 +190,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -188,7 +217,11 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
+
+
         C0 link bus
+
+        input_port link bus
 
         bus link output_port
 
@@ -207,25 +240,49 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
+
+
+      L0_0 link cl0.input_port
+
       cl0.output_port link L0_0
+
+      L0_0 link cl1.input_port
 
       cl1.output_port link L0_0
 
+      L0_0 link cl2.input_port
+
       cl2.output_port link L0_0
+
+      L0_0 link cl3.input_port
 
       cl3.output_port link L0_0
 
+      L0_1 link cl4.input_port
+
       cl4.output_port link L0_1
+
+      L0_1 link cl5.input_port
 
       cl5.output_port link L0_1
 
+      L0_1 link cl6.input_port
+
       cl6.output_port link L0_1
+
+      L0_1 link cl7.input_port
 
       cl7.output_port link L0_1
 
+      L1_0 link L0_0
+
       L0_0 link L1_0
 
+      L1_0 link L0_1
+
       L0_1 link L1_0
+
+      input_port link L1_0
 
       L1_0 link output_port
     }
@@ -251,6 +308,8 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
       val ddr_ctrl: SimpleTransporter = SimpleTransporter()
 
       val input_port: SimpleTransporter = SimpleTransporter()
+
+
 
       ddr_ctrl link BK0
 
@@ -281,6 +340,8 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
       val spi_reg: Target = Target()
 
+
+
       input_port link bus
 
       bus link dma_reg
@@ -294,6 +355,8 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
     val pf_bus: SimpleTransporter = SimpleTransporter()
 
+
+
     pf_bus link ddr.input_port
 
     pf_bus link cfg_bus.input_port
@@ -306,5 +369,8 @@ class NocC8S4G1B8Platform(name: Symbol) extends Platform(name) {
 
     pf_bus link eth
   }
+
+
+
 
 }
