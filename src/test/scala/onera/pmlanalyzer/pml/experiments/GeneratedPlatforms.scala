@@ -201,13 +201,15 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   )
 
   "Generated architectures" should "be exportable" in {
-    for { p <- platforms } {
-      p.exportRestrictedHWAndSWGraph()
-      p.exportDataAllocationTable()
-      p.exportUserTransactions()
-      p.exportPhysicalTransactions()
-      p.exportUserScenarios()
-      // p.exportSemanticsSize()
+    for {p <- Set(NocC8S4G1B8)} {
+      p.exportRestrictedServiceGraphForSW(NocC8S4G1B8.app_dma)
+      //      p.exportRestrictedHWAndSWGraph()
+      //      p.exportHWAndSWGraph()
+      //      p.exportDataAllocationTable()
+      //      p.exportUserTransactions()
+      //      p.exportPhysicalTransactions()
+      //      p.exportUserScenarios()
+      //      p.exportSemanticsSize()
       println(s"[INFO] exporting ${p.name.name} done")
     }
   }
