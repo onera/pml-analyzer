@@ -60,18 +60,17 @@ trait NocC8S4G1B8RoutingConstraints {
 
   for {
     i <- cores
-    target <- Target.all
     in_port <- cluster_inputs
   } {
-    i targeting target blockedBy in_port
+    i targeting Target.all blockedBy in_port
   }
 
   for {
     i <- Seq(rosace.dma)
-    target <- dma_targets
+    //    target <- dma_targets
     in_port <- cluster_inputs
   } {
-    i targeting target blockedBy in_port
+    i targeting Target.all blockedBy in_port
   }
 
   for {
