@@ -41,7 +41,6 @@ class CyclotronExport extends AnyFlatSpec with should.Matchers {
 
   object CyclotronConfigured
     extends CyclotronPlatform
-      with CyclotronSoftware
       with CyclotronTransactionLibrary
       with CyclotronRoutingConstraints
       with TableBasedInterferenceSpecification {}
