@@ -14,9 +14,11 @@ class CyclotronPlatform(name: Symbol) extends Platform(name) {
     val L1: SimpleTransporter = SimpleTransporter()
 
     val input_port: SimpleTransporter = SimpleTransporter()
+    val other_port: SimpleTransporter = SimpleTransporter()
 
     L1 link L0
     L0 link L1
+    other_port link L0
   }
 
   val dma: Initiator = Initiator()

@@ -39,14 +39,21 @@ import scala.language.postfixOps
 
 class CyclotronExport extends AnyFlatSpec with should.Matchers {
 
-  object CyclotronConfigured
+  object CyclotronWithBlockedBy
     extends CyclotronPlatform
       with CyclotronTransactionLibrary
-      with CyclotronRoutingConstraints
+      with CyclotronBlockingConstraint
+      with TableBasedInterferenceSpecification {}
+
+  object CyclotronWithCannotUse
+    extends CyclotronPlatform
+      with CyclotronTransactionLibrary
+      with CyclotronCannotUseConstraint
       with TableBasedInterferenceSpecification {}
 
   private val platforms = Seq(
-    CyclotronConfigured,
+    CyclotronWithBlockedBy,
+    CyclotronWithCannotUse,
   )
 
   "Generated architectures" should "be exportable" in {

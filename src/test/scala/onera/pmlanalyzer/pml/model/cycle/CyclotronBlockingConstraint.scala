@@ -5,10 +5,10 @@ import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
 
-/* There is no path from the DMA to the group. The constraints is null, but 
+/* There is no path from the DMA to the group. The constraints is null, but
    required for the issue to appear.
  */
-trait CyclotronRoutingConstraints {
+trait CyclotronBlockingConstraint {
   self: CyclotronPlatform =>
 
   dma targeting eth blockedBy group.input_port
