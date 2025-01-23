@@ -27,10 +27,8 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
-    "src/main/scala/onera/pmlanalyzer/pml/examples/simpleKeystone" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "simpleKeystone",
-    "src/main/scala/onera/pmlanalyzer/pml/examples/simpleT1042" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "simpleT1042",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/simpleKeystone" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "simpleKeystone",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "simpleT1042",
+    "src/main/scala/onera/pmlanalyzer/pml/examples/simpleKeystone" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
+    "src/main/scala/onera/pmlanalyzer/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
   ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
@@ -38,7 +36,6 @@ lazy val dockerSettings = Seq(
     val generatedDoc = (Compile / doc).value
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
-    val binlib = base / "binlib"
     new Dockerfile {
       from("openjdk:8")
       customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
