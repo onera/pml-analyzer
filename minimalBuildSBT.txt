@@ -8,3 +8,9 @@ lazy val root = (project in file("."))
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     resolvers ++= Resolver.sonatypeOssRepos("snapshots")
   )
+
+// Fork a new JVM on every sbt run task
+// Fixes an issue with the classloader complaining that the Monosat library is
+// "already loaded in another classloader" on successive runs of the analysis
+// in the same sbt instance.
+fork := true
