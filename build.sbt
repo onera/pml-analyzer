@@ -27,8 +27,9 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
-    "src/main/scala/onera/pmlanalyzer/pml/examples/simpleKeystone" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
+    "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
+    "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
+    "src/test" -> (Compile / baseDirectory).value / "src" / "test"
   ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
@@ -47,6 +48,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "mkdir -p /home/user/code/binlib")
       customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/pml")
       customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/views/interference")
+      customInstruction("RUN", "mkdir -p /home/user/code/src/test")
       workDir("/home/user")
       customInstruction("RUN", "git clone https://github.com/sambayless/monosat.git")
       workDir("/home/user/monosat")
