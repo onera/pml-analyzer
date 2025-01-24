@@ -18,7 +18,9 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.views.interference.model.relations.{
   InterfereRelation,
   NotInterfereRelation
@@ -51,6 +53,28 @@ object Interfere {
       def notInterfereWith[R](that: Iterable[R])(using
           ev: Interfere[L, R]
       ): Unit = for { x <- that } ev.notInterfereWith(self, x)
+    }
+
+    /** If an element h of type Hardware has interfering services then the
+      * operator can be used as follows:
+      *
+      * h hasInterferingServices {{{h hasInterferingServices}}} h does not have
+      * any interfering services {{{h hasNonInterferingServices}}}
+      */
+    extension (self: Hardware) {
+      def hasInterferingServices(using
+          prv: Provided[Hardware, Service],
+          ev: Interfere[Service, Service]
+      ): Unit =
+        for { s1 <- self.services; s2 <- self.services }
+          ev.interfereWith(s1, s2)
+
+      def hasNonInterferingServices(using
+          prv: Provided[Hardware, Service],
+          ev: Interfere[Service, Service]
+      ): Unit =
+        for { s1 <- self.services; s2 <- self.services }
+          ev.notInterfereWith(s1, s2)
     }
   }
 
@@ -106,4 +130,15 @@ object Interfere {
       for { id <- transformation(l) }
         ev.notInterfereWith(id, r)
   }
+
+  given [LH <: Hardware, RH <: Hardware](using
+      ev: Interfere[Hardware, Hardware]
+  ): Interfere[LH, RH] with {
+    def interfereWith(lh: LH, rh: RH): Unit =
+      ev.interfereWith(lh, rh)
+
+    def notInterfereWith(lh: LH, rh: RH): Unit =
+      ev.notInterfereWith(lh, rh)
+  }
+
 }
