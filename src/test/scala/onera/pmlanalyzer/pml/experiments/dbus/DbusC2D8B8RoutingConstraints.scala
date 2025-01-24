@@ -17,17 +17,17 @@ trait DbusC2D8B8RoutingConstraints {
     rosace.ddr.BK5,
     rosace.ddr.BK6,
     rosace.ddr.BK7,
-    rosace.eth,
+    rosace.eth
   )
 
   private val cluster_inputs: Seq[Hardware] = Seq(
     rosace.cg0.cl0.input_port,
-    rosace.cg0.input_port,
+    rosace.cg0.input_port
   )
 
   private val cluster_outputs: Seq[Hardware] = Seq(
     rosace.cg0.cl0.output_port,
-    rosace.cg0.output_port,
+    rosace.cg0.output_port
   )
 
   private val cores: Seq[Initiator] = Seq(
@@ -40,7 +40,7 @@ trait DbusC2D8B8RoutingConstraints {
     rosace.dg0.cl0.C4,
     rosace.dg0.cl0.C5,
     rosace.dg0.cl0.C6,
-    rosace.dg0.cl0.C7,
+    rosace.dg0.cl0.C7
   )
 
   private val srams: Seq[Target] = Seq(
@@ -51,7 +51,7 @@ trait DbusC2D8B8RoutingConstraints {
     rosace.dg0.cl0.C4_SRAM,
     rosace.dg0.cl0.C5_SRAM,
     rosace.dg0.cl0.C6_SRAM,
-    rosace.dg0.cl0.C7_SRAM,
+    rosace.dg0.cl0.C7_SRAM
   )
 
   for {

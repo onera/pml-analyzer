@@ -54,6 +54,7 @@ trait Analyse[-T] {
       x: T,
       maxSize: Int,
       ignoreExistingAnalysisFiles: Boolean,
+      computeSemantics: Boolean,
       verboseResultFile: Boolean
   ): Future[Set[File]]
 
@@ -105,12 +106,14 @@ object Analyse {
       def computeKInterference(
           maxSize: Int,
           ignoreExistingAnalysisFiles: Boolean,
+          computeSemantics: Boolean,
           verboseResultFile: Boolean
       )(using ev: Analyse[T]): Future[Set[File]] =
         ev.computeInterference(
           self,
           maxSize,
           ignoreExistingAnalysisFiles,
+          computeSemantics,
           verboseResultFile
         )
 
@@ -136,6 +139,7 @@ object Analyse {
           maxSize: Int,
           timeout: Duration,
           ignoreExistingAnalysisFiles: Boolean = false,
+          computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false
       )(using ev: Analyse[T]): Set[File] =
         Await.result(
@@ -143,6 +147,7 @@ object Analyse {
             self,
             maxSize,
             ignoreExistingAnalysisFiles,
+            computeSemantics,
             verboseResultFile
           ),
           timeout
@@ -166,6 +171,7 @@ object Analyse {
       def computeAllInterference(
           timeout: Duration,
           ignoreExistingAnalysisFiles: Boolean = false,
+          computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false
       )(using ev: Analyse[T], p: Provided[T, Hardware]): Set[File] =
         Await.result(
@@ -173,6 +179,7 @@ object Analyse {
             self,
             self.initiators.size,
             ignoreExistingAnalysisFiles,
+            computeSemantics,
             verboseResultFile
           ),
           timeout
@@ -237,6 +244,7 @@ object Analyse {
         platform: ConfiguredPlatform,
         maxSize: Int,
         ignoreExistingAnalysisFiles: Boolean,
+        computeSemantics: Boolean,
         verboseResultFile: Boolean
     ): Future[Set[File]] = Future {
       val sizes = 2 to maxSize
@@ -326,7 +334,10 @@ object Analyse {
         )
         val estimateNonExclusiveScenarioStart =
           System.currentTimeMillis().toFloat
-        val nonExclusiveScenarios = getSemanticsSize(platform, sizes.max)
+        val nonExclusiveScenarios =
+          if (computeSemantics)
+            Some(getSemanticsSize(platform, sizes.max))
+          else None
         println(
           Message.successfulNonExclusiveScenarioEstimationInfo(
             platform.fullName,
@@ -354,13 +365,16 @@ object Analyse {
             (System.currentTimeMillis() - assessmentStartDate) * 1e-3
           )
         )
-        for (size <- sizes) {
+        for {
+          size <- sizes
+          map <- nonExclusiveScenarios
+        } yield {
           assert(
-            nbITF(size) <= nonExclusiveScenarios(size),
+            nbITF(size) <= map(size),
             s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
           )
           assert(
-            nbFree(size) <= nonExclusiveScenarios(size),
+            nbFree(size) <= map(size),
             s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
           )
         }
@@ -401,19 +415,23 @@ object Analyse {
               (System.currentTimeMillis() - iterationStartDate) * 1e-3
             )
           )
-          if (size == 2)
+          for {
+            map <- nonExclusiveScenarios
+          } yield {
+            if (size == 2)
+              assert(
+                nbITF(2) + nbFree(2) == map(2),
+                "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios"
+              )
             assert(
-              nbITF(2) + nbFree(2) == nonExclusiveScenarios(2),
-              "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios"
+              nbITF(size) <= map(size),
+              s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
             )
-          assert(
-            nbITF(size) <= nonExclusiveScenarios(size),
-            s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
-          )
-          assert(
-            nbFree(size) <= nonExclusiveScenarios(size),
-            s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
-          )
+            assert(
+              nbFree(size) <= map(size),
+              s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
+            )
+          }
           println(
             Message.iterationResultsInfo(
               isFree = false,

@@ -274,6 +274,7 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
+        computeSemantics = false,
         verboseResultFile = false
       ) map { resultFiles =>
         resultFiles
@@ -343,6 +344,7 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
+        computeSemantics = false,
         verboseResultFile = false
       ) map { resultFiles =>
         {
@@ -398,6 +400,7 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
+        computeSemantics = false,
         verboseResultFile = false
       ) map { resultFiles =>
         {
