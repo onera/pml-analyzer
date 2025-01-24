@@ -46,9 +46,6 @@ object InterferenceTestExtension {
       BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
     }
 
-    //FIXME Inefficient implementation,
-    // should only count the model without storing them in files
-    // consider user onlySummary option
     def computeSemanticReduction(): BigDecimal = Await.result(
       x.computeKInterference(
         x.initiators.size,

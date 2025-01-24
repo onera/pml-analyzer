@@ -299,181 +299,131 @@ object Analyse {
           fF <- freeFiles
           cF <- channelFiles
         } yield (iF.values ++ fF.values ++ cF.values).toSet
-      if (
-        !ignoreExistingAnalysisFiles && files.isDefined && files.get.forall(f =>
-          FileManager.analysisDirectory.locate(f.getName).isDefined
-        )
-      ) {
-        println(
-          Message.analysisResultFoundInfo(
-            FileManager.analysisDirectory.name,
-            platform.fullName
+
+      files match
+        case Some(vF)
+          if !ignoreExistingAnalysisFiles
+            && vF.forall(f =>
+            FileManager.analysisDirectory.locate(f.getName).isDefined
+          ) =>
+          println(
+            Message.analysisResultFoundInfo(
+              FileManager.analysisDirectory.name,
+              platform.fullName
+            )
           )
-        )
-        files.get
-      } else {
-        val generateModelStart = System.currentTimeMillis()
-        val problem = computeProblemConstraints(platform, maxSize)
-        val summaryFile = FileManager.analysisDirectory.getFile(
-          s"${platform.fullName}_itf_calculus_summary.txt"
-        )
-        val summaryWriter = new FileWriter(summaryFile)
-        val interferenceWriters =
-          for {iF <- interferenceFiles} yield iF.transform((_, v) =>
-            new FileWriter(v)
+          vF
+        case _ => {
+          val generateModelStart = System.currentTimeMillis()
+          val problem = computeProblemConstraints(platform, maxSize)
+          val summaryFile = FileManager.analysisDirectory.getFile(
+            s"${platform.fullName}_itf_calculus_summary.txt"
           )
-        val freeWriters =
-          for {fF <- freeFiles} yield fF.transform((_, v) =>
-            new FileWriter(v)
-          )
-        val channelWriters =
-          for {cF <- channelFiles} yield cF.transform((_, v) =>
-            new FileWriter(v)
-          )
-        val allWriters =
+          val summaryWriter = new FileWriter(summaryFile)
+          val interferenceWriters =
+            for {iF <- interferenceFiles} yield iF.transform((_, v) =>
+              new FileWriter(v)
+            )
+          val freeWriters =
+            for {fF <- freeFiles} yield fF.transform((_, v) =>
+              new FileWriter(v)
+            )
+          val channelWriters =
+            for {cF <- channelFiles} yield cF.transform((_, v) =>
+              new FileWriter(v)
+            )
+          val allWriters =
+            for {
+              iW <- interferenceWriters
+              fW <- freeWriters
+              cW <- channelWriters
+            } yield iW.values ++ fW.values ++ cW.values
+
           for {
             iW <- interferenceWriters
             fW <- freeWriters
             cW <- channelWriters
-          } yield iW.values ++ fW.values ++ cW.values
-
-        for {
-          iW <- interferenceWriters
-          fW <- freeWriters
-          cW <- channelWriters
-          aW <- allWriters
-          if verboseResultFile
-        } {
-          cW.foreach(kv => writeChannelInfo(kv._2, kv._1))
-          fW.foreach(kv => writeFreeInfo(kv._2, kv._1))
-          iW.foreach(kv => writeITFInfo(kv._2, kv._1))
-          aW.foreach(w => writeFileInfo(w, platform))
-        }
-
-        val nbFree = mutable.Map.empty[Int, Int].withDefaultValue(0)
-        val nbITF = mutable.Map.empty[Int, Int].withDefaultValue(0)
-        val channels = mutable.Map.empty[Int, Map[Channel, Int]]
-
-        val update = (
-            isFree: Boolean,
-            physical: Set[Set[PhysicalScenarioId]],
-            user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
-                     ) => {
-          val userBySize =
-            user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
-          if (isFree) {
-            updateNumber(nbFree, userBySize)
-            for {fW <- freeWriters}
-              updateResultFile(fW, userBySize)
-          } else {
-            updateNumber(nbITF, userBySize)
-            for {iW <- interferenceWriters}
-              updateResultFile(iW, userBySize)
-            updateChannelNumber(problem, channels, physical, user)
+            aW <- allWriters
+            if verboseResultFile
+          } {
+            cW.foreach(kv => writeChannelInfo(kv._2, kv._1))
+            fW.foreach(kv => writeFreeInfo(kv._2, kv._1))
+            iW.foreach(kv => writeITFInfo(kv._2, kv._1))
+            aW.foreach(w => writeFileInfo(w, platform))
           }
-        }
 
-        println(
-          Message.successfulModelBuildInfo(
-            platform.fullName,
-            (System.currentTimeMillis().toFloat - generateModelStart) * 1e-3
-          )
-        )
+          val nbFree = mutable.Map.empty[Int, Int].withDefaultValue(0)
+          val nbITF = mutable.Map.empty[Int, Int].withDefaultValue(0)
+          val channels = mutable.Map.empty[Int, Map[Channel, Int]]
 
-        println(
-          Message.startingNonExclusiveScenarioEstimationInfo(platform.fullName)
-        )
-        val estimateNonExclusiveScenarioStart =
-          System.currentTimeMillis().toFloat
-        val nonExclusiveScenarios =
-          if (computeSemantics)
-            Some(getSemanticsSize(platform, sizes.max))
-          else None
-        println(
-          Message.successfulNonExclusiveScenarioEstimationInfo(
-            platform.fullName,
-            (System
-              .currentTimeMillis()
-              .toFloat - estimateNonExclusiveScenarioStart) * 1e-3
-          )
-        )
-        for {
-          (k, v) <- problem.litToNodeSet
-          isFree = v.forall(_.isEmpty)
-          physical = problem.decodeModel(Set(k), isFree) if physical.nonEmpty
-          userDefined = physical.groupMapReduce(p => p)(
-            problem.decodeUserModel
-          )(_ ++ _)
-        }
-          update(isFree, physical, userDefined)
-
-        val assessmentStartDate = System.currentTimeMillis()
-
-        println(
-          Message.iterationCompletedInfo(
-            1,
-            sizes.max,
-            (System.currentTimeMillis() - assessmentStartDate) * 1e-3
-          )
-        )
-        for {
-          size <- sizes
-          map <- nonExclusiveScenarios
-        } yield {
-          assert(
-            nbITF(size) <= map(size),
-            s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
-          )
-          assert(
-            nbFree(size) <= map(size),
-            s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
-          )
-        }
-        println(
-          Message.iterationResultsInfo(
-            isFree = false,
-            nbITF,
-            nonExclusiveScenarios
-          )
-        )
-        println(
-          Message.iterationResultsInfo(
-            isFree = true,
-            nbFree,
-            nonExclusiveScenarios
-          )
-        )
-
-        for (size <- sizes) {
-          val iterationStartDate = System.currentTimeMillis()
-          val s = problem.instantiate(size)
-          val variables =
-            problem.groupedScenarios.transform((k, _) => k.toLit(s))
-          while (s.solve()) {
-            val cube = variables.filter(_._2.value())
-            val physical =
-              problem.decodeModel(cube.keySet, problem.isFree.toLit(s).value())
-            val userDefined = physical
-              .groupMapReduce(p => p)(problem.decodeUserModel)(_ ++ _)
-            update(problem.isFree.toLit(s).value(), physical, userDefined)
-            s.assertTrue(not(monosat.Logic.and(cube.values.toSeq.asJava)))
+          val update = (
+                         isFree: Boolean,
+                         physical: Set[Set[PhysicalScenarioId]],
+                         user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+                       ) => {
+            val userBySize =
+              user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
+            if (isFree) {
+              updateNumber(nbFree, userBySize)
+              for {fW <- freeWriters}
+                updateResultFile(fW, userBySize)
+            } else {
+              updateNumber(nbITF, userBySize)
+              for {iW <- interferenceWriters}
+                updateResultFile(iW, userBySize)
+              updateChannelNumber(problem, channels, physical, user)
+            }
           }
-          s.close()
+
           println(
-            Message.iterationCompletedInfo(
-              size,
-              sizes.max,
-              (System.currentTimeMillis() - iterationStartDate) * 1e-3
+            Message.successfulModelBuildInfo(
+              platform.fullName,
+              (System.currentTimeMillis().toFloat - generateModelStart) * 1e-3
+            )
+          )
+
+          println(
+            Message.startingNonExclusiveScenarioEstimationInfo(
+              platform.fullName
+            )
+          )
+          val estimateNonExclusiveScenarioStart =
+            System.currentTimeMillis().toFloat
+          val nonExclusiveScenarios =
+            if (computeSemantics)
+              Some(getSemanticsSize(platform, sizes.max))
+            else None
+          println(
+            Message.successfulNonExclusiveScenarioEstimationInfo(
+              platform.fullName,
+              (System
+                .currentTimeMillis()
+                .toFloat - estimateNonExclusiveScenarioStart) * 1e-3
             )
           )
           for {
+            (k, v) <- problem.litToNodeSet
+            isFree = v.forall(_.isEmpty)
+            physical = problem.decodeModel(Set(k), isFree) if physical.nonEmpty
+            userDefined = physical.groupMapReduce(p => p)(
+              problem.decodeUserModel
+            )(_ ++ _)
+          }
+            update(isFree, physical, userDefined)
+
+          val assessmentStartDate = System.currentTimeMillis()
+
+          println(
+            Message.iterationCompletedInfo(
+              1,
+              sizes.max,
+              (System.currentTimeMillis() - assessmentStartDate) * 1e-3
+            )
+          )
+          for {
+            size <- sizes
             map <- nonExclusiveScenarios
           } yield {
-            if (size == 2)
-              assert(
-                nbITF(2) + nbFree(2) == map(2),
-                "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios"
-              )
             assert(
               nbITF(size) <= map(size),
               s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
@@ -497,56 +447,113 @@ object Analyse {
               nonExclusiveScenarios
             )
           )
-        }
-        val computationTime =
-          (System.currentTimeMillis() - assessmentStartDate) * 1e-3
-        for {cW <- channelWriters}
-          updateChannelFile(cW, channels)
 
-        if (verboseResultFile) {
-          for {
-            iW <- interferenceWriters
-            (i, w) <- iW
-          } {
-            writeFooter(w, computationTime, nbITF.getOrElse(i, 0))
+          for (size <- sizes) {
+            val iterationStartDate = System.currentTimeMillis()
+            val s = problem.instantiate(size)
+            val variables =
+              problem.groupedScenarios.transform((k, _) => k.toLit(s))
+            while (s.solve()) {
+              val cube = variables.filter(_._2.value())
+              val physical =
+                problem.decodeModel(
+                  cube.keySet,
+                  problem.isFree.toLit(s).value()
+                )
+              val userDefined = physical
+                .groupMapReduce(p => p)(problem.decodeUserModel)(_ ++ _)
+              update(problem.isFree.toLit(s).value(), physical, userDefined)
+              s.assertTrue(not(monosat.Logic.and(cube.values.toSeq.asJava)))
+            }
+            s.close()
+            println(
+              Message.iterationCompletedInfo(
+                size,
+                sizes.max,
+                (System.currentTimeMillis() - iterationStartDate) * 1e-3
+              )
+            )
+            for {
+              map <- nonExclusiveScenarios
+            } yield {
+              if (size == 2)
+                assert(
+                  nbITF(2) + nbFree(2) == map(2),
+                  "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios"
+                )
+              assert(
+                nbITF(size) <= map(size),
+                s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
+              )
+              assert(
+                nbFree(size) <= map(size),
+                s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
+              )
+            }
+            println(
+              Message.iterationResultsInfo(
+                isFree = false,
+                nbITF,
+                nonExclusiveScenarios
+              )
+            )
+            println(
+              Message.iterationResultsInfo(
+                isFree = true,
+                nbFree,
+                nonExclusiveScenarios
+              )
+            )
           }
-          for {
-            fW <- freeWriters
-            (i, w) <- fW
-          } {
-            writeFooter(w, computationTime, nbFree.getOrElse(i, 0))
+          val computationTime =
+            (System.currentTimeMillis() - assessmentStartDate) * 1e-3
+          for {cW <- channelWriters}
+            updateChannelFile(cW, channels)
+
+          if (verboseResultFile) {
+            for {
+              iW <- interferenceWriters
+              (i, w) <- iW
+            } {
+              writeFooter(w, computationTime, nbITF.getOrElse(i, 0))
+            }
+            for {
+              fW <- freeWriters
+              (i, w) <- fW
+            } {
+              writeFooter(w, computationTime, nbFree.getOrElse(i, 0))
+            }
           }
-        }
 
-        writeFileInfo(summaryWriter, platform)
-        summaryWriter.write("Computed ITF\n")
-        summaryWriter.write(
-          Message.printScenarioNumber(nbITF, nonExclusiveScenarios)
-        )
-        summaryWriter.write("Computed ITF-free\n")
-        summaryWriter.write(
-          Message.printScenarioNumber(nbFree, nonExclusiveScenarios)
-        )
-        writeFooter(summaryWriter, computationTime)
-
-        summaryWriter.flush()
-        summaryWriter.close()
-
-        for {
-          aW <- allWriters
-          w <- aW
-        } {
-          w.flush()
-          w.close()
-        }
-        println(
-          Message.analysisCompletedInfo(
-            "Interference analysis",
-            computationTime
+          writeFileInfo(summaryWriter, platform)
+          summaryWriter.write("Computed ITF\n")
+          summaryWriter.write(
+            Message.printScenarioNumber(nbITF, nonExclusiveScenarios)
           )
-        )
-        files.getOrElse(Set.empty)
-      }
+          summaryWriter.write("Computed ITF-free\n")
+          summaryWriter.write(
+            Message.printScenarioNumber(nbFree, nonExclusiveScenarios)
+          )
+          writeFooter(summaryWriter, computationTime)
+
+          summaryWriter.flush()
+          summaryWriter.close()
+
+          for {
+            aW <- allWriters
+            w <- aW
+          } {
+            w.flush()
+            w.close()
+          }
+          println(
+            Message.analysisCompletedInfo(
+              "Interference analysis",
+              computationTime
+            )
+          )
+          files.getOrElse(Set.empty)
+        }
     }
 
     private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
