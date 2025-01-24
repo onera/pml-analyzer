@@ -20,11 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup JDK
-      uses: actions/setup-java@v4
-      with:
-      distribution: temurin
-      java-version: 17
-      cache: sbt
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: sbt
       - uses: sbt/setup-sbt@v1
 
       # Since monosat compilation is time-consuming try first to find the binaries in cache
