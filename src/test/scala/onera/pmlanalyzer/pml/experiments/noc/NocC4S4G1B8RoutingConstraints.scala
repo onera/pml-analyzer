@@ -17,7 +17,7 @@ trait NocC4S4G1B8RoutingConstraints {
     rosace.ddr.BK5,
     rosace.ddr.BK6,
     rosace.ddr.BK7,
-    rosace.eth,
+    rosace.eth
   )
 
   private val cluster_inputs: Seq[Hardware] = Seq(
@@ -25,7 +25,7 @@ trait NocC4S4G1B8RoutingConstraints {
     rosace.cg0.cl1.input_port,
     rosace.cg0.cl2.input_port,
     rosace.cg0.cl3.input_port,
-    rosace.cg0.input_port,
+    rosace.cg0.input_port
   )
 
   private val cluster_outputs: Seq[Hardware] = Seq(
@@ -33,14 +33,14 @@ trait NocC4S4G1B8RoutingConstraints {
     rosace.cg0.cl1.output_port,
     rosace.cg0.cl2.output_port,
     rosace.cg0.cl3.output_port,
-    rosace.cg0.output_port,
+    rosace.cg0.output_port
   )
 
   private val cores: Seq[Initiator] = Seq(
     rosace.cg0.cl0.C0,
     rosace.cg0.cl1.C0,
     rosace.cg0.cl2.C0,
-    rosace.cg0.cl3.C0,
+    rosace.cg0.cl3.C0
   )
 
   private val srams: Seq[Target] = Seq(

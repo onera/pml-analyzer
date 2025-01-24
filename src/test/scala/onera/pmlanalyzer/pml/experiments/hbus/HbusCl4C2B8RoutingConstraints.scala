@@ -17,7 +17,7 @@ trait HbusCl4C2B8RoutingConstraints {
     rosace.ddr.BK5,
     rosace.ddr.BK6,
     rosace.ddr.BK7,
-    rosace.eth,
+    rosace.eth
   )
 
   private val cluster_inputs: Seq[Hardware] = Seq(
@@ -25,7 +25,7 @@ trait HbusCl4C2B8RoutingConstraints {
     rosace.cg0.cl1.input_port,
     rosace.cg0.cl2.input_port,
     rosace.cg0.cl3.input_port,
-    rosace.cg0.input_port,
+    rosace.cg0.input_port
   )
 
   private val cluster_outputs: Seq[Hardware] = Seq(
@@ -33,7 +33,7 @@ trait HbusCl4C2B8RoutingConstraints {
     rosace.cg0.cl1.output_port,
     rosace.cg0.cl2.output_port,
     rosace.cg0.cl3.output_port,
-    rosace.cg0.output_port,
+    rosace.cg0.output_port
   )
 
   private val cores: Seq[Initiator] = Seq(
@@ -44,7 +44,7 @@ trait HbusCl4C2B8RoutingConstraints {
     rosace.cg0.cl2.C0,
     rosace.cg0.cl2.C1,
     rosace.cg0.cl3.C0,
-    rosace.cg0.cl3.C1,
+    rosace.cg0.cl3.C1
   )
 
   private val srams: Seq[Target] = Seq(
