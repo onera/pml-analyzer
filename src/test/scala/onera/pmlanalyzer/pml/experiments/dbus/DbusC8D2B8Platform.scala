@@ -9,7 +9,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
     this(Symbol(implicitName.value))
   }
 
-
   object rosace extends Composite {
 
     object cg0 extends Composite {
@@ -56,8 +55,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
 
         val l2: Target = Target()
 
-
-
         C0 link bus
 
         C1 link bus
@@ -101,8 +98,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
-
-
       input_port link cl0.input_port
 
       cl0.output_port link output_port
@@ -126,8 +121,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
 
         val C1_SRAM: Target = Target()
 
-
-
         C0 link bus
 
         C1 link bus
@@ -144,8 +137,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
       val input_port: SimpleTransporter = SimpleTransporter()
 
       val output_port: SimpleTransporter = SimpleTransporter()
-
-
 
       input_port link cl0.input_port
 
@@ -173,8 +164,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
       val ddr_ctrl: SimpleTransporter = SimpleTransporter()
 
       val input_port: SimpleTransporter = SimpleTransporter()
-
-
 
       ddr_ctrl link BK0
 
@@ -205,8 +194,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
 
       val spi_reg: Target = Target()
 
-
-
       input_port link bus
 
       bus link dma_reg
@@ -219,8 +206,6 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
     val eth: Target = Target()
 
     val pf_bus: SimpleTransporter = SimpleTransporter()
-
-
 
     pf_bus link ddr.input_port
 
@@ -238,8 +223,5 @@ class DbusC8D2B8Platform(name: Symbol) extends Platform(name) {
 
     pf_bus link eth
   }
-
-
-
 
 }

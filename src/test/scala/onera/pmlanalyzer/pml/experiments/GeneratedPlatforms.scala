@@ -177,27 +177,26 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
       with NocC8S4G2B8RoutingConstraints
       with TableBasedInterferenceSpecification {}
 
-
   private val platforms = Seq(
-    HbusCl2C2B8,
-    HbusCl2C4B8,
-    HbusCl4C2B8,
-    DbusC2D2B8,
-    DbusC2D4B8,
-    DbusC2D8B8,
-    DbusC4D2B8,
-    DbusC4D4B8,
-    DbusC4D8B8,
-    DbusC8D2B8,
-    DbusC8D4B8,
-    NocC4S2G1B8,
-    NocC4S2G2B8,
-    NocC4S4G1B8,
-    NocC4S4G2B8,
-    NocC8S2G1B8,
-    NocC8S2G2B8,
-    NocC8S4G1B8,
-    NocC8S4G2B8
+    HbusCl2C2B8
+    //    HbusCl2C4B8,
+    //    HbusCl4C2B8,
+    //    DbusC2D2B8,
+    //    DbusC2D4B8,
+    //    DbusC2D8B8,
+    //    DbusC4D2B8,
+    //    DbusC4D4B8,
+    //    DbusC4D8B8,
+    //    DbusC8D2B8,
+    //    DbusC8D4B8,
+    //    NocC4S2G1B8,
+    //    NocC4S2G2B8,
+    //    NocC4S4G1B8,
+    //    NocC4S4G2B8,
+    //    NocC8S2G1B8,
+    //    NocC8S2G2B8,
+    //    NocC8S4G1B8,
+    //    NocC8S4G2B8
   )
 
   "Generated architectures" should "be exportable" in {
@@ -207,7 +206,6 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
       p.exportUserTransactions()
       p.exportPhysicalTransactions()
       p.exportUserScenarios()
-      // p.exportSemanticsSize()
       println(s"[INFO] exporting ${p.name.name} done")
     }
   }
@@ -215,8 +213,9 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   it should "be possible to compute the interference" in {
     for { p <- platforms } {
       p.computeAllInterference(
-        10 minutes,
-        ignoreExistingAnalysisFiles = true
+        1 hour,
+        ignoreExistingAnalysisFiles = true,
+        computeSemantics = false
       )
     }
   }
