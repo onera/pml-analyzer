@@ -142,23 +142,27 @@ object Message {
   inline def iterationResultsInfo(
       isFree: Boolean,
       computed: mutable.Map[Int, Int],
-      over: Map[Int, BigInt]
+      over: Option[Map[Int, BigInt]]
   ): String =
     s"""[INFO] Interference ${if (isFree) "free " else ""}computed so far
          |${printScenarioNumber(computed, over)}""".stripMargin
 
   inline def printScenarioNumber(
       computed: mutable.Map[Int, Int],
-      over: Map[Int, BigInt]
+      over: Option[Map[Int, BigInt]]
   ): String = {
     s"""${computed.toSeq
         .sortBy(_._1)
         .map(p =>
-          s"[INFO] size ${p._1}: ${p._2} over ${over(p._1)} (${
-              if (over(p._1) == 0) "0"
-              else if (p._2 * 100 / over(p._1) == 0) "< 1"
-              else math.round(p._2 * 100 / over(p._1).toDouble).toInt
-            }%)"
+          over match
+            case Some(value) =>
+              s"[INFO] size ${p._1}: ${p._2} over ${value(p._1)} (${
+                if (value(p._1) == 0) "0"
+                else if (p._2 * 100 / value(p._1) == 0) "< 1"
+                else math.round(p._2 * 100 / value(p._1).toDouble).toInt
+              }%)"
+            case None =>
+              s"[INFO] size ${p._1}: ${p._2}"
         )
         .mkString("\n")}
        |""".stripMargin
