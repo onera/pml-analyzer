@@ -55,7 +55,8 @@ trait Analyse[-T] {
       maxSize: Int,
       ignoreExistingAnalysisFiles: Boolean,
       computeSemantics: Boolean,
-      verboseResultFile: Boolean
+      verboseResultFile: Boolean,
+      onlySummary: Boolean
   ): Future[Set[File]]
 
   def printGraph(platform: T): File
@@ -109,14 +110,16 @@ object Analyse {
           maxSize: Int,
           ignoreExistingAnalysisFiles: Boolean,
           computeSemantics: Boolean,
-          verboseResultFile: Boolean
+          verboseResultFile: Boolean,
+          onlySummary: Boolean
       )(using ev: Analyse[T]): Future[Set[File]] =
         ev.computeInterference(
           self,
           maxSize,
           ignoreExistingAnalysisFiles,
           computeSemantics,
-          verboseResultFile
+          verboseResultFile,
+          onlySummary
         )
 
       /** Perform the interference analysis
@@ -142,7 +145,8 @@ object Analyse {
           timeout: Duration,
           ignoreExistingAnalysisFiles: Boolean = false,
           computeSemantics: Boolean = true,
-          verboseResultFile: Boolean = false
+          verboseResultFile: Boolean = false,
+          onlySummary: Boolean = false
       )(using ev: Analyse[T]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -150,7 +154,8 @@ object Analyse {
             maxSize,
             ignoreExistingAnalysisFiles,
             computeSemantics,
-            verboseResultFile
+            verboseResultFile,
+            onlySummary
           ),
           timeout
         )
@@ -174,7 +179,8 @@ object Analyse {
           timeout: Duration,
           ignoreExistingAnalysisFiles: Boolean = false,
           computeSemantics: Boolean = true,
-          verboseResultFile: Boolean = false
+          verboseResultFile: Boolean = false,
+          onlySummary: Boolean = false
       )(using ev: Analyse[T], p: Provided[T, Hardware]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -182,7 +188,8 @@ object Analyse {
             self.initiators.size,
             ignoreExistingAnalysisFiles,
             computeSemantics,
-            verboseResultFile
+            verboseResultFile,
+            onlySummary
           ),
           timeout
         )
@@ -247,31 +254,55 @@ object Analyse {
         maxSize: Int,
         ignoreExistingAnalysisFiles: Boolean,
         computeSemantics: Boolean,
-        verboseResultFile: Boolean
+        verboseResultFile: Boolean,
+        onlySummary: Boolean
     ): Future[Set[File]] = Future {
       val sizes = 2 to maxSize
-      val interferenceFiles = sizes
-        .map(size =>
-          size -> FileManager.analysisDirectory
-            .getFile(s"${platform.fullName}_itf_$size.txt")
-        )
-        .toMap
-      val freeFiles = sizes
-        .map(size =>
-          size -> FileManager.analysisDirectory
-            .getFile(s"${platform.fullName}_free_$size.txt")
-        )
-        .toMap
-      val channelFiles = sizes
-        .map(size =>
-          size -> FileManager.analysisDirectory
-            .getFile(s"${platform.fullName}_channel_$size.txt")
-        )
-        .toMap
+      val interferenceFiles =
+        if (onlySummary)
+          None
+        else
+          Some(
+            sizes
+              .map(size =>
+                size -> FileManager.analysisDirectory
+                  .getFile(s"${platform.fullName}_itf_$size.txt")
+              )
+              .toMap
+          )
+
+      val freeFiles =
+        if (onlySummary)
+          None
+        else
+          Some(
+            sizes
+              .map(size =>
+                size -> FileManager.analysisDirectory
+                  .getFile(s"${platform.fullName}_free_$size.txt")
+              )
+              .toMap
+          )
+      val channelFiles =
+        if (onlySummary)
+          None
+        else
+          Some(
+            sizes
+              .map(size =>
+                size -> FileManager.analysisDirectory
+                  .getFile(s"${platform.fullName}_channel_$size.txt")
+              )
+              .toMap
+          )
       val files =
-        (interferenceFiles.values ++ freeFiles.values ++ channelFiles.values).toSet
+        for {
+          iF <- interferenceFiles
+          fF <- freeFiles
+          cF <- channelFiles
+        } yield (iF.values ++ fF.values ++ cF.values).toSet
       if (
-        !ignoreExistingAnalysisFiles && files.forall(f =>
+        !ignoreExistingAnalysisFiles && files.isDefined && files.get.forall(f =>
           FileManager.analysisDirectory.locate(f.getName).isDefined
         )
       ) {
@@ -281,7 +312,7 @@ object Analyse {
             platform.fullName
           )
         )
-        files
+        files.get
       } else {
         val generateModelStart = System.currentTimeMillis()
         val problem = computeProblemConstraints(platform, maxSize)
@@ -290,17 +321,35 @@ object Analyse {
         )
         val summaryWriter = new FileWriter(summaryFile)
         val interferenceWriters =
-          interferenceFiles.transform((_, v) => new FileWriter(v))
-        val freeWriters = freeFiles.transform((_, v) => new FileWriter(v))
-        val channelWriters = channelFiles.transform((_, v) => new FileWriter(v))
+          for {iF <- interferenceFiles} yield iF.transform((_, v) =>
+            new FileWriter(v)
+          )
+        val freeWriters =
+          for {fF <- freeFiles} yield fF.transform((_, v) =>
+            new FileWriter(v)
+          )
+        val channelWriters =
+          for {cF <- channelFiles} yield cF.transform((_, v) =>
+            new FileWriter(v)
+          )
         val allWriters =
-          channelWriters.values ++ freeWriters.values ++ interferenceWriters.values
+          for {
+            iW <- interferenceWriters
+            fW <- freeWriters
+            cW <- channelWriters
+          } yield iW.values ++ fW.values ++ cW.values
 
-        if (verboseResultFile) {
-          channelWriters.foreach(kv => writeChannelInfo(kv._2, kv._1))
-          freeWriters.foreach(kv => writeFreeInfo(kv._2, kv._1))
-          interferenceWriters.foreach(kv => writeITFInfo(kv._2, kv._1))
-          allWriters.foreach(w => writeFileInfo(w, platform))
+        for {
+          iW <- interferenceWriters
+          fW <- freeWriters
+          cW <- channelWriters
+          aW <- allWriters
+          if verboseResultFile
+        } {
+          cW.foreach(kv => writeChannelInfo(kv._2, kv._1))
+          fW.foreach(kv => writeFreeInfo(kv._2, kv._1))
+          iW.foreach(kv => writeITFInfo(kv._2, kv._1))
+          aW.foreach(w => writeFileInfo(w, platform))
         }
 
         val nbFree = mutable.Map.empty[Int, Int].withDefaultValue(0)
@@ -311,15 +360,17 @@ object Analyse {
             isFree: Boolean,
             physical: Set[Set[PhysicalScenarioId]],
             user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
-        ) => {
+                     ) => {
           val userBySize =
             user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
           if (isFree) {
             updateNumber(nbFree, userBySize)
-            updateResultFile(freeWriters, userBySize)
+            for {fW <- freeWriters}
+              updateResultFile(fW, userBySize)
           } else {
             updateNumber(nbITF, userBySize)
-            updateResultFile(interferenceWriters, userBySize)
+            for {iW <- interferenceWriters}
+              updateResultFile(iW, userBySize)
             updateChannelNumber(problem, channels, physical, user)
           }
         }
@@ -451,13 +502,20 @@ object Analyse {
         }
         val computationTime =
           (System.currentTimeMillis() - assessmentStartDate) * 1e-3
-        updateChannelFile(channelWriters, channels)
+        for {cW <- channelWriters}
+          updateChannelFile(cW, channels)
 
         if (verboseResultFile) {
-          for ((i, w) <- interferenceWriters) {
+          for {
+            iW <- interferenceWriters
+            (i, w) <- iW
+          } {
             writeFooter(w, computationTime, nbITF.getOrElse(i, 0))
           }
-          for ((i, w) <- freeWriters) {
+          for {
+            fW <- freeWriters
+            (i, w) <- fW
+          } {
             writeFooter(w, computationTime, nbFree.getOrElse(i, 0))
           }
         }
@@ -473,7 +531,13 @@ object Analyse {
         )
         writeFooter(summaryWriter, computationTime)
 
-        for (w <- allWriters ++ List(summaryWriter)) {
+        summaryWriter.flush()
+        summaryWriter.close()
+
+        for {
+          aW <- allWriters
+          w <- aW
+        } {
           w.flush()
           w.close()
         }
@@ -483,7 +547,7 @@ object Analyse {
             computationTime
           )
         )
-        files
+        files.getOrElse(Set.empty)
       }
     }
 

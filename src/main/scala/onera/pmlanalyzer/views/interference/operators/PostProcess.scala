@@ -275,7 +275,8 @@ object PostProcess {
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
-        verboseResultFile = false
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         resultFiles
           .filter(_.getName.contains("channel"))
@@ -345,7 +346,8 @@ object PostProcess {
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
-        verboseResultFile = false
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         {
           val multiPathsTransactions = x match {
@@ -401,7 +403,8 @@ object PostProcess {
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
-        verboseResultFile = false
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         {
           val file = FileManager.analysisDirectory.getFile(

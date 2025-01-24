@@ -215,7 +215,8 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
       p.computeAllInterference(
         1 hour,
         ignoreExistingAnalysisFiles = true,
-        computeSemantics = false
+        computeSemantics = false,
+        onlySummary = true
       )
     }
   }
