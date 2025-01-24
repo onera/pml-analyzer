@@ -201,15 +201,12 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   )
 
   "Generated architectures" should "be exportable" in {
-    for {p <- Set(NocC8S4G1B8)} {
-      p.exportRestrictedServiceGraphForSW(NocC8S4G1B8.app_dma)
-      //      p.exportRestrictedHWAndSWGraph()
-      //      p.exportHWAndSWGraph()
-      //      p.exportDataAllocationTable()
-      //      p.exportUserTransactions()
-      //      p.exportPhysicalTransactions()
-      //      p.exportUserScenarios()
-      //      p.exportSemanticsSize()
+    for {p <- platforms} {
+      p.exportRestrictedHWAndSWGraph()
+      p.exportDataAllocationTable()
+      p.exportUserTransactions()
+      p.exportPhysicalTransactions()
+      p.exportUserScenarios()
       println(s"[INFO] exporting ${p.name.name} done")
     }
   }
@@ -217,8 +214,9 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   it should "be possible to compute the interference" in {
     for { p <- platforms } {
       p.computeAllInterference(
-        10 minutes,
-        ignoreExistingAnalysisFiles = true
+        1 hour,
+        ignoreExistingAnalysisFiles = true,
+        computeSemantics = false
       )
     }
   }

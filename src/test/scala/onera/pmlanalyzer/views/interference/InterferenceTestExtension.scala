@@ -51,6 +51,7 @@ object InterferenceTestExtension {
       x.computeKInterference(
         x.initiators.size,
         ignoreExistingAnalysisFiles = true,
+        computeSemantics = true,
         verboseResultFile = false
       ).map(resultFiles =>
         BigDecimal(x.getSemanticsSize.filter(_._1 >= 3).values.sum) /
@@ -73,6 +74,7 @@ object InterferenceTestExtension {
       x.computeKInterference(
         List(max, x.initiators.size).min,
         ignoreExistingAnalysisFiles = true,
+        computeSemantics = false,
         verboseResultFile = false
       ) map { resultFiles =>
         {
