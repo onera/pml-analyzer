@@ -6,50 +6,42 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.views.interference.model.relations.{
-  InterfereRelation,
-  NotInterfereRelation
-}
-
+import onera.pmlanalyzer.views.interference.model.relations.{InterfereRelation, NotInterfereRelation}
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 import onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
-
 import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
+
+import scala.language.postfixOps
 
 class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
 
-  object PlatformFixture extends Platform(Symbol("fixture"))
+  object PlatformFixture
+    extends Platform(Symbol("fixture"))
+      with PhysicalTableBasedInterferenceSpecification {
+    val i1: Initiator = Initiator()
+    val i2: Initiator = Initiator()
+    val st1: SimpleTransporter = SimpleTransporter()
+    val st2: SimpleTransporter = SimpleTransporter()
+    val t1: Target = Target()
+    val t2: Target = Target()
+  }
 
   import PlatformFixture.*
   // "Two Hardwares" should "be able to interact with each other"
   "Two Hardwares" should "be able to interact with each other" in {
-    val i1: Initiator = Initiator()
-    val i2: Initiator = Initiator()
-    val st1: SimpleTransporter = SimpleTransporter()
-    val st2: SimpleTransporter = SimpleTransporter()
-    val t1: Target = Target()
-    val t2: Target = Target()
-
-    for (
-      (a, b) <- List(i1, i2, st1, st2, t1, t2).zip(
-        List(i1, i2, st1, st2, t1, t2)
-      )
-    ) {
+    for {
+      a <- PlatformFixture.hardware
+      b <- PlatformFixture.hardware
+    } {
       a interfereWith b
-
+      hardwareInterfere(a) should contain(b)
     }
   }
 
   "Two Hardwares" should "be able not to interact with each other" in {
-    val i1: Initiator = Initiator()
-    val i2: Initiator = Initiator()
-    val st1: SimpleTransporter = SimpleTransporter()
-    val st2: SimpleTransporter = SimpleTransporter()
-    val t1: Target = Target()
-    val t2: Target = Target()
 
     for (
       (a, b) <- List(i1, i2, st1, st2, t1, t2).zip(

@@ -43,13 +43,13 @@ object InterfereRelation {
     /** Relation gathering user defined service interferences
       * @group interfere_relation
       */
-    final implicit val serviceInterfereWithService
+    final implicit val serviceInterfere
         : InterfereRelation[Service, Service] = InterfereRelation(Map.empty)
 
     /** Relation gathering user defined interfering hardware
       * @group interfere_relation
       */
-    final implicit val hardwareExclusive
+    final implicit val hardwareInterfere
         : InterfereRelation[Hardware, Hardware] = InterfereRelation(Map.empty)
   }
 }

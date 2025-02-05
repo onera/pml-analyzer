@@ -78,7 +78,8 @@ trait TableBasedInterferenceSpecification
   final def isTransparentTransaction(t: PhysicalTransactionId): Boolean =
     transactionIsTransparent.value.contains(t)
 
-  /** Derive implementation from [[serviceInterfereWithService]]
+  /** Derive implementation from [[serviceInterfere]]
+   *
     * @param l
     *   the left service
     * @param r
@@ -87,12 +88,13 @@ trait TableBasedInterferenceSpecification
     *   true if they interfere
     */
   def interfereWith(l: Service, r: Service): Boolean =
-    serviceInterfereWithService
+    serviceInterfere
       .get(l)
       .getOrElse(Set.empty[Service])
       .contains(r)
 
-  /** Derive implementation from [[hardwareExclusive]]
+  /** Derive implementation from [[hardwareInterfere]]
+   *
     * @param l
     *   the left hardware
     * @param r
@@ -101,7 +103,7 @@ trait TableBasedInterferenceSpecification
     *   true if they cannot work simultaneously
     */
   final def interfereWith(l: Hardware, r: Hardware): Boolean =
-    hardwareExclusive
+    hardwareInterfere
       .get(l)
       .getOrElse(Set.empty[Hardware])
       .contains(r)
