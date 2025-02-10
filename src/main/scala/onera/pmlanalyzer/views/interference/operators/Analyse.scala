@@ -203,7 +203,7 @@ object Analyse {
       def exportAnalysisGraph()(using ev: Analyse[T]): Unit =
         ev.printGraph(self)
 
-      def getAnanlysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
+      def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
         ev.getGraphSize(self)
     }
   }

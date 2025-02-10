@@ -38,9 +38,7 @@ object InterferenceTestExtension {
         .flatMap(p => p._2 map { x => Set(p._1, x) })
         .toSet
         .size
-      println(s"System graph size is: $systemGraphSize")
-      val (nodeSize, edgeSize) = x.getAnanlysisGraphSize()
-      println(s"Interference channel graph size is: ${nodeSize + edgeSize}")
+      val (nodeSize, edgeSize) = x.getAnalysisGraphSize()
       BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
     }
 
