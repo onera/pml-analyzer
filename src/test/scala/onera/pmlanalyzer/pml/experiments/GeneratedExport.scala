@@ -54,8 +54,10 @@ class GeneratedExport extends AnyFlatSpec with should.Matchers {
 
   it should "be possible to compute the interference" in {
     GeneratedFull.computeAllInterference(
-      1 minutes,
-      ignoreExistingAnalysisFiles = true
+      1 hour,
+      ignoreExistingAnalysisFiles = true,
+      computeSemantics = false,
+      onlySummary = true
     )
     println(
       s"Semantic reduction is: ${GeneratedFull.computeSemanticReduction()}"
