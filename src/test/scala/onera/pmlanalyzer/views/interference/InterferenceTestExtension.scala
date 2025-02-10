@@ -46,8 +46,6 @@ object InterferenceTestExtension {
       BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
     }
 
-    //TODO should integrate as an option of the interference calculus (avoid performing the computation twice)
-    // use the summary instead of the multi-transactions enumeration
     def computeSemanticReduction(): BigDecimal = Await.result(
       x.computeKInterference(
         x.initiators.size,
