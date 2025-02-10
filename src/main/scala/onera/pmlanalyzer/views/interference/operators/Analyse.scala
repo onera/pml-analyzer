@@ -62,6 +62,8 @@ trait Analyse[-T] {
   def printGraph(platform: T): File
 
   def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
+
+  def getGraphSize(platform: T): (BigInt, BigInt)
 }
 
 object Analyse {

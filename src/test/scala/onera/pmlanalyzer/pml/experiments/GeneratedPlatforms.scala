@@ -177,7 +177,6 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
       with NocC8S4G2B8RoutingConstraints
       with TableBasedInterferenceSpecification {}
 
-
   private val platforms = Seq(
     HbusCl2C2B8,
     HbusCl2C4B8,
