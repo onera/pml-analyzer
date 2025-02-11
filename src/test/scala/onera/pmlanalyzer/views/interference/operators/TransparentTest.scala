@@ -23,7 +23,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 import scala.language.postfixOps
 
-class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
+class TransparentTest extends AnyFlatSpecLike with should.Matchers {
 
   object PlatformFixture
       extends Platform(Symbol("fixture"))
@@ -34,8 +34,10 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
   import PlatformFixture.*
 
-  "Two transaction" should "be able to be exclusive from each other" in {
-    tr1Id exclusiveWith tr2Id
-    transactionExclusive(tr1Id) should contain(tr2Id)
+  "A transaction" should "be able to be transparent" in {
+    tr1Id.isTransparent
+    tr2Id.isTransparent
+    transactionIsTransparent.value contains (tr1Id)
+    transactionIsTransparent.value contains (tr1Id)
   }
 }
