@@ -42,7 +42,7 @@ object NotInterfereRelation {
     /** Relation gathering user defined service non-interferences
       * @group interfere_relation
       */
-    final implicit val serviceNotInterfereWithService
+    final implicit val serviceNotInterfere
         : NotInterfereRelation[Service, Service] = NotInterfereRelation(
       Map.empty
     )
@@ -50,7 +50,7 @@ object NotInterfereRelation {
     /** Relation gathering user defined non-interfering hardware
       * @group interfere_relation
       */
-    final implicit val hardwareNotExclusive
+    final implicit val hardwareNotInterfere
         : NotInterfereRelation[Hardware, Hardware] = NotInterfereRelation(
       Map.empty
     )

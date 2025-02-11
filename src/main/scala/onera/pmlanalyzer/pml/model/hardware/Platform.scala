@@ -171,7 +171,7 @@ abstract class Platform(val name: Symbol)(implicit _sourceFile: File)
       */
     def paths: Set[PhysicalTransaction]
 
-    /** Check is the target is in the possible targets of the transaction
+    /** Check if the target is in the possible targets of the transaction
       * @param x
       *   target to find
       * @return
