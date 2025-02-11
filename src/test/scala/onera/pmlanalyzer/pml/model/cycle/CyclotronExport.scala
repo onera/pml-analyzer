@@ -39,6 +39,11 @@ import scala.language.postfixOps
 
 class CyclotronExport extends AnyFlatSpec with should.Matchers {
 
+  object CyclotronWithoutRouting
+    extends CyclotronPlatform
+      with CyclotronTransactionLibrary
+      with TableBasedInterferenceSpecification {}
+
   object CyclotronWithBlockedBy
     extends CyclotronPlatform
       with CyclotronTransactionLibrary
@@ -52,28 +57,17 @@ class CyclotronExport extends AnyFlatSpec with should.Matchers {
       with TableBasedInterferenceSpecification {}
 
   private val platforms = Seq(
+    CyclotronWithoutRouting,
     CyclotronWithBlockedBy,
-    CyclotronWithCannotUse,
+    CyclotronWithCannotUse
   )
 
   "Generated architectures" should "be exportable" in {
     for { p <- platforms } {
-      p.exportRestrictedHWAndSWGraph()
-      p.exportDataAllocationTable()
-      p.exportUserTransactions()
-      p.exportPhysicalTransactions()
+      p.exportServiceGraph()
+      p.exportServiceGraphWithInterfere()
       p.exportUserScenarios()
-      // p.exportSemanticsSize()
       println(s"[INFO] exporting ${p.name.name} done")
-    }
-  }
-
-  it should "be possible to compute the interference" in {
-    for { p <- platforms } {
-      p.computeAllInterference(
-        10 minutes,
-        ignoreExistingAnalysisFiles = true
-      )
     }
   }
 }

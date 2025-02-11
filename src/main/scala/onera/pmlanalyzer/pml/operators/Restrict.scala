@@ -47,16 +47,16 @@ import scala.collection.mutable.HashMap as MHashMap
 trait Restrict[L, R] {
 
   private val _memo =
-    MHashMap.empty[(Service, Initiator, Service, Service), Boolean]
+    MHashMap.empty[(Service, Initiator, Service, Service), (Boolean, Set[String])]
 
   private val _memoRoute =
-    MHashMap.empty[(Service, Initiator, Service, Service), Boolean]
+    MHashMap.empty[(Service, Initiator, Service, Service), (Boolean, Set[String])]
 
   def usedForTgt[U <: Service](tgt: U, ini: Initiator, from: U, to: U)(implicit
       lU: Linked[U, U],
       p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
+  ): (Boolean, Set[String]) =
     _memo.getOrElseUpdate(
       (tgt, ini, from, to),
       usedForTgt(tgt, ini, from, to, Seq.empty[(U, U)])
@@ -94,14 +94,20 @@ trait Restrict[L, R] {
       lU: Linked[U, U],
       p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
-    x == tgt ||
-      lU(x).exists(u => usedForTgt(tgt, initiator, x, u, visited))
+  ): (Boolean, Set[String]) =
+    lU(x).foldLeft((x == tgt, Set.empty[String]))((acc, u) =>
+      if (acc._1)
+        acc
+      else {
+        val (isUsedNext, warnings) = usedForTgt(tgt, initiator, x, u, visited)
+        (isUsedNext, warnings ++ acc._2)
+      }
+    )
 
   /** A service "to" can be accessed from another service "on" to reach a target
-    * service "tgt" from a given initiator "ini" if "on" either if "on" has no
+   * service "tgt" from a given initiator "ini" either if "on" has no
     * predecessor and is the initiator services or it exists a predecessor of
-    * "on" that is routed Moreover if routing restriction applied (r.get((ini,
+   * "on" that is routed. Moreover if routing restriction applied (r.get((ini,
     * tgt, on)) is defined) then "to" must be a viable option
     *
     * @param ini
@@ -125,24 +131,35 @@ trait Restrict[L, R] {
       lU: Linked[U, U],
       p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
+  ): (Boolean, Set[String]) =
     _memoRoute.getOrElseUpdate(
       (tgt, ini, on, to), {
         if (visited.contains(on, to)) {
-          println(Message.cycleWarning(visited, ini, tgt))
-          false
+          (false, Set(Message.cycleWarning(visited, ini, tgt)))
         } else {
           val pred = lU.inverse(on)
           r.get((ini, tgt, on)) match {
             case None =>
-              (pred.isEmpty && ini.services.contains(on)) || (pred exists { x =>
-                isRouted(ini, tgt, x, on, visited :+ ((on, to)))
+              val sufficientCondition = pred.isEmpty && ini.services.contains(on)
+              pred.foldLeft((sufficientCondition, Set.empty[String]))((acc, x) => {
+                if (acc._1)
+                  acc
+                else {
+                  val (isRoutedResult, isRoutedWarnings) = isRouted(ini, tgt, x, on, visited :+ ((on, to)))
+                  (isRoutedResult, isRoutedWarnings ++ acc._2)
+                }
               })
-            case Some(s) =>
-              s.contains(to) && ((pred.isEmpty && ini.services
-                .contains(on)) || (pred exists { x =>
-                isRouted(ini, tgt, x, on, visited :+ ((on, to)))
-              }))
+            case Some(s) if s.contains(to) =>
+              val sufficientCondition = pred.isEmpty && ini.services.contains(on)
+              pred.foldLeft((sufficientCondition, Set.empty[String]))((acc, x) => {
+                if (acc._1)
+                  acc
+                else {
+                  val (isRoutedResult, isRoutedWarnings) = isRouted(ini, tgt, x, on, visited :+ ((on, to)))
+                  (isRoutedResult, isRoutedWarnings ++ acc._2)
+                }
+              })
+            case _ => (false, Set.empty)
           }
         }
       }
@@ -159,17 +176,22 @@ trait Restrict[L, R] {
       lU: Linked[U, U],
       p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean = {
+  ): (Boolean, Set[String]) = {
     if (visited.contains((from, to))) {
-      println(Message.cycleWarning(visited, ini, tgt))
-      false
+      (false, Set(Message.cycleWarning(visited, ini, tgt)))
     } else {
-      isRouted(ini, tgt, from, to, visited) && usedNext(
-        tgt,
-        ini,
-        to,
-        visited :+ ((from, to))
-      )
+      val (isRoutedRes, isRoutedWarning) = isRouted(ini, tgt, from, to, visited)
+      if (!isRoutedRes)
+        (false, Set.empty)
+      else {
+        val (isUsedNext, isUsedWarnings) = usedNext(
+          tgt,
+          ini,
+          to,
+          visited :+ ((from, to))
+        )
+        (isUsedNext, isRoutedWarning ++ isUsedWarnings)
+      }
     }
   }
 
@@ -430,18 +452,28 @@ object Restrict {
     def useBySW[U <: Service](a: Application, from: U, to: U)(implicit
         u: Used[Application, U],
         lU: Linked[U, U]
-    ): Boolean = {
-      u(a).exists(tgt =>
-        aR(a).contains(tgt) &&
-          a.hostingInitiators.exists(ini => usedForTgt(tgt, ini, from, to))
-      )
+    ): (Boolean, Set[String]) = {
+      u(a).foldLeft((false, Set.empty[String]))((acc, tgt) => {
+        if (acc._1 || !aR(a).contains(tgt))
+          acc
+        else {
+          a.hostingInitiators.foldLeft((false, acc._2))((acc2, ini) => {
+            if (acc2._1)
+              acc2
+            else {
+              val (isUsed, isUsedWarnings) = usedForTgt(tgt, ini, from, to)
+              (isUsed, isUsedWarnings ++ acc2._2)
+            }
+          })
+        }
+      })
     }
 
-    def used(a: Application, from: Service, to: Service): Boolean =
+    def used(a: Application, from: Service, to: Service): (Boolean, Set[String]) =
       (from, to) match {
         case (fromL: Load, toL: Load)   => useBySW(a, fromL, toL)
         case (fromS: Store, toS: Store) => useBySW(a, fromS, toS)
-        case _                          => false
+        case _ => (false, Set.empty)
       }
 
     /** Provide the service graph of an application
@@ -455,7 +487,12 @@ object Restrict {
       lS.edges collect { case (from, linked) =>
         from -> {
           linked filter {
-            used(b, from, _)
+            to => {
+              val (isUsed, cycleWarnings) = used(b, from, to)
+              if (isUsed)
+                cycleWarnings foreach println
+              isUsed
+            }
           }
         }
       } filter {
@@ -537,7 +574,7 @@ object Restrict {
       pB: Provided[Initiator, Service]
   ): Restrict[Map[Service, Set[Service]], (T, Service)] with {
 
-    def used(a: T, tgt: Service, from: Service, to: Service): Boolean = {
+    def used(a: T, tgt: Service, from: Service, to: Service): (Boolean, Set[String]) = {
       val authorized = a match {
         case app: Application => aR(app).contains(tgt);
         case _                => true
@@ -546,20 +583,43 @@ object Restrict {
         case app: Application => app.hostingInitiators
         case i: Initiator     => Set(i)
       }
-      authorized && ((tgt, to, from) match {
-        case (tgtL: Load, toL: Load, fromL: Load) =>
-          hostingInitiators.exists(ini => usedForTgt(tgtL, ini, fromL, toL))
-        case (tgtS: Store, toS: Store, fromS: Store) =>
-          hostingInitiators.exists(ini => usedForTgt(tgtS, ini, fromS, toS))
-        case _ => false
-      })
+      if (!authorized)
+        (false, Set.empty)
+      else {
+        (tgt, to, from) match {
+          case (tgtL: Load, toL: Load, fromL: Load) =>
+            hostingInitiators.foldLeft((false, Set.empty[String]))((acc, ini) => {
+              if (acc._1)
+                acc
+              else {
+                val (isUsedRes, isUsedWarnings) = usedForTgt(tgtL, ini, fromL, toL)
+                (isUsedRes, acc._2 ++ isUsedWarnings)
+              }
+            })
+          case (tgtS: Store, toS: Store, fromS: Store) =>
+            hostingInitiators.foldLeft((false, Set.empty[String]))((acc, ini) => {
+              if (acc._1)
+                acc
+              else {
+                val (isUsedRes, isUsedWarnings) = usedForTgt(tgtS, ini, fromS, toS)
+                (isUsedRes, acc._2 ++ isUsedWarnings)
+              }
+            })
+          case _ => (false, Set.empty)
+        }
+      }
     }
 
     def apply(b: (T, Service)): Map[Service, Set[Service]] = {
       lS.edges collect { case (from, linked) =>
         from -> {
           linked filter {
-            used(b._1, b._2, from, _)
+            to => {
+              val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
+              if (isUsed)
+                cycleWarning foreach println
+              isUsed
+            }
           }
         }
       } filter {
