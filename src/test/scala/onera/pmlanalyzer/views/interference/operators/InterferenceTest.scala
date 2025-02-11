@@ -11,6 +11,11 @@ import onera.pmlanalyzer.views.interference.model.relations.{
   InterfereRelation,
   NotInterfereRelation
 }
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalTransaction,
+  PhysicalTransactionId
+}
+
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -19,12 +24,14 @@ import org.scalatest.matchers.should
 import scala.language.postfixOps
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
 
 class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
 
   object PlatformFixture
       extends Platform(Symbol("fixture"))
       with PhysicalTableBasedInterferenceSpecification
+      with TransactionLibraryInstances
       with TransactionLibrary {
     val i1: Initiator = Initiator()
     val i2: Initiator = Initiator()
@@ -45,6 +52,13 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
 
     val tr1: Transaction = Transaction(app1 read d1)
     val tr2: Transaction = Transaction(app2 read d2)
+
+    val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
+    val tr2Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr2"))
+
+    val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
+
+    val scn: Scenario = Scenario()
   }
 
   import PlatformFixture.*
@@ -79,6 +93,40 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
+  "A transaction and a service" should "be able to interfere" in {
+    for {
+      s <- i1.services
+    } {
+      tr1Id interfereWith s
+    }
+    for {
+      s <- i1.services
+    } {
+      physicalTransactionIdInterfereWithService(tr1Id) should contain(s)
+    }
+  }
+
+  "A transaction and a service" should "be able not to interfere" in {
+    for {
+      s <- i2.services
+    } {
+      tr2Id notInterfereWith s
+    }
+    for {
+      s <- i2.services
+    } {
+      physicalTransactionIdNotInterfereWithService(tr2Id) should contain(s)
+    }
+  }
+
+  "A Scenario and a set of physical transaction" should "be able to interfere" in {
+    for {
+      s <- i1.services
+    } {
+      scn interfereWith s
+    }
+  }
+
   "Two Hardwares" should "be able to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
@@ -87,8 +135,6 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
       a interfereWith b
       hardwareInterfere(a) should contain(b)
     }
-    // PlatformFixture.hardware.size should be(6)
-    // hardwareInterfere(i1) should contain(i2)
   }
 
   "Two Hardwares" should "be able not to interfere with each other" in {
