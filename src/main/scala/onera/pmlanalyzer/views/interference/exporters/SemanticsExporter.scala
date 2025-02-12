@@ -17,12 +17,16 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
-import onera.pmlanalyzer.pml.operators.Provided
-import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+import scala.io.Source
+import scala.language.postfixOps
 
 object SemanticsExporter {
   trait Ops {
@@ -42,7 +46,20 @@ object SemanticsExporter {
         writer.close()
         file
       }
+
+      def exportSemanticReduction()(using
+                                    ev: Analyse[T],
+                                    p: Provided[T, Hardware]
+      ): File = {
+        val file = FileManager.exportDirectory.getFile(
+          self.fullName + "SemanticsReduction.txt"
+        )
+        val writer = new FileWriter(file)
+        writer.write("Semantics Reduction is\n")
+        writer.write(self.computeSemanticReduction().toString())
+        writer.close()
+        file
+      }
     }
   }
-
 }
