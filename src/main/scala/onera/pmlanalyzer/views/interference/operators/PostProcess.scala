@@ -448,6 +448,32 @@ object PostProcess {
     }
   }
 
+  private def extractSize(in: Iterable[String]): Map[Int, Int] =
+    in.filter(_.startsWith("[INFO] size "))
+      .map(_.split("over").head)
+      .map(s => {
+        val data = s.split(':')
+        data.head.filter(_.isDigit).toInt -> data.last.filter(_.isDigit).toInt
+      })
+      .toMap
+
+  def parseSummaryFile(
+                        source: BufferedSource
+                      ): (Map[Int, Int], Map[Int, Int]) = {
+    val lines = source
+      .getLines()
+
+    val indexBeginItf =
+      lines.indexWhere(_.contains("[INFO] Interference computed so far"))
+    val indexBeginFree =
+      lines.indexWhere(_.contains("[INFO] Interference free computed so far"))
+
+    val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree).toSeq)
+    val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length).toSeq)
+    source.close()
+    (itfSizes, freeSizes)
+  }
+
   def parseScenarioFile(source: BufferedSource): Array[Seq[String]] = {
     val res = source
       .getLines()
