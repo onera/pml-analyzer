@@ -21,7 +21,10 @@ import onera.pmlanalyzer.pml.exporters.UMLExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, UMLExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenarioId, multiTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalScenarioId,
+  multiTransactionId
+}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -62,7 +65,9 @@ object GraphExporter {
           .flatMap(self.purifiedScenarios)
           .flatMap(self.purifiedTransactions)
 
-        for {s <- services.subsets(2) if self.finalInterfereWith(s.head, s.last)}
+        for {
+          s <- services.subsets(2) if self.finalInterfereWith(s.head, s.last)
+        }
           DOTServiceOnly.writeAssociation(
             DOTServiceOnly.getId(s.head).get,
             DOTServiceOnly.getId(s.last).get,
