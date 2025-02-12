@@ -219,6 +219,8 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
         computeSemantics = false,
         onlySummary = true
       )
+      p.exportSemanticReduction()
+      p.exportGraphReduction()
     }
   }
 }

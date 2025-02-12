@@ -21,37 +21,48 @@ import onera.pmlanalyzer.pml.exporters.UMLExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, UMLExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenarioId,
-  multiTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenarioId, multiTransactionId}
+import onera.pmlanalyzer.views.interference.operators.Analyse
+import onera.pmlanalyzer.views.interference.operators.*
 
-import java.io.FileWriter
+import java.io.{File, FileWriter}
 
-object InterferenceGraphExporter {
+object GraphExporter {
   trait Ops {
-    implicit class InterferenceGraphExporterOps(
-        x: Platform with InterferenceSpecification
-    ) extends UMLExporter.Ops {
-      def exportGraph(it: Set[PhysicalScenarioId]): Unit = {
+    extension [T <: Platform with InterferenceSpecification](self: T) {
+
+      def exportGraphReduction()(using ev: Analyse[T]): File = {
+        val file = FileManager.exportDirectory.getFile(
+          self.fullName + "GraphReduction.txt"
+        )
+        val writer = new FileWriter(file)
+        writer.write("Graph Reduction is\n")
+        writer.write(self.computeGraphReduction().toString())
+        writer.close()
+        file
+      }
+
+      def exportAnalysisGraph()(using ev: Analyse[T]): File =
+        ev.printGraph(self)
+
+      def exportInterferenceGraph(it: Set[PhysicalScenarioId]): File = {
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalScenarioId(x.id))
         )
-        implicit val writer: FileWriter = new FileWriter(
-          FileManager.exportDirectory.getFile(
-            s"${x.fullName}_${
-                if (multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString
-                else multiTransactionName
-              }.dot"
-          )
+        val file = FileManager.exportDirectory.getFile(
+          s"${self.fullName}_${
+            if (multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString
+            else multiTransactionName
+          }.dot"
         )
+        implicit val writer: FileWriter = new FileWriter(file)
         DOTServiceOnly.resetService()
         DOTServiceOnly.writeHeader
         val services = it
-          .flatMap(x.purifiedScenarios)
-          .flatMap(x.purifiedTransactions)
+          .flatMap(self.purifiedScenarios)
+          .flatMap(self.purifiedTransactions)
 
-        for { s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last) }
+        for {s <- services.subsets(2) if self.finalInterfereWith(s.head, s.last)}
           DOTServiceOnly.writeAssociation(
             DOTServiceOnly.getId(s.head).get,
             DOTServiceOnly.getId(s.last).get,
@@ -60,8 +71,8 @@ object InterferenceGraphExporter {
 
         for {
           s <- it
-          t <- x.purifiedScenarios(s)
-          l = x
+          t <- self.purifiedScenarios(s)
+          l = self
             .purifiedTransactions(t)
             .sliding(2)
             .collect { case Seq(f, t) => f -> t }
@@ -79,6 +90,7 @@ object InterferenceGraphExporter {
         }
         DOTServiceOnly.writeFooter
         writer.close()
+        file
       }
     }
   }

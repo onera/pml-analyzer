@@ -23,9 +23,9 @@ package onera.pmlanalyzer.views.interference
   * scala> import onera.pmlanalyzer.views.interference.exporters._
   * }}}
   * The available extension methods are provided in [[IDPExporter.Ops]] and
-  * [[InterferenceGraphExporter.Ops]] Example of usages are provided in ???
+ * [[GraphExporter.Ops]] Example of usages are provided in ???
   */
 package object exporters
     extends IDPExporter.Ops
-    with InterferenceGraphExporter.Ops
+      with GraphExporter.Ops
     with SemanticsExporter.Ops
