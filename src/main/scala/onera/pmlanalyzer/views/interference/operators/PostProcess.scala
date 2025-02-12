@@ -462,14 +462,15 @@ object PostProcess {
                       ): (Map[Int, Int], Map[Int, Int]) = {
     val lines = source
       .getLines()
+      .toSeq
 
     val indexBeginItf =
-      lines.indexWhere(_.contains("[INFO] Interference computed so far"))
+      lines.indexWhere(_.contains("Computed ITF"))
     val indexBeginFree =
-      lines.indexWhere(_.contains("[INFO] Interference free computed so far"))
+      lines.indexWhere(_.contains("Computed ITF-free"))
 
-    val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree).toSeq)
-    val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length).toSeq)
+    val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree))
+    val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length))
     source.close()
     (itfSizes, freeSizes)
   }

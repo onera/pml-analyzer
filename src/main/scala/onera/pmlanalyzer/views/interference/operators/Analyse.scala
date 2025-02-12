@@ -222,7 +222,8 @@ object Analyse {
             s"${self.fullName}_itf_calculus_summary.txt"
           )
         } yield {
-          val (itfResult, freeResult) = PostProcess.parseSummaryFile(Source.fromFile(summary))
+          val (itfResult, freeResult) =
+            PostProcess.parseSummaryFile(Source.fromFile(summary))
           val numberITF = itfResult.filter(_._1 >= 3).values.sum
           val numberFree = freeResult.filter(_._1 >= 3).values.sum
           BigDecimal(
