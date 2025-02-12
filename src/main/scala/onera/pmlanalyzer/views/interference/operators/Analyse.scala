@@ -42,7 +42,9 @@ import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import scala.io.Source
 import scala.jdk.CollectionConverters.*
+import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
 /** Base trait providing proof that an element is analysable with monosat
@@ -198,6 +200,42 @@ object Analyse {
       ): Map[Int, BigInt] =
         ev.getSemanticsSize(self, self.initiators.size)
 
+      def computeSemanticReduction()(using
+                                     ev: Analyse[T],
+                                     p: Provided[T, Hardware]
+      ): BigDecimal = {
+        Await.result(
+          ev.computeInterference(
+            self,
+            self.initiators.size,
+            ignoreExistingAnalysisFiles = false,
+            computeSemantics = true,
+            verboseResultFile = false,
+            onlySummary = true
+          ),
+          1 minute
+        )
+        val (itfResult, freeResult) = PostProcess.parseSummaryFile(
+          Source.fromFile(s"${self.fullName}_itf_calculus_summary.txt")
+        )
+        val numberITF = itfResult.filter(_._1 >= 3).values.sum
+        val numberFree = freeResult.filter(_._1 >= 3).values.sum
+        BigDecimal(
+          self.getSemanticsSize.filter(_._1 >= 3).values.sum
+        ) / BigDecimal(numberFree + numberITF)
+      }
+
+      def computeGraphReduction()(using ev: Analyse[T]): BigDecimal = {
+        val graph = self.fullServiceGraphWithInterfere()
+        val systemGraphSize =
+          (graph.keySet ++ graph.values.flatten).size + graph
+            .flatMap(p => p._2 map { x => Set(p._1, x) })
+            .toSet
+            .size
+        val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
+        BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
+      }
+
       def exportAnalysisGraph()(using ev: Analyse[T]): Unit =
         ev.printGraph(self)
 
@@ -300,6 +338,10 @@ object Analyse {
           cF <- channelFiles
         } yield (iF.values ++ fF.values ++ cF.values).toSet
 
+      val summaryFile = FileManager.analysisDirectory.getFile(
+        s"${platform.fullName}_itf_calculus_summary.txt"
+      )
+
       files match
         case Some(vF)
           if !ignoreExistingAnalysisFiles
@@ -313,12 +355,21 @@ object Analyse {
             )
           )
           vF
+        case None
+          if !ignoreExistingAnalysisFiles
+            && FileManager.analysisDirectory
+            .locate(summaryFile.getName)
+            .isDefined =>
+          println(
+            Message.analysisResultFoundInfo(
+              FileManager.analysisDirectory.name,
+              platform.fullName
+            )
+          )
+          Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis()
           val problem = computeProblemConstraints(platform, maxSize)
-          val summaryFile = FileManager.analysisDirectory.getFile(
-            s"${platform.fullName}_itf_calculus_summary.txt"
-          )
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for {iF <- interferenceFiles} yield iF.transform((_, v) =>
