@@ -31,6 +31,7 @@ import scala.language.postfixOps
 object SemanticsExporter {
   trait Ops {
     extension [T <: Platform](self: T) {
+
       def exportSemanticsSize()(using
           ev: Analyse[T],
           p: Provided[T, Hardware]

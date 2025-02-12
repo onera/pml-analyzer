@@ -236,9 +236,6 @@ object Analyse {
         BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
       }
 
-      def exportAnalysisGraph()(using ev: Analyse[T]): Unit =
-        ev.printGraph(self)
-
       def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
         ev.getGraphSize(self)
     }
