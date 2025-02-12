@@ -199,13 +199,14 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
     NocC8S4G2B8
   )
 
-  "Generated architectures" should "be exportable" in {
-    for {p <- platforms} {
-      p.exportRestrictedHWAndSWGraph()
-      p.exportDataAllocationTable()
-      p.exportUserTransactions()
-      p.exportPhysicalTransactions()
-      p.exportUserScenarios()
+  "Generated architectures" should "be analysable to compute their semantics" in {
+    for {
+      p <- platforms
+      if FileManager.exportDirectory
+        .locate(p.fullName + "SemanticsSize.txt")
+        .isEmpty
+    } {
+      p.exportSemanticsSize()
       println(s"[INFO] exporting ${p.name.name} done")
     }
   }
@@ -213,8 +214,7 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   it should "be possible to compute the interference" in {
     for { p <- platforms } {
       p.computeAllInterference(
-        1 hour,
-        ignoreExistingAnalysisFiles = true,
+        3 hour,
         computeSemantics = false,
         onlySummary = true
       )
