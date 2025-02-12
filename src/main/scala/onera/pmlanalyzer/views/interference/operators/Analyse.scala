@@ -215,14 +215,18 @@ object Analyse {
           ),
           1 minute
         )
-        val (itfResult, freeResult) = PostProcess.parseSummaryFile(
-          Source.fromFile(s"${self.fullName}_itf_calculus_summary.txt")
-        )
-        val numberITF = itfResult.filter(_._1 >= 3).values.sum
-        val numberFree = freeResult.filter(_._1 >= 3).values.sum
-        BigDecimal(
-          self.getSemanticsSize.filter(_._1 >= 3).values.sum
-        ) / BigDecimal(numberFree + numberITF)
+        (for {
+          summary <- FileManager.analysisDirectory.locate(
+            s"${self.fullName}_itf_calculus_summary.txt"
+          )
+        } yield {
+          val (itfResult, freeResult) = PostProcess.parseSummaryFile(Source.fromFile(summary))
+          val numberITF = itfResult.filter(_._1 >= 3).values.sum
+          val numberFree = freeResult.filter(_._1 >= 3).values.sum
+          BigDecimal(
+            self.getSemanticsSize.filter(_._1 >= 3).values.sum
+          ) / BigDecimal(numberFree + numberITF)
+        }) getOrElse BigDecimal(-1)
       }
 
       def computeGraphReduction()(using ev: Analyse[T]): BigDecimal = {
