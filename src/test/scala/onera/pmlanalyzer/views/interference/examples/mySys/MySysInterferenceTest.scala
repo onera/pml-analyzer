@@ -41,7 +41,7 @@ class MySysInterferenceTest extends AnyFlatSpec with should.Matchers {
   }
 
   "For MySys, the semantics reduction" should "consistent with paper" in {
-    MySys.computeSemanticReduction() shouldEqual (BigDecimal(37) / 17)
+    MySys.computeSemanticReduction(ignoreExistingFiles = true) shouldEqual (BigDecimal(37) / 17)
     MySys.computeGraphReduction() shouldEqual (BigDecimal(71) / 28)
   }
 }
