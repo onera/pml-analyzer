@@ -55,18 +55,18 @@ class DbusC2D2B8Test extends AnyFlatSpec with should.Matchers {
       ignoreExistingAnalysisFiles = true,
       onlySummary = true
     )
+    DbusC2D2B8.exportSemanticsSize(ignoreExistingFiles = true)
     for {
-      (itf, free, _) <- PostProcess.parseSummaryFile(DbusC2D2B8)
+      map <- PostProcess.parseSemanticsSizeFile(DbusC2D2B8)
     } yield {
       println(
         s"""
            |Computed Semantics:
-           |${DbusC2D2B8.getSemanticsSize().mkString("\n")}
-           |ITF with Semantics:
-           |${itf.mkString("\n")}
-           |Free with Semantics:
-           |${free.mkString("\n")}
-           |""".stripMargin)
+           |${DbusC2D2B8.getSemanticsSize(ignoreExistingFile = true).mkString("\n")}
+           |From file Semantics:
+           |${map.mkString("\n")}
+           |""".stripMargin
+      )
     }
   }
 }
