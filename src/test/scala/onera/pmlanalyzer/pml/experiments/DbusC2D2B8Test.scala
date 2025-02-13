@@ -45,49 +45,37 @@ class DbusC2D2B8Test extends AnyFlatSpec with should.Matchers {
   object DbusC2D2B8
       extends DbusC2D2B8Platform
       with DbusC2D2B8Software
+      with DbusC2D2B8TransactionLibrary
       with DbusC2D2B8RoutingConstraints
-        with TableBasedInterferenceSpecification
-        with DbusC2D2B8TransactionLibrary {}
+      with TableBasedInterferenceSpecification {}
 
-  //FIXME WEIRD IN DEBUG MODE: ONE TEST NOT WORKS BUT ADDING THE SECOND AND THIRD TEST MAKES THE FIRST WORKS!
-  "DbusC2D2B8" should "be analysable to compute semantics" in {
-    DbusC2D2B8.exportPhysicalTransactions()
-    DbusC2D2B8.exportUserScenarios()
-    DbusC2D2B8.purifiedScenarios.size shouldEqual 40
-    DbusC2D2B8.getSemanticsSize(ignoreExistingFile = true)(2) shouldEqual 600
+  "DbusC2D2B8" should "be analysable to perform interference calculus" in {
+    DbusC2D2B8.computeAllInterference(
+      10 minutes,
+      ignoreExistingAnalysisFiles = true,
+      onlySummary = true
+    )
+    for {
+      (itfS, freeS, _) <- PostProcess.parseSummaryFile(DbusC2D2B8)
+      _ = DbusC2D2B8.computeAllInterference(
+        10 minutes,
+        ignoreExistingAnalysisFiles = true,
+        computeSemantics = false,
+        onlySummary = true
+      )
+      (itf, free, _) <- PostProcess.parseSummaryFile(DbusC2D2B8)
+    } yield {
+      println(
+        s"""
+           |ITF with Semantics:
+           |${itf.mkString("\n")}
+           |ITF without Semantics:
+           |${itfS.mkString("\n")}
+           |Free with Semantics:
+           |${free.mkString("\n")}
+           |Free without Semantics:
+           |${freeS.mkString("\n")}
+           |""".stripMargin)
+    }
   }
-
-  //  "DbusC2D2B8 run 2" should "be analysable to compute semantics" in {
-  //    DbusC2D2B8.purifiedScenarios.size shouldEqual 40
-  //    DbusC2D2B8.getSemanticsSize(ignoreExistingFile = true)(2) shouldEqual 600
-  //  }
-  //
-  //  "DbusC2D2B8 run 3" should "be analysable to compute semantics" in {
-  //    DbusC2D2B8.purifiedScenarios.size shouldEqual 40
-  //    DbusC2D2B8.getSemanticsSize(ignoreExistingFile = true)(2) shouldEqual 600
-  //  }
-
-  //  "DbusC2D2B8" should "be analysable to perform interference calculus" in {
-  //    DbusC2D2B8.computeAllInterference(
-  //      10 minutes,
-  //      ignoreExistingAnalysisFiles = true,
-  //      onlySummary = true
-  //    )
-  //    DbusC2D2B8.exportSemanticsSize(ignoreExistingFiles = true)
-  //    DbusC2D2B8.exportAnalysisGraph()
-  //    DbusC2D2B8.exportUserTransactions()
-  //    DbusC2D2B8.exportUserScenarios()
-  //    for {
-  //      map <- PostProcess.parseSemanticsSizeFile(DbusC2D2B8)
-  //    } yield {
-  //      println(
-  //        s"""
-  //           |Computed Semantics:
-  //           |${DbusC2D2B8.getSemanticsSize(ignoreExistingFile = true).mkString("\n")}
-  //           |From file Semantics:
-  //           |${map.mkString("\n")}
-  //           |""".stripMargin
-  //      )
-  //    }
-  //  }
 }
