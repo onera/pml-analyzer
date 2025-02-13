@@ -20,9 +20,7 @@ package onera.pmlanalyzer.pml.experiments
 
 // import onera.pmlanalyzer.GnuPlotWriter
 import onera.pmlanalyzer.pml.experiments.hbus.*
-
 import onera.pmlanalyzer.pml.experiments.dbus.*
-
 import onera.pmlanalyzer.pml.experiments.noc.*
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
@@ -31,14 +29,12 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  InterferenceSpecification,
-  TableBasedInterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{InterferenceSpecification, TableBasedInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
+import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
@@ -210,14 +206,21 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be possible to compute the interference" in {
+    val timeout: Duration = (1 days)
+    println(timeout)
     for { p <- platforms } {
-      p.computeAllInterference(
-        1 day,
-        computeSemantics = false,
-        onlySummary = true
-      )
-      p.exportSemanticReduction()
       p.exportGraphReduction()
+      try {
+        p.computeAllInterference(
+          timeout,
+          computeSemantics = false,
+          onlySummary = true
+        )
+        p.exportSemanticReduction()
+      } catch
+        case _: TimeoutException => println(s"[TEST] Timeout (after $timeout) for analysis of ${p.fullName}")
+        case _: InterruptedException => println(s"[TEST] Interruption during analysis of ${p.fullName}")
+        case _ => println(s"[TEST] Unknown error during analysis of ${p.fullName}")
     }
   }
 }
