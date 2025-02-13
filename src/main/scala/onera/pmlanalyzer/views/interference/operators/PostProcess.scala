@@ -458,22 +458,33 @@ object PostProcess {
       .toMap
 
   def parseSummaryFile(
-                        source: BufferedSource
-                      ): (Map[Int, Int], Map[Int, Int]) = {
-    val lines = source
-      .getLines()
-      .toSeq
+                        platform: Platform
+                      ): Option[(Map[Int, Int], Map[Int, Int], Double)] =
+    for {
+      file <- FileManager.analysisDirectory.locate(
+        FileManager.getInterferenceAnalysisSummaryFileName(platform)
+      )
+    } yield {
+      val source = Source.fromFile(file)
+      val lines = source
+        .getLines()
+        .toSeq
 
-    val indexBeginItf =
-      lines.indexWhere(_.contains("Computed ITF"))
-    val indexBeginFree =
-      lines.indexWhere(_.contains("Computed ITF-free"))
-
-    val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree))
-    val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length))
-    source.close()
-    (itfSizes, freeSizes)
-  }
+      val indexBeginItf =
+        lines.indexWhere(_.contains("Computed ITF"))
+      val indexBeginFree =
+        lines.indexWhere(_.contains("Computed ITF-free"))
+      val analysisTime: Double =
+        (for {
+          s <- lines.find(_.startsWith("Computation time"))
+        } yield {
+          s.replaceAll("[^\\d.]", "").toDouble
+        }).getOrElse(-1.0)
+      val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree))
+      val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length))
+      source.close()
+      (itfSizes, freeSizes, analysisTime)
+    }
 
   def parseScenarioFile(source: BufferedSource): Array[Seq[String]] = {
     val res = source

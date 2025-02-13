@@ -29,13 +29,17 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{InterferenceSpecification, TableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  InterferenceSpecification,
+  TableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
+import scala.io.Source
 import scala.language.postfixOps
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
@@ -218,9 +222,53 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         )
         p.exportSemanticReduction()
       } catch
-        case _: TimeoutException => println(s"[TEST] Timeout (after $timeout) for analysis of ${p.fullName}")
-        case _: InterruptedException => println(s"[TEST] Interruption during analysis of ${p.fullName}")
-        case _ => println(s"[TEST] Unknown error during analysis of ${p.fullName}")
+        case _: TimeoutException =>
+          println(
+            s"[TEST] Timeout (after $timeout) for analysis of ${p.fullName}"
+          )
+        case _: InterruptedException =>
+          println(s"[TEST] Interruption during analysis of ${p.fullName}")
+        case _ =>
+          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
     }
+  }
+
+  final case class ExperimentResults(
+                                      analysisTime: Double,
+                                      semanticsDistribution: Map[Int, Int],
+                                      itfDistribution: Map[Int, Int],
+                                      freeDistribution: Map[Int, Int],
+                                      graphReduction: Double,
+                                      semanticsReduction: Double
+                                    ) {
+    val semanticsSize: BigInt = semanticsDistribution.values.sum
+    val redDistribution: Map[Int, BigInt] = semanticsDistribution
+      .transform((k, v) =>
+        v - freeDistribution.getOrElse(k, 0) - itfDistribution.getOrElse(k, 0)
+      )
+  }
+
+  it should "be used to export performance plots" in {
+    val results = (for {
+      p <- platforms
+      if FileManager.exportDirectory
+        .locate(FileManager.getSemanticSizeFileName(p))
+        .isDefined
+      (itf, free, analysisTime) <- PostProcess.parseSummaryFile(p)
+      semanticsReduction = p.computeSemanticReduction()
+      graphReduction = 1 // FIXME should be p.computeGraphReduction()
+    } yield {
+      val semanticsDistribution =
+        p.getSemanticsSize().transform((_, v) => v.toInt)
+      p.fullName -> ExperimentResults(
+        analysisTime,
+        semanticsDistribution,
+        itf,
+        free,
+        graphReduction.toDouble,
+        semanticsReduction.toDouble
+      )
+    }).toMap
+    println(results)
   }
 }
