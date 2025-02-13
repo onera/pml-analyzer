@@ -80,5 +80,5 @@ object MySysExport extends App {
 
   MySys.exportSemanticsSize()
 
-  MySys.exportAnalysisGraph()
+  //  MySys.exportAnalysisGraph()
 }

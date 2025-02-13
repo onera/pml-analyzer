@@ -175,10 +175,10 @@ object PostProcess {
       for {
         size <- 2 to Math.min(x.initiators.size, that.initiators.size)
         thisITFFile <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_itf_$size.txt"
+          FileManager.getInterferenceAnalysisITFFileName(x, size)
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
-          s"${that.fullName}_itf_$size.txt"
+          FileManager.getInterferenceAnalysisITFFileName(that, size)
         )
       } yield {
         val file = FileManager.analysisDirectory.getFile(
@@ -235,7 +235,7 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_itf_$n.txt"
+          FileManager.getInterferenceAnalysisITFFileName(x, n)
         )
       } yield {
         val s = Source.fromFile(file)
@@ -257,7 +257,7 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_free_$n.txt"
+          FileManager.getInterferenceAnalysisFreeFileName(x, n)
         )
       } yield {
         val s = Source.fromFile(file)

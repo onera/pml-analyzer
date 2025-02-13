@@ -42,7 +42,7 @@ import org.scalatest.matchers.should
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
-class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
+class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
   object HbusCl2C2B8
       extends HbusCl2C2B8Platform
@@ -202,19 +202,16 @@ class GeneratedPlatforms extends AnyFlatSpec with should.Matchers {
   "Generated architectures" should "be analysable to compute their semantics" in {
     for {
       p <- platforms
-      if FileManager.exportDirectory
-        .locate(p.fullName + "SemanticsSize.txt")
-        .isEmpty
     } {
       p.exportSemanticsSize()
-      println(s"[INFO] exporting ${p.name.name} done")
+      println(s"[TEST] exporting ${p.name.name} done")
     }
   }
 
   it should "be possible to compute the interference" in {
     for { p <- platforms } {
       p.computeAllInterference(
-        3 hour,
+        1 day,
         computeSemantics = false,
         onlySummary = true
       )

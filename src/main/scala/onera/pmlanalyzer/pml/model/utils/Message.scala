@@ -117,8 +117,8 @@ object Message {
   inline def successfulExportInfo(name: Any, time: Any): String =
     s"[INFO] $name exported successfully in $time s"
 
-  inline def analysisResultFoundInfo(folder: Any, platform: Any): String =
-    s"[INFO] $folder already contains result files for $platform, computation discarded"
+  inline def analysisResultFoundInfo(folder: Any, platform: Any, analysis: Any): String =
+    s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
     s"[INFO] $platform MonoSat model successfully built in $time s"
