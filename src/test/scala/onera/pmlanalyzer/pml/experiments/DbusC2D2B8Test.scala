@@ -56,25 +56,16 @@ class DbusC2D2B8Test extends AnyFlatSpec with should.Matchers {
       onlySummary = true
     )
     for {
-      (itfS, freeS, _) <- PostProcess.parseSummaryFile(DbusC2D2B8)
-      _ = DbusC2D2B8.computeAllInterference(
-        10 minutes,
-        ignoreExistingAnalysisFiles = true,
-        computeSemantics = false,
-        onlySummary = true
-      )
       (itf, free, _) <- PostProcess.parseSummaryFile(DbusC2D2B8)
     } yield {
       println(
         s"""
+           |Computed Semantics:
+           |${DbusC2D2B8.getSemanticsSize().mkString("\n")}
            |ITF with Semantics:
            |${itf.mkString("\n")}
-           |ITF without Semantics:
-           |${itfS.mkString("\n")}
            |Free with Semantics:
            |${free.mkString("\n")}
-           |Free without Semantics:
-           |${freeS.mkString("\n")}
            |""".stripMargin)
     }
   }
