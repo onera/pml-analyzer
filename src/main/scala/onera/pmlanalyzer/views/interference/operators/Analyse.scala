@@ -200,33 +200,11 @@ object Analyse {
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): Map[Int, BigInt] =
-        FileManager.exportDirectory.locate(
-          FileManager.getSemanticSizeFileName(self)
-        ) match
-          case Some(file) if !ignoreExistingFile =>
-            println(
-              Message.analysisResultFoundInfo(
-                FileManager.analysisDirectory.name,
-                self.fullName,
-                "semantics size estimation"
-              )
-            )
-            val source = Source.fromFile(file)
-            val res = source
-              .getLines()
-              .toSeq
-              .drop(1)
-              .map(_.split(","))
-              .map(s =>
-                s.head.filter(_.isDigit).toInt -> BigInt(
-                  s.last.filter(_.isDigit)
-                )
-              )
-              .toMap
-            source.close()
-            res
-          case _ =>
-            ev.getSemanticsSize(self, self.initiators.size)
+        if (!ignoreExistingFile)
+          PostProcess.parseSemanticsSizeFile(self)
+            .getOrElse(ev.getSemanticsSize(self, self.initiators.size))
+        else
+          ev.getSemanticsSize(self, self.initiators.size)
 
       def computeSemanticReduction(ignoreExistingFiles: Boolean = false)(using
                                                                          ev: Analyse[T],

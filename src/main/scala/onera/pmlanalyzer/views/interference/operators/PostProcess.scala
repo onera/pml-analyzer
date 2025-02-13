@@ -486,6 +486,27 @@ object PostProcess {
       (itfSizes, freeSizes, analysisTime)
     }
 
+  def parseSemanticsSizeFile(platform: Platform): Option[Map[Int, BigInt]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(FileManager.getSemanticSizeFileName(platform))
+    } yield {
+      val source = Source.fromFile(file)
+      val res = source
+        .getLines()
+        .toSeq
+        .drop(1)
+        .map(_.split(","))
+        .map(s =>
+          s.head.filter(_.isDigit).toInt -> BigInt(
+            s.last.filter(_.isDigit)
+          )
+        )
+        .toMap
+      source.close()
+      res
+    }
+  }
+
   def parseScenarioFile(source: BufferedSource): Array[Seq[String]] = {
     val res = source
       .getLines()
