@@ -32,15 +32,15 @@ object SemanticsExporter {
   trait Ops {
     extension [T <: Platform](self: T) {
 
-      def exportSemanticsSize()(using
+      def exportSemanticsSize(ignoreExistingFiles: Boolean = false)(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): File = {
+        val semantics = self.getSemanticsSize(ignoreExistingFiles).toSeq.sortBy(_._1)
         val file = FileManager.exportDirectory.getFile(
-          self.fullName + "SemanticsSize.txt"
+          FileManager.getSemanticSizeFileName(self)
         )
         val writer = new FileWriter(file)
-        val semantics = self.getSemanticsSize.toSeq.sortBy(_._1)
         writer.write("Multi-transaction cardinal, Number\n")
         for ((i, n) <- semantics)
           writer.write(s"$i, $n\n")
@@ -53,7 +53,7 @@ object SemanticsExporter {
                                     p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
-          self.fullName + "SemanticsReduction.txt"
+          FileManager.getSemanticSizeFileName(self)
         )
         val writer = new FileWriter(file)
         writer.write("Semantics Reduction is\n")

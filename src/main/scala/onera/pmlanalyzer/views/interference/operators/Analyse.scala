@@ -194,13 +194,33 @@ object Analyse {
           timeout
         )
 
-      def getSemanticsSize(using
+      def getSemanticsSize(ignoreExistingFile: Boolean = true)(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): Map[Int, BigInt] =
-        ev.getSemanticsSize(self, self.initiators.size)
+        FileManager.exportDirectory.locate(FileManager.getSemanticSizeFileName(self)) match
+          case Some(file) if !ignoreExistingFile =>
+            println(
+              Message.analysisResultFoundInfo(
+                FileManager.analysisDirectory.name,
+                self.fullName,
+                "semantics size estimation"
+              )
+            )
+            val source = Source.fromFile(file)
+            val res = source
+              .getLines()
+              .toSeq
+              .drop(1)
+              .map(_.split(","))
+              .map(s => s.head.filter(_.isDigit).toInt -> BigInt(s.last.filter(_.isDigit)))
+              .toMap
+            source.close()
+            res
+          case _ =>
+            ev.getSemanticsSize(self, self.initiators.size)
 
-      def computeSemanticReduction()(using
+      def computeSemanticReduction(ignoreExistingFiles: Boolean = false)(using
                                      ev: Analyse[T],
                                      p: Provided[T, Hardware]
       ): BigDecimal = {
@@ -208,7 +228,7 @@ object Analyse {
           ev.computeInterference(
             self,
             self.initiators.size,
-            ignoreExistingAnalysisFiles = false,
+            ignoreExistingAnalysisFiles = ignoreExistingFiles,
             computeSemantics = true,
             verboseResultFile = false,
             onlySummary = true
@@ -217,7 +237,7 @@ object Analyse {
         )
         (for {
           summary <- FileManager.analysisDirectory.locate(
-            s"${self.fullName}_itf_calculus_summary.txt"
+            FileManager.getInterferenceAnalysisSummaryFileName(self)
           )
         } yield {
           val (itfResult, freeResult) =
@@ -225,7 +245,7 @@ object Analyse {
           val numberITF = itfResult.filter(_._1 >= 3).values.sum
           val numberFree = freeResult.filter(_._1 >= 3).values.sum
           BigDecimal(
-            self.getSemanticsSize.filter(_._1 >= 3).values.sum
+            self.getSemanticsSize(ignoreExistingFiles).filter(_._1 >= 3).values.sum
           ) / BigDecimal(numberFree + numberITF)
         }) getOrElse BigDecimal(-1)
       }
@@ -304,7 +324,7 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(s"${platform.fullName}_itf_$size.txt")
+                  .getFile(FileManager.getInterferenceAnalysisITFFileName(platform, size))
               )
               .toMap
           )
@@ -317,7 +337,7 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(s"${platform.fullName}_free_$size.txt")
+                  .getFile(FileManager.getInterferenceAnalysisFreeFileName(platform, size))
               )
               .toMap
           )
@@ -329,7 +349,7 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(s"${platform.fullName}_channel_$size.txt")
+                  .getFile(FileManager.getInterferenceAnalysisChannelFileName(platform, size))
               )
               .toMap
           )
@@ -341,7 +361,7 @@ object Analyse {
         } yield (iF.values ++ fF.values ++ cF.values).toSet
 
       val summaryFile = FileManager.analysisDirectory.getFile(
-        s"${platform.fullName}_itf_calculus_summary.txt"
+        FileManager.getInterferenceAnalysisSummaryFileName(platform)
       )
 
       files match
@@ -353,7 +373,8 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.fullName
+              platform.fullName,
+              "interference analysis"
             )
           )
           vF
@@ -365,7 +386,8 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.fullName
+              platform.fullName,
+              "interference analysis"
             )
           )
           Set.empty
