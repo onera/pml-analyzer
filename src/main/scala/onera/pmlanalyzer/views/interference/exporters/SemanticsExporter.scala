@@ -36,7 +36,8 @@ object SemanticsExporter {
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): File = {
-        val semantics = self.getSemanticsSize(ignoreExistingFiles).toSeq.sortBy(_._1)
+        val semantics =
+          self.getSemanticsSize(ignoreExistingFiles).toSeq.sortBy(_._1)
         val file = FileManager.exportDirectory.getFile(
           FileManager.getSemanticSizeFileName(self)
         )
@@ -53,7 +54,7 @@ object SemanticsExporter {
                                     p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticSizeFileName(self)
+          FileManager.getSemanticsReductionFileName(self)
         )
         val writer = new FileWriter(file)
         writer.write("Semantics Reduction is\n")
