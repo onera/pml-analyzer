@@ -17,6 +17,8 @@
 
 package onera.pmlanalyzer.pml.exporters
 
+import onera.pmlanalyzer.pml.model.hardware.Platform
+
 import java.io.File
 import scala.io.{BufferedSource, Source}
 //import scala.reflect.io.Path
@@ -98,11 +100,24 @@ object FileManager {
 
   val exportDirectory: OutputDirectory = OutputDirectory("export")
 
-  val temporaryDirectory: OutputDirectory = OutputDirectory("temp")
-
   def extractResource(name: String): Option[BufferedSource] = {
     val classLoader = getClass.getClassLoader
     val resource = Source.fromInputStream(classLoader.getResourceAsStream(name))
     Option(resource)
   }
+
+  def getInterferenceAnalysisITFFileName(platform: Platform, size: Int): String =
+    s"${platform.fullName}_itf_$size.txt"
+
+  def getInterferenceAnalysisFreeFileName(platform: Platform, size: Int): String =
+    s"${platform.fullName}_free_$size.txt"
+
+  def getInterferenceAnalysisChannelFileName(platform: Platform, size: Int): String =
+    s"${platform.fullName}_channel_$size.txt"
+
+  def getInterferenceAnalysisSummaryFileName(platform: Platform): String =
+    s"${platform.fullName}_itf_calculus_summary.txt"
+
+  def getSemanticSizeFileName(platform: Platform): String =
+    s"${platform.fullName}SemanticsSize.txt"
 }
