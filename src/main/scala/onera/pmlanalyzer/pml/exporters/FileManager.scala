@@ -106,13 +106,22 @@ object FileManager {
     Option(resource)
   }
 
-  def getInterferenceAnalysisITFFileName(platform: Platform, size: Int): String =
+  def getInterferenceAnalysisITFFileName(
+                                          platform: Platform,
+                                          size: Int
+                                        ): String =
     s"${platform.fullName}_itf_$size.txt"
 
-  def getInterferenceAnalysisFreeFileName(platform: Platform, size: Int): String =
+  def getInterferenceAnalysisFreeFileName(
+                                           platform: Platform,
+                                           size: Int
+                                         ): String =
     s"${platform.fullName}_free_$size.txt"
 
-  def getInterferenceAnalysisChannelFileName(platform: Platform, size: Int): String =
+  def getInterferenceAnalysisChannelFileName(
+                                              platform: Platform,
+                                              size: Int
+                                            ): String =
     s"${platform.fullName}_channel_$size.txt"
 
   def getInterferenceAnalysisSummaryFileName(platform: Platform): String =
@@ -120,4 +129,7 @@ object FileManager {
 
   def getSemanticSizeFileName(platform: Platform): String =
     s"${platform.fullName}SemanticsSize.txt"
+
+  def getSemanticsReductionFileName(platform: Platform): String =
+    s"${platform.fullName}SemanticsReduction.txt"
 }

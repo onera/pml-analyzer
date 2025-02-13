@@ -194,11 +194,13 @@ object Analyse {
           timeout
         )
 
-      def getSemanticsSize(ignoreExistingFile: Boolean = true)(using
+      def getSemanticsSize(ignoreExistingFile: Boolean = false)(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): Map[Int, BigInt] =
-        FileManager.exportDirectory.locate(FileManager.getSemanticSizeFileName(self)) match
+        FileManager.exportDirectory.locate(
+          FileManager.getSemanticSizeFileName(self)
+        ) match
           case Some(file) if !ignoreExistingFile =>
             println(
               Message.analysisResultFoundInfo(
@@ -213,7 +215,11 @@ object Analyse {
               .toSeq
               .drop(1)
               .map(_.split(","))
-              .map(s => s.head.filter(_.isDigit).toInt -> BigInt(s.last.filter(_.isDigit)))
+              .map(s =>
+                s.head.filter(_.isDigit).toInt -> BigInt(
+                  s.last.filter(_.isDigit)
+                )
+              )
               .toMap
             source.close()
             res
@@ -221,8 +227,8 @@ object Analyse {
             ev.getSemanticsSize(self, self.initiators.size)
 
       def computeSemanticReduction(ignoreExistingFiles: Boolean = false)(using
-                                     ev: Analyse[T],
-                                     p: Provided[T, Hardware]
+                                                                         ev: Analyse[T],
+                                                                         p: Provided[T, Hardware]
       ): BigDecimal = {
         Await.result(
           ev.computeInterference(
@@ -236,16 +242,16 @@ object Analyse {
           1 minute
         )
         (for {
-          summary <- FileManager.analysisDirectory.locate(
-            FileManager.getInterferenceAnalysisSummaryFileName(self)
-          )
+          (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(self)
         } yield {
-          val (itfResult, freeResult) =
-            PostProcess.parseSummaryFile(Source.fromFile(summary))
           val numberITF = itfResult.filter(_._1 >= 3).values.sum
           val numberFree = freeResult.filter(_._1 >= 3).values.sum
           BigDecimal(
-            self.getSemanticsSize(ignoreExistingFiles).filter(_._1 >= 3).values.sum
+            self
+              .getSemanticsSize(ignoreExistingFiles)
+              .filter(_._1 >= 3)
+              .values
+              .sum
           ) / BigDecimal(numberFree + numberITF)
         }) getOrElse BigDecimal(-1)
       }
@@ -324,7 +330,10 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(FileManager.getInterferenceAnalysisITFFileName(platform, size))
+                  .getFile(
+                    FileManager
+                      .getInterferenceAnalysisITFFileName(platform, size)
+                  )
               )
               .toMap
           )
@@ -337,7 +346,10 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(FileManager.getInterferenceAnalysisFreeFileName(platform, size))
+                  .getFile(
+                    FileManager
+                      .getInterferenceAnalysisFreeFileName(platform, size)
+                  )
               )
               .toMap
           )
@@ -349,7 +361,10 @@ object Analyse {
             sizes
               .map(size =>
                 size -> FileManager.analysisDirectory
-                  .getFile(FileManager.getInterferenceAnalysisChannelFileName(platform, size))
+                  .getFile(
+                    FileManager
+                      .getInterferenceAnalysisChannelFileName(platform, size)
+                  )
               )
               .toMap
           )
