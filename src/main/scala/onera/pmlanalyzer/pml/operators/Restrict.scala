@@ -106,16 +106,16 @@ trait Restrict[L, R] {
    * "on" that is routed. Moreover if routing restriction applied (r.get((ini,
     * tgt, on)) is defined) then "to" must be a viable option
     *
-    * @param ini
-    * @param tgt
-    * @param on
-    * @param to
-    * @param visited
-    * @param lU
-    * @param p
-    * @param r
-    * @tparam U
-    * @return
+   * @param ini     the initiator
+   * @param tgt     the target
+   * @param on      the left element of the analysed link
+   * @param to      the right element if the analysed link
+   * @param visited the sequence of visited nodes
+   * @param lU      the proof that U can be linked
+   * @param p       the proof that an initiator can provide services
+   * @param r       the proof that a routing relation exists
+   * @tparam U the type of element within the graph
+   * @return if the link is used and the cycles found during the analysis
     */
   private def isRouted[U <: Service](
       ini: Initiator,
@@ -220,7 +220,6 @@ object Restrict {
 
     /** Extension method class
       *
-      * @param self
       *   the element on which keyword can be used
       */
     extension (self: Platform) {
