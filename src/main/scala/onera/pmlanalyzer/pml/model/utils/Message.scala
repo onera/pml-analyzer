@@ -106,7 +106,7 @@ object Message {
     s"[WARNING] Useless routing constraints: $from services are not linked to the ones of $to"
 
   val cyclicGraphWarning: String =
-    "[WARNING] The paths computed on the graph my be incorrect since the graph is cyclic"
+    "[WARNING] The paths computed on the graph may be incorrect since the graph is cyclic"
 
   inline def cycleWarning(
       visited: Seq[(Any, Any)],

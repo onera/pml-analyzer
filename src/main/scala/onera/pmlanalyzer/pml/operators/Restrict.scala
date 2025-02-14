@@ -23,17 +23,13 @@ import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
 import onera.pmlanalyzer.pml.examples.simpleT1042.SimpleT1042Platform
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
-import onera.pmlanalyzer.pml.model.relations.{
-  AuthorizeRelation,
-  LinkRelation,
-  RoutingRelation,
-  UseRelation
-}
+import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, LinkRelation, RoutingRelation, UseRelation}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 
+import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap
 
 /** Base trait for restrict operator used to restrict the connection graph of
@@ -238,8 +234,8 @@ object Restrict {
         */
       def serviceGraphOf(s: Application): Map[Service, Set[Service]] = {
         import self._
-        val ev = implicitly[Restrict[Map[Service, Set[Service]], Application]]
-        ev(s)
+        val ev = implicitly[Restrict[(Map[Service, Set[Service]], Set[String]), Application]]
+        ev(s)._1
       }
 
       /** PML keyword to access to the service graph of the full platform
@@ -347,8 +343,8 @@ object Restrict {
         */
       def hardwareGraphOf(s: Application): Map[Hardware, Set[Hardware]] = {
         import self._
-        val ev = implicitly[Restrict[Map[Hardware, Set[Hardware]], Application]]
-        ev(s)
+        val ev = implicitly[Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]]
+        ev(s)._1
       }
 
       /** PML keyword to access to the service graph used by an application to
@@ -367,9 +363,9 @@ object Restrict {
       ): Map[Service, Set[Service]] = {
         import self._
         val ev = implicitly[
-          Restrict[Map[Service, Set[Service]], (Application, Service)]
+          Restrict[(Map[Service, Set[Service]], Set[String]), (Application, Service)]
         ]
-        ev((s, tgt))
+        ev((s, tgt))._1
       }
 
       /** PML keyword to access to the hardware graph used by an application to
@@ -388,9 +384,9 @@ object Restrict {
       ): Map[Hardware, Set[Hardware]] = {
         import self._
         val ev = implicitly[
-          Restrict[Map[Hardware, Set[Hardware]], (Application, Service)]
+          Restrict[(Map[Hardware, Set[Hardware]], Set[String]), (Application, Service)]
         ]
-        ev((s, tgt))
+        ev((s, tgt))._1
       }
 
     }
@@ -429,7 +425,7 @@ object Restrict {
       aR: AuthorizeRelation[Application, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service],
       pB: Provided[Initiator, Service]
-  ): Restrict[Map[Service, Set[Service]], Application] with {
+        ): Restrict[(Map[Service, Set[Service]], Set[String]), Application] with {
 
     /** Check if the application uses some route between an initial service and
       * a target service
@@ -483,14 +479,15 @@ object Restrict {
       * @return
       *   its service graph
       */
-    def apply(b: Application): Map[Service, Set[Service]] = {
-      lS.edges collect { case (from, linked) =>
+    def apply(b: Application): (Map[Service, Set[Service]], Set[String]) = {
+      val warnings = mutable.Set.empty[String]
+      val graph = lS.edges collect { case (from, linked) =>
         from -> {
           linked filter {
             to => {
               val (isUsed, cycleWarnings) = used(b, from, to)
               if (isUsed)
-                cycleWarnings foreach println
+                warnings ++= cycleWarnings
               isUsed
             }
           }
@@ -498,21 +495,22 @@ object Restrict {
       } filter {
         _._2.nonEmpty
       }
+      (graph, warnings.toSet)
     }
   }
 
   given [T](using
       lP: LinkRelation[Hardware],
       pS: Provided[Hardware, Service],
-      restrict: Restrict[Map[Service, Set[Service]], T]
-  ): Restrict[Map[Hardware, Set[Hardware]], T] with {
-    def apply(b: T): Map[Hardware, Set[Hardware]] = {
+            restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
+           ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
+    def apply(b: T): (Map[Hardware, Set[Hardware]], Set[String]) = {
       val restricted = restrict(b)
       // shortcut non-owner services, if k -> v and k is not owned by any HW then push v to all predecessors of k
-      val nonOwnedServices = restricted.keySet.collect {
+      val nonOwnedServices = restricted._1.keySet.collect {
         case b: Service if b.hardwareOwner.isEmpty => b
       }
-      val shortcut = nonOwnedServices.foldLeft(restricted)((acc, toRemove) =>
+      val shortcut = nonOwnedServices.foldLeft(restricted._1)((acc, toRemove) =>
         {
           for {
             toAdd <- acc.get(toRemove)
@@ -562,7 +560,7 @@ object Restrict {
             )
           }.getOrElse(acc + (toAdd._1 -> Set(toAdd._2)))
         )
-      completedPLLinks
+      (completedPLLinks, restricted._2)
     }
   }
 
@@ -572,7 +570,7 @@ object Restrict {
       aR: AuthorizeRelation[Application, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service],
       pB: Provided[Initiator, Service]
-  ): Restrict[Map[Service, Set[Service]], (T, Service)] with {
+                                      ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
 
     def used(a: T, tgt: Service, from: Service, to: Service): (Boolean, Set[String]) = {
       val authorized = a match {
@@ -610,14 +608,15 @@ object Restrict {
       }
     }
 
-    def apply(b: (T, Service)): Map[Service, Set[Service]] = {
-      lS.edges collect { case (from, linked) =>
+    def apply(b: (T, Service)): (Map[Service, Set[Service]], Set[String]) = {
+      val warnings = mutable.Set.empty[String]
+      val graph = lS.edges collect { case (from, linked) =>
         from -> {
           linked filter {
             to => {
               val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
               if (isUsed)
-                cycleWarning foreach println
+                warnings ++= cycleWarning
               isUsed
             }
           }
@@ -625,6 +624,7 @@ object Restrict {
       } filter {
         _._2.nonEmpty
       }
+      (graph, warnings.toSet)
     }
   }
 }

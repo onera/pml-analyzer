@@ -22,14 +22,13 @@ import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.UseRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.model.utils.Message._
+import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  Path,
-  PhysicalTransaction
-}
-import onera.pmlanalyzer.pml.operators._
-import scala.reflect._
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{Path, PhysicalTransaction}
+import onera.pmlanalyzer.pml.operators.*
+
+import scala.collection.mutable
+import scala.reflect.*
 
 /** Base trait for used operator
   *
@@ -214,39 +213,54 @@ object Used {
 
       def usedTransactionsBy[U <: Initiator | Application](x: U)(using
           u: Used[U, Service],
-          r: Restrict[Map[Service, Set[Service]], (U, Service)],
+                                                                 r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
           typeable: Typeable[U & Initiator]
-      ): Set[Path[Service]] = {
+      ): (Set[Path[Service]], Set[String]) = {
+
+        // get all target services for x
         val allTargets = x.targetService
 
+        val warningRestrict = mutable.Set.empty[String]
+        // get the service graph from x services to reach each target service.
         val serviceGraph =
-          allTargets.groupMapReduce(s => s)(s => r((x, s)))((l, r) => l ++ r)
+          allTargets.groupMapReduce(s => s)(s => {
+            val (graph, warnings) = r((x, s))
+            warningRestrict ++= warnings
+            graph
+          })((l, r) => l ++ r)
 
+        // compute the services of x
         val fromServices = x match {
           case app: Application => app.hostingInitiators.flatMap(_.services)
           case ini: Initiator   => ini.services
         }
 
-        val paths = serviceGraph.transform((_, graph) =>
-          fromServices flatMap { from => pathsIn(from, graph) }
-        )
+        // compute the paths within each graph from the services of x
+        val (paths, warningPaths) = (for {
+          iniS <- fromServices
+          graph <- serviceGraph.values if graph.contains(iniS)
+        } yield {
+          pathsIn(iniS, graph)
+        }).unzip
 
-        val result = paths.values.flatten.toSet
+        val result = paths.flatten
+
         x match {
           case sw: Application =>
-            checkTransactions(result, allTargets, Some(sw)).foreach(println)
+            checkTransactions(result, allTargets, Some(sw)).toSeq.sorted.foreach(println)
             checkApplicationAllocation(sw)
           case _: Initiator =>
-            checkTransactions(result, allTargets, None).foreach(println)
+            checkTransactions(result, allTargets, None).toSeq.sorted.foreach(println)
         }
-        result
+        (result, warningPaths.flatten ++ warningRestrict)
       }
 
-      val result =
-        a.applications.flatMap(usedTransactionsBy) ++ a.initiators.flatMap(
-          usedTransactionsBy
-        )
-      result
+      val (appPaths, appWarnings) = a.applications.map(usedTransactionsBy).unzip
+      val (iniPaths, iniWarnings) = a.initiators.map(usedTransactionsBy).unzip
+
+      (appWarnings.flatten ++ iniWarnings.flatten).toSeq.sorted.foreach(println)
+
+      appPaths.flatten ++ iniPaths.flatten
     }
   }
 
@@ -306,33 +320,29 @@ object Used {
   private def pathsIn[A, B <: A](
       from: A,
       graph: Map[A, Set[B]]
-  ): Set[Path[A]] = {
+                                ): (Set[Path[A]], Set[String]) = {
 
     /** This function value compute the path from a node of the graph to its
       * leaf nodes (first element of the Pair). A set of visited nodes is also
       * provided (second element of the Pair) to cut cycles The result are
       * memoized to avoid multiple computation of the paths
       */
-    lazy val _paths: ((A, Set[A])) => Set[Path[A]] = immutableHashMapMemo { s =>
-      if (s._2.contains(s._1)) {
-        println(cyclicGraphWarning)
-        Set(Nil)
-      } else if (
-        s._2.contains(s._1) || !graph.contains(s._1) || graph(s._1).isEmpty
-      )
-        Set(Nil)
+    def _paths(current: A, path: Path[A], visited: Set[A]): (Set[Path[A]], Set[String]) = {
+      if (visited.contains(current)) {
+        (Set.empty, Set(cyclicGraphWarning))
+      } else if (!graph.contains(current) || graph(current).isEmpty)
+        (Set(path :+ current), Set.empty)
       else {
-        for {
-          next <- graph(s._1)
-          path <- _paths(next, s._2 + s._1)
-        } yield next +: path
+        val (paths, warnings) = graph(current)
+          .map(next => _paths(next, path :+ current, visited + current))
+          .unzip
+        (paths.flatten filter {
+          _.nonEmpty
+        }, warnings.flatten)
       }
     }
 
-    // remove empty paths (i.e. from is not connected to anyone in the graph) and add from as path head
-    _paths((from, Set.empty)) collect {
-      case p if p.nonEmpty => from +: p
-    }
+    _paths(from, Nil, Set.empty)
   }
 
   def checkImpossible(
