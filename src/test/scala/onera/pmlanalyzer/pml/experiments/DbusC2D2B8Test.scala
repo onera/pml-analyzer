@@ -57,6 +57,8 @@ class DbusC2D2B8Test extends AnyFlatSpec with should.Matchers {
     )
     DbusC2D2B8.exportSemanticsSize(ignoreExistingFiles = true)
     DbusC2D2B8.exportAnalysisGraph()
+    DbusC2D2B8.exportUserTransactions()
+    DbusC2D2B8.exportUserScenarios()
     for {
       map <- PostProcess.parseSemanticsSizeFile(DbusC2D2B8)
     } yield {
