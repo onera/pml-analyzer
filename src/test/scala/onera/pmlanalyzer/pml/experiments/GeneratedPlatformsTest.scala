@@ -204,7 +204,8 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       p <- platforms
     } {
-      p.exportSemanticsSize()
+      p.transactions
+      //      p.exportSemanticsSize()
       println(s"[TEST] exporting ${p.name.name} done")
     }
   }

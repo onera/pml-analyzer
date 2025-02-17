@@ -46,12 +46,6 @@ trait NocC4S2G1B8RoutingConstraints {
   private val srams: Seq[Target] = Seq(
   )
 
-  private val srams: Seq[Target] = Seq(
-  )
-
-  private val srams: Seq[Target] = Seq(
-  )
-
   for {
     i <- cores
     target <- Target.all
