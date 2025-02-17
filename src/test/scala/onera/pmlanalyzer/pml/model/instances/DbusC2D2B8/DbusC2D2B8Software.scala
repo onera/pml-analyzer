@@ -16,23 +16,27 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-package onera.pmlanalyzer.pml.model.configuration
+package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.operators.*
 
-class TransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+trait DbusC2D2B8Software {
+  self: DbusC2D2B8Platform =>
 
-  "A transaction library" should "detect physical transaction with multiple names" in {}
+  val app_rosace_cg0_cl0_C0: Application = Application()
+  app_rosace_cg0_cl0_C0 hostedBy rosace.cg0.cl0.C0
 
-  it should "detect the physical transaction without names" in {}
+  val app_rosace_cg0_cl0_C1: Application = Application()
+  app_rosace_cg0_cl0_C1 hostedBy rosace.cg0.cl0.C1
 
-  it should "detect impossible user transaction" in {}
+  val app_rosace_dg0_cl0_C0: Application = Application()
+  app_rosace_dg0_cl0_C0 hostedBy rosace.dg0.cl0.C0
 
-  it should "encode properly the relation between user and physical transactions" in {}
+  val app_rosace_dg0_cl0_C1: Application = Application()
+  app_rosace_dg0_cl0_C1 hostedBy rosace.dg0.cl0.C1
+
+  val app_dma: Application = Application()
+  app_dma hostedBy rosace.dma
 
 }

@@ -4,6 +4,7 @@ title: "Software Allocation"
 ---
 
 The application layer is composed of five tasks:
+
 * app4 is an asynchronous microcode running on the eth component.
 * app21 is a periodic task running on core2.
 * app22 is a periodic task running on core2.

@@ -24,7 +24,10 @@ import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{Path, PhysicalTransaction}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  Path,
+  PhysicalTransaction
+}
 import onera.pmlanalyzer.pml.operators.*
 
 import scala.collection.mutable
@@ -247,10 +250,12 @@ object Used {
 
         x match {
           case sw: Application =>
-            checkTransactions(result, allTargets, Some(sw)).toSeq.sorted.foreach(println)
+            checkTransactions(result, allTargets, Some(sw)).toSeq.sorted
+              .foreach(println)
             checkApplicationAllocation(sw)
           case _: Initiator =>
-            checkTransactions(result, allTargets, None).toSeq.sorted.foreach(println)
+            checkTransactions(result, allTargets, None).toSeq.sorted
+              .foreach(println)
         }
         (result, warningPaths.flatten ++ warningRestrict)
       }
@@ -327,7 +332,11 @@ object Used {
       * provided (second element of the Pair) to cut cycles The result are
       * memoized to avoid multiple computation of the paths
       */
-    def _paths(current: A, path: Path[A], visited: Set[A]): (Set[Path[A]], Set[String]) = {
+    def _paths(
+                current: A,
+                path: Path[A],
+                visited: Set[A]
+              ): (Set[Path[A]], Set[String]) = {
       if (visited.contains(current)) {
         (Set.empty, Set(cyclicGraphWarning))
       } else if (!graph.contains(current) || graph(current).isEmpty)
@@ -336,9 +345,12 @@ object Used {
         val (paths, warnings) = graph(current)
           .map(next => _paths(next, path :+ current, visited + current))
           .unzip
-        (paths.flatten filter {
-          _.nonEmpty
-        }, warnings.flatten)
+        (
+          paths.flatten filter {
+            _.nonEmpty
+          },
+          warnings.flatten
+        )
       }
     }
 

@@ -6,17 +6,20 @@ val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
-lazy val modelCode = taskKey[Seq[(String,File)]]("files to be embedded in docker")
+lazy val modelCode =
+  taskKey[Seq[(String, File)]]("files to be embedded in docker")
 
-lazy val dockerProxySetting = (
-  for {
-    httpProxy <- sys.env.get("http_proxy")
-    httpsProxy <- sys.env.get("https_proxy")
-  } yield {
-    Seq( docker / dockerBuildArguments := Map(
+lazy val dockerProxySetting = (for {
+  httpProxy <- sys.env.get("http_proxy")
+  httpsProxy <- sys.env.get("https_proxy")
+} yield {
+  Seq(
+    docker / dockerBuildArguments := Map(
       "http_proxy" -> httpProxy,
-      "https_proxy" -> httpsProxy))
-  }) getOrElse Seq.empty
+      "https_proxy" -> httpsProxy
+    )
+  )
+}) getOrElse Seq.empty
 
 lazy val dockerSettings = Seq(
   docker / imageNames := Seq(
@@ -30,7 +33,7 @@ lazy val dockerSettings = Seq(
     "src/main/scala/pml/examples/simpleKeystone" -> (Compile / scalaSource).value / "pml" / "examples" / "simpleKeystone",
     "src/main/scala/pml/examples/simpleT1042" -> (Compile / scalaSource).value / "pml" / "examples" / "simpleT1042",
     "src/main/scala/views/interference/examples/simpleKeystone" -> (Compile / scalaSource).value / "views" / "interference" / "examples" / "simpleKeystone",
-    "src/main/scala/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "views" / "interference" / "examples" / "simpleT1042",
+    "src/main/scala/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "views" / "interference" / "examples" / "simpleT1042"
   ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
@@ -41,24 +44,48 @@ lazy val dockerSettings = Seq(
     val binlib = base / "binlib"
     new Dockerfile {
       from("openjdk:8")
-      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make")
+      customInstruction(
+        "RUN",
+        "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make"
+      )
       env("SBT_VERSION", sbtVersion.value)
-      customInstruction("RUN", "mkdir /working/ && cd /working/ && curl -L -o sbt-$SBT_VERSION.deb https://repo.scala-sbt.org/scalasbt/debian/sbt-$SBT_VERSION.deb && dpkg -i sbt-$SBT_VERSION.deb && rm sbt-$SBT_VERSION.deb && apt-get update && apt-get install sbt && cd && rm -r /working/")
-      customInstruction("RUN", "groupadd -r user && useradd --no-log-init -r -g user user")
+      customInstruction(
+        "RUN",
+        "mkdir /working/ && cd /working/ && curl -L -o sbt-$SBT_VERSION.deb https://repo.scala-sbt.org/scalasbt/debian/sbt-$SBT_VERSION.deb && dpkg -i sbt-$SBT_VERSION.deb && rm sbt-$SBT_VERSION.deb && apt-get update && apt-get install sbt && cd && rm -r /working/"
+      )
+      customInstruction(
+        "RUN",
+        "groupadd -r user && useradd --no-log-init -r -g user user"
+      )
       customInstruction("RUN", "mkdir -p /home/user/code")
       customInstruction("RUN", "mkdir -p /home/user/code/lib")
       customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/pml")
-      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/views/interference")
+      customInstruction(
+        "RUN",
+        "mkdir -p /home/user/code/src/main/scala/views/interference"
+      )
       workDir("/home/user/code")
-      for((to,from) <- modelCode.value)
+      for ((to, from) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
       copy(binlib, "binlib")
       copy(artifact, artifactTargetPath)
-      copy(Seq(base / "AUTHORS.txt", base / "lesser.txt", base / "minimalBuildSBT.txt", base / "LICENCE", base / "Makefile"), "./")
+      copy(
+        Seq(
+          base / "AUTHORS.txt",
+          base / "lesser.txt",
+          base / "minimalBuildSBT.txt",
+          base / "LICENCE",
+          base / "Makefile"
+        ),
+        "./"
+      )
       customInstruction("RUN", "mv minimalBuildSBT.txt build.sbt")
       env("LD_LIBRARY_PATH" -> "/home/user/code/binlib:${LD_LIBRARY_PATH}")
-      customInstruction("RUN", "chown -R user /home/user && chgrp -R user /home/user")
+      customInstruction(
+        "RUN",
+        "chown -R user /home/user && chgrp -R user /home/user"
+      )
       user("user")
       customInstruction("RUN", "sbt \"compile\" clean")
       entryPoint("/bin/bash")
@@ -69,10 +96,13 @@ lazy val dockerSettings = Seq(
 lazy val docSetting =
   Compile / doc / scalacOptions ++= Seq(
     "-groups",
-    "-siteroot", "doc",
-    "-doc-root-content", "doc/_assets/text/rootContent.txt",
+    "-siteroot",
+    "doc",
+    "-doc-root-content",
+    "doc/_assets/text/rootContent.txt",
     "-skip-by-regex:pml.expertises,views.dependability.*,pml.examples,views.interference.examples,pml.model.relations,views.interference.model.relations",
-    "-project-logo", "doc/_assets/images/phylog_logo.gif"
+    "-project-logo",
+    "doc/_assets/images/phylog_logo.gif"
   )
 
 lazy val assemblySettings = Seq(
@@ -82,22 +112,40 @@ lazy val assemblySettings = Seq(
     case PathList(ps@_*) if ps.contains("examples") => MergeStrategy.discard
     case x =>
       (ThisBuild / assemblyMergeStrategy).value(x)
-  })
+  }
+)
 
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
 lazy val commonSettings = Seq(
   organization := "io.github.onera",
   homepage := Some(url("https://github.com/onera/pml-analyzer")),
-  scmInfo := Some(ScmInfo(url("https://github.com/onera/pml-analyzer"), "git@github.com:onera/pml-analyzer.git")) ,
-  developers := List (Developer("kevin-delmas", "kevin-delmas", "kevin.delmas@onera.fr", url("https://www.onera.fr/en/staff/kevin-delmas"))) ,
-  licenses +=("LGPL-2.1", url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")) ,
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/onera/pml-analyzer"),
+      "git@github.com:onera/pml-analyzer.git"
+    )
+  ),
+  developers := List(
+    Developer(
+      "kevin-delmas",
+      "kevin-delmas",
+      "kevin.delmas@onera.fr",
+      url("https://www.onera.fr/en/staff/kevin-delmas")
+    )
+  ),
+  licenses += (
+    "LGPL-2.1",
+    url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
+  ),
   publishMavenStyle := true,
   credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials"),
   pomIncludeRepository := { _ => false },
   crossPaths := false,
-  publishTo :=  Some("releases" at "https://s01.oss.sonatype.org/" + "service/local/staging/deploy/maven2"),
+  publishTo := Some(
+    "releases" at "https://s01.oss.sonatype.org/" + "service/local/staging/deploy/maven2"
+  ),
   publishMavenStyle := true,
-  version := "1.1.0",
+  version := "1.1.1",
   scalaVersion := "3.2.2",
   sbtVersion := "1.8.2",
   scalafixOnCompile := true,
@@ -105,7 +153,7 @@ lazy val commonSettings = Seq(
   scalafmtOnCompile := true,
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
-    scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
+  scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
   resolvers ++= Resolver.sonatypeOssRepos("releases"),
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   libraryDependencies ++= Seq(
@@ -124,9 +172,7 @@ lazy val commonSettings = Seq(
 lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(commonSettings: _*)
-  .settings(
-    name := "pml_analyzer")
-
+  .settings(name := "pml_analyzer")
 
 // Fork a new JVM on every sbt run task
 // Fixes an issue with the classloader complaining that the Monosat library is

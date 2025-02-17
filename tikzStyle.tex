@@ -13,17 +13,17 @@
 
 
 \tikzset{
-    max width/.style args={#1}{
-        execute at begin node={\begin{varwidth}{#1}},
-        execute at end node={\end{varwidth}}
-    }
+max width/.style args={#1}{
+    execute at begin node={\begin{varwidth}{#1}},
+    execute at end node={\end{varwidth}}
+}
 }
 \tikzset{
-    set width/.style args={#1}{
-    	text width=#1,
-        execute at begin node={\begin{varwidth}{#1}},
-        execute at end node={\end{varwidth}}
-    }
+set width/.style args={#1}{
+text width=#1,
+execute at begin node={\begin{varwidth}{#1}},
+execute at end node={\end{varwidth}}
+}
 }
 
 \tikzset{conclusion/.style={draw=blue, rectangle, rounded corners, thick, max width=4cm}}

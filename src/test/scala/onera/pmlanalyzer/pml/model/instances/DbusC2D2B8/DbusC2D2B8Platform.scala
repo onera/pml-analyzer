@@ -16,7 +16,7 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-package onera.pmlanalyzer.pml.model.cycle.DbusC2D2B8
+package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*

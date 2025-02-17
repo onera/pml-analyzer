@@ -54,18 +54,18 @@ class PlatformTest
       stores: List[Store]
   ) = {
     if (loads.nonEmpty)
-      x.loads shouldBe loads.toSet
+      x.loads should be(loads.toSet)
     else
-      x.loads shouldBe Set(Load(Symbol(s"${x}_load")))
+      x.loads should be(Set(Load(Symbol(s"${x}_load"))))
     if (stores.nonEmpty)
-      x.stores shouldBe stores.toSet
+      x.stores should be(stores.toSet)
     else
-      x.stores shouldBe Set(Store(Symbol(s"${x}_store")))
+      x.stores should be(Set(Store(Symbol(s"${x}_store"))))
   }
 
   "A platform" should "contains all applications" in {
     forAll { (x: Application) =>
-      assert(Application.all.contains(x))
+      Application.all should contain(x)
     }
   }
 
@@ -74,8 +74,8 @@ class PlatformTest
       whenever(Composite.all.forall(_.name != name)) {
         val CompositeTest = new Composite(name) {}
         // redundant ownership test but enforce object initialization
-        CompositeTest.owner shouldBe currentOwner
-        assert(Composite.all.contains(CompositeTest))
+        CompositeTest.owner should be(currentOwner)
+        Composite.all should contain(CompositeTest)
       }
     }
   }
@@ -155,20 +155,24 @@ class PlatformTest
       {
         smart link transporter
         transporter link target
-        for (ss <- smart.stores) assert(transporter.stores.subsetOf(ss.linked))
-        for (ss <- smart.loads) assert(transporter.loads.subsetOf(ss.linked))
-        for (ss <- transporter.stores) assert(target.stores.subsetOf(ss.linked))
-        for (ss <- transporter.loads) assert(target.loads.subsetOf(ss.linked))
+        for (ss <- smart.stores)
+          assert(transporter.stores.subsetOf(ss.linked))
+        for (ss <- smart.loads)
+          assert(transporter.loads.subsetOf(ss.linked))
+        for (ss <- transporter.stores)
+          assert(target.stores.subsetOf(ss.linked))
+        for (ss <- transporter.loads)
+          assert(target.loads.subsetOf(ss.linked))
         smart unlink transporter
         for (ss <- smart.stores)
-          ss.linked.intersect(transporter.stores) shouldBe empty
+          ss.linked.intersect(transporter.stores) should be(empty)
         for (ss <- smart.loads)
-          ss.linked.intersect(transporter.loads) shouldBe empty
+          ss.linked.intersect(transporter.loads) should be(empty)
         transporter unlink target
         for (ss <- transporter.stores)
-          ss.linked.intersect(target.stores) shouldBe empty
+          ss.linked.intersect(target.stores) should be(empty)
         for (ss <- transporter.loads)
-          ss.linked.intersect(target.loads) shouldBe empty
+          ss.linked.intersect(target.loads) should be(empty)
       }
     }
   }
@@ -181,11 +185,11 @@ class PlatformTest
     ) { (smart, target, transporter) =>
       {
         smart.deactivated
-        smart.services shouldBe empty
+        smart.services should be(empty)
         transporter.deactivated
-        transporter.services shouldBe empty
+        transporter.services should be(empty)
         target.deactivated
-        target.services shouldBe empty
+        target.services should be(empty)
       }
     }
   }

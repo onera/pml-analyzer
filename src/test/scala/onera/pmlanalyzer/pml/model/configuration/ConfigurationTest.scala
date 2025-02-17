@@ -124,43 +124,45 @@ class ConfigurationTest
 
   "A configured platform" should "encode the used relation properly" in {
 
-    appSmart1.targetLoads shouldBe mem1.loads
-    appSmart1.targetStores shouldBe Set.empty
-    appSmart1.hostingInitiators shouldBe Set(smart1.core)
+    appSmart1.targetLoads should be(mem1.loads)
+    appSmart1.targetStores should be(empty)
+    appSmart1.hostingInitiators should be(Set(smart1.core))
 
-    appSmart21.targetStores shouldBe mem1.stores
-    appSmart21.targetLoads shouldBe empty
-    appSmart21.hostingInitiators shouldBe Set(smart2.core)
+    appSmart21.targetStores should be(mem1.stores)
+    appSmart21.targetLoads should be(empty)
+    appSmart21.hostingInitiators should be(Set(smart2.core))
 
-    appSmart22.targetLoads shouldBe mem2.loads
-    appSmart22.targetStores shouldBe empty
-    appSmart22.hostingInitiators shouldBe Set(smart2.core)
+    appSmart22.targetLoads should be(mem2.loads)
+    appSmart22.targetStores should be(empty)
+    appSmart22.hostingInitiators should be(Set(smart2.core))
 
-    dmaDescriptor.hostingInitiators shouldBe Set(dma1)
-    dmaDescriptor.targetLoads shouldBe (dataMem1.loads and dataMem2.loads)
-    dmaDescriptor.targetStores shouldBe (smart1.cache.stores and smart2.cache.stores)
+    dmaDescriptor.hostingInitiators should be(Set(dma1))
+    dmaDescriptor.targetLoads should be(dataMem1.loads and dataMem2.loads)
+    dmaDescriptor.targetStores should be(
+      smart1.cache.stores and smart2.cache.stores
+    )
   }
 
   it should "encode the routing relation properly" in {
     for (st <- smart1.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) shouldBe defined
-      InitiatorRouting((dma1, st, on)) shouldBe bus.stores
+      InitiatorRouting.get((dma1, st, on)) should be(defined)
+      InitiatorRouting((dma1, st, on)) should be(bus.stores)
     }
     for (st <- smart2.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) shouldBe defined
-      InitiatorRouting((dma1, st, on)) shouldBe smart2.cache.stores
+      InitiatorRouting.get((dma1, st, on)) should be(defined)
+      InitiatorRouting((dma1, st, on)) should be(smart2.cache.stores)
     }
   }
 
   it should "derive the used transaction properly" in {
-    transactionsBySW(appSmart1).size shouldBe 1
+    transactionsBySW(appSmart1).size should be(1)
     mem1.loads should contain(
       transactionsByName(transactionsBySW(appSmart1).head).last
     )
-    transactionsBySW(appSmart21).size shouldBe 1
-    transactionsBySW(appSmart22).size shouldBe 1
+    transactionsBySW(appSmart21).size should be(1)
+    transactionsBySW(appSmart22).size should be(1)
     // One transaction is missing
-    transactionsBySW(dmaDescriptor).size shouldBe 3
+    transactionsBySW(dmaDescriptor).size should be(3)
   }
 
   it should "detect cyclic service paths" in {}
@@ -173,7 +175,7 @@ class ConfigurationTest
       for {
         t <- transactions
         path <- transactionsByName.get(t)
-      } yield Used.checkMultiPaths(Set(path)) shouldBe empty
+      } yield Used.checkMultiPaths(Set(path)) should be(empty)
     }
   }
 
@@ -183,16 +185,13 @@ class ConfigurationTest
         transactionsBySW(a).map(transactionsByName),
         a.targetService,
         Some(a)
-      ) shouldBe empty
+      ) should be(empty)
     Used
       .checkImpossible(
         transactionsBySW(dmaDescriptor).map(transactionsByName),
         dmaDescriptor.targetService,
         Some(dmaDescriptor)
       )
-      .size shouldBe 1
+      .size should be(1)
   }
-
-  ConfigurationFixture.exportRestrictedHWAndSWGraph()
-
 }

@@ -16,27 +16,20 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-package onera.pmlanalyzer.pml.model.cycle.DbusC2D2B8
+package onera.pmlanalyzer.views.interference.model.specification
 
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.model.instances.DbusC2D2B8.DbusC2D2B8
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-trait DbusC2D2B8Software {
-  self: DbusC2D2B8Platform =>
+class DbusC2D2B8InterferenceSpecificationTest
+    extends AnyFlatSpec
+    with ScalaCheckPropertyChecks
+    with should.Matchers {
 
-  val app_rosace_cg0_cl0_C0: Application = Application()
-  app_rosace_cg0_cl0_C0 hostedBy rosace.cg0.cl0.C0
-
-  val app_rosace_cg0_cl0_C1: Application = Application()
-  app_rosace_cg0_cl0_C1 hostedBy rosace.cg0.cl0.C1
-
-  val app_rosace_dg0_cl0_C0: Application = Application()
-  app_rosace_dg0_cl0_C0 hostedBy rosace.dg0.cl0.C0
-
-  val app_rosace_dg0_cl0_C1: Application = Application()
-  app_rosace_dg0_cl0_C1 hostedBy rosace.dg0.cl0.C1
-
-  val app_dma: Application = Application()
-  app_dma hostedBy rosace.dma
-
+  DbusC2D2B8.fullName should "contain the expected numbers of transactions considered for the interference calculus" in {
+    DbusC2D2B8.purifiedTransactions.size should be(36)
+    DbusC2D2B8.purifiedScenarios.size should be(34)
+  }
 }

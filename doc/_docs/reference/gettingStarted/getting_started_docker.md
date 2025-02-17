@@ -6,8 +6,11 @@ title: "Getting started with Docker"
 The simplest way to use PML Analyzer is to download a pre-configured Docker image to run interference analyses.
 The only dependency is the [Docker execution engine](https://docs.docker.com/get-docker/).
 Docker enables you to create from this image a container where all dependencies have been already resolved.
+
 ### Container for a simple execution of PML examples
+
 The following commands create a simple container that can be used to run the examples provided in PML Analyzer.
+
 ```shell
 # load directly the archive containing the image of the preconfigured PML Analyzer environment
 docker load < [IMAGE_NAME].tar.gz
@@ -30,10 +33,14 @@ docker run -it --rm \
 ```
 
 ### Container for platform modelling
-You can create a container that also share some source files describing your own platform [MY_PLATFORM]. Let us consider that the source files
+
+You can create a container that also share some source files describing your own platform [MY_PLATFORM]. Let us consider
+that the source files
 describing you platform are located in [PLATFORM_MODEL_PATH] and the interference specifications are located in
-[PLATFORM_INTERFERENCE_SPECIFICATION_PATH]. You can add these files as source code of the project by sharing them with the
+[PLATFORM_INTERFERENCE_SPECIFICATION_PATH]. You can add these files as source code of the project by sharing them with
+the
 container as follows:
+
 ```shell
 # In case the user wants to create its own platform [MY_PLATFORM],
 # Create share a folder to store the models [PATH_TO_MODEL]
@@ -45,20 +52,26 @@ docker run -it --rm \
 -v [PATH_TO_EXPORT_RESULT]:/home/user/code/export \
 [IMAGE_NAME]
 ```
+
 ### Running PML Analyzer in Docker
 
-Once the container is run in an interactive mode, all the examples provided in the following sections can be run by using SBT.
+Once the container is run in an interactive mode, all the examples provided in the following sections can be run by
+using SBT.
 To display all the possible entry-points of the project, especially your models, just execute the following command
+
 ```shell
 sbt run
 ```
+
 Note that you can edit your code on the host and re-build it in the container by simply running again
+
 ```shell
 sbt compile
 ```
 
 You can also indicate the memory allocated to SBT using the `-J-XmxNG` option where N
 is the number of Go.
+
 ```shell
 # Allocate 4Go to run SBT
 sbt -J-Xmx4G run
@@ -68,6 +81,7 @@ sbt -J-Xmx4G run
 
 The simplest way to retrieve files from the container or to modify internal files is to use the
 `docker cp` command.
+
 ```shell
 # From the container to the host
 docker cp  CONTAINER:SRC_PATH DEST_PATH
@@ -79,7 +93,9 @@ docker cp  DEST_PATH CONTAINER:SRC_PATH
 A more integrated sharing can be achieved thanks to docker volumes as shown in the previous sections.
 
 ### Dealing with multiple images and containers
+
 Some useful commands for image and container management in Docker:
+
 ```shell
 # to list all existing containers
 docker ps -a
@@ -101,11 +117,13 @@ docker rmi [IMAGE NAME]
 ```
 
 If you want to keep a container available after its creation please create the container as follows:
+
 ```shell
 docker run -it -t [CONTAINER_NAME] [VOLUME_OPTIONS] [IMAGE_NAME]
 ```
 
 You can then use it again by running
+
 ```shell
 doker start -i [CONTAINER_NAME]
 ```

@@ -60,18 +60,26 @@ trait Restrict[L, R] {
       usedForTgt(tgt, ini, from, to, Seq.empty[(U, U)])
     )
 
-  /**
-   * Reachability test function taking into account the routing function
+  /** Reachability test function taking into account the routing function
    *
-   * @param tgt     the final service to reach
-   * @param ini     the initiator requesting to reach the final service
-   * @param from    the left hand-side of the considered edge in the graph
-   * @param to      the right hand-side of the considered edge in the graph
-   * @param visited the visited edges
-   * @param lU      the proof that services are connected
-   * @param r       the routing relation
-   * @tparam U the type of service considered
-   * @return true iff the link from-to is used by the initiator to reach the target
+   * @param tgt
+   * the final service to reach
+   * @param ini
+   * the initiator requesting to reach the final service
+   * @param from
+   * the left hand-side of the considered edge in the graph
+   * @param to
+   * the right hand-side of the considered edge in the graph
+   * @param visited
+   * the visited edges
+   * @param lU
+   * the proof that services are connected
+   * @param r
+   * the routing relation
+   * @tparam U
+   * the type of service considered
+   * @return
+   * true iff the link from-to is used by the initiator to reach the target
    */
   private def usedForTgt[U <: Service](
       tgt: U,
@@ -86,7 +94,12 @@ trait Restrict[L, R] {
     if (to == tgt)
       (true, Set.empty)
     else if (visited.contains((from, to))) {
-      (false, Set(Message.cycleWarning(visited.head._1 +: visited.map(_._2), ini, tgt)))
+      (
+        false,
+        Set(
+          Message.cycleWarning(visited.head._1 +: visited.map(_._2), ini, tgt)
+        )
+      )
     } else {
       val successors =
         r.get((ini, tgt, to)) match
@@ -98,7 +111,8 @@ trait Restrict[L, R] {
         if (acc._1)
           acc
         else {
-          val (isUsedNext, warnings) = usedForTgt(tgt, ini, to, succ, visited :+ (from, to))
+          val (isUsedNext, warnings) =
+            usedForTgt(tgt, ini, to, succ, visited :+ (from, to))
           (isUsedNext, warnings ++ acc._2)
         }
       )
