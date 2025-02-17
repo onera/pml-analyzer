@@ -40,12 +40,16 @@ trait DbusC2D2B8RoutingConstraints {
 
   private val cluster_inputs: Seq[Hardware] = Seq(
     rosace.cg0.cl0.input_port,
-    rosace.cg0.input_port
+    rosace.cg0.input_port,
+    rosace.dg0.cl0.input_port,
+    rosace.dg0.input_port
   )
 
   private val cluster_outputs: Seq[Hardware] = Seq(
     rosace.cg0.cl0.output_port,
-    rosace.cg0.output_port
+    rosace.cg0.output_port,
+    rosace.dg0.cl0.output_port,
+    rosace.dg0.output_port
   )
 
   private val cores: Seq[Initiator] = Seq(
@@ -83,5 +87,4 @@ trait DbusC2D2B8RoutingConstraints {
   } {
     i targeting target blockedBy out_port
   }
-
 }
