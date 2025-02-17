@@ -58,7 +58,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
         trPhysicalPath <- p.tr.used.toPhysical
       } {
         name should not be (p.tr.userName)
-        path should be(trPhysicalPath)
+        path should be(Set(trPhysicalPath))
       }
     }
   }
