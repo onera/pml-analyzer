@@ -5,8 +5,10 @@ title: "Exports"
 
 ### Configured platform
 
-The file src/main/scala/pml/examples/simple/SimpleExport shows how graphical exports are produced (stored in export folder)
+The file src/main/scala/pml/examples/simple/SimpleExport shows how graphical exports are produced (stored in export
+folder)
 from a platform:
+
 * graph of used SW and HW
 * graph of used services per application
 * table of transaction
@@ -19,8 +21,10 @@ from a platform:
 
 ### Interference analysis
 
-The file src/main/scala/views/interference/examples/SimpleInterferenceGeneration shows how interference analysis can be performed
+The file src/main/scala/views/interference/examples/SimpleInterferenceGeneration shows how interference analysis can be
+performed
 on a configured platform. The generated files are stored in analysis folder:
+
 * computation of n-itf
 * computation of n-free
 * computation of n-channels

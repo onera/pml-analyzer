@@ -6,26 +6,35 @@ email, or any other method with the owners of this repository before making a ch
 ## Pull Request Process
 
 1. Fork, then clone the repo:
+
 ```shell 
 git clone git@github.com:your-username/pml-analyzer.git 
 ```
+
 2. See README.md to set up your machine.
 3. Make sure the tests pass:
+
 ```shell
 sbt test 
 ```
-4. Make your change and please follow the [Scala 3 coding and documentation style guide](https://docs.scala-lang.org/style/). 
+
+4. Make your change and please follow
+   the [Scala 3 coding and documentation style guide](https://docs.scala-lang.org/style/).
 5. Add tests for your change. Make the tests pass:
+
 ```shell
 sbt test 
 ```
+
 6. Update the README.md with details of changes to the API or the analysis process.
 7. Increase the version numbers in any examples files, the README.md and the build.sbt to the new version that this
    Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
+
 ```scala
 //Change version in build.sbt
 version := "X.Y.Z"
 ```
+
 8. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
    do not have permission to do that, you may request the second reviewer to merge it for you.
 
@@ -87,4 +96,5 @@ This Code of Conduct is adapted from the [Contributor Covenant][homepage], versi
 available at [http://contributor-covenant.org/version/1/4][version]
 
 [homepage]: http://contributor-covenant.org
+
 [version]: http://contributor-covenant.org/version/1/4/

@@ -3,6 +3,7 @@ layout: index
 ---
 
 This section provides a simple yet comprehensive example of a processor PML model composed of:
+
 * two cores,
 * one DMA (Direct Access Memory),
 * one Ethernet device,

@@ -16,7 +16,10 @@ The footprint of the transactions of these five tasks on the architecture is sho
 
 <img alt="transactions_footprint"  width=100% src="images/simpleKeystone/transactions_footprint.PNG" title="Footprint of the transactions on the HW architecture (the red, violet, blue, and green arrows represent respectively the transactions of app1, app2 (app21, app22), app3, and app3)."/>
 
-Figure 4: Footprint of the transactions on the HW architecture (the red, violet, blue, and green arrows represent respectively the transactions of app1, app2 (app21, app22), app3, and app3).
+Figure 4: Footprint of the transactions on the HW architecture (the red, violet, blue, and green arrows represent
+respectively the transactions of app1, app2 (app21, app22), app3, and app3).
 
-The PML encoding of the first time slice is provided in src/main/scala/pml/examples/simple/SimpleKeystoneLibraryConfigurationPalnApp21.scala,
-and the second time slice is provided in src/main/scala/pml/examples/simple/SimpleKeystoneLibraryConfigurationPalnApp22.scala
+The PML encoding of the first time slice is provided in
+src/main/scala/pml/examples/simple/SimpleKeystoneLibraryConfigurationPalnApp21.scala,
+and the second time slice is provided in
+src/main/scala/pml/examples/simple/SimpleKeystoneLibraryConfigurationPalnApp22.scala

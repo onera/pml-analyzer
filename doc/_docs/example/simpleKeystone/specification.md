@@ -4,6 +4,7 @@ title: "Specifications"
 ---
 
 In this example we consider that
+
 * bus services are independent
 * DMA and dma-reg services impacts each others
 * app21 and app22 are exclusive as they run on the same core

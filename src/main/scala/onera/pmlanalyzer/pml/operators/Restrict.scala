@@ -34,6 +34,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 
+import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap
 
 /** Base trait for restrict operator used to restrict the connection graph of
@@ -47,108 +48,39 @@ import scala.collection.mutable.HashMap as MHashMap
 trait Restrict[L, R] {
 
   private val _memo =
-    MHashMap.empty[(Service, Initiator, Service, Service), Boolean]
-
-  private val _memoRoute =
-    MHashMap.empty[(Service, Initiator, Service, Service), Boolean]
+    MHashMap
+      .empty[(Service, Initiator, Service, Service), (Boolean, Set[String])]
 
   def usedForTgt[U <: Service](tgt: U, ini: Initiator, from: U, to: U)(implicit
       lU: Linked[U, U],
-      p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
+  ): (Boolean, Set[String]) =
     _memo.getOrElseUpdate(
       (tgt, ini, from, to),
       usedForTgt(tgt, ini, from, to, Seq.empty[(U, U)])
     )
 
-  /** The service x is used to reach target from the initiator (knowing a set of
-    * visited links) either if x is the target service or it exists a service
-    * connected to x that is used to reach the target
-    *
-    * @param tgt
-    *   the target service
-    * @param initiator
-    *   the initiator of the request
-    * @param x
-    *   the actual service
-    * @param visited
-    *   the set of visited tgt-x services visited
-    * @param lU
-    *   the link relation between services
-    * @param p
-    *   the provide relation of an initiator
-    * @param r
-    *   the routing relation of the platform
-    * @tparam U
-    *   the type of the service
-    * @return
-    *   true is the service is used to reach tgt
-    */
-  private def usedNext[U <: Service](
-      tgt: U,
-      initiator: Initiator,
-      x: U,
-      visited: Seq[(U, U)]
-  )(implicit
-      lU: Linked[U, U],
-      p: Provided[Initiator, Service],
-      r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
-    x == tgt ||
-      lU(x).exists(u => usedForTgt(tgt, initiator, x, u, visited))
-
-  /** A service "to" can be accessed from another service "on" to reach a target
-    * service "tgt" from a given initiator "ini" if "on" either if "on" has no
-    * predecessor and is the initiator services or it exists a predecessor of
-    * "on" that is routed Moreover if routing restriction applied (r.get((ini,
-    * tgt, on)) is defined) then "to" must be a viable option
-    *
-    * @param ini
-    * @param tgt
-    * @param on
-    * @param to
-    * @param visited
-    * @param lU
-    * @param p
-    * @param r
-    * @tparam U
-    * @return
-    */
-  private def isRouted[U <: Service](
-      ini: Initiator,
-      tgt: U,
-      on: U,
-      to: U,
-      visited: Seq[(U, U)]
-  )(implicit
-      lU: Linked[U, U],
-      p: Provided[Initiator, Service],
-      r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean =
-    _memoRoute.getOrElseUpdate(
-      (tgt, ini, on, to), {
-        if (visited.contains(on, to)) {
-          println(Message.cycleWarning(visited, ini, tgt))
-          false
-        } else {
-          val pred = lU.inverse(on)
-          r.get((ini, tgt, on)) match {
-            case None =>
-              (pred.isEmpty && ini.services.contains(on)) || (pred exists { x =>
-                isRouted(ini, tgt, x, on, visited :+ ((on, to)))
-              })
-            case Some(s) =>
-              s.contains(to) && ((pred.isEmpty && ini.services
-                .contains(on)) || (pred exists { x =>
-                isRouted(ini, tgt, x, on, visited :+ ((on, to)))
-              }))
-          }
-        }
-      }
-    )
-
-  // visited is added to cut cycles
+  /** Reachability test function taking into account the routing function
+   *
+   * @param tgt
+   * the final service to reach
+   * @param ini
+   * the initiator requesting to reach the final service
+   * @param from
+   * the left hand-side of the considered edge in the graph
+   * @param to
+   * the right hand-side of the considered edge in the graph
+   * @param visited
+   * the visited edges
+   * @param lU
+   * the proof that services are connected
+   * @param r
+   * the routing relation
+   * @tparam U
+   * the type of service considered
+   * @return
+   * true iff the link from-to is used by the initiator to reach the target
+   */
   private def usedForTgt[U <: Service](
       tgt: U,
       ini: Initiator,
@@ -157,18 +89,32 @@ trait Restrict[L, R] {
       visited: Seq[(U, U)]
   )(implicit
       lU: Linked[U, U],
-      p: Provided[Initiator, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service]
-  ): Boolean = {
-    if (visited.contains((from, to))) {
-      println(Message.cycleWarning(visited, ini, tgt))
-      false
+  ): (Boolean, Set[String]) = {
+    if (to == tgt)
+      (true, Set.empty)
+    else if (visited.contains((from, to))) {
+      (
+        false,
+        Set(
+          Message.cycleWarning(visited.head._1 +: visited.map(_._2), ini, tgt)
+        )
+      )
     } else {
-      isRouted(ini, tgt, from, to, visited) && usedNext(
-        tgt,
-        ini,
-        to,
-        visited :+ ((from, to))
+      val successors =
+        r.get((ini, tgt, to)) match
+          case Some(routed) => lU(to).filter(routed.contains)
+          case None =>
+            lU(to)
+
+      successors.foldLeft((false, Set.empty[String]))((acc, succ) =>
+        if (acc._1)
+          acc
+        else {
+          val (isUsedNext, warnings) =
+            usedForTgt(tgt, ini, to, succ, visited :+ (from, to))
+          (isUsedNext, warnings ++ acc._2)
+        }
       )
     }
   }
@@ -201,9 +147,8 @@ object Restrict {
     }
 
     /** Extension method class
-      *
-      * @param self
-      *   the element on which keyword can be used
+     *
+     * the element on which keyword can be used
       */
     extension (self: Platform) {
 
@@ -216,8 +161,10 @@ object Restrict {
         */
       def serviceGraphOf(s: Application): Map[Service, Set[Service]] = {
         import self._
-        val ev = implicitly[Restrict[Map[Service, Set[Service]], Application]]
-        ev(s)
+        val ev = implicitly[
+          Restrict[(Map[Service, Set[Service]], Set[String]), Application]
+        ]
+        ev(s)._1
       }
 
       /** PML keyword to access to the service graph of the full platform
@@ -325,8 +272,10 @@ object Restrict {
         */
       def hardwareGraphOf(s: Application): Map[Hardware, Set[Hardware]] = {
         import self._
-        val ev = implicitly[Restrict[Map[Hardware, Set[Hardware]], Application]]
-        ev(s)
+        val ev = implicitly[
+          Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]
+        ]
+        ev(s)._1
       }
 
       /** PML keyword to access to the service graph used by an application to
@@ -345,9 +294,12 @@ object Restrict {
       ): Map[Service, Set[Service]] = {
         import self._
         val ev = implicitly[
-          Restrict[Map[Service, Set[Service]], (Application, Service)]
+          Restrict[
+            (Map[Service, Set[Service]], Set[String]),
+            (Application, Service)
+          ]
         ]
-        ev((s, tgt))
+        ev((s, tgt))._1
       }
 
       /** PML keyword to access to the hardware graph used by an application to
@@ -366,9 +318,12 @@ object Restrict {
       ): Map[Hardware, Set[Hardware]] = {
         import self._
         val ev = implicitly[
-          Restrict[Map[Hardware, Set[Hardware]], (Application, Service)]
+          Restrict[
+            (Map[Hardware, Set[Hardware]], Set[String]),
+            (Application, Service)
+          ]
         ]
-        ev((s, tgt))
+        ev((s, tgt))._1
       }
 
     }
@@ -407,7 +362,7 @@ object Restrict {
       aR: AuthorizeRelation[Application, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service],
       pB: Provided[Initiator, Service]
-  ): Restrict[Map[Service, Set[Service]], Application] with {
+        ): Restrict[(Map[Service, Set[Service]], Set[String]), Application] with {
 
     /** Check if the application uses some route between an initial service and
       * a target service
@@ -430,18 +385,32 @@ object Restrict {
     def useBySW[U <: Service](a: Application, from: U, to: U)(implicit
         u: Used[Application, U],
         lU: Linked[U, U]
-    ): Boolean = {
-      u(a).exists(tgt =>
-        aR(a).contains(tgt) &&
-          a.hostingInitiators.exists(ini => usedForTgt(tgt, ini, from, to))
-      )
+    ): (Boolean, Set[String]) = {
+      u(a).foldLeft((false, Set.empty[String]))((acc, tgt) => {
+        if (acc._1 || !aR(a).contains(tgt))
+          acc
+        else {
+          a.hostingInitiators.foldLeft((false, acc._2))((acc2, ini) => {
+            if (acc2._1)
+              acc2
+            else {
+              val (isUsed, isUsedWarnings) = usedForTgt(tgt, ini, from, to)
+              (isUsed, isUsedWarnings ++ acc2._2)
+            }
+          })
+        }
+      })
     }
 
-    def used(a: Application, from: Service, to: Service): Boolean =
+    def used(
+              a: Application,
+              from: Service,
+              to: Service
+            ): (Boolean, Set[String]) =
       (from, to) match {
         case (fromL: Load, toL: Load)   => useBySW(a, fromL, toL)
         case (fromS: Store, toS: Store) => useBySW(a, fromS, toS)
-        case _                          => false
+        case _ => (false, Set.empty)
       }
 
     /** Provide the service graph of an application
@@ -451,31 +420,37 @@ object Restrict {
       * @return
       *   its service graph
       */
-    def apply(b: Application): Map[Service, Set[Service]] = {
-      lS.edges collect { case (from, linked) =>
+    def apply(b: Application): (Map[Service, Set[Service]], Set[String]) = {
+      val warnings = mutable.Set.empty[String]
+      val graph = lS.edges collect { case (from, linked) =>
         from -> {
-          linked filter {
-            used(b, from, _)
+          linked filter { to => {
+              val (isUsed, cycleWarnings) = used(b, from, to)
+              if (isUsed)
+                warnings ++= cycleWarnings
+              isUsed
+            }
           }
         }
       } filter {
         _._2.nonEmpty
       }
+      (graph, warnings.toSet)
     }
   }
 
   given [T](using
       lP: LinkRelation[Hardware],
       pS: Provided[Hardware, Service],
-      restrict: Restrict[Map[Service, Set[Service]], T]
-  ): Restrict[Map[Hardware, Set[Hardware]], T] with {
-    def apply(b: T): Map[Hardware, Set[Hardware]] = {
+            restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
+           ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
+    def apply(b: T): (Map[Hardware, Set[Hardware]], Set[String]) = {
       val restricted = restrict(b)
       // shortcut non-owner services, if k -> v and k is not owned by any HW then push v to all predecessors of k
-      val nonOwnedServices = restricted.keySet.collect {
+      val nonOwnedServices = restricted._1.keySet.collect {
         case b: Service if b.hardwareOwner.isEmpty => b
       }
-      val shortcut = nonOwnedServices.foldLeft(restricted)((acc, toRemove) =>
+      val shortcut = nonOwnedServices.foldLeft(restricted._1)((acc, toRemove) =>
         {
           for {
             toAdd <- acc.get(toRemove)
@@ -525,7 +500,7 @@ object Restrict {
             )
           }.getOrElse(acc + (toAdd._1 -> Set(toAdd._2)))
         )
-      completedPLLinks
+      (completedPLLinks, restricted._2)
     }
   }
 
@@ -533,11 +508,15 @@ object Restrict {
       lS: LinkRelation[Service],
       uSI: Used[Application, Initiator],
       aR: AuthorizeRelation[Application, Service],
-      r: RoutingRelation[(Initiator, Service, Service), Service],
-      pB: Provided[Initiator, Service]
-  ): Restrict[Map[Service, Set[Service]], (T, Service)] with {
+                                       r: RoutingRelation[(Initiator, Service, Service), Service]
+                                      ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
 
-    def used(a: T, tgt: Service, from: Service, to: Service): Boolean = {
+    def used(
+              a: T,
+              tgt: Service,
+              from: Service,
+              to: Service
+            ): (Boolean, Set[String]) = {
       val authorized = a match {
         case app: Application => aR(app).contains(tgt);
         case _                => true
@@ -546,25 +525,55 @@ object Restrict {
         case app: Application => app.hostingInitiators
         case i: Initiator     => Set(i)
       }
-      authorized && ((tgt, to, from) match {
-        case (tgtL: Load, toL: Load, fromL: Load) =>
-          hostingInitiators.exists(ini => usedForTgt(tgtL, ini, fromL, toL))
-        case (tgtS: Store, toS: Store, fromS: Store) =>
-          hostingInitiators.exists(ini => usedForTgt(tgtS, ini, fromS, toS))
-        case _ => false
-      })
+      if (!authorized)
+        (false, Set.empty)
+      else {
+        (tgt, to, from) match {
+          case (tgtL: Load, toL: Load, fromL: Load) =>
+            hostingInitiators.foldLeft((false, Set.empty[String]))(
+              (acc, ini) => {
+                if (acc._1)
+                  acc
+                else {
+                  val (isUsedRes, isUsedWarnings) =
+                    usedForTgt(tgtL, ini, fromL, toL)
+                  (isUsedRes, acc._2 ++ isUsedWarnings)
+                }
+              }
+            )
+          case (tgtS: Store, toS: Store, fromS: Store) =>
+            hostingInitiators.foldLeft((false, Set.empty[String]))(
+              (acc, ini) => {
+                if (acc._1)
+                  acc
+                else {
+                  val (isUsedRes, isUsedWarnings) =
+                    usedForTgt(tgtS, ini, fromS, toS)
+                  (isUsedRes, acc._2 ++ isUsedWarnings)
+                }
+              }
+            )
+          case _ => (false, Set.empty)
+        }
+      }
     }
 
-    def apply(b: (T, Service)): Map[Service, Set[Service]] = {
-      lS.edges collect { case (from, linked) =>
+    def apply(b: (T, Service)): (Map[Service, Set[Service]], Set[String]) = {
+      val warnings = mutable.Set.empty[String]
+      val graph = lS.edges collect { case (from, linked) =>
         from -> {
-          linked filter {
-            used(b._1, b._2, from, _)
+          linked filter { to => {
+              val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
+              if (isUsed)
+                warnings ++= cycleWarning
+              isUsed
+            }
           }
         }
       } filter {
         _._2.nonEmpty
       }
+      (graph, warnings.toSet)
     }
   }
 }

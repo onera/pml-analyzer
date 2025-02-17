@@ -4,9 +4,9 @@ subsection:
     index: doc/reference/gettingStarted/index.md
     directory: reference/gettingStarted
     subsection:
-     - page: reference/gettingStarted/getting_started_SBT.md
-     - page: reference/gettingStarted/getting_started_docker.md
-     - page: reference/gettingStarted/external_dependency.md
+      - page: reference/gettingStarted/getting_started_SBT.md
+      - page: reference/gettingStarted/getting_started_docker.md
+      - page: reference/gettingStarted/external_dependency.md
   - title: Using PML
     index: doc/reference/usePML/index.md
     directory: reference/usePML

@@ -106,14 +106,15 @@ object Message {
     s"[WARNING] Useless routing constraints: $from services are not linked to the ones of $to"
 
   val cyclicGraphWarning: String =
-    "[WARNING] The paths computed on the graph my be incorrect since the graph is cyclic"
+    "[WARNING] The paths computed on the graph may be incorrect since the graph is cyclic"
 
   inline def cycleWarning(
-      visited: Seq[(Any, Any)],
-      ini: Any,
-      tgt: Any
+                           path: Seq[Any],
+                           ini: Any,
+                           tgt: Any
   ): String =
-    s"[WARNING] cycle found on edge ${visited.map(p => s"${p._1} -> ${p._2}").mkString(" , ")} from initiator $ini to reach $tgt"
+    s"""[WARNING] A cycle have been found from initiator $ini to reach $tgt in the following path:
+       |${path.mkString("[WARNING] ", "\n[WARNING] -> ", "")}""".stripMargin
 
   inline def successfulExportInfo(name: Any, time: Any): String =
     s"[INFO] $name exported successfully in $time s"

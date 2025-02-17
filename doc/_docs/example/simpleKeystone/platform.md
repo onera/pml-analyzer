@@ -11,7 +11,8 @@ the SRAM memories) through a dedicated controller
 called Memory Shared Multicore Controller (MSMC). This controller
 acts as a switch from the two buses to the two memories.
 
-All the resources necessary for executing program instructions are locally hosted by each core: ordinal counter, registers, computing units, etc.
+All the resources necessary for executing program instructions are locally hosted by each core: ordinal counter,
+registers, computing units, etc.
 These resources are private to each core.
 They can be used simultaneously without interference by each core.
 Conversely, the memory hierarchy is composed of resources local
