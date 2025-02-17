@@ -1,3 +1,6 @@
+val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
+val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
+
 lazy val root = (project in file("."))
   .settings(
     name := "myProject",
@@ -6,5 +9,15 @@ lazy val root = (project in file("."))
     sbtVersion := "1.8.2",
     scalacOptions := Seq("-unchecked", "-deprecation", "-feature"),
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
-    resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+    resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    libraryDependencies ++= Seq(
+        scalatest,
+        scalaplus
+      )
   )
+
+// Fork a new JVM on every sbt run task
+// Fixes an issue with the classloader complaining that the Monosat library is
+// "already loaded in another classloader" on successive runs of the analysis
+// in the same sbt instance.
+fork := true

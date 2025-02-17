@@ -30,10 +30,9 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
-    "src/main/scala/pml/examples/simpleKeystone" -> (Compile / scalaSource).value / "pml" / "examples" / "simpleKeystone",
-    "src/main/scala/pml/examples/simpleT1042" -> (Compile / scalaSource).value / "pml" / "examples" / "simpleT1042",
-    "src/main/scala/views/interference/examples/simpleKeystone" -> (Compile / scalaSource).value / "views" / "interference" / "examples" / "simpleKeystone",
-    "src/main/scala/views/interference/examples/simpleT1042" -> (Compile / scalaSource).value / "views" / "interference" / "examples" / "simpleT1042"
+    "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
+    "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
+    "src/test" -> (Compile / baseDirectory).value / "src" / "test"
   ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
@@ -41,13 +40,9 @@ lazy val dockerSettings = Seq(
     val generatedDoc = (Compile / doc).value
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
-    val binlib = base / "binlib"
     new Dockerfile {
       from("openjdk:8")
-      customInstruction(
-        "RUN",
-        "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make"
-      )
+      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
       env("SBT_VERSION", sbtVersion.value)
       customInstruction(
         "RUN",
@@ -59,27 +54,22 @@ lazy val dockerSettings = Seq(
       )
       customInstruction("RUN", "mkdir -p /home/user/code")
       customInstruction("RUN", "mkdir -p /home/user/code/lib")
-      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/pml")
-      customInstruction(
-        "RUN",
-        "mkdir -p /home/user/code/src/main/scala/views/interference"
-      )
+      customInstruction("RUN", "mkdir -p /home/user/code/binlib")
+      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/pml")
+      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/views/interference")
+      customInstruction("RUN", "mkdir -p /home/user/code/src/test")
+      workDir("/home/user")
+      customInstruction("RUN", "git clone https://github.com/sambayless/monosat.git")
+      workDir("/home/user/monosat")
+      customInstruction("RUN", "cmake -DJAVA=ON .")
+      customInstruction("RUN", "make")
+      customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
       workDir("/home/user/code")
       for ((to, from) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
-      copy(binlib, "binlib")
       copy(artifact, artifactTargetPath)
-      copy(
-        Seq(
-          base / "AUTHORS.txt",
-          base / "lesser.txt",
-          base / "minimalBuildSBT.txt",
-          base / "LICENCE",
-          base / "Makefile"
-        ),
-        "./"
-      )
+      copy(Seq(base / "AUTHORS.txt", base / "lesser.txt", base / "minimalBuildSBT.txt", base / "LICENSE", base / "Makefile"), "./")
       customInstruction("RUN", "mv minimalBuildSBT.txt build.sbt")
       env("LD_LIBRARY_PATH" -> "/home/user/code/binlib:${LD_LIBRARY_PATH}")
       customInstruction(
@@ -87,7 +77,7 @@ lazy val dockerSettings = Seq(
         "chown -R user /home/user && chgrp -R user /home/user"
       )
       user("user")
-      customInstruction("RUN", "sbt \"compile\" clean")
+      customInstruction("RUN", "sbt \"compile\" clean ")
       entryPoint("/bin/bash")
     }
   }
