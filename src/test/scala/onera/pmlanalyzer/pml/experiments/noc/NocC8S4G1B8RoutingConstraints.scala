@@ -58,12 +58,6 @@ trait NocC8S4G1B8RoutingConstraints {
   private val srams: Seq[Target] = Seq(
   )
 
-  private val srams: Seq[Target] = Seq(
-  )
-
-  private val srams: Seq[Target] = Seq(
-  )
-
   for {
     i <- cores
     in_port <- cluster_inputs
