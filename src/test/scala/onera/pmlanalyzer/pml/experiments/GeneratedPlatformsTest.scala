@@ -44,82 +44,39 @@ import scala.language.postfixOps
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
-  object HbusCl2C2B8
-      extends HbusCl2C2B8Platform
-      with HbusCl2C2B8Software
-      with HbusCl2C2B8TransactionLibrary
-      with HbusCl2C2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
+  val dbusInstances: Seq[DbusCXDYBXPlatform
+    & DbusCXDYBXSoftware
+    & DbusCXDYBXTransactionLibrary
+    & DbusCXDYBXRoutingConstraints
+    & TableBasedInterferenceSpecification] =
+    for {
+      coreNumber <- 2 to 8 by 2
+      dspNumber <- 2 to 8 by 2
+      if coreNumber + dspNumber <= 12
+    } yield {
+      new DbusCXDYBXPlatform(Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"), coreNumber, dspNumber)
+        with DbusCXDYBXSoftware
+        with DbusCXDYBXTransactionLibrary
+        with DbusCXDYBXRoutingConstraints
+        with TableBasedInterferenceSpecification {}
+    }
 
-  object HbusCl2C4B8
-      extends HbusCl2C4B8Platform
-      with HbusCl2C4B8Software
-      with HbusCl2C4B8TransactionLibrary
-      with HbusCl2C4B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object HbusCl4C2B8
-      extends HbusCl4C2B8Platform
-      with HbusCl4C2B8Software
-      with HbusCl4C2B8TransactionLibrary
-      with HbusCl4C2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC2D2B8
-      extends DbusC2D2B8Platform
-      with DbusC2D2B8Software
-      with DbusC2D2B8TransactionLibrary
-      with DbusC2D2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC2D4B8
-      extends DbusC2D4B8Platform
-      with DbusC2D4B8Software
-      with DbusC2D4B8TransactionLibrary
-      with DbusC2D4B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC2D8B8
-      extends DbusC2D8B8Platform
-      with DbusC2D8B8Software
-      with DbusC2D8B8TransactionLibrary
-      with DbusC2D8B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC4D2B8
-      extends DbusC4D2B8Platform
-      with DbusC4D2B8Software
-      with DbusC4D2B8TransactionLibrary
-      with DbusC4D2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC4D4B8
-      extends DbusC4D4B8Platform
-      with DbusC4D4B8Software
-      with DbusC4D4B8TransactionLibrary
-      with DbusC4D4B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC4D8B8
-      extends DbusC4D8B8Platform
-      with DbusC4D8B8Software
-      with DbusC4D8B8TransactionLibrary
-      with DbusC4D8B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC8D2B8
-      extends DbusC8D2B8Platform
-      with DbusC8D2B8Software
-      with DbusC8D2B8TransactionLibrary
-      with DbusC8D2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object DbusC8D4B8
-      extends DbusC8D4B8Platform
-      with DbusC8D4B8Software
-      with DbusC8D4B8TransactionLibrary
-      with DbusC8D4B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
+  val hbusInstances: Seq[HbusClXCYBYPlatform
+    & HbusClXCYBYSoftware
+    & HbusClXCYBYTransactionLibrary
+    & HbusClXCYBYRoutingConstraints
+    & TableBasedInterferenceSpecification] =
+    for {
+      clusterNumber <- 2 to 8 by 2
+      coreNumber <- 2 to 8 by 2
+      if clusterNumber + coreNumber <= 12
+    } yield {
+      new HbusClXCYBYPlatform(Symbol(s"HbusCl${clusterNumber}C${coreNumber}B$coreNumber"), clusterNumber, coreNumber)
+        with HbusClXCYBYSoftware
+        with HbusClXCYBYTransactionLibrary
+        with HbusClXCYBYRoutingConstraints
+        with TableBasedInterferenceSpecification {}
+    }
 
   object NocC4S2G1B8
       extends NocC4S2G1B8Platform
@@ -178,17 +135,6 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       with TableBasedInterferenceSpecification {}
 
   private val platforms = Seq(
-    HbusCl2C2B8,
-    HbusCl2C4B8,
-    HbusCl4C2B8,
-    DbusC2D2B8,
-    DbusC2D4B8,
-    DbusC2D8B8,
-    DbusC4D2B8,
-    DbusC4D4B8,
-    DbusC4D8B8,
-    DbusC8D2B8,
-    DbusC8D4B8,
     NocC4S2G1B8,
     NocC4S2G2B8,
     NocC4S4G1B8,
@@ -201,9 +147,9 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
   "Generated architectures" should "be analysable to compute their semantics" in {
     for {
-      p <- platforms
+      p <- dbusInstances ++ hbusInstances
     } {
-      p.exportSemanticsSize()
+      p.exportSemanticsSize(ignoreExistingFiles = true)
       println(s"[TEST] exporting ${p.name.name} done")
     }
   }

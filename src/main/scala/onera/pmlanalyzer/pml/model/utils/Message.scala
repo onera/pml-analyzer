@@ -73,7 +73,8 @@ object Message {
       name: PhysicalTransactionId,
       names: Iterable[UserTransactionId]
   ): String =
-    s"[WARNING] The physical transaction $name has ${names.size} distinct names ${names.map(_.id.name).mkString(", ")}"
+    s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
+       |${names.map(_.id.name).mkString("[WARNING] ", "\n[WARNING] ", "")}""".stripMargin
 
   inline def impossibleScenarioWarning(userName: UserScenarioId): String =
     s"[WARNING] The physical scenario $userName is not possible, check your link and route constraints"
