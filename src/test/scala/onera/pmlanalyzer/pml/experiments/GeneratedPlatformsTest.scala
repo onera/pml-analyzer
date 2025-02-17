@@ -177,7 +177,6 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       with NocC8S4G2B8RoutingConstraints
       with TableBasedInterferenceSpecification {}
 
-
   private val platforms = Seq(
     HbusCl2C2B8,
     HbusCl2C4B8,
@@ -204,8 +203,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       p <- platforms
     } {
-      p.transactions
-      //      p.exportSemanticsSize()
+      p.exportSemanticsSize()
       println(s"[TEST] exporting ${p.name.name} done")
     }
   }
