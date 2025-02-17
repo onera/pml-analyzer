@@ -17,10 +17,13 @@
 
 package onera.pmlanalyzer.pml.examples.mySys
 
+import scala.language.postfixOps
+
 /** Transaction that are used/ A user transaction is considered during the
   * analyses if identified as so. For instance to indicate that the t11
-  * transaction defined in [[MySysTransactionLibrary]] is used {{{t11.used}}}
-  * @see
+ * transaction defined in [[MySysTransactionLibrary]] is used {{{t11 used}}}
+ *
+ * @see
   *   [[pml.operators.Use.Ops]] for operator definition
   */
 trait MySysLibraryConfiguration
@@ -28,20 +31,27 @@ trait MySysLibraryConfiguration
     with MySysSoftwareAllocation {
   self: MyProcPlatform =>
 
-  t11.used
-  t12.used
-  t13.used
-  t14.used
+  t11 used
 
-  t21.used
+  t12 used
 
-  t22.used
-  t23.used
-  t24.used
-  t25.used
-  t26.used
+  t13 used
 
-  t31.used
+  t14 used
 
-  t41.used
+  t21 used
+
+  t22 used
+
+  t23 used
+
+  t24 used
+
+  t25 used
+
+  t26 used
+
+  t31 used
+
+  t41 used
 }

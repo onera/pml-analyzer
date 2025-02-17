@@ -167,7 +167,7 @@ trait TransactionLibrary {
       * @return
       *   the used transaction
       */
-    def used: UsedTransaction = UsedTransaction(userName, iniTgt(), sw())
+    infix def used: UsedTransaction = UsedTransaction(userName, iniTgt(), sw())
 
     override def toString: String = s"$userName"
   }
@@ -301,11 +301,17 @@ trait TransactionLibrary {
         name: Name,
         ta: AsTransaction[Set[A]],
         tb: AsTransaction[Set[B]]
+    ): Scenario =
+      apply(Symbol(name.value), iniTgtL, iniTgtR)
+
+    def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+                                                                          ta: AsTransaction[Set[A]],
+                                                                          tb: AsTransaction[Set[B]]
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
       apply(
-        UserScenarioId(Symbol(name.value)),
+        UserScenarioId(name),
         () => {
           resultL._1() ++ resultR._1()
         },
@@ -314,6 +320,7 @@ trait TransactionLibrary {
         }
       )
     }
+
 
     /** Build a scenario from a transaction or another scenario
       * @param tr
