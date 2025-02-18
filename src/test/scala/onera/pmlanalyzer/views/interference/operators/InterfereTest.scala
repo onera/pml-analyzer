@@ -78,7 +78,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "They" should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
       b <- PlatformFixture.hardware
@@ -106,7 +106,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "They" should "be able not to interfere" in {
+  it should "be able not to interfere" in {
     for {
       s <- i2.services
     } {
@@ -137,7 +137,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "These two" should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
       b <- PlatformFixture.hardware
@@ -163,7 +163,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "It" should "be able to have non-interfering services" in {
+  it should "be able to have non-interfering services" in {
     for {
       a <- PlatformFixture.hardware
     } {

@@ -37,19 +37,18 @@ object Exclusive {
     extension [T](l: T) {
       def exclusiveWith(r: T)(using ev: Exclusive[T]): Unit = ev(l, r)
     }
-
-    extension (l: Transaction) {
-      def exclusiveWith(r: Transaction)(using
-          ev: Exclusive[PhysicalTransactionId]
-      ): Unit =
-        for {
-          l <- l.used.toPhysical
-          r <- r.used.toPhysical
-        } yield ev(l, r)
-    }
   }
 
   given [T](using relation: ExclusiveRelation[T]): Exclusive[T] with {
     def apply(l: T, r: T): Unit = relation.add(l, r)
+  }
+
+  given [S](using
+            transform: Transform[S, Option[PhysicalTransactionId]],
+            ev: Exclusive[PhysicalTransactionId]): Exclusive[S] with {
+    def apply(l: S, r: S): Unit = for {
+      lId <- transform(l)
+      rId <- transform(r)
+    } yield lId exclusiveWith rId
   }
 }
