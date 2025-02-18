@@ -26,7 +26,7 @@ import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
 
-class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
+class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
   object PlatformFixture
       extends Platform(Symbol("fixture"))
@@ -78,7 +78,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "Two services" should "be able not to interfere with each other" in {
+  "They" should "be able not to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
       b <- PlatformFixture.hardware
@@ -106,7 +106,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A transaction and a service" should "be able not to interfere" in {
+  "They" should "be able not to interfere" in {
     for {
       s <- i2.services
     } {
@@ -127,7 +127,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "Two Hardwares" should "be able to interfere with each other" in {
+  "Two Hardwares components" should "be able to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
       b <- PlatformFixture.hardware
@@ -137,7 +137,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "Two Hardwares" should "be able not to interfere with each other" in {
+  "These two" should "be able not to interfere with each other" in {
     for {
       a <- PlatformFixture.hardware
       b <- PlatformFixture.hardware
@@ -149,7 +149,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     PlatformFixture.hardware.size should be(6)
   }
 
-  "A Hardware" should "be able to have interfering services" in {
+  "A Hardware component" should "be able to have interfering services" in {
     for {
       a <- PlatformFixture.hardware
     } {
@@ -163,7 +163,7 @@ class InterferenceTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A Hardware" should "be able to have non-interfering services" in {
+  "It" should "be able to have non-interfering services" in {
     for {
       a <- PlatformFixture.hardware
     } {

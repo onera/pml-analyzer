@@ -38,6 +38,6 @@ class TransparentTest extends AnyFlatSpecLike with should.Matchers {
     tr1Id.isTransparent
     tr2Id.isTransparent
     transactionIsTransparent.value contains (tr1Id)
-    transactionIsTransparent.value contains (tr1Id)
+    transactionIsTransparent.value contains (tr2Id)
   }
 }
