@@ -55,8 +55,11 @@ trait MyProcInterferenceSpecification
     l <- services
     r <- services
     if l != r
-    if (l.hardwareOwnerIs(dma) && r.hardwareOwnerIs(dma_reg)) ||
-      (l.hardwareOwner == r.hardwareOwner && !l.hardwareOwnerIs(
+    if
+    // (l.hardwareOwnerIs(dma) && r.hardwareOwnerIs(dma_reg)) ||
+    (l.hardwareOwner == r.hardwareOwner
+      &&
+      !l.hardwareOwnerIs(
         TeraNet.periph_bus
       ) && !l.hardwareOwnerIs(axi_bus) && !l.hardwareOwnerIs(
         MemorySubsystem.msmc
@@ -64,6 +67,12 @@ trait MyProcInterferenceSpecification
   } yield {
     l interfereWith r
   }
+
+  dma interfereWith dma_reg
+  // TeraNet.periph_bus.hasNonInterferingServices axi_bus
+  // TeraNet.periph_bus notInterfereWith MemorySubsystem.msmc
+  // MemorySubsystem.msmc.hasNonInterferingServices
+  // axi_bus.hasNonInterferingServices
 
   // All transactions issued from the same initiator are exclusive
   for {
