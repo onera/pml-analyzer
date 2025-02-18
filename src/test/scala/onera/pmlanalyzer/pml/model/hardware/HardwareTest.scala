@@ -38,9 +38,9 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     val v: Virtualizer = Virtualizer()
 
     for (h <- List(t, s, i, v)) {
-      exactly(1, h.services) shouldBe a[Load]
-      exactly(1, h.services) shouldBe a[Store]
-      h.services.size shouldBe 2
+      exactly(1, h.services) should be(a[Load])
+      exactly(1, h.services) should be(a[Store])
+      h.services.size should be(2)
     }
   }
 
