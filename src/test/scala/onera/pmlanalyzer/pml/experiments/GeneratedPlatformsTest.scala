@@ -179,6 +179,9 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   final case class ExperimentResults(
+                                      nbInitiators: Int,
+                                      nbTargets: Int,
+                                      nbScenarios: Int,
                                       analysisTime: Double,
                                       semanticsDistribution: Map[Int, Int],
                                       itfDistribution: Map[Int, Int],
@@ -206,6 +209,9 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       val semanticsDistribution =
         p.getSemanticsSize().transform((_, v) => v.toInt)
       p.fullName -> ExperimentResults(
+        p.initiators.size,
+        p.targets.size,
+        p.scenarioByUserName.keySet.size,
         analysisTime,
         semanticsDistribution,
         itf,
