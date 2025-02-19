@@ -29,14 +29,12 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  InterferenceSpecification,
-  TableBasedInterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{InterferenceSpecification, TableBasedInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
+import java.io.FileWriter
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.*
 import scala.io.Source
@@ -194,21 +192,39 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       .transform((k, v) =>
         v - freeDistribution.getOrElse(k, 0) - itfDistribution.getOrElse(k, 0)
       )
+
+    def printWith(writer: FileWriter, maxSemantics: Int, maxItf: Int, maxFree: Int, maxRed: Int): Unit =
+      writer.write(s"$nbInitiators, $nbTargets, $nbScenarios, $analysisTime, $semanticsSize, $graphReduction, $semanticsReduction")
+      for {i <- 2 to maxSemantics}
+        writer.write(s"${semanticsDistribution.getOrElse(i, 0)}, ")
+
+      for {i <- 2 to maxItf}
+        writer.write(s"${itfDistribution.getOrElse(i, 0)}, ")
+
+      for {i <- 2 to maxFree}
+        writer.write(s"${freeDistribution.getOrElse(i, 0)}, ")
+
+      for {i <- 2 to maxRed}
+        writer.write(s"${redDistribution.getOrElse(i, 0)}, ")
   }
 
   it should "be used to export performance plots" in {
-    val results = (for {
+    val resultFile = FileManager.exportDirectory.getFile(s"experiments.csv")
+    val writer = new FileWriter(resultFile)
+    writer.write(???)
+    for {
       p <- platforms
       if FileManager.exportDirectory
         .locate(FileManager.getSemanticSizeFileName(p))
         .isDefined
       (itf, free, analysisTime) <- PostProcess.parseSummaryFile(p)
       semanticsReduction = p.computeSemanticReduction()
-      graphReduction = 1 // FIXME should be p.computeGraphReduction()
-    } yield {
+      graphReduction = p.computeGraphReduction()
+    } {
       val semanticsDistribution =
         p.getSemanticsSize().transform((_, v) => v.toInt)
-      p.fullName -> ExperimentResults(
+
+      val result = ExperimentResults(
         p.initiators.size,
         p.targets.size,
         p.scenarioByUserName.keySet.size,
@@ -219,7 +235,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         graphReduction.toDouble,
         semanticsReduction.toDouble
       )
-    }).toMap
-    println(results)
+      writer.write(s"${p.fullName}, ")
+      result.printWith(writer, ???, ???, ???, ???)
+      writer.flush()
+      writer.close()
+    }
   }
 }
