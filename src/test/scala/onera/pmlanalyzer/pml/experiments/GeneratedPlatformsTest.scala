@@ -225,16 +225,15 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         p.getSemanticsSize().transform((_, v) => v.toInt)
 
         p.fullName -> ExperimentResults(
-        p.initiators.size,
-        p.targets.size,
-        p.scenarioByUserName.keySet.size,
-        analysisTime,
-        semanticsDistribution,
-        itf,
-        free,
-        graphReduction.toDouble,
-        semanticsReduction.toDouble
-      )
+          p.initiators.size,
+          p.targets.size,
+          p.scenarioByUserName.keySet.size,
+          analysisTime,
+          semanticsDistribution,
+          itf,
+          free,
+          graphReduction.toDouble,
+          semanticsReduction.toDouble)
       }).sortBy(_._1)
 
     val maxItfSize = result.map(_._2.itfDistribution.keySet.max).max
