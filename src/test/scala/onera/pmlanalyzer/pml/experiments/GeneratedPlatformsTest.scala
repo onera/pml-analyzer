@@ -50,7 +50,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       coreNumber <- 2 to 8 by 2
       dspNumber <- 2 to 8 by 2
-      if coreNumber + dspNumber <= 8
+      if coreNumber + dspNumber <= 12
     } yield {
       new DbusCXDYBXPlatform(Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"), coreNumber, dspNumber)
         with DbusCXDYBXSoftware
@@ -173,7 +173,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     val maxFreeSize = result.map(_._2.freeDistribution.keySet.max).max
     val maxRedSize = result.map(_._2.redDistribution.keySet.max).max
     val maxSemanticsSize = result.map(_._2.semanticsDistribution.keySet.max).max
-    writer.write("platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction")
+    writer.write("platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction, ")
     writer.write((2 to maxSemanticsSize).map(i => s"sem size $i").mkString("", ",", ","))
     writer.write((2 to maxItfSize).map(i => s"itf size $i").mkString("", ",", ","))
     writer.write((2 to maxFreeSize).map(i => s"free size $i").mkString("", ",", ","))
