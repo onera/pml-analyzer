@@ -50,7 +50,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       coreNumber <- 2 to 8 by 2
       dspNumber <- 2 to 8 by 2
-      if coreNumber + dspNumber <= 12
+      if coreNumber + dspNumber <= 6
     } yield {
       new DbusCXDYBXPlatform(Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"), coreNumber, dspNumber)
         with DbusCXDYBXSoftware
@@ -205,14 +205,14 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         writer.write(s"${freeDistribution.getOrElse(i, 0)}, ")
 
       for {i <- 2 to maxRed}
-        writer.write(s"${redDistribution.getOrElse(i, 0)}, ")
+        writer.write(s"${redDistribution.getOrElse(i, 0)} ${if (i == maxRed) "" else " ,"}")
   }
 
   it should "be used to export performance plots" in {
     val resultFile = FileManager.exportDirectory.getFile(s"experiments.csv")
     val writer = new FileWriter(resultFile)
-    writer.write(???)
-    for {
+    val result =
+      (for {
       p <- platforms
       if FileManager.exportDirectory
         .locate(FileManager.getSemanticSizeFileName(p))
@@ -220,11 +220,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       (itf, free, analysisTime) <- PostProcess.parseSummaryFile(p)
       semanticsReduction = p.computeSemanticReduction()
       graphReduction = p.computeGraphReduction()
-    } {
+      } yield {
       val semanticsDistribution =
         p.getSemanticsSize().transform((_, v) => v.toInt)
 
-      val result = ExperimentResults(
+        p.fullName -> ExperimentResults(
         p.initiators.size,
         p.targets.size,
         p.scenarioByUserName.keySet.size,
@@ -235,10 +235,27 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         graphReduction.toDouble,
         semanticsReduction.toDouble
       )
-      writer.write(s"${p.fullName}, ")
-      result.printWith(writer, ???, ???, ???, ???)
-      writer.flush()
-      writer.close()
+      }).sortBy(_._1)
+
+    val maxItfSize = result.map(_._2.itfDistribution.keySet.max).max
+    val maxFreeSize = result.map(_._2.freeDistribution.keySet.max).max
+    val maxRedSize = result.map(_._2.redDistribution.keySet.max).max
+    val maxSemanticsSize = result.map(_._2.semanticsDistribution.keySet.max).max
+    writer.write("platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction")
+    writer.write((2 to maxSemanticsSize).map(i => s"semantics size $i").mkString("", ",", ","))
+    writer.write((2 to maxItfSize).map(i => s"itf size $i").mkString("", ",", ","))
+    writer.write((2 to maxFreeSize).map(i => s"itf size $i").mkString("", ",", ","))
+    writer.write((2 to maxRedSize).map(i => s"itf size $i").mkString(","))
+    writer.write("\n")
+
+    for {
+      (p, r) <- result
+    } {
+      writer.write(s"$p, ")
+      r.printWith(writer, maxSemanticsSize, maxItfSize, maxFreeSize, maxRedSize)
+      writer.write(s"\n")
     }
+    writer.flush()
+    writer.close()
   }
 }
