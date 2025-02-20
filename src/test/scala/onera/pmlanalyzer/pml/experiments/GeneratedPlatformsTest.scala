@@ -50,7 +50,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       coreNumber <- 2 to 8 by 2
       dspNumber <- 2 to 8 by 2
-      if coreNumber + dspNumber <= 6
+      if coreNumber + dspNumber <= 8
     } yield {
       new DbusCXDYBXPlatform(Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"), coreNumber, dspNumber)
         with DbusCXDYBXSoftware
