@@ -221,8 +221,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       semanticsReduction = p.computeSemanticReduction()
       graphReduction = p.computeGraphReduction()
       } yield {
-      val semanticsDistribution =
-        p.getSemanticsSize().transform((_, v) => v.toInt)
+        val semanticsDistribution = p.getSemanticsSize().transform((_, v) => v.toInt)
 
         p.fullName -> ExperimentResults(
           p.initiators.size,
