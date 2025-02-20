@@ -32,6 +32,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 
+import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap
 
@@ -57,6 +58,42 @@ trait Restrict[L, R] {
       (tgt, ini, from, to),
       usedForTgt(tgt, ini, from, to, Seq.empty[(U, U)])
     )
+
+  /**
+   * Compute all the edge that can be reached by an initiator to reach a target from a given service
+   * TODO Consider mixing with usedForTgt to compute only the edges that can be reached to reach a given target
+   *
+   * @param ini
+   * @param tgt
+   * @param on
+   * @param visited
+   * @param lU
+   * @param r
+   * @tparam U
+   * @return
+   */
+  def reachableLinksByIni[U <: Service](
+                                         ini: Initiator,
+                                         tgt: U,
+                                         on: U,
+                                         visited: Set[(U, U)]
+                                       )(implicit
+                                         lU: Linked[U, U],
+                                         r: RoutingRelation[(Initiator, Service, Service), Service]
+                                       ): Set[(U, U)] = {
+
+    val successors =
+      r.get((ini, tgt, on)) match
+        case Some(routed) => lU(on).filter(routed.contains)
+        case None => lU(on)
+
+    for {
+      succ <- successors
+      if !visited.contains((on, succ))
+      edge <- reachableLinksByIni(ini, tgt, succ, visited + (on -> succ)) + (on -> succ)
+    } yield
+      edge
+  }
 
   /** Reachability test function taking into account the routing function
    *
@@ -137,11 +174,11 @@ object Restrict {
 
     extension (self: Application) {
       def serviceGraph(using
-          ev: Restrict[Map[Service, Set[Service]], Application]
-      ): Map[Service, Set[Service]] = ev(self)
+                       ev: Restrict[(Map[Service, Set[Service]], Set[String]), Application]
+                      ): Map[Service, Set[Service]] = ev(self)._1
       def hardwareGraph(using
-          ev: Restrict[Map[Hardware, Set[Hardware]], Application]
-      ): Map[Hardware, Set[Hardware]] = ev(self)
+                        ev: Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]
+                       ): Map[Hardware, Set[Hardware]] = ev(self)._1
     }
 
     /** Extension method class
@@ -504,6 +541,7 @@ object Restrict {
 
   given [T <: Application | Initiator](using
       lS: LinkRelation[Service],
+                                       pI: Provided[Initiator, Service],
       uSI: Used[Application, Initiator],
       aR: AuthorizeRelation[Application, Service],
                                        r: RoutingRelation[(Initiator, Service, Service), Service]
@@ -558,9 +596,22 @@ object Restrict {
 
     def apply(b: (T, Service)): (Map[Service, Set[Service]], Set[String]) = {
       val warnings = mutable.Set.empty[String]
+      val hostingInitiators = b._1 match {
+        case app: Application => app.hostingInitiators
+        case i: Initiator => Set(i)
+      }
+      val reachableEdges =
+        for {
+          ini <- hostingInitiators
+          iniS <- ini.services
+          edge <- reachableLinksByIni(ini, b._2, iniS, Set.empty)
+        } yield
+          edge
+
       val graph = lS.edges collect { case (from, linked) =>
         from -> {
-          linked filter { to => {
+          linked filter { to =>
+            reachableEdges.contains(from -> to) && {
               val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
               if (isUsed)
                 warnings ++= cycleWarning
