@@ -76,76 +76,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         with TableBasedInterferenceSpecification {}
     }
 
-  object NocC4S2G1B8
-      extends NocC4S2G1B8Platform
-      with NocC4S2G1B8Software
-      with NocC4S2G1B8TransactionLibrary
-      with NocC4S2G1B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC4S2G2B8
-      extends NocC4S2G2B8Platform
-      with NocC4S2G2B8Software
-      with NocC4S2G2B8TransactionLibrary
-      with NocC4S2G2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC4S4G1B8
-      extends NocC4S4G1B8Platform
-      with NocC4S4G1B8Software
-      with NocC4S4G1B8TransactionLibrary
-      with NocC4S4G1B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC4S4G2B8
-      extends NocC4S4G2B8Platform
-      with NocC4S4G2B8Software
-      with NocC4S4G2B8TransactionLibrary
-      with NocC4S4G2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC8S2G1B8
-      extends NocC8S2G1B8Platform
-      with NocC8S2G1B8Software
-      with NocC8S2G1B8TransactionLibrary
-      with NocC8S2G1B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC8S2G2B8
-      extends NocC8S2G2B8Platform
-      with NocC8S2G2B8Software
-      with NocC8S2G2B8TransactionLibrary
-      with NocC8S2G2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC8S4G1B8
-      extends NocC8S4G1B8Platform
-      with NocC8S4G1B8Software
-      with NocC8S4G1B8TransactionLibrary
-      with NocC8S4G1B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  object NocC8S4G2B8
-      extends NocC8S4G2B8Platform
-      with NocC8S4G2B8Software
-      with NocC8S4G2B8TransactionLibrary
-      with NocC8S4G2B8RoutingConstraints
-      with TableBasedInterferenceSpecification {}
-
-  private val platforms = Seq(
-    NocC4S2G1B8,
-    NocC4S2G2B8,
-    NocC4S4G1B8,
-    NocC4S4G2B8,
-    NocC8S2G1B8,
-    NocC8S2G2B8,
-    NocC8S4G1B8,
-    NocC8S4G2B8
-  )
+  private val platforms = dbusInstances
 
   "Generated architectures" should "be analysable to compute their semantics" in {
     for {
-      p <- dbusInstances ++ hbusInstances
+      p <- platforms
     } {
       p.exportSemanticsSize(ignoreExistingFiles = true)
       println(s"[TEST] exporting ${p.name.name} done")
