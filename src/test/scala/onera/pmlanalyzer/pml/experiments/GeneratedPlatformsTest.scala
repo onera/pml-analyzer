@@ -95,7 +95,6 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       try {
         p.computeAllInterference(
           timeout,
-          computeSemantics = false,
           onlySummary = true
         )
         p.exportSemanticReduction()
@@ -129,7 +128,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       )
 
     def printWith(writer: FileWriter, maxSemantics: Int, maxItf: Int, maxFree: Int, maxRed: Int): Unit =
-      writer.write(s"$nbInitiators, $nbTargets, $nbScenarios, $analysisTime, $semanticsSize, $graphReduction, $semanticsReduction")
+      writer.write(s"$nbInitiators, $nbTargets, $nbScenarios, $analysisTime, $semanticsSize, $graphReduction, $semanticsReduction, ")
       for {i <- 2 to maxSemantics}
         writer.write(s"${semanticsDistribution.getOrElse(i, 0)}, ")
 
@@ -140,7 +139,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         writer.write(s"${freeDistribution.getOrElse(i, 0)}, ")
 
       for {i <- 2 to maxRed}
-        writer.write(s"${redDistribution.getOrElse(i, 0)} ${if (i == maxRed) "" else " ,"}")
+        writer.write(s"${redDistribution.getOrElse(i, 0)} ${if (i == maxRed) "" else ", "}")
   }
 
   it should "be used to export performance plots" in {
@@ -175,10 +174,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     val maxRedSize = result.map(_._2.redDistribution.keySet.max).max
     val maxSemanticsSize = result.map(_._2.semanticsDistribution.keySet.max).max
     writer.write("platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction")
-    writer.write((2 to maxSemanticsSize).map(i => s"semantics size $i").mkString("", ",", ","))
+    writer.write((2 to maxSemanticsSize).map(i => s"sem size $i").mkString("", ",", ","))
     writer.write((2 to maxItfSize).map(i => s"itf size $i").mkString("", ",", ","))
-    writer.write((2 to maxFreeSize).map(i => s"itf size $i").mkString("", ",", ","))
-    writer.write((2 to maxRedSize).map(i => s"itf size $i").mkString(","))
+    writer.write((2 to maxFreeSize).map(i => s"free size $i").mkString("", ",", ","))
+    writer.write((2 to maxRedSize).map(i => s"red size $i").mkString(","))
     writer.write("\n")
 
     for {

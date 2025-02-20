@@ -461,7 +461,7 @@ object Analyse {
             System.currentTimeMillis().toFloat
           val nonExclusiveScenarios =
             if (computeSemantics)
-              Some(getSemanticsSize(platform, sizes.max))
+              Some(platform.getSemanticsSize(ignoreExistingFile = ignoreExistingAnalysisFiles))
             else None
           println(
             Message.successfulNonExclusiveScenarioEstimationInfo(
