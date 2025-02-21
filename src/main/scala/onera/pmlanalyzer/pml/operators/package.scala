@@ -37,8 +37,6 @@ package onera.pmlanalyzer.pml
   * @see
   *   [[Used.Ops]] for used (e.g. used/targetLoads) keywords
   * @see
-  *   [[Merge.Ops]] for and (e.g. and) keywords
-  * @see
   *   [[Restrict.Ops]] for restrict (e.g. restrictedTo) keywords
   * @see
   *   [[Route.Ops]] for route (e.g. useLink/cannotUseLink) keywords
@@ -50,7 +48,6 @@ package object operators
     with Provided.Ops
     with Use.Ops
     with Used.Ops
-    with Merge.Ops
     with Restrict.Ops
     with Route.Ops
     with AsTransaction.Ops

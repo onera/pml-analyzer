@@ -213,58 +213,59 @@ object Used {
     def apply(a: P): Set[PhysicalTransaction] = {
       import a._
 
-      def usedTransactionsBy[U <: Initiator | Application](x: U)(using
-          u: Used[U, Service],
-                                                                 r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
-          typeable: Typeable[U & Initiator]
-      ): (Set[Path[Service]], Set[String]) = {
-
-        // get all target services for x
-        val allTargets = x.targetService
-
-        val warningRestrict = mutable.Set.empty[String]
-        // get the service graph from x services to reach each target service.
-        val serviceGraph =
-          allTargets.groupMapReduce(s => s)(s => {
-            val (graph, warnings) = r((x, s))
-            warningRestrict ++= warnings
-            graph
-          })((l, r) => l ++ r)
-
-        // compute the services of x
-        val fromServices = x match {
-          case app: Application => app.hostingInitiators.flatMap(_.services)
-          case ini: Initiator   => ini.services
-        }
-
-        // compute the paths within each graph from the services of x
-        val (paths, warningPaths) = (for {
-          iniS <- fromServices
-          graph <- serviceGraph.values if graph.contains(iniS)
-        } yield {
-          pathsIn(iniS, graph)
-        }).unzip
-
-        val result = paths.flatten
-
-        x match {
-          case sw: Application =>
-            checkTransactions(result, allTargets, Some(sw)).toSeq.sorted
-              .foreach(println)
-            checkApplicationAllocation(sw)
-          case _: Initiator =>
-            checkTransactions(result, allTargets, None).toSeq.sorted
-              .foreach(println)
-        }
-        (result, warningPaths.flatten ++ warningRestrict)
-      }
-
       val (appPaths, appWarnings) = a.applications.map(usedTransactionsBy).unzip
       val (iniPaths, iniWarnings) = a.initiators.map(usedTransactionsBy).unzip
 
       (appWarnings.flatten ++ iniWarnings.flatten).toSeq.sorted.foreach(println)
 
       appPaths.flatten ++ iniPaths.flatten
+    }
+
+    def usedTransactionsBy[U <: Initiator | Application](x: U)(using
+                                                               uA: Used[Application, Initiator],
+                                                               uAI: Used[Application, Service],
+                                                               uS: Used[U, Service],
+                                                               uI: Used[U, Initiator],
+                                                               p: Provided[Initiator, Service],
+                                                               r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
+                                                               typeable: Typeable[U & Initiator]
+    ): (Set[Path[Service]], Set[String]) = {
+
+      // get all target services for x
+      val allTargets = x.targetService
+
+      val warningRestrict = mutable.Set.empty[String]
+      // get the service graph from x services to reach each target service.
+      val serviceGraph =
+        allTargets.groupMapReduce(s => s)(s => {
+          val (graph, warnings) = r((x, s))
+          warningRestrict ++= warnings
+          graph
+        })((l, r) => l ++ r)
+
+      // compute the services of x
+      val fromServices = x.hostingInitiators.flatMap(_.services)
+
+      // compute the paths within each graph from the services of x
+      val (paths, warningPaths) = (for {
+        iniS <- fromServices
+        graph <- serviceGraph.values if graph.contains(iniS)
+      } yield {
+        pathsIn(iniS, graph)
+      }).unzip
+
+      val result = paths.flatten
+
+      x match {
+        case sw: Application =>
+          checkTransactions(result, allTargets, Some(sw)).toSeq.sorted
+            .foreach(println)
+          checkApplicationAllocation(sw)
+        case _: Initiator =>
+          checkTransactions(result, allTargets, None).toSeq.sorted
+            .foreach(println)
+      }
+      (result, warningPaths.flatten ++ warningRestrict)
     }
   }
 
@@ -278,6 +279,16 @@ object Used {
       l: Used[Application, Initiator]
   ): Used[A, I] with {
     def apply(a: A): Set[I] = l(a) collect { case s: I => s }
+  }
+
+  given [AI <: Application | Initiator, I <: Initiator : Typeable](using
+                                                                   l: Used[Application, Initiator]
+                                                                  ): Used[AI, I] with {
+    def apply(a: AI): Set[I] =
+      a match
+        case i: I => Set(i)
+        case a: Application => l(a) collect { case s: I => s }
+        case _ => Set.empty
   }
 
   /** ------------------------------------------------------------------------------------------------------------------

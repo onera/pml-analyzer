@@ -81,7 +81,7 @@ object Route {
         *   a partial routing constraint where the initiator, the targets and
         *   the router are specified
         */
-      def useLink(router: Hardware)(implicit
+      def useLink(router: Hardware)(using
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = false)
@@ -93,7 +93,7 @@ object Route {
         *   a partial routing constraint where the initiator, the targets and
         *   the router are specified
         */
-      def cannotUseLink(router: Hardware)(implicit
+      def cannotUseLink(router: Hardware)(using
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = true)
@@ -136,7 +136,7 @@ object Route {
         * @param router
         *   an hardware
         */
-      def blockedBy(router: Hardware)(implicit
+      def blockedBy(router: Hardware)(using
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
           r: RoutingRelation[(Initiator, Service, Service), Service]
@@ -158,7 +158,7 @@ object Route {
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(implicit
+      private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
           r: RoutingRelation[(Initiator, Service, Service), Service]
       ): Unit =
@@ -199,7 +199,7 @@ object Route {
         * @param r
         *   the proof that a routing relation exists
         */
-      def to(next: Hardware)(implicit
+      def to(next: Hardware)(using
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
           r: RoutingRelation[(Initiator, Service, Service), Service]
@@ -228,7 +228,7 @@ object Route {
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(implicit
+      private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
           r: RoutingRelation[(Initiator, Service, Service), Service]
       ): Unit = {
