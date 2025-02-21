@@ -50,7 +50,7 @@ trait Restrict[L, R] {
     MHashMap
       .empty[(Service, Initiator, Service, Service), (Boolean, Set[String])]
 
-  def usedForTgt[U <: Service](tgt: U, ini: Initiator, from: U, to: U)(implicit
+  def usedForTgt[U <: Service](tgt: U, ini: Initiator, from: U, to: U)(using
       lU: Linked[U, U],
       r: RoutingRelation[(Initiator, Service, Service), Service]
   ): (Boolean, Set[String]) =
@@ -61,8 +61,6 @@ trait Restrict[L, R] {
 
   /**
    * Compute all the edge that can be reached by an initiator to reach a target from a given service
-   * TODO Consider mixing with usedForTgt to compute only the edges that can be reached to reach a given target
-   *
    * @param ini
    * @param tgt
    * @param on
@@ -77,7 +75,7 @@ trait Restrict[L, R] {
                                          tgt: U,
                                          on: U,
                                          visited: Set[(U, U)]
-                                       )(implicit
+                                       )(using
                                          lU: Linked[U, U],
                                          r: RoutingRelation[(Initiator, Service, Service), Service]
                                        ): Set[(U, U)] = {
@@ -93,6 +91,105 @@ trait Restrict[L, R] {
       edge <- reachableLinksByIni(ini, tgt, succ, visited + (on -> succ)) + (on -> succ)
     } yield
       edge
+  }
+
+  def reachableLinksByIni[U <: Service](ini: Initiator)(using
+                                                        lU: Linked[U, U],
+                                                        uI: Used[Initiator, U],
+                                                        pI: Provided[Initiator, U],
+                                                        r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): (Set[(U, U)], Set[String]) = {
+    val reachableEdges = mutable.Set.empty[(U, U)]
+    val warnings = mutable.Set.empty[String]
+    for {tgt <- ini.used()} {
+      val (reachableFromOn, warningsFromOn) = reachableLinksByIniForTgt(ini, tgt)
+      reachableEdges ++= reachableFromOn
+      warnings ++= warningsFromOn
+    }
+    (reachableEdges.toSet, warnings.toSet)
+  }
+
+  /**
+   * Collect the edges that are used by an initiator to reach a target
+   *
+   * @param ini the initiator
+   * @param tgt the target service
+   * @param lU  the link relation between services
+   * @param pI  the proof that an initiator provide services
+   * @param r   the routing relation
+   * @tparam U the type of service
+   * @return the set of collected edges and cycle warnings found on the way
+   */
+  def reachableLinksByIniForTgt[U <: Service](
+                                               ini: Initiator,
+                                               tgt: U
+                                             )(using
+                                               lU: Linked[U, U],
+                                               pI: Provided[Initiator, U],
+                                               r: RoutingRelation[(Initiator, Service, Service), Service]
+                                             ): (Set[(U, U)], Set[String]) = {
+    val reachableEdges = mutable.Set.empty[(U, U)]
+    val warnings = mutable.Set.empty[String]
+    for {on <- ini.provided} {
+      val (reachableFromOn, warningsFromOn) = reachableLinksByIniForTgt(ini, tgt, on, Seq.empty)
+      reachableEdges ++= reachableFromOn
+      warnings ++= warningsFromOn
+    }
+    (reachableEdges.toSet, warnings.toSet)
+  }
+
+  /**
+   * Collect the edges that are used by an initiator to reach a target from a service on
+   *
+   * @param ini     the initiator
+   * @param tgt     the target service
+   * @param on      the starting point of the collection
+   * @param visited the edges already visited
+   * @param lU      the link relation between services
+   * @param r       the routing relation
+   * @tparam U the type of service
+   * @return the set of collected edges and cycle warnings found on the way
+   */
+  private def reachableLinksByIniForTgt[U <: Service](
+                                                       ini: Initiator,
+                                                       tgt: U,
+                                                       on: U,
+                                                       visited: Seq[(U, U)]
+                                                     )(using
+                                                       lU: Linked[U, U],
+                                                       r: RoutingRelation[(Initiator, Service, Service), Service]
+                                                     ): (Set[(U, U)], Set[String]) = {
+
+    val warnings = mutable.Set.empty[String]
+    val reachableEdges = mutable.Set.empty[(U, U)]
+
+    //the successors are either all the successors according to the link relation if
+    //no routing constraint is considered otherwise it is the successors identified by the routing constraint
+    val successors =
+      r.get((ini, tgt, on)) match
+        case Some(routed) => lU(on).filter(routed.contains)
+        case None => lU(on)
+
+    for {
+      succ <- successors
+    } {
+      //if the successor is the target, the edge is collected
+      if (succ == tgt)
+        reachableEdges += (on -> succ)
+      //if the edge as been already visited, we stop the collection and send a warning
+      else if (visited.contains((on, succ))) {
+        warnings += Message.cycleWarning(visited.head._1 +: visited.map(_._2), ini, tgt)
+        //otherwise we apply the recursion on the successor
+      } else {
+        val (nextEdge, warning) = reachableLinksByIniForTgt(ini, tgt, succ, visited :+ (on -> succ))
+        warnings ++= warning
+        //we only add the current edge if at least one edge has been collected on the successor
+        //otherwise no edges from the current successor leads to the target so return empty set
+        reachableEdges ++= (if (nextEdge.nonEmpty) nextEdge + (on -> succ) else nextEdge)
+      }
+    }
+    //we only send the warnings if it exists an edge leading to the target (i.e. reachableEdges is non empty)
+    (reachableEdges.toSet, if (reachableEdges.nonEmpty) warnings.toSet else Set.empty)
   }
 
   /** Reachability test function taking into account the routing function
@@ -122,7 +219,7 @@ trait Restrict[L, R] {
       from: U,
       to: U,
       visited: Seq[(U, U)]
-  )(implicit
+                                      )(using
       lU: Linked[U, U],
       r: RoutingRelation[(Initiator, Service, Service), Service]
   ): (Boolean, Set[String]) = {
@@ -416,8 +513,8 @@ object Restrict {
       *   the type of the service
       * @return
       *   if the application uses some route between from and to
-      */
-    def useBySW[U <: Service](a: Application, from: U, to: U)(implicit
+     */
+    def useBySW[U <: Service](a: Application, from: U, to: U)(using
         u: Used[Application, U],
         lU: Linked[U, U]
     ): (Boolean, Set[String]) = {
@@ -596,33 +693,44 @@ object Restrict {
 
     def apply(b: (T, Service)): (Map[Service, Set[Service]], Set[String]) = {
       val warnings = mutable.Set.empty[String]
+      val reachableEdges = mutable.Set.empty[(Service, Service)]
+
       val hostingInitiators = b._1 match {
         case app: Application => app.hostingInitiators
         case i: Initiator => Set(i)
       }
-      val reachableEdges =
-        for {
-          ini <- hostingInitiators
-          iniS <- ini.services
-          edge <- reachableLinksByIni(ini, b._2, iniS, Set.empty)
-        } yield
-          edge
 
-      val graph = lS.edges collect { case (from, linked) =>
-        from -> {
-          linked filter { to =>
-            reachableEdges.contains(from -> to) && {
-              val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
-              if (isUsed)
-                warnings ++= cycleWarning
-              isUsed
-            }
-          }
-        }
-      } filter {
-        _._2.nonEmpty
+      for {ini <- hostingInitiators} {
+        val (reachableEdgesIni, warningsIni) = reachableLinksByIniForTgt(ini, b._2)
+        warnings ++= warningsIni
+        reachableEdges ++= reachableEdgesIni
       }
-      (graph, warnings.toSet)
+
+      (reachableEdges.groupMapReduce((k, _) => k)((_, v) => Set(v))(_ ++ _), warnings.toSet)
+
+      //      val reachableEdges =
+      //        for {
+      //          ini <- hostingInitiators
+      //          iniS <- ini.services
+      //          edge <- reachableLinksByIni(ini, b._2, iniS, Set.empty)
+      //        } yield
+      //          edge
+      //
+      //      val graph = lS.edges collect { case (from, linked) =>
+      //        from -> {
+      //          linked filter { to =>
+      //            reachableEdges.contains(from -> to) && {
+      //              val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
+      //              if (isUsed)
+      //                warnings ++= cycleWarning
+      //              isUsed
+      //            }
+      //          }
+      //        }
+      //      } filter {
+      //        _._2.nonEmpty
+      //      }
+      //      (graph, warnings.toSet)
     }
   }
 }
