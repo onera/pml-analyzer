@@ -15,33 +15,23 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.interference.examples.mySys
+package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.TableBasedInterferenceSpecification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
-import scala.language.postfixOps
+class MySysTransactionLibraryTest
+    extends AnyFlatSpec
+    with ScalaCheckPropertyChecks
+    with should.Matchers {
 
-class MySysInterferenceTest extends AnyFlatSpec with should.Matchers {
-
-  private val expectedResultsDirectoryPath = "mySys"
-
-  "For MySys, the interference analysis" should "find the verified interference" in {
-    val diff =
-      Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
-    if (diff.exists(_.nonEmpty)) {
-      fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
-    }
+  MySys.fullName should "contain the expected numbers of transactions" in {
+    MySys.transactionByUserName.size should be(10)
+    MySys.scenarioByUserName.size should be(12)
+    MySys.transactions.size should be(14)
   }
 
-  "For MySys, the semantics reduction" should "consistent with paper" in {
-    MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(BigDecimal(37) / 17)
-    MySys.computeGraphReduction() should be(BigDecimal(71) / 28)
-  }
 }

@@ -34,12 +34,4 @@ class DbusC2D2B8TransactionLibraryTest
     DbusC2D2B8.transactions.size should be(36)
   }
 
-  "A transaction library" should "detect physical transaction with multiple names" in {}
-
-  it should "detect the physical transaction without names" in {}
-
-  it should "detect impossible user transaction" in {}
-
-  it should "encode properly the relation between user and physical transactions" in {}
-
 }
