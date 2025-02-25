@@ -27,125 +27,68 @@ import sourcecode.*
  * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-abstract class GenericPlatform(name: Symbol) extends Platform(name) {
+class GenericPlatform(
+                       name: Symbol,
+                       nbGroupDSP: Int,
+                       nbGroupCore: Int,
+                       nbClusterGroupDSP: Int,
+                       nbClusterGroupCore: Int,
+                       nbClusterDSPPerGroup: Int,
+                       nbClusterCorePerGroup: Int,
+                       nbDSPPerCluster: Int,
+                       nbCorePerCluster: Int,
+                       nbDDRBank: Int,
+                       nbDDRController: Int
+                     ) extends Platform(name) {
 
   sealed abstract class Cluster(n: Symbol) extends Composite(n) {
+    val cores: Seq[Initiator]
     val input_port: SimpleTransporter = SimpleTransporter()
     val output_port: SimpleTransporter = SimpleTransporter()
     val bus: SimpleTransporter = SimpleTransporter()
+
+    for {core <- cores}
+      core link bus
+
+    input_port link bus
+
+    bus link output_port
   }
 
-  final case class ClusterCore(id: String, coreNumber: Int)
+  final case class ClusterCore(id: String)
       extends Cluster(Symbol(s"ClC$id")) {
     val cores: Seq[Initiator] =
-      for { i <- 0 until coreNumber } yield Initiator(s"C$i")
+      for {i <- 0 until nbCorePerCluster} yield Initiator(s"C$i")
 
     val coresL1: Seq[Target] =
-      for { i <- 0 until coreNumber } yield Target(s"C${i}_L1")
+      for {i <- 0 until nbCorePerCluster} yield Target(s"C${i}_L1")
 
     val L2: Target = Target()
-
-    for { core <- cores }
-      core link bus
 
     for { (core, l1) <- cores.zip(coresL1) }
       core link l1
 
     bus link L2
-
-    input_port link bus
-
-    bus link output_port
   }
 
-  final case class ClusteDSP(id: String, dspNumber: Int)
+  final case class ClusterDSP(id: String)
       extends Cluster(Symbol(s"ClD$id")) {
 
     val cores: Seq[Initiator] =
-      for { i <- 0 until dspNumber } yield Initiator(s"C$i")
+      for {i <- 0 until nbDSPPerCluster} yield Initiator(s"C$i")
 
     val SRAM: Seq[Target] =
-      for { i <- 0 until dspNumber } yield Target(s"C${i}_SRAM")
-
-    for { core <- cores }
-      core link bus
+      for {i <- 0 until nbDSPPerCluster} yield Target(s"C${i}_SRAM")
 
     for { sram <- SRAM }
       bus link sram
-
-    input_port link bus
-
-    bus link output_port
 
     for { (core, sram) <- cores.zip(SRAM) }
       core link sram
   }
 
-  sealed abstract class Group[T <: Cluster](
-      id: Int,
-      nbCluster: Int,
-      nbGroup: Int,
-      nbCore: Int,
-      builder: (Int, Int, Int) => T
-  ) extends Composite(s"cg$id") {
-    val clusters: Seq[Seq[T]] =
-      for {
-        i <- 0 until nbCluster
-      } yield {
-        for {
-          j <- 0 until nbGroup
-        } yield builder(i, j, nbCore)
-      }
-
-    val bus: GroupCrossBar = GroupCrossBar(nbCluster, nbGroup)
-    val output_port: SimpleTransporter = SimpleTransporter()
-    val input_port: SimpleTransporter = SimpleTransporter()
-
-    for {
-      i <- clusters.indices
-      j <- clusters(i).indices
-    } {
-      clusters(i)(j).output_port link bus.clusterInput(i)(j)
-      bus.clusterOuput(i)(j) link clusters(i)(j).input_port
-    }
-
-    bus.output_port link output_port
-    input_port link bus.input_port
-  }
-
-  final case class ddr(bankNumber: Int) extends Composite("ddr") {
-
-    val banks: Seq[Target] =
-      for { i <- 0 until bankNumber } yield Target(s"BK$i")
-
-    val ddr_ctrl: SimpleTransporter = SimpleTransporter()
-
-    val input_port: SimpleTransporter = SimpleTransporter()
-
-    for { bank <- banks }
-      ddr_ctrl link bank
-
-    input_port link ddr_ctrl
-  }
-
-  object cfg_bus extends Composite(name) {
-    val bus: SimpleTransporter = SimpleTransporter()
-
-    val input_port: SimpleTransporter = SimpleTransporter()
-
-    val dma_reg: Target = Target()
-
-    val spi_reg: Target = Target()
-
-    input_port link bus
-
-    bus link dma_reg
-
-    bus link spi_reg
-  }
-
   final case class GroupCrossBar(nbCluster: Int, nbGroup: Int)
-      extends Composite(s"group_bus") {
+    extends Composite(s"group_bus") {
     val clusterInput: Seq[Seq[SimpleTransporter]] =
       for {
         i <- 0 until nbCluster
@@ -179,25 +122,149 @@ abstract class GenericPlatform(name: Symbol) extends Platform(name) {
     }
   }
 
-  final case class PlatformCrossBar(nbGroup: Int)
-      extends Composite(s"pf_bus_G$nbGroup") {
-    val groupInputPorts: Seq[SimpleTransporter] =
-      for { i <- 0 until nbGroup } yield SimpleTransporter(s"G${i}_input_port")
+  sealed abstract class Group[T <: Cluster](
+                                             id: Int,
+                                             nbCluster: Int,
+                                             nbClusterGroup: Int,
+                                           ) extends Composite(s"cg$id") {
+    val clusters: Seq[Seq[T]]
 
-    val groupOutputPorts: Seq[SimpleTransporter] =
-      for { i <- 0 until nbGroup } yield SimpleTransporter(s"G${i}_output_port")
+    val bus: GroupCrossBar = GroupCrossBar(nbCluster, nbClusterGroup)
+    val output_port: SimpleTransporter = SimpleTransporter()
+    val input_port: SimpleTransporter = SimpleTransporter()
+
+    for {
+      i <- clusters.indices
+      j <- clusters(i).indices
+    } {
+      clusters(i)(j).output_port link bus.clusterInput(i)(j)
+      bus.clusterOuput(i)(j) link clusters(i)(j).input_port
+    }
+
+    bus.output_port link output_port
+    input_port link bus.input_port
+  }
+
+  final case class GroupDSP(id: Int) extends Group[ClusterDSP](id, nbClusterDSPPerGroup, nbClusterGroupDSP) {
+    val clusters: Seq[Seq[ClusterDSP]] =
+      for {
+        i <- 0 until nbClusterDSPPerGroup
+      } yield {
+        for {
+          j <- 0 until nbClusterGroupDSP
+        } yield ClusterDSP(s"${i}_$j")
+      }
+  }
+
+
+  final case class GroupCore(id: Int) extends Group[ClusterCore](id, nbClusterCorePerGroup, nbClusterGroupCore) {
+    val clusters: Seq[Seq[ClusterCore]] =
+      for {
+        i <- 0 until nbClusterCorePerGroup
+      } yield {
+        for {
+          j <- 0 until nbClusterGroupCore
+        } yield ClusterCore(s"${i}_$j")
+      }
+  }
+
+  final case class ddr(id: Int) extends Composite(s"ddr$id") {
+
+    val banks: Seq[Target] =
+      for {i <- 0 until nbDDRBank} yield Target(s"BK$i")
+
+    val ddr_ctrl: SimpleTransporter = SimpleTransporter()
+
+    val input_port: SimpleTransporter = SimpleTransporter()
+
+    for { bank <- banks }
+      ddr_ctrl link bank
+
+    input_port link ddr_ctrl
+  }
+
+  val groupDSP: Seq[GroupDSP] = for {
+    i <- 0 until nbGroupDSP
+  } yield {
+    GroupDSP(i)
+  }
+
+  val groupCore: Seq[GroupCore] = for {
+    i <- 0 until nbGroupCore
+  } yield {
+    GroupCore(i)
+  }
+
+
+  object cfg_bus extends Composite(name) {
+    val bus: SimpleTransporter = SimpleTransporter()
+
+    val input_port: SimpleTransporter = SimpleTransporter()
+
+    val dma_reg: Target = Target()
+
+    val spi_reg: Target = Target()
+
+    input_port link bus
+
+    bus link dma_reg
+
+    bus link spi_reg
+  }
+
+  object PlatformCrossBar extends Composite(s"pf_bus_G") {
+    val groupDSPInputPorts: Seq[SimpleTransporter] =
+      for {i <- 0 until nbGroupDSP} yield SimpleTransporter(s"dG${i}_input_port")
+
+    val groupDSPOutputPorts: Seq[SimpleTransporter] =
+      for {i <- 0 until nbGroupDSP} yield SimpleTransporter(s"dG${i}_output_port")
+
+    val groupCoreInputPorts: Seq[SimpleTransporter] =
+      for {i <- 0 until nbGroupCore} yield SimpleTransporter(s"G${i}_input_port")
+
+    val groupCoreOutputPorts: Seq[SimpleTransporter] =
+      for {i <- 0 until nbGroupCore} yield SimpleTransporter(s"G${i}_output_port")
+
+    val ddrOutputPorts: Seq[SimpleTransporter] =
+      for {i <- 0 until nbDDRController} yield SimpleTransporter(s"ddr${i}_output_port")
 
     val dma_input_port: SimpleTransporter = SimpleTransporter()
-    val ddr_output_port: SimpleTransporter = SimpleTransporter()
     val config_bus_output_port: SimpleTransporter = SimpleTransporter()
     val eth_output_port: SimpleTransporter = SimpleTransporter()
 
     for {
-      input <- groupInputPorts :+ dma_input_port
+      input <- groupDSPInputPorts ++ groupCoreInputPorts :+ dma_input_port
       output <-
-        groupOutputPorts :+ ddr_output_port :+ config_bus_output_port :+ eth_output_port
+        groupDSPOutputPorts ++ groupCoreOutputPorts ++ ddrOutputPorts :+ config_bus_output_port :+ eth_output_port
     } {
       input link output
     }
   }
+
+  val ddrs: Seq[ddr] = for {i <- 0 until nbDDRController} yield
+    ddr(i)
+
+  val dma: Initiator = Initiator()
+
+  val eth: Target = Target()
+
+  for {i <- groupDSP.indices} {
+    groupDSP(i).output_port link PlatformCrossBar.groupDSPInputPorts(i)
+    PlatformCrossBar.groupDSPOutputPorts(i) link groupDSP(i).input_port
+  }
+
+  for {i <- groupCore.indices} {
+    groupCore(i).output_port link PlatformCrossBar.groupCoreInputPorts(i)
+    PlatformCrossBar.groupCoreOutputPorts(i) link groupCore(i).input_port
+  }
+
+  for {i <- ddrs.indices} {
+    PlatformCrossBar.ddrOutputPorts(i) link ddrs(i).input_port
+  }
+
+  dma link PlatformCrossBar.dma_input_port
+
+  PlatformCrossBar.eth_output_port link eth
+
+  PlatformCrossBar.config_bus_output_port link cfg_bus.input_port
 }

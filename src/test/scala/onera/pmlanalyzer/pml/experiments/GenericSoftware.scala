@@ -23,29 +23,28 @@ import onera.pmlanalyzer.pml.operators.*
 trait GenericSoftware {
   self: GenericPlatform =>
 
-  def defineAndHostCoreApplication(
-      groups: Seq[Group[ClusterCore]]
-  ): Seq[Seq[Seq[Seq[Application]]]] =
-    for { gId <- groups.indices } yield for {
-      cIdI <- groups(gId).clusters.indices
-    } yield for { cIdJ <- groups(gId).clusters(cIdI).indices } yield for {
-      coreId <- groups(gId).clusters(cIdI)(cIdJ).cores.indices
+  val coreApplications: Seq[Seq[Seq[Seq[Application]]]] =
+    for {gId <- groupCore.indices} yield for {
+      cIdI <- groupCore(gId).clusters.indices
+    } yield for {cIdJ <- groupCore(gId).clusters(cIdI).indices} yield for {
+      coreId <- groupCore(gId).clusters(cIdI)(cIdJ).cores.indices
     } yield {
       val app = Application(s"app_rosace_cg${gId}_cl${cIdI}_${cIdJ}_C$coreId")
-      app hostedBy groups(gId).clusters(cIdI)(cIdJ).cores(coreId)
+      app hostedBy groupCore(gId).clusters(cIdI)(cIdJ).cores(coreId)
       app
     }
 
-  def defineAndHostDSPApplication(
-      groups: Seq[Group[ClusteDSP]]
-  ): Seq[Seq[Seq[Seq[Application]]]] =
-    for { gId <- groups.indices } yield for {
-      cIdI <- groups(gId).clusters.indices
-    } yield for { cIdJ <- groups(gId).clusters(cIdI).indices } yield for {
-      coreId <- groups(gId).clusters(cIdI)(cIdJ).cores.indices
+  val dspApplications: Seq[Seq[Seq[Seq[Application]]]] =
+    for {gId <- groupDSP.indices} yield for {
+      cIdI <- groupDSP(gId).clusters.indices
+    } yield for {cIdJ <- groupDSP(gId).clusters(cIdI).indices} yield for {
+      coreId <- groupDSP(gId).clusters(cIdI)(cIdJ).cores.indices
     } yield {
       val app = Application(s"app_rosace_dg${gId}_cl${cIdI}_${cIdJ}_C$coreId")
-      app hostedBy groups(gId).clusters(cIdI)(cIdJ).cores(coreId)
+      app hostedBy groupDSP(gId).clusters(cIdI)(cIdJ).cores(coreId)
       app
     }
+
+  val app_dma: Application = Application()
+  app_dma hostedBy dma
 }
