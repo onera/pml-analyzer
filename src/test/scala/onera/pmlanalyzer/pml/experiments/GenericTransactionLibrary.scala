@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.hardware.{Target, Initiator}
 import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
@@ -25,23 +26,50 @@ import scala.language.postfixOps
 trait GenericTransactionLibrary extends TransactionLibrary {
   self: GenericPlatform with GenericSoftware =>
 
+  def partition_resources[A, B](
+                                 asking: Seq[A],
+                                 resources: Seq[B]
+                               ): Map[A, Seq[B]] = {
+    if (asking.length <= resources.length) {
+      asking.zip(resources.grouped(resources.length / asking.length)).toMap
+    } else {
+      resources
+        .zip(asking.grouped(asking.length / resources.length))
+        .flatMap((r, a) => a.map((_, Seq(r))))
+        .toMap
+    }
+  }
+
+  val groupToDdr: Map[GroupCore, Seq[ddr]] =
+    partition_resources(groupCore, ddrs)
+
+  val clusterToBanks: Map[ClusterCore, Seq[Target]] = groupToDdr.flatMap(
+    (g, d) => partition_resources(g.clusters.flatten, d.flatMap(_.banks))
+  )
+
+  val coreToBanks: Map[Initiator, Seq[Target]] =
+    clusterToBanks.flatMap((c, d) => partition_resources(c.cores, d))
+
   val basicCoreTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
-    for { gId <- groupCore.indices } yield for {
+    for {gId <- groupCore.indices} yield for {
       clIdI <- groupCore(gId).clusters.indices
-    } yield for { clIdJ <- groupCore(gId).clusters(clIdI).indices } yield for {
+    } yield for {clIdJ <- groupCore(gId).clusters(clIdI).indices} yield for {
       cId <- groupCore(gId).clusters(clIdI)(clIdJ).cores.indices
     } yield {
       val application = coreApplications(gId)(clIdI)(clIdJ)(cId)
       val cluster = groupCore(gId).clusters(clIdI)(clIdJ)
-      val readL1 = Transaction(
-        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L1_ld",
-        application read cluster.coresL1(cId)
-      )
+      val core = cluster.cores(cId)
 
-      val storeL1 = Transaction(
-        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L1_st",
-        application write cluster.coresL1(cId)
-      )
+      // Let's ignore trivially-free transactions for the moment
+      //      val readL1 = Transaction(
+      //        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L1_ld",
+      //        application read cluster.coresL1(cId)
+      //      )
+      //
+      //      val storeL1 = Transaction(
+      //        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L1_st",
+      //        application write cluster.coresL1(cId)
+      //      )
 
       val readL2 = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L2_ld",
@@ -53,37 +81,35 @@ trait GenericTransactionLibrary extends TransactionLibrary {
         application write cluster.L2
       )
 
-      // FIXME How to know the DDR used by groups?
+      // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_ld",
+      val readBanks: Seq[Transaction] = for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+        Transaction(
+          s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+          application read bank,
+        )
+      }
 
-      val readBank = Transaction(
-        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_ld",
-        application read ddrs(0).banks(clIdI)
-      )
+      // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_st",
+      val writeBanks: Seq[Transaction] = for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+        Transaction(
+          s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+          application write bank,
+        )
+      }
 
-      val storeBank = Transaction(
-        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_st",
-        application write ddrs(0).banks(clIdI)
-      )
-
-      readL1 used
-
-      storeL1 used
+      //      readL1 used
+      //      storeL1 used
 
       readL2 used
 
       storeL2 used
 
-      readBank used
-
-      storeBank used
+      for (t <- readBanks ++ writeBanks)
+        t used
 
       Seq(
-        readL1,
-        storeL1,
         readL2,
         storeL2,
-        readBank,
-        storeBank
-      )
+      ) ++ readBanks ++ writeBanks
     }
 }
