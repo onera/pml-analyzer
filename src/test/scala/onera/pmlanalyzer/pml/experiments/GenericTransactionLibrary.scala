@@ -112,4 +112,37 @@ trait GenericTransactionLibrary extends TransactionLibrary {
         storeL2,
       ) ++ readBanks ++ writeBanks
     }
+
+  val basicDspTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
+    for {gId <- groupDSP.indices} yield for {
+      clIdI <- groupDSP(gId).clusters.indices
+    } yield for {clIdJ <- groupDSP(gId).clusters(clIdI).indices} yield for {
+      cId <- groupDSP(gId).clusters(clIdI)(clIdJ).cores.indices
+    } yield {
+      val application = dspApplications(gId)(clIdI)(clIdJ)(cId)
+      val cluster = groupDSP(gId).clusters(clIdI)(clIdJ)
+      val dsp = cluster.cores(cId)
+      val sram = cluster.SRAM(cId)
+
+      val readSram = Transaction(
+        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_SRAM_ld",
+        application read sram
+      )
+
+      val writeSram = Transaction(
+        s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_SRAM_st",
+        application write sram
+      )
+
+      readSram used
+
+      writeSram used
+
+      Seq(
+        readSram,
+        writeSram,
+      )
+
+
+    }
 }
