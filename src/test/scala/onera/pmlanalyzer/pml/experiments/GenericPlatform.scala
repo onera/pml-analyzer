@@ -47,12 +47,15 @@ class GenericPlatform(
     val output_port: SimpleTransporter = SimpleTransporter()
     val bus: SimpleTransporter = SimpleTransporter()
 
-    for {core <- cores}
-      core link bus
+    def prepare_topology(): Unit = {
+      for {core <- cores}
+        core link bus
 
-    input_port link bus
+      input_port link bus
 
-    bus link output_port
+      bus link output_port
+    }
+
   }
 
   final case class ClusterCore(id: String)
@@ -62,6 +65,8 @@ class GenericPlatform(
 
     val coresL1: Seq[Target] =
       for {i <- 0 until nbCorePerCluster} yield Target(s"C${i}_L1")
+
+    prepare_topology()
 
     val L2: Target = Target()
 
@@ -79,6 +84,8 @@ class GenericPlatform(
 
     val SRAM: Seq[Target] =
       for {i <- 0 until nbDSPPerCluster} yield Target(s"C${i}_SRAM")
+
+    prepare_topology()
 
     for { sram <- SRAM }
       bus link sram
@@ -133,16 +140,21 @@ class GenericPlatform(
     val output_port: SimpleTransporter = SimpleTransporter()
     val input_port: SimpleTransporter = SimpleTransporter()
 
-    for {
-      i <- clusters.indices
-      j <- clusters(i).indices
-    } {
-      clusters(i)(j).output_port link bus.clusterInput(i)(j)
-      bus.clusterOuput(i)(j) link clusters(i)(j).input_port
+    // FIXME Links can only be established after cluster initialisation, that is after the case class (and thus the Group)
+    def prepare_topology(): Unit = {
+      for {
+        i <- clusters.indices
+        j <- clusters(i).indices
+      } {
+        clusters(i)(j).output_port link bus.clusterInput(i)(j)
+        bus.clusterOuput(i)(j) link clusters(i)(j).input_port
+      }
+
+      bus.output_port link output_port
+      input_port link bus.input_port
+
     }
 
-    bus.output_port link output_port
-    input_port link bus.input_port
   }
 
   final case class GroupDSP(id: Int) extends Group[ClusterDSP](id, nbClusterDSPPerGroup, nbClusterGroupDSP) {
@@ -154,6 +166,8 @@ class GenericPlatform(
           j <- 0 until nbClusterGroupDSP
         } yield ClusterDSP(s"${i}_$j")
       }
+
+    prepare_topology()
   }
 
 
@@ -166,6 +180,8 @@ class GenericPlatform(
           j <- 0 until nbClusterGroupCore
         } yield ClusterCore(s"${i}_$j")
       }
+
+     prepare_topology()
   }
 
   final case class ddr(id: Int) extends Composite(s"ddr$id") {
