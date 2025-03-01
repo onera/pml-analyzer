@@ -35,25 +35,40 @@ object GenericExport extends App {
     *
     * @group platform_def
     */
+  //    extends GenericPlatform(
+  //      name = Symbol("GenericSample"),
+  //      nbGroupDSP = 1,
+  //      nbGroupCore = 1,
+  //      nbClusterGroupDSP =
+  //        1, // FIXME This input seems redundant with the DSP Per Group
+  //      nbClusterGroupCore =
+  //        1, // FIXME This input seems redundant with the Core Per Group
+  //      nbClusterDSPPerGroup = 2,
+  //      nbClusterCorePerGroup = 2,
+  //      nbDSPPerCluster = 2,
+  //      nbCorePerCluster = 2,
+  //      nbDDRBank = 8,
+  //      nbDDRController = 1
+  //    )
   object GenericSample
       extends GenericPlatform(
         name = Symbol("GenericSample"),
         nbGroupDSP = 1,
-        nbGroupCore = 1,
+        nbGroupCore = 0,
         nbClusterGroupDSP =
           1, // FIXME This input seems redundant with the DSP Per Group
         nbClusterGroupCore =
           1, // FIXME This input seems redundant with the Core Per Group
-        nbClusterDSPPerGroup = 2,
+        nbClusterDSPPerGroup = 1,
         nbClusterCorePerGroup = 2,
-        nbDSPPerCluster = 2,
+        nbDSPPerCluster = 1,
         nbCorePerCluster = 2,
         nbDDRBank = 8,
         nbDDRController = 1
       )
       with GenericSoftware
       with GenericTransactionLibrary
-//      with MyProcRoutingConfiguration
+      with GenericRoutingConstraints
 //      with MyProcInterferenceSpecification
 //      with MySysInterferenceSpecification
 
