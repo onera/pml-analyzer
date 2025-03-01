@@ -94,8 +94,8 @@ class GenericPlatform(
       core link sram
   }
 
-  final case class GroupCrossBar(nbCluster: Int, nbGroup: Int)
-    extends Composite(s"group_bus") {
+  final case class GroupCrossBar(id: Int, nbCluster: Int, nbGroup: Int)
+    extends Composite(s"group_bus$id") {
     val clusterInput: Seq[Seq[SimpleTransporter]] =
       for {
         i <- 0 until nbCluster
@@ -136,7 +136,7 @@ class GenericPlatform(
                                            ) extends Composite(s"cg$id") {
     val clusters: Seq[Seq[T]]
 
-    val bus: GroupCrossBar = GroupCrossBar(nbCluster, nbClusterGroup)
+    val bus: GroupCrossBar = GroupCrossBar(id, nbCluster, nbClusterGroup)
     val output_port: SimpleTransporter = SimpleTransporter()
     val input_port: SimpleTransporter = SimpleTransporter()
 
@@ -208,7 +208,7 @@ class GenericPlatform(
   val groupCore: Seq[GroupCore] = for {
     i <- 0 until nbGroupCore
   } yield {
-    GroupCore(i)
+    GroupCore(i + nbGroupDSP)
   }
 
 
@@ -230,16 +230,16 @@ class GenericPlatform(
 
   object PlatformCrossBar extends Composite(s"pf_bus_G") {
     val groupDSPInputPorts: Seq[SimpleTransporter] =
-      for {i <- 0 until nbGroupDSP} yield SimpleTransporter(s"dG${i}_input_port")
+      for {g <- groupDSP} yield SimpleTransporter(s"dG${g.id}_input_port")
 
     val groupDSPOutputPorts: Seq[SimpleTransporter] =
-      for {i <- 0 until nbGroupDSP} yield SimpleTransporter(s"dG${i}_output_port")
+      for {g <- groupDSP} yield SimpleTransporter(s"dG${g.id}_output_port")
 
     val groupCoreInputPorts: Seq[SimpleTransporter] =
-      for {i <- 0 until nbGroupCore} yield SimpleTransporter(s"G${i}_input_port")
+      for {g <- groupCore} yield SimpleTransporter(s"G${g.id}_input_port")
 
     val groupCoreOutputPorts: Seq[SimpleTransporter] =
-      for {i <- 0 until nbGroupCore} yield SimpleTransporter(s"G${i}_output_port")
+      for {g <- groupCore} yield SimpleTransporter(s"G${g.id}_output_port")
 
     val ddrOutputPorts: Seq[SimpleTransporter] =
       for {i <- 0 until nbDDRController} yield SimpleTransporter(s"ddr${i}_output_port")
