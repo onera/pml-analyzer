@@ -27,10 +27,12 @@ trait GenericTransactionLibrary extends TransactionLibrary {
   self: GenericPlatform with GenericSoftware =>
 
   def partition_resources[A, B](
-                                 asking: Seq[A],
-                                 resources: Seq[B]
-                               ): Map[A, Seq[B]] = {
-    if (asking.length <= resources.length) {
+      asking: Seq[A],
+      resources: Seq[B]
+  ): Map[A, Seq[B]] = {
+    if (asking.isEmpty || resources.isEmpty) {
+      asking.map((_, Seq.empty)).toMap
+    } else if (asking.length <= resources.length) {
       asking.zip(resources.grouped(resources.length / asking.length)).toMap
     } else {
       resources
@@ -51,9 +53,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
     clusterToBanks.flatMap((c, d) => partition_resources(c.cores, d))
 
   val basicCoreTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
-    for {gId <- groupCore.indices} yield for {
+    for { gId <- groupCore.indices } yield for {
       clIdI <- groupCore(gId).clusters.indices
-    } yield for {clIdJ <- groupCore(gId).clusters(clIdI).indices} yield for {
+    } yield for { clIdJ <- groupCore(gId).clusters(clIdI).indices } yield for {
       cId <- groupCore(gId).clusters(clIdI)(clIdJ).cores.indices
     } yield {
       val application = coreApplications(gId)(clIdI)(clIdJ)(cId)
@@ -82,20 +84,22 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       )
 
       // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_ld",
-      val readBanks: Seq[Transaction] = for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
-        Transaction(
-          s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
-          application read bank,
-        )
-      }
+      val readBanks: Seq[Transaction] =
+        for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+          Transaction(
+            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+            application read bank
+          )
+        }
 
       // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_st",
-      val writeBanks: Seq[Transaction] = for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
-        Transaction(
-          s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
-          application write bank,
-        )
-      }
+      val writeBanks: Seq[Transaction] =
+        for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+          Transaction(
+            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+            application write bank
+          )
+        }
 
       //      readL1 used
       //      storeL1 used
@@ -109,14 +113,14 @@ trait GenericTransactionLibrary extends TransactionLibrary {
 
       Seq(
         readL2,
-        storeL2,
+        storeL2
       ) ++ readBanks ++ writeBanks
     }
 
   val basicDspTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
-    for {gId <- groupDSP.indices} yield for {
+    for { gId <- groupDSP.indices } yield for {
       clIdI <- groupDSP(gId).clusters.indices
-    } yield for {clIdJ <- groupDSP(gId).clusters(clIdI).indices} yield for {
+    } yield for { clIdJ <- groupDSP(gId).clusters(clIdI).indices } yield for {
       cId <- groupDSP(gId).clusters(clIdI)(clIdJ).cores.indices
     } yield {
       val application = dspApplications(gId)(clIdI)(clIdJ)(cId)
@@ -140,9 +144,8 @@ trait GenericTransactionLibrary extends TransactionLibrary {
 
       Seq(
         readSram,
-        writeSram,
+        writeSram
       )
-
 
     }
 }
