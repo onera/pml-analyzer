@@ -164,7 +164,7 @@ class GenericPlatform(
       } yield {
         for {
           j <- 0 until nbClusterGroupDSP
-        } yield ClusterDSP(s"${i}_$j")
+        } yield ClusterDSP(s"G${id}_${i}_$j")
       }
 
     prepare_topology()
@@ -178,7 +178,7 @@ class GenericPlatform(
       } yield {
         for {
           j <- 0 until nbClusterGroupCore
-        } yield ClusterCore(s"${i}_$j")
+        } yield ClusterCore(s"G${id}_${i}_$j")
       }
 
      prepare_topology()
