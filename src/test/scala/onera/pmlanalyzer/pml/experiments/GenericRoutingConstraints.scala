@@ -29,11 +29,9 @@ trait GenericRoutingConstraints {
   for {
     group <- groupDSP
     cluster <- group.clusters.flatten
-    dsp <- cluster.cores
-
-    target <- cluster.SRAM
+    (dsp, sram) <- cluster.cores.zip(cluster.SRAM)
   } {
-    dsp targeting target useLink dsp to target
+    dsp targeting sram useLink dsp to sram
   }
 
 
