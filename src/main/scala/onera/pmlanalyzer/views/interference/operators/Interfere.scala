@@ -117,6 +117,24 @@ object Interfere {
         ev.notInterfereWith(id, r)
   }
 
+  given [L, RH <: Hardware](using
+                            transformation: Transform[L, Set[PhysicalTransactionId]],
+                            ev: Interfere[PhysicalTransactionId, Service],
+                            p: Provided[RH, Service]
+                           ): Interfere[L, RH] with {
+    def interfereWith(l: L, r: RH): Unit =
+      for {id <- transformation(l)
+           s <- r.services
+           }
+        ev.interfereWith(id, s)
+
+    def notInterfereWith(l: L, r: RH): Unit =
+      for {id <- transformation(l)
+           s <- r.services
+           }
+        ev.notInterfereWith(id, s)
+  }
+
   given [LP, RS <: Service](using
       transformation: Transform[LP, Option[PhysicalTransactionId]],
       ev: Interfere[PhysicalTransactionId, Service]
