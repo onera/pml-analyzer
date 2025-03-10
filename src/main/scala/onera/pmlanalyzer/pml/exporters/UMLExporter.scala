@@ -37,7 +37,7 @@ object UMLExporter {
       * @param platform
       *   the platform providing the export features
       */
-    implicit class UmlExporterOps(platform: Platform) {
+    extension (platform: Platform) {
 
       /** The name of the export file will be
         * platform_nameExporter_name.exporter_extension
@@ -213,6 +213,9 @@ object UMLExporter {
     }
   }
 
+  //FIXME not a good idea to write directly while traversing the model, this prevent reordering of relation writing
+  // consider instead using dedicated data-structures for the relations (e.g. composition, association)
+  // consider simplification of the exporters architecture too
   /** Simple string writing in an implicit writer
     * @param a
     *   the string to write
