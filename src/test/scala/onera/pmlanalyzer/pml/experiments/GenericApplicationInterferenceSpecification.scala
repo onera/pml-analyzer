@@ -18,8 +18,7 @@ trait GenericApplicationInterferenceSpecification
       cJ <- cI
     } yield cJ
 
-  private val pf_crossbar_ports: Seq[Transporter] = (
-    PlatformCrossBar.groupDSPInputPorts ++
+  private val pf_crossbar_ports: Seq[Transporter] = PlatformCrossBar.groupDSPInputPorts ++
       PlatformCrossBar.groupDSPOutputPorts ++
       PlatformCrossBar.groupCoreInputPorts ++
       PlatformCrossBar.groupCoreOutputPorts ++
@@ -27,7 +26,6 @@ trait GenericApplicationInterferenceSpecification
       PlatformCrossBar.dma_input_port :+
       PlatformCrossBar.config_bus_output_port :+
       PlatformCrossBar.eth_output_port
-  )
 
   private val core_applications: Seq[Application] =
     (coreApplications ++ dspApplications).flatten.flatten.flatten
