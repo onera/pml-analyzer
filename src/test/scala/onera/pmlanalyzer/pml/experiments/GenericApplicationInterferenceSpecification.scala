@@ -8,12 +8,15 @@ import onera.pmlanalyzer.views.interference.operators.*
 
 trait GenericApplicationInterferenceSpecification
   extends ApplicativeTableBasedInterferenceSpecification {
-  self: GenericPlatform
-    with GenericTransactionLibrary
-    with GenericSoftware =>
+  self: GenericPlatform with GenericTransactionLibrary with GenericSoftware =>
 
-  private val groups: Seq[Group[? >: ClusterCore & ClusterDSP <: Cluster]] = (groupDSP ++ groupCore)
-  private val clusters: Seq[Cluster] = groups.flatMap(_.clusters).flatten
+  private val groups: Seq[Group[Cluster]] = groupDSP ++ groupCore
+  private val clusters: Seq[Cluster] =
+    for {
+      g <- groups
+      cI <- g.clusters
+      cJ <- cI
+    } yield cJ
 
   private val pf_crossbar_ports: Seq[Transporter] = (
     PlatformCrossBar.groupDSPInputPorts ++
@@ -26,7 +29,8 @@ trait GenericApplicationInterferenceSpecification
       PlatformCrossBar.eth_output_port
   )
 
-  private val core_applications: Seq[Application] = (coreApplications ++ dspApplications).flatten.flatten.flatten
+  private val core_applications: Seq[Application] =
+    (coreApplications ++ dspApplications).flatten.flatten.flatten
 
   /**
    * Cores only affect group-level buses.
@@ -35,18 +39,17 @@ trait GenericApplicationInterferenceSpecification
   // Cores do not affect cluster-level transporters
   for {
     application <- core_applications
-    ports <- clusters.flatMap(c => Seq(c.bus, c.input_port, c.output_port))
-  }  {
-    application notInterfereWith ports.loads
-    application notInterfereWith ports.stores
+    c <- clusters
+    port <- Seq(c.bus, c.input_port, c.output_port)
+  } {
+    application notInterfereWith port
   }
   // Cores do not affect platform-level transporters
   for {
-    application <- (coreApplications ++ dspApplications).flatten.flatten.flatten
-    ports <- pf_crossbar_ports
-  }  {
-    application notInterfereWith ports.loads
-    application notInterfereWith ports.stores
+    application <- core_applications
+    port <- pf_crossbar_ports
+  } {
+    application notInterfereWith port
   }
 
   /**
@@ -56,12 +59,8 @@ trait GenericApplicationInterferenceSpecification
     application <- core_applications
     ddr <- ddrs
   } {
-    application notInterfereWith ddr.ddr_ctrl.loads
-    application notInterfereWith ddr.ddr_ctrl.stores
-    application notInterfereWith ddr.input_port.loads
-    application notInterfereWith ddr.input_port.stores
+    application notInterfereWith ddr.ddr_ctrl
+    application notInterfereWith ddr.input_port
   }
-
-
 
 }

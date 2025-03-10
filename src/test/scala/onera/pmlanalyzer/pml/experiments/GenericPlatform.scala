@@ -66,9 +66,9 @@ class GenericPlatform(
     val coresL1: Seq[Target] =
       for {i <- 0 until nbCorePerCluster} yield Target(s"C${i}_L1")
 
-    prepare_topology()
-
     val L2: Target = Target()
+
+    prepare_topology()
 
     for { (core, l1) <- cores.zip(coresL1) }
       core link l1
@@ -129,7 +129,7 @@ class GenericPlatform(
     }
   }
 
-  sealed abstract class Group[T <: Cluster](
+  sealed abstract class Group[+T <: Cluster](
                                              id: Int,
                                              nbCluster: Int,
                                              nbClusterGroup: Int,
@@ -140,7 +140,6 @@ class GenericPlatform(
     val output_port: SimpleTransporter = SimpleTransporter()
     val input_port: SimpleTransporter = SimpleTransporter()
 
-    // FIXME Links can only be established after cluster initialisation, that is after the case class (and thus the Group)
     def prepare_topology(): Unit = {
       for {
         i <- clusters.indices
@@ -210,7 +209,6 @@ class GenericPlatform(
   } yield {
     GroupCore(i + nbGroupDSP)
   }
-
 
   object cfg_bus extends Composite(name) {
     val bus: SimpleTransporter = SimpleTransporter()

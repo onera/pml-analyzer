@@ -6,11 +6,20 @@ import onera.pmlanalyzer.pml.operators.*
 trait GenericRoutingConstraints {
   self: GenericPlatform =>
 
-  private val groups: Seq[Group[? >: ClusterCore & ClusterDSP <: Cluster]] = (groupDSP ++ groupCore)
+  private val groups: Seq[Group[Cluster]] = groupDSP ++ groupCore
 
-  private val clusters: Seq[Cluster] = groups.flatMap(_.clusters).flatten
+  private val clusters: Seq[Cluster] =
+    for {
+      g <- groups
+      cI <- g.clusters
+      cJ <- cI
+    } yield cJ
 
-  private val cores: Seq[Initiator] = clusters.flatMap(_.cores)
+  private val cores: Seq[Initiator] =
+    for {
+      c <- clusters
+      core <- c.cores
+    } yield core
 
   private val group_inputs: Seq[Hardware] = groups.map(_.input_port)
   private val cluster_outputs: Seq[Hardware] = clusters.map(_.output_port)
@@ -19,20 +28,19 @@ trait GenericRoutingConstraints {
   // Cores cannot re-enter their own or other clusters and groups
   for {
     core <- cores
-    target <- Target.all
     port <- cluster_inputs ++ group_inputs
   } {
-    core targeting target blockedBy port
+    core targeting Target.all blockedBy port
   }
 
   // DSP use their SRAM directly (instead of the cluster bus)
   for {
     group <- groupDSP
-    cluster <- group.clusters.flatten
-    (dsp, sram) <- cluster.cores.zip(cluster.SRAM)
+    clusterI <- group.clusters
+    clusterJ <- clusterI
+    (dsp, sram) <- clusterJ.cores.zip(clusterJ.SRAM)
   } {
     dsp targeting sram useLink dsp to sram
   }
-
 
 }
