@@ -47,17 +47,7 @@ object InterferenceGraphExporter {
           )
         )
         DOTServiceOnly.resetService()
-        DOTServiceOnly.writeHeader
-        val services = it
-          .flatMap(x.purifiedScenarios)
-          .flatMap(x.purifiedTransactions)
-
-        for { s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last) }
-          DOTServiceOnly.writeAssociation(
-            DOTServiceOnly.getId(s.head).get,
-            DOTServiceOnly.getId(s.last).get,
-            "exclusive"
-          )
+        writer.write(DOTServiceOnly.getHeader)
 
         for {
           s <- it
@@ -69,16 +59,27 @@ object InterferenceGraphExporter {
             .toList
           if l.nonEmpty
         } {
-          val transaction =
-            s"""${t.id.name}[label = "{${t.id.name} : Transaction}"]"""
-          writer.write(s"$transaction\n")
-          DOTServiceOnly.writeAssociation(
-            t.id.name,
-            DOTServiceOnly.getId(l.head._1).get
-          )
-          l.foreach(p => DOTServiceOnly.exportUML(p._1, p._2))
+          val elements = (l.map(_._1) :+ l.last._2).flatMap(DOTServiceOnly.getElement)
+          writer.write(DOTServiceOnly.DOTCluster(t.id.name, "orange", elements.toSet).toString)
+          for {
+            (l, r) <- l
+            as <- DOTServiceOnly.getAssociation(l, r, "")
+          }
+            writer.write(as.toString)
         }
-        DOTServiceOnly.writeFooter
+
+        val services = it
+          .flatMap(x.purifiedScenarios)
+          .flatMap(x.purifiedTransactions)
+
+        for {s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)}
+          writer.write(DOTServiceOnly.getAssociation(
+            s.head,
+            s.last,
+            "exclusive"
+          ).toString)
+
+        writer.write(DOTServiceOnly.getFooter)
         writer.close()
       }
     }
