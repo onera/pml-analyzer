@@ -65,15 +65,19 @@ object InterferenceGraphExporter {
           .flatMap(x.purifiedTransactions)
 
         val interfereAssociations =
-          (for {s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)
-                as <- DOTServiceOnly.getAssociation(
-                  s.head,
-                  s.last,
-                  "interfere"
-                )} yield as).toSeq
+          (for {
+            s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)
+            as <- DOTServiceOnly.getAssociation(
+              s.head,
+              s.last,
+              "interfere"
+            )
+          } yield as).toSeq
 
-
-        DOTServiceOnly.exportUML(x, interfereAssociations ++ serviceAssociations)
+        DOTServiceOnly.exportUML(
+          x,
+          interfereAssociations ++ serviceAssociations
+        )
         writer.write(DOTServiceOnly.getFooter)
         writer.close()
       }
