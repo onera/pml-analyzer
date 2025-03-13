@@ -57,6 +57,18 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     val tr1: Transaction = Transaction(app1 read d1)
     val tr2: Transaction = Transaction(app2 read d2)
 
+    i1 link st1
+
+    st1 link t1
+
+    i2 link st2
+
+    st2 link t2
+
+    tr1 used
+
+    tr2 used
+
     // val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
 
     // val scn: Scenario = Scenario()
