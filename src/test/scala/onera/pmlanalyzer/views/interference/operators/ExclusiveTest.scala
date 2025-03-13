@@ -26,6 +26,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
 
 import scala.language.postfixOps
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 
 class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
@@ -69,6 +70,9 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
     tr2 used
 
+    val us1 : UserTransactionId = UserTransactionId(Symbol("us1"))
+    val us2 : UserTransactionId = UserTransactionId(Symbol("us2"))
+
     // val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
 
     // val scn: Scenario = Scenario()
@@ -81,11 +85,15 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     transactionExclusive(tr1Id) should contain(tr2Id)
   }
 
-
   "Two transaction" should "be able to be exclusive from each other" in {
     tr1 exclusiveWith tr2
     transactionExclusive(transactionByUserName(tr1.userName)) should contain(
       transactionByUserName(tr2.userName)
     )
   }
+
+  // "Two user transaction Id" should "be able to be exclusive" in {
+  //   us1 exclusiveWith us2 
+  //   transactionExclusive(transactionByUserName(us1)) should contain(transactionByUserName(us2))
+  // }
 }
