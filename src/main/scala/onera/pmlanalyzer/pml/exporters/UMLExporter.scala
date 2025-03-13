@@ -236,7 +236,7 @@ object UMLExporter {
 
   trait DOTRelationExporter extends RelationExporter {
 
-    case class DOTAssociation(left: Int, right: Int, name: String)
+    final case class DOTAssociation(left: Int, right: Int, name: String)
       extends Association {
       override def toString: String =
         s"$left -> $right [${
@@ -245,11 +245,11 @@ object UMLExporter {
     }
 
     def getHeader: String =
-      s"""digraph hierarchy {
+      """digraph hierarchy {
          |\tsize="5,5"
          |\tnode[shape=record,style=filled]
          |\tedge[arrowtail=empty]
-         |\t""".stripMargin
+         |\t""".stripMargin.replace("\\t", "\u0009")
 
     def getFooter: String = "}"
   }
@@ -265,15 +265,15 @@ object UMLExporter {
       6 -> "\"#606B42\""
     ).withDefaultValue("white")
 
-    case class DOTElement(name: String, color: String) extends Element {
+    final case class DOTElement(name: String, color: String) extends Element {
       override def toString: String =
         s"""$id[label = "{$name}", fillcolor=$color]\n"""
     }
 
-    case class DOTCluster(
-                           name: String,
-                           subElements: Set[DOTCluster | DOTElement]
-                         ) extends Element {
+    final case class DOTCluster(
+                                 name: String,
+                                 subElements: Set[DOTCluster | DOTElement]
+                               ) extends Element {
 
       private val depth: Int = name.count(_ == '_')
 
@@ -289,8 +289,7 @@ object UMLExporter {
            |\tstyle = filled
            |\tcolor = ${colorMap(depth)}
            |${
-          subElements
-            .toSeq
+          subElements.toSeq
             .sortBy(_.name)
             .map(_.toString.replace(s"${name}_", ""))
             .mkString("\t", "\t", "")
@@ -481,7 +480,6 @@ object UMLExporter {
         case c: DOTCluster if c.contains(e) => c
       }).toSeq
     }
-
 
     /** Reset the internal caches
       */
@@ -710,14 +708,14 @@ object UMLExporter {
       */
     def exportUML(platform: Platform)(implicit writer: Writer): Unit
 
-    def exportUML(platform: Platform, associations: Iterable[DOTAssociation])(implicit writer: Writer): Unit = {
+    def exportUML(platform: Platform, associations: Iterable[DOTAssociation])(
+      implicit writer: Writer
+    ): Unit = {
       import platform.*
 
-      val composite = platform.directHardware.collect { case c: Composite => c }
-
       val allClusters = for {
-        c <- composite
-        e <- getElement(c)
+        case c: Composite <- platform.directHardware
+        case e: DOTCluster <- getElement(c)
       } yield e
 
       val elements =
@@ -823,11 +821,13 @@ object UMLExporter {
           as <- getAssociation(p.head, p.last, "")
         } yield as
 
-      exportUML(platform,
+      exportUML(
+        platform,
         hwLinkAssociations
           ++ applicationAssociations
           ++ serviceAssociations
-          ++ serviceSetAssociations)
+          ++ serviceSetAssociations
+      )
 
       writer.write(getFooter)
       writer.flush()
@@ -894,11 +894,13 @@ object UMLExporter {
         as <- getAssociation(p.head, p.last, "")
       } yield as
 
-      exportUML(platform,
+      exportUML(
+        platform,
         hardwareAssociations
           ++ applicationAssociations
           ++ serviceAssociations
-          ++ serviceSetAssociations)
+          ++ serviceSetAssociations
+      )
 
       writer.write(getFooter)
       writer.flush()
@@ -937,7 +939,8 @@ object UMLExporter {
         as <- getAssociation(p._1, x, "")
       } yield as
 
-      exportUML(platform,
+      exportUML(
+        platform,
         applicationAssociations
           ++ hardwareAssociations
           ++ serviceAssociations
