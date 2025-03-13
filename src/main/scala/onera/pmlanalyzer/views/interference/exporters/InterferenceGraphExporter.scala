@@ -31,10 +31,8 @@ import java.io.FileWriter
 
 object InterferenceGraphExporter {
   trait Ops {
-    implicit class InterferenceGraphExporterOps(
-        x: Platform with InterferenceSpecification
-    ) extends UMLExporter.Ops {
-      def exportGraph(it: Set[PhysicalScenarioId]): Unit = {
+    extension (x: Platform with InterferenceSpecification) {
+      def exportMultiTransactionGraph(it: Set[PhysicalScenarioId]): Unit = {
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalScenarioId(x.id))
         )
@@ -49,7 +47,7 @@ object InterferenceGraphExporter {
         DOTServiceOnly.resetService()
         writer.write(DOTServiceOnly.getHeader)
 
-        for {
+        val serviceAssociations = for {
           s <- it
           t <- x.purifiedScenarios(s)
           l = x
@@ -58,27 +56,24 @@ object InterferenceGraphExporter {
             .collect { case Seq(f, t) => f -> t }
             .toList
           if l.nonEmpty
-        } {
-          val elements = (l.map(_._1) :+ l.last._2).flatMap(DOTServiceOnly.getElement)
-          writer.write(DOTServiceOnly.DOTCluster(t.id.name, "orange", elements.toSet).toString)
-          for {
-            (l, r) <- l
-            as <- DOTServiceOnly.getAssociation(l, r, "")
-          }
-            writer.write(as.toString)
-        }
+          (l, r) <- l
+          as <- DOTServiceOnly.getAssociation(l, r, "")
+        } yield as
 
         val services = it
           .flatMap(x.purifiedScenarios)
           .flatMap(x.purifiedTransactions)
 
-        for {s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)}
-          writer.write(DOTServiceOnly.getAssociation(
-            s.head,
-            s.last,
-            "exclusive"
-          ).toString)
+        val interfereAssociations =
+          (for {s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)
+                as <- DOTServiceOnly.getAssociation(
+                  s.head,
+                  s.last,
+                  "interfere"
+                )} yield as).toSeq
 
+
+        DOTServiceOnly.exportUML(x, interfereAssociations ++ serviceAssociations)
         writer.write(DOTServiceOnly.getFooter)
         writer.close()
       }
