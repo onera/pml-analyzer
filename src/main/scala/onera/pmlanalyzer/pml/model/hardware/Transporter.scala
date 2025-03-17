@@ -18,7 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import sourcecode.Enclosing
+import sourcecode.{Enclosing, File, Line}
 
 /** Base class for all physical element of a platform that cannot initiate nor
   * be the destination of any transaction
@@ -29,5 +29,5 @@ import sourcecode.Enclosing
   *   the implicit context that can be used to find the source code location of
   *   the node definition
   */
-abstract class Transporter private[hardware] (implicit enclosing: Enclosing)
-    extends Hardware
+abstract class Transporter private[hardware](_line: Line, _file: File)(implicit enclosing: Enclosing)
+  extends Hardware(_line: Line, _file: File)

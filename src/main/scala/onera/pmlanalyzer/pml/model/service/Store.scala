@@ -18,14 +18,17 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import sourcecode.{File, Line}
+
 /** Base class for store services
-  * @see
+ *
+ * @see
   *   the possible constructors are provided by [[BaseServiceBuilder]]
   * @param name
   *   the name of the node
   * @group service_class
   */
-final class Store private (val name: Symbol) extends Service
+final class Store private(val name: Symbol)(implicit _line: Line, _file: File) extends Service(_line, _file)
 
 /** Builder of stores
   * @group builder
@@ -38,6 +41,6 @@ object Store extends BaseServiceBuilder[Store] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): Store = new Store(name)
+  protected def builder(name: Symbol)(implicit _line: Line, _file: File): Store = new Store(name)
 
 }

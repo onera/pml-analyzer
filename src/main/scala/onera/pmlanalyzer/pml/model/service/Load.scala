@@ -18,14 +18,17 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import sourcecode.{File, Line}
+
 /** Base class for load services
-  * @see
+ *
+ * @see
   *   the possible constructors are provided by [[BaseServiceBuilder]]
   * @param name
   *   the name of the node
   * @group service_class
   */
-final class Load private (val name: Symbol) extends Service
+final class Load private(val name: Symbol)(implicit _line: Line, _file: File) extends Service(_line, _file)
 
 /** Builder of loads
   * @group builder
@@ -38,6 +41,6 @@ object Load extends BaseServiceBuilder[Load] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): Load = new Load(name)
+  protected def builder(name: Symbol)(implicit _line: Line, _file: File): Load = new Load(name)
 
 }

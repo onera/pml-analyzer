@@ -19,7 +19,7 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNode
-import sourcecode.Enclosing
+import sourcecode.{Enclosing, File, Line}
 
 /** Base class for all physical element of a platform
   *
@@ -30,5 +30,5 @@ import sourcecode.Enclosing
   *   the node definition
   * @group hardware_class
   */
-abstract class Hardware private[hardware] (implicit enclosing: Enclosing)
-    extends PMLNode
+abstract class Hardware private[hardware](_line: Line, _file: File)(implicit enclosing: Enclosing)
+  extends PMLNode(_line, _file)
