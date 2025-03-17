@@ -174,10 +174,10 @@ trait GenericTransactionLibrary extends TransactionLibrary {
   val basicDmaTransactions: Seq[Scenario] = {
     val ddrCopies: Seq[Scenario] = for {
       ddr <- ddrs
-      bank <- ddr.banks
+      (bank, j) <- ddr.banks.zipWithIndex
     } yield {
       Scenario(
-        s"t_dma_st_DDR{ddr.name}_BK{bank.name}",
+        s"t_dma_st_DDR${ddr.id}_BK${j}",
         app_dma read eth,
         app_dma write bank
       )
@@ -189,7 +189,7 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       sram <- cluster.SRAM
     } yield {
       Scenario(
-        s"t_dma_rd_G{group.id}_Cl{cluster.id}_SRAM{sram.name}",
+        s"t_dma_rd_G${group.id}_Cl${cluster.id}_SRAM${sram.name}",
         app_dma read eth,
         app_dma write sram
       )
@@ -197,7 +197,11 @@ trait GenericTransactionLibrary extends TransactionLibrary {
 
     // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
     //  (or tag all `used` during the definition)
-    val dma_rd_config = Scenario(app_dma read cfg_bus.dma_reg, app_dma write cfg_bus.dma_reg)
+    val dma_rd_config = Scenario(
+      s"t_dma_rd_dma_reg",
+      app_dma read cfg_bus.dma_reg,
+      app_dma write cfg_bus.dma_reg
+    )
 
     Seq(dma_rd_config) ++ ddrCopies ++ sramCopies
   }
