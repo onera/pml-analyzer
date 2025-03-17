@@ -23,10 +23,10 @@ package onera.pmlanalyzer.pml
   * Must be imported as following to enable export extension
   * {{{import onera.pmlanalyzer.pml.exporters._}}}
   *
-  * The available extension methods are provided in [[UMLExporter.Ops]] and
+ * The available extension methods are provided in [[PMLNodeGraphExporter.Ops]] and
   * [[RelationExporter.Ops]]
   *
   * Example of usages are provided in
   * [[pml.examples.simpleKeystone.SimpleKeystoneExport]]
   */
-package object exporters extends UMLExporter.Ops with RelationExporter.Ops
+package object exporters extends PMLNodeGraphExporter.Ops with RelationExporter.Ops

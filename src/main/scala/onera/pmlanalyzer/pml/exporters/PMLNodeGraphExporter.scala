@@ -26,17 +26,15 @@ import java.io.{FileWriter, Writer}
 import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable.HashMap as MHashMap
 
-object UMLExporter {
+object PMLNodeGraphExporter {
 
   /** Extension methods
     */
   trait Ops {
 
-    /** Extension methods of platform to provide uml export features
-      * @param platform
-      *   the platform providing the export features
+    /** Extension methods of platform to provide graph export features
       */
-    implicit class UmlExporterOps(platform: Platform) {
+    extension (platform: Platform) {
 
       /** The name of the export file will be
         * platform_nameExporter_name.exporter_extension
@@ -45,7 +43,7 @@ object UMLExporter {
         * @return
         *   the name of the export file
         */
-      def umlExportName(exporter: PlatformExporter): String =
+      def graphExportName(exporter: PlatformExporter): String =
         platform.fullName + exporter.name.name + "." + exporter.extension.name
 
       // TODO inconsistency with the platform naming format
@@ -58,7 +56,7 @@ object UMLExporter {
         * @return
         *   the name of the export file
         */
-      def umlExportName(
+      def graphExportName(
           sw: Application,
           exporter: RestrictedPlatformExporter
       ): String =
@@ -90,8 +88,8 @@ object UMLExporter {
             with FullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -110,8 +108,8 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -129,8 +127,8 @@ object UMLExporter {
             with FullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -149,8 +147,8 @@ object UMLExporter {
             with NullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -171,8 +169,8 @@ object UMLExporter {
             with NullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(sw, exporter))
-        exporter.exportUMLSW(platform, sw)(writer)
+        val writer = getWriter(graphExportName(sw, exporter))
+        exporter.exportGraphSW(platform, sw)(writer)
         writer.close()
       }
 
@@ -188,8 +186,8 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -205,98 +203,128 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
     }
   }
 
-  /** Simple string writing in an implicit writer
-    * @param a
-    *   the string to write
-    * @param writer
-    *   the implicit writer
-    */
-  private def writeElement(a: String)(implicit writer: Writer): Unit =
-    writer.write(s"$a\n")
+  abstract class Element {
+    val name: String
+    val id: Int = name.hashCode
+  }
 
   trait RelationExporter {
 
-    /** Write a composition relation
-      * @param a
-      *   the owner element as a string
-      * @param b
-      *   the owner element as a string
-      * @param writer
-      *   the implicit writet
-      */
-    def writeComposition(a: String, b: String)(implicit writer: Writer): Unit
+    sealed abstract class Association {
+      val left: Int
+      val right: Int
+      val name: String
+    }
 
-    /** Write an association relation
-      * @param a
-      *   the left element as a string
-      * @param b
-      *   the right element as a string
-      * @param name
-      *   the name of the relation by default empty
-      * @param writer
-      *   the implicit writer
+    /** the header of a given export
       */
-    def writeAssociation(a: String, b: String, name: String = "")(implicit
-        writer: Writer
-    ): Unit
+    def getHeader: String
 
-    /** Write the header of a given export
-      * @param writer
-      *   the implicit writer
+    /** the footer of a given export
       */
-    def writeHeader(implicit writer: Writer): Unit
-
-    /** Write the footer of a given export
-      * @param writer
-      *   the implicit writer
-      */
-    def writeFooter(implicit writer: Writer): Unit
+    def getFooter: String
   }
 
   trait DOTRelationExporter extends RelationExporter {
 
-    def writeComposition(a: String, b: String)(implicit writer: Writer): Unit =
-      writer.write(s"$a -> $b [dir=back, arrowtail=diamond]\n")
+    final case class DOTAssociation(left: Int, right: Int, name: String)
+      extends Association {
+      override def toString: String =
+        s"$left -> $right [${
+          if (name.nonEmpty) s"label=$name, " else ""
+        }arrowhead=none]\n"
+    }
 
-    def writeAssociation(a: String, b: String, name: String = "")(implicit
-        writer: Writer
-    ): Unit =
-      writer.write(s"$a -> $b[${
-          if (name.nonEmpty) s"label=$name," else ""
-        } arrowhead=none]\n")
+    def getHeader: String =
+      """digraph hierarchy {
+         |\tsize="5,5"
+         |\tnode[shape=record,style=filled]
+         |\tedge[arrowtail=empty]
+         |\t""".stripMargin.replace("\\t", "\u0009")
 
-    def writeHeader(implicit writer: Writer): Unit =
-      writeElement("""digraph hierarchy {
-          |size="5,5"
-          |node[shape=record,style=filled]
-          |edge[arrowtail=empty]
-        """.stripMargin)
-
-    def writeFooter(implicit writer: Writer): Unit = writeElement("}")
+    def getFooter: String = "}"
   }
 
-  trait ServiceSetNamer {
+  trait DOTNamer {
 
-    protected val _memoServiceSetId: MHashMap[Set[Service], String] =
+    private val colorMap = Map(
+      1 -> "\"#D6EBA0\"",
+      2 -> "\"#EBBFA0\"",
+      3 -> "\"#A0E3EB\"",
+      4 -> "\"#D4A0EB\"",
+      5 -> "\"#769296\"",
+      6 -> "\"#606B42\""
+    ).withDefaultValue("white")
+
+    final case class DOTElement(name: String, color: String) extends Element {
+      override def toString: String =
+        s"""$id[label = "{$name}", fillcolor=$color]\n"""
+    }
+
+    final case class DOTCluster(
+                                 name: String,
+                                 subElements: Set[DOTCluster | DOTElement]
+                               ) extends Element {
+
+      private val depth: Int = name.count(_ == '_')
+
+      def contains(element: DOTCluster | DOTElement): Boolean =
+        subElements.contains(element) || subElements.exists {
+          case c: DOTCluster => c.contains(element)
+          case _ => false
+        }
+      override def toString: String =
+        s"""subgraph cluster_$name {
+           |\tlabel = "$name"
+           |\tlabeljust=l
+           |\tstyle = filled
+           |\tcolor = ${colorMap(depth)}
+           |${
+          subElements.toSeq
+            .sortBy(_.name)
+            .map(_.toString.replace(s"${name}_", ""))
+            .mkString("\t", "\t", "")
+        }
+           |\t}
+           |""".stripMargin
+    }
+  }
+
+  trait ServiceSetNamer extends DOTNamer {
+
+    protected val _memoServiceSetId: MHashMap[Set[Service], DOTElement] =
       MHashMap.empty
 
-    def getElement(x: Set[Service]): Option[String]
+    def resetServiceSet(): Unit = _memoServiceSetId.clear()
+
+    def getElement(x: Set[Service]): Option[DOTElement]
+
+    def getServiceSetElement(id: Int): Option[DOTElement] =
+      _memoServiceSetId.values.find(_.id == id)
 
     def getName(x: Set[Service]): String
 
-    def getId(x: Set[Service])(implicit writer: Writer): Option[String]
+    def getId(x: Set[Service]): Option[Int] =
+      for {
+        e <- getElement(x)
+      } yield e.id
   }
 
   trait FullServiceSetNamer extends ServiceSetNamer {
-    def getElement(x: Set[Service]): Some[String] =
-      Some(s"""${getName(x)}[label = "{${getName(x)}}", fillcolor=green]""")
+    def getElement(x: Set[Service]): Some[DOTElement] =
+      Some(
+        _memoServiceSetId.getOrElseUpdate(
+          x,
+          DOTElement(getName(x), "green")
+        )
+      )
 
     def getName(x: Set[Service]): String =
       if (x.size == 1)
@@ -315,66 +343,63 @@ object UMLExporter {
       } else
         x.toList.map(_.name.name).sorted.mkString("_")
 
-    def getId(x: Set[Service])(implicit writer: Writer): Some[String] = Some(
-      _memoServiceSetId.getOrElseUpdate(
-        x, {
-          writeElement(getElement(x).value)
-          getName(x)
-        }
-      )
-    )
   }
 
   trait NullServiceSetNamer extends ServiceSetNamer {
-    def getElement(x: Set[Service]): Option[String] = None
+    def getElement(x: Set[Service]): Option[DOTElement] = None
 
     def getName(x: Set[Service]): String = ""
-
-    override def getId(x: Set[Service])(implicit
-        writer: Writer
-    ): Option[String] = None
   }
 
-  trait ServiceSetExporter {
-    def resetServiceSet(): Unit
+  trait ServiceSetExporter extends DOTRelationExporter {
 
-    def exportUML(from: Set[Service], to: Set[Service])(implicit
-        writer: Writer
-    ): Unit
+    def getAssociation(
+                        from: Set[Service],
+                        to: Set[Service],
+                        tyype: String
+                      ): Option[DOTAssociation]
   }
 
   trait FullServiceSetExporter extends ServiceSetExporter {
     self: ServiceSetNamer with RelationExporter =>
 
-    def resetServiceSet(): Unit = _memoServiceSetId.clear()
-
-    def exportUML(from: Set[Service], to: Set[Service])(implicit
-        writer: Writer
-    ): Unit = {
-      for { f <- getId(from); t <- getId(to) } yield writeAssociation(f, t)
+    def getAssociation(
+                        from: Set[Service],
+                        to: Set[Service],
+                        tyype: String
+                      ): Option[DOTAssociation] = {
+      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
     }
   }
 
   trait NullServiceSetExporter extends ServiceSetExporter {
-    def resetServiceSet(): Unit = {}
-    def exportUML(from: Set[Service], to: Set[Service])(implicit
-        writer: Writer
-    ): Unit = {}
+
+    def getAssociation(
+                        from: Set[Service],
+                        to: Set[Service],
+                        tyype: String
+                      ): Option[DOTAssociation] = None
   }
 
-  trait ServiceNamer {
+  trait ServiceNamer extends DOTNamer {
 
-    protected val _memoServiceId: MHashMap[Service, String] = MHashMap.empty
+    protected val _memoServiceId: MHashMap[Service, DOTElement] = MHashMap.empty
+
+    def getServiceElement(id: Int): Option[DOTElement] =
+      _memoServiceId.values.find(_.id == id)
+
+    def resetService(): Unit = _memoServiceId.clear()
 
     /** Build the id of a service if possible
       * @param x
       *   the service
-      * @param writer
-      *   the implicit writer
       * @return
       *   the unique id of the service
       */
-    def getId(x: Service)(implicit writer: Writer): Option[String]
+    def getId(x: Service): Option[Int] =
+      for {
+        e <- getElement(x)
+      } yield e.id
 
     /** Build the element declaring the service
       * @param x
@@ -382,79 +407,77 @@ object UMLExporter {
       * @return
       *   the element declaration as a string
       */
-    def getElement(x: Service): Option[String]
+    def getElement(x: Service): Option[DOTElement]
   }
 
-  trait ServiceExporter {
-
-    /** Empty the export caches
-      */
-    def resetService(): Unit
+  trait ServiceExporter extends DOTRelationExporter {
 
     /** Print the export representation of a link between two services
       * @param from
       *   the origin service
       * @param to
       *   the destination service
-      * @param writer
-      *   the implicit writer
       */
-    def exportUML(from: Service, to: Service)(implicit writer: Writer): Unit
+    def getAssociation(
+                        from: Service,
+                        to: Service,
+                        tyype: String
+                      ): Option[DOTAssociation]
   }
 
   trait NullServiceNamer extends ServiceNamer {
 
-    def getId(x: Service)(implicit writer: Writer): Option[String] = None
-
-    def getElement(x: Service): Option[String] = None
+    def getElement(x: Service): Option[DOTElement] = None
   }
 
   trait NullServiceExporter extends ServiceExporter {
 
-    def resetService(): Unit = {}
-
-    def exportUML(
-        from: Service,
-        to: Service
-    )(implicit writer: Writer): Unit = {}
+    def getAssociation(
+                        from: Service,
+                        to: Service,
+                        tyype: String
+                      ): Option[DOTAssociation] =
+      None
   }
 
   trait FullDOTServiceNamer extends ServiceNamer {
 
-    def getId(x: Service)(implicit writer: Writer): Some[String] = Some(
+    def getElement(x: Service): Option[DOTElement] = Some(
       _memoServiceId.getOrElseUpdate(
         x, {
-          writeElement(getElement(x).value)
-          x.name.name
+          x match
+            case a: ArtificialService => DOTElement(a.name.name, "gray")
+            case s => DOTElement(s.name.name, "green")
         }
       )
     )
-
-    def getElement(x: Service): Some[String] = x match {
-      case a: ArtificialService =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor=green]"""
-        )
-      case s =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor=green]"""
-        )
-    }
   }
 
   trait FullServiceExporter extends ServiceExporter {
     self: ServiceNamer with RelationExporter =>
 
-    def resetService(): Unit = _memoServiceId.clear()
-
-    def exportUML(from: Service, to: Service)(implicit writer: Writer): Unit = {
-      for { f <- getId(from); t <- getId(to) } yield writeAssociation(f, t)
+    def getAssociation(
+                        from: Service,
+                        to: Service,
+                        tyype: String
+                      ): Option[DOTAssociation] = {
+      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
     }
   }
 
-  trait HWNamer {
+  trait HWNamer extends DOTNamer {
 
-    protected val _memoHWId: MHashMap[Hardware, String] = MHashMap.empty
+    protected val _memoHWId: MHashMap[Hardware, DOTElement | DOTCluster] =
+      MHashMap.empty
+
+    def getHWElement(id: Int): Option[DOTElement | DOTCluster] =
+      _memoHWId.values.find(_.id == id)
+
+    def getContainers(e: DOTElement | DOTCluster): Seq[DOTCluster] = {
+      (_memoHWId.values.collect {
+        case c: DOTCluster if c.contains(e) => c
+      }).toSeq
+    }
 
     /** Reset the internal caches
       */
@@ -464,16 +487,15 @@ object UMLExporter {
       *
       * @param x
       *   the physical element
-      * @param writer
-      *   the implicit writer
-      * @param pPB
+     * @param pb
       *   the implicit relation of the provided basic services
       * @return
       *   the unique id
       */
-    def getId(
-        x: Hardware
-    )(implicit writer: Writer, pPB: Provided[Hardware, Service]): Option[String]
+    def getId(x: Hardware)(using pb: Provided[Hardware, Service]): Option[Int] =
+      for {
+        e <- getElement(x)
+      } yield e.id
 
     /** Build the element declaration of the physical element
       *
@@ -482,92 +504,80 @@ object UMLExporter {
       * @return
       *   the element declaration
       */
-    def getElement(x: Hardware): Option[String]
+    def getElement(x: Hardware)(using
+                                pb: Provided[Hardware, Service]
+    ): Option[DOTElement | DOTCluster]
+
   }
 
-  trait HWExporter {
-    def exportUML(from: Hardware, to: Hardware)(implicit
-        writer: Writer,
-        pPB: Provided[Hardware, Service]
-    ): Unit
+  trait HWExporter extends DOTRelationExporter {
+    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
+                                                                    pb: Provided[Hardware, Service]
+    ): Option[DOTAssociation]
   }
 
   trait NullHWExporter extends HWExporter {
-    def exportUML(from: Hardware, to: Hardware)(implicit
-        writer: Writer,
-        pPB: Provided[Hardware, Service]
-    ): Unit = {}
+    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
+                                                                    pb: Provided[Hardware, Service]
+    ): Option[DOTAssociation] = None
   }
 
   trait NullHWNamer extends HWNamer {
-    def getId(
-        x: Hardware
-    )(implicit writer: Writer, pPB: Provided[Hardware, Service]): None.type =
-      None
-
-    def getElement(x: Hardware): None.type = None
+    def getElement(x: Hardware)(using
+                                pb: Provided[Hardware, Service]
+    ): Option[DOTElement | DOTCluster] = None
   }
 
   trait FullDOTHWNamer extends HWNamer {
 
     self: RelationExporter with ServiceNamer =>
 
-    def getId(
-        x: Hardware
-    )(implicit writer: Writer, pPB: Provided[Hardware, Service]): Some[String] =
-      Some(
-        _memoHWId.getOrElseUpdate(
-          x, {
-            writeElement(getElement(x).value)
-            val id = x.name.name
-            for { c <- x.services; cs <- getId(c) } yield writeAssociation(
-              id,
-              cs
-            )
-            x match {
-              case comp: Composite =>
-                for (c <- comp.hardware; cs <- getId(c))
-                  yield writeComposition(id, cs)
-              case _ =>
-            }
-            id
+    def getElement(x: Hardware)(using
+                                pb: Provided[Hardware, Service]
+    ): Option[DOTElement | DOTCluster] = Some(
+      _memoHWId.getOrElseUpdate(
+        x, {
+          x match {
+            case a: (Transporter | Target | Initiator) =>
+              val color = a match {
+                case _: Transporter => "mediumpurple1"
+                case _: Target => "darkolivegreen1"
+                case _: Initiator => "brown1"
+              }
+              DOTElement(x.name.name, color)
+            case c: Composite =>
+              val elements =
+                for {
+                  h <- c.hardware
+                  e <- getElement(h)
+                } yield e
+              DOTCluster(x.name.name, elements)
           }
-        )
+        }
       )
-
-    def getElement(x: Hardware): Some[String] = x match {
-      case _: Transporter =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor = mediumpurple1]"""
-        )
-      case _: Target =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor = darkolivegreen1]"""
-        )
-      case _: Initiator =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor = brown1]"""
-        )
-      case _ =>
-        Some(
-          s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor = orange]"""
-        )
-    }
+    )
 
   }
 
   trait FullHWExporter extends HWExporter {
     self: ServiceNamer with HWNamer with RelationExporter =>
 
-    def exportUML(from: Hardware, to: Hardware)(implicit
-        writer: Writer,
+    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
         pPB: Provided[Hardware, Service]
-    ): Unit = {
-      for { f <- getId(from); t <- getId(to) } yield writeAssociation(f, t)
+    ): Option[DOTAssociation] = {
+      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
     }
   }
 
-  trait SWNamer {
+  trait SWNamer extends DOTNamer {
+
+    protected val _memoSWId: MHashMap[Application, DOTElement] =
+      MHashMap.empty
+
+    def getSWElement(id: Int): Option[DOTElement] =
+      _memoSWId.values.find(_.id == id)
+
+    def resetSW(): Unit = _memoSWId.clear()
 
     /** Build the unique id of a software element
       * @param sw
@@ -575,7 +585,10 @@ object UMLExporter {
       * @return
       *   the unique id
       */
-    def getId(sw: Application): Option[String]
+    def getId(sw: Application): Option[Int] =
+      for {
+        e <- getElement(sw)
+      } yield e.id
 
     /** Build the element declaration of the software element
       * @param x
@@ -583,68 +596,76 @@ object UMLExporter {
       * @return
       *   the element declaration
       */
-    def getElement(x: Application): Option[String]
+    def getElement(x: Application): Option[DOTElement]
   }
 
-  trait SWExporter {
+  trait SWExporter extends DOTRelationExporter {
 
-    def exportUML(sw: Application)(implicit
-        writer: Writer,
+    def getAssociation(sw: Application, tyype: String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
         pPB: Provided[Hardware, Service]
-    ): Unit
+    ): Set[DOTAssociation]
   }
 
   trait FullDOTSWNamer extends SWNamer {
 
-    def getId(x: Application): Option[String] = Some(x.name.name)
-
-    def getElement(x: Application): Option[String] = Some(
-      s"""${x.name.name}[label = "{${x.name.name} : ${x.typeName.name}}", fillcolor = deepskyblue1]"""
-    )
+    def getElement(x: Application): Option[DOTElement] =
+      Some(
+        _memoSWId.getOrElseUpdate(
+          x,
+          DOTElement(
+            x.name.name,
+            "deepskyblue1"
+          )
+        )
+      )
   }
 
   trait NullSWNamer extends SWNamer {
-
-    def getId(sw: Application): Option[String] = None
-
-    def getElement(x: Application): Option[String] = None
+    def getElement(x: Application): Option[DOTElement] = None
   }
 
   trait FullSWExporter extends SWExporter {
     self: ServiceNamer with HWNamer with SWNamer with RelationExporter =>
 
-    def exportUML(sw: Application)(implicit
-        writer: Writer,
+    def getAssociation(sw: Application, tyype: String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
         pPB: Provided[Hardware, Service]
-    ): Unit = {
-      for { s <- getElement(sw) } yield writeElement(s)
-      for {
-        c <- sw.hostingInitiators; s <- getId(sw); cs <- getId(c)
-      } yield writeAssociation(s, cs)
-      for {
+    ): Set[DOTAssociation] = {
+      val hosts =
+        for {
+          c <- sw.hostingInitiators; s <- getId(sw); cs <- getId(c)
+        } yield DOTAssociation(s, cs, tyype)
+      val services = for {
         c <- sw.hostingInitiators; b <- c.services; s <- getId(sw)
         bs <- getId(b)
-      } yield writeAssociation(s, bs)
+      } yield DOTAssociation(s, bs, tyype)
+      hosts ++ services
     }
   }
 
   trait NullSWExporter extends SWExporter {
-    def exportUML(sw: Application)(implicit
-        writer: Writer,
+    def getAssociation(sw: Application, tyype: String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
         pPB: Provided[Hardware, Service]
-    ): Unit = {}
+    ): Set[DOTAssociation] = Set.empty
   }
 
-  trait PlatformNamer {
+  trait PlatformNamer extends DOTNamer {
+    self: HWNamer with ServiceNamer with SWNamer with ServiceSetNamer =>
+
+    def reset(): Unit = {
+      resetService()
+      resetHW()
+      resetServiceSet()
+      resetSW()
+    }
 
     /** Build the unique id of the platform
       * @param x
@@ -654,55 +675,105 @@ object UMLExporter {
       */
     def getId(x: Platform): Option[String]
 
-    /** Build the element declaration of the platform
-      * @param x
-      *   the platform
-      * @return
-      *   the element declaration
-      */
-    def getElement(x: Platform): Option[String]
+    def getElement(id: Int): Option[DOTElement | DOTCluster] = {
+      getSWElement(id) match
+        case Some(value) => Some(value)
+        case None =>
+          getServiceElement(id) match
+            case Some(value) => Some(value)
+            case None =>
+              getHWElement(id) match
+                case Some(value) => Some(value)
+                case None => getServiceSetElement(id)
+    }
   }
 
-  trait PlatformExporter {
+  trait PlatformExporter extends DOTRelationExporter {
+    self: PlatformNamer
+      with HWNamer
+      with ServiceNamer
+      with SWNamer
+      with ServiceSetNamer =>
 
     val name: Symbol
     val extension: Symbol
 
-    /** Export the platform as an UML diagram
-      * @param platform
+    /** Export the platform as a graph
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit
+
+    def exportGraph(platform: Platform, associations: Iterable[DOTAssociation])(
+      implicit writer: Writer
+    ): Unit = {
+      import platform.*
+
+      val allClusters = for {
+        case c: Composite <- platform.directHardware
+        case e: DOTCluster <- getElement(c)
+      } yield e
+
+      val elements =
+        for {
+          a <- associations
+          id <- List(a.left, a.right)
+          e <- getElement(id)
+        } yield e
+
+      val clusters =
+        for {
+          c <- allClusters
+          if elements.exists(e => getContainers(e).contains(c))
+        } yield c
+
+      val primaryElements =
+        for {
+          e <- elements
+          if getContainers(e).isEmpty
+        } yield e
+
+      for {
+        e <- (clusters ++ primaryElements).toSeq.distinct.sortBy(_.name)
+      }
+        writer.write(s" $e".replace(s"${platform.fullName}_", ""))
+
+      for {
+        as <- associations
+      }
+        writer.write(s" $as")
+    }
+
   }
 
   trait FullDOTPlatformNamer extends PlatformNamer {
+    self: HWNamer with ServiceNamer with SWNamer with ServiceSetNamer =>
 
     def getId(x: Platform): Option[String] = Some(x.name.name)
 
-    def getElement(platform: Platform): Option[String] = Some(
-      s"${getId(platform)}[label = {${platform.name.name} : ${platform.typeName.name}}, fillcolor = violet]"
-    )
   }
 
   trait NullPlatformNamer extends PlatformNamer {
+    self: HWNamer with ServiceNamer with SWNamer with ServiceSetNamer =>
 
     def getId(x: Platform): Option[String] = None
 
-    def getElement(x: Platform): Option[String] = None
   }
 
   trait FullPlatformExporter extends PlatformExporter {
     self: HWExporter
-      with HWNamer
       with SWExporter
-      with SWNamer
-      with ServiceSetNamer
       with ServiceSetExporter
       with ServiceExporter
+      with RelationExporter
       with PlatformNamer
-      with RelationExporter =>
+      with HWNamer
+      with ServiceNamer
+      with SWNamer
+      with ServiceSetNamer =>
 
     val extension: Symbol = self match {
       case _ => Symbol("dot")
@@ -710,39 +781,55 @@ object UMLExporter {
 
     /** Export the platform with all its software, hardware and services (even
       * the ones that are not used)
-      * @param platform
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit = {
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
       import platform._
-      resetService()
-      resetHW()
-      resetServiceSet()
-      writeHeader
-      for {
-        c <- platform.applications; s <- getId(platform); cs <- getId(c)
-      } yield writeComposition(s, cs)
-      for {
-        c <- platform.directHardware; s <- getId(platform); cs <- getId(c)
-      } yield writeComposition(s, cs)
-      platform.PLLinkableToPL.edges foreach { p =>
-        p._2 foreach {
-          exportUML(p._1, _)
-        }
-      }
-      platform.applications.foreach(exportUML)
-      platform.ServiceLinkableToService.edges foreach { p =>
-        p._2 foreach {
-          exportUML(p._1, _)
-        }
-      }
+      reset()
+      writer.write(getHeader)
+
+      val hwLinkAssociations =
+        for {
+          (k, v) <- platform.PLLinkableToPL.edges
+          x <- v
+          as <- getAssociation(k, x, "")
+        } yield as
+
+      val applicationAssociations =
+        for {
+          a <- platform.applications
+          as <- getAssociation(a, "")
+        } yield as
+
+      val serviceAssociations =
+        for {
+          (k, v) <- platform.ServiceLinkableToService.edges
+          x <- v
+          as <- getAssociation(k, x, "")
+        } yield as
+
       val serviceSetGraph = platform.fullServiceGraphWithInterfere()
       val serviceSetLinks =
         (serviceSetGraph flatMap { p => p._2 map { x => Set(p._1, x) } }).toSet
-      serviceSetLinks foreach { p => exportUML(p.head, p.last) }
-      writeFooter
+      val serviceSetAssociations =
+        for {
+          p <- serviceSetLinks
+          as <- getAssociation(p.head, p.last, "")
+        } yield as
+
+      exportGraph(
+        platform,
+        hwLinkAssociations
+          ++ applicationAssociations
+          ++ serviceAssociations
+          ++ serviceSetAssociations
+      )
+
+      writer.write(getFooter)
       writer.flush()
     }
   }
@@ -756,6 +843,7 @@ object UMLExporter {
       with ServiceSetExporter
       with ServiceExporter
       with PlatformNamer
+      with ServiceNamer
       with RelationExporter =>
 
     val extension: Symbol = self match {
@@ -764,82 +852,103 @@ object UMLExporter {
 
     /** Export the platform with only the hardware, software and services that
       * are used
-      * @param platform
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit = {
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
       import platform._
-      resetService()
-      resetHW()
-      resetServiceSet()
-      writeHeader
+      reset()
+      writer.write(getHeader)
       val hwGraph = platform.hardwareGraph()
       val hwLinks = hwGraph.keySet flatMap { k =>
         hwGraph(k) map { x => Set(k, x) }
       }
-      val hwComponents = hwLinks.flatten
-      for {
-        hw <- hwComponents; p <- getId(platform); hwName <- getId(hw)
-      } yield writeComposition(p, hwName)
-      hwLinks foreach { p => exportUML(p.head, p.last) }
-      platform.applications foreach exportUML
+
+      val hardwareAssociations = for {
+        p <- hwLinks
+        as <- getAssociation(p.head, p.last, "")
+      } yield as
+
+      val applicationAssociations = for {
+        a <- platform.applications
+        as <- getAssociation(a, "")
+      } yield as
+
       val serviceGraph = platform.serviceGraph()
       val serviceLinks = serviceGraph flatMap { p =>
         p._2 map { x => Set(p._1, x) }
       }
-      serviceLinks foreach { p => exportUML(p.head, p.last) }
+      val serviceAssociations = for {
+        p <- serviceLinks
+        as <- getAssociation(p.head, p.last, "")
+      } yield as
+
       val serviceSetGraph = platform.serviceGraphWithInterfere()
       val serviceSetLinks =
         (serviceSetGraph flatMap { p => p._2 map { x => Set(p._1, x) } }).toSet
-      serviceSetLinks foreach { p => exportUML(p.head, p.last) }
-      writeFooter
+
+      val serviceSetAssociations = for {
+        p <- serviceSetLinks
+        as <- getAssociation(p.head, p.last, "")
+      } yield as
+
+      exportGraph(
+        platform,
+        hardwareAssociations
+          ++ applicationAssociations
+          ++ serviceAssociations
+          ++ serviceSetAssociations
+      )
+
+      writer.write(getFooter)
       writer.flush()
     }
 
     /** Export the hardware and services used by a given software in the
       * platform
-      * @param platform
+     *
+     * @param platform
       *   the platform owing the software
       * @param toPrint
       *   the software to pring
       * @param writer
       *   the implicit writer
-      */
-    def exportUMLSW(platform: Platform, toPrint: Application)(implicit
-        writer: Writer
+     */
+    def exportGraphSW(platform: Platform, toPrint: Application)(implicit
+                                                                writer: Writer
     ): Unit = {
       import platform._
-      resetService()
-      resetHW()
-      writeHeader
-      for { s <- getId(platform); cs <- getId(toPrint) } yield writeComposition(
-        s,
-        cs
+      reset()
+      writer.write(getHeader)
+
+      val applicationAssociations =
+        for {
+          x <- getAssociation(toPrint, "")
+        } yield x
+
+      val hardwareAssociations = for {
+        p <- platform.hardwareGraphOf(toPrint)
+        x <- p._2
+        as <- getAssociation(p._1, x, "")
+      } yield as
+
+      val serviceAssociations = for {
+        p <- platform.serviceGraphOf(toPrint)
+        x <- p._2
+        as <- getAssociation(p._1, x, "")
+      } yield as
+
+      exportGraph(
+        platform,
+        applicationAssociations
+          ++ hardwareAssociations
+          ++ serviceAssociations
       )
-      platform
-        .hardwareGraphOf(toPrint)
-        .filter(_._2.nonEmpty)
-        .flatMap(kv => kv._2 + kv._1)
-        .foreach(hw => {
-          for { s <- getId(platform); cs <- getId(hw) } yield writeComposition(
-            s,
-            cs
-          )
-        })
-      exportUML(toPrint)
-      platform.hardwareGraphOf(toPrint) foreach { p =>
-        p._2 foreach {
-          exportUML(p._1, _)
-        }
-      }
-      platform.serviceGraphOf(toPrint) foreach { p =>
-        p._2 foreach {
-          exportUML(p._1, _)
-        }
-      }
-      writeFooter
+
+      writer.write(getFooter)
       writer.flush()
     }
   }
