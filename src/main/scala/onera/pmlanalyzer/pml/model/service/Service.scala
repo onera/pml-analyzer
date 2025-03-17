@@ -19,7 +19,7 @@
 package onera.pmlanalyzer.pml.model.service
 
 import onera.pmlanalyzer.pml.model.PMLNode
-import sourcecode.Enclosing
+import sourcecode.{Enclosing, File, Line}
 
 /** Base class for the load and store services provided by all physical
   * components
@@ -29,5 +29,5 @@ import sourcecode.Enclosing
   *   the node definition
   * @group service_class
   */
-abstract class Service private[service] (implicit enclosing: Enclosing)
-    extends PMLNode
+abstract class Service private[service](_line: Line, _file: File)(implicit enclosing: Enclosing)
+  extends PMLNode(_line, _file)

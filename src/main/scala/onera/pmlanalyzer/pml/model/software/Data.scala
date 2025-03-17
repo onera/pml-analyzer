@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.utils.Owner
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Util class to represent a data owned by a target
   * @see
@@ -29,7 +29,7 @@ import sourcecode.Name
   *   the name of the data
   * @group software_class
   */
-final class Data private (val name: Symbol) extends PMLNode {
+final class Data private(val name: Symbol)(implicit _line: Line, _file: File) extends PMLNode(_line, _file) {
 
   override def toString: String = name.name
 }
@@ -47,7 +47,7 @@ object Data extends PMLNodeBuilder[Data] {
     * @return
     *   the data
     */
-  def apply(name: Symbol)(implicit owner: Owner): Data = {
+  def apply(name: Symbol)(implicit owner: Owner, _line: Line, _file: File): Data = {
     _memo.getOrElseUpdate((owner.s, name), new Data(name))
   }
 

@@ -18,13 +18,13 @@
 
 package onera.pmlanalyzer.pml.model
 
-import sourcecode.Enclosing
+import sourcecode.{Enclosing, File, Line}
 
 import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(implicit enclosing: Enclosing) {
+abstract class PMLNode(_line: Line, _file: File)(implicit _enclosing: Enclosing) {
 
   /** Name of the node
     *
@@ -37,8 +37,18 @@ abstract class PMLNode(implicit enclosing: Enclosing) {
     * @group identifier
     */
   final val typeName: Symbol = Symbol(
-    enclosing.value.split(' ').head.split('.').last
+    _enclosing.value.split(' ').head.split('.').last
   )
+
+  /**
+   * Line in source code where node has been instantiated
+   */
+  val line: Int = _line.value
+
+  /**
+   * Source file in which node has been instantiated
+   */
+  val sourceFile: String = _file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Print a node only by its [[name]]
     * @group printer_function

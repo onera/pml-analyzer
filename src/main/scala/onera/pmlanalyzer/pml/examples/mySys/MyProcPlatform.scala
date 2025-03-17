@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Simple model of the Keystone platform illustrating the main features of PML.
   * The components of the architectures can be created using the constructors
@@ -49,15 +49,15 @@ import sourcecode.Name
   * @param name
   *   the name of the final object merging all facets of the model
   */
-class MyProcPlatform(name: Symbol) extends Platform(name) {
+class MyProcPlatform(name: Symbol, _line: Line, _file: File) extends Platform(name)(_line, _file) {
 
   /** Enable to provide the name implicitly
     * @param implicitName
     *   the name of the object/class inheriting from this class will be the name
     *   of platform
     */
-  def this()(implicit implicitName: Name) = {
-    this(Symbol(implicitName.value))
+  def this()(implicit implicitName: Name, _line: Line, _file: File) = {
+    this(Symbol(implicitName.value), _line, _file)
   }
 
   /** Initiator modelling the DMA
@@ -110,15 +110,15 @@ class MyProcPlatform(name: Symbol) extends Platform(name) {
   /** Composite representing Keystone ARM cores and their internal L1 cache
     * @group composite_def
     */
-  class ARMCore(armName: Symbol) extends Composite(armName) {
+  class ARMCore(armName: Symbol, _line: Line, _file: File) extends Composite(armName, _line: Line, _file: File) {
 
     /** Enable to provide the name implicitly
       * @param implicitName
       *   the name of the object/class inheriting from this class will be the
       *   name of composite
       */
-    def this()(implicit implicitName: Name) = {
-      this(implicitName.value)
+    def this()(implicit implicitName: Name, _line: Line, _file: File) = {
+      this(implicitName.value, _line: Line, _file: File)
     }
 
     /** Initiator modelling an ARM Core

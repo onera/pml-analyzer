@@ -18,14 +18,17 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import sourcecode.{File, Line}
+
 /** Class modelling simple transporters.
-  * @see
+ *
+ * @see
   *   the possible constructors are provided by [[BaseHardwareNodeBuilder]]
   * @param name
   *   the name of the node
   * @group transporter_class
   */
-final class SimpleTransporter private (val name: Symbol) extends Transporter
+final class SimpleTransporter private(val name: Symbol)(implicit _line: Line, _file: File) extends Transporter(_line, _file)
 
 /** Builder of simple transporters
   * @group builder
@@ -38,7 +41,7 @@ object SimpleTransporter extends BaseHardwareNodeBuilder[SimpleTransporter] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): SimpleTransporter =
+  protected def builder(name: Symbol)(implicit _line: Line, _file: File): SimpleTransporter =
     new SimpleTransporter(name)
 
 }

@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
   * implicitly derived from the name of the variable used during instantiation.
@@ -84,7 +84,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   this method is implemented by concrete members (e.g.
     *   [[SimpleTransporter]], no further extension should be provided
     */
-  protected def builder(name: Symbol): T
+  protected def builder(name: Symbol)(implicit _line: Line, _file: File): T
 
   /** A physical component can be defined only with the basic services it
     * provides The name will be retrieved by using the implicit declaration
@@ -113,7 +113,9 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   )(implicit
       implicitName: Name,
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+    owner: Owner,
+    _line: Line,
+    _file: File
   ): T =
     apply(Symbol(implicitName.value), basics, withDefaultServices)
 
@@ -141,7 +143,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol,
       basics: Set[Service],
       withDefaultServices: Boolean
-  )(implicit p: ProvideRelation[Hardware, Service], owner: Owner): T = {
+           )(implicit p: ProvideRelation[Hardware, Service], owner: Owner, _line: Line, _file: File): T = {
     val formattedName = formatName(name, owner)
     val result =
       _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
@@ -173,7 +175,9 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, basics: Set[Service])(implicit
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+                                                owner: Owner,
+                                                _line: Line,
+                                                _file: File
   ): T = {
     apply(name, basics, true)
   }
@@ -193,7 +197,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(implicit p: ProvideRelation[Hardware, Service], owner: Owner): T =
+           )(implicit p: ProvideRelation[Hardware, Service], owner: Owner, _line: Line, _file: File): T =
     apply(name, Set.empty, true)
 
   /** A physical component can be defined only its name, the services will be
@@ -214,7 +218,9 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, withDefaultServices: Boolean)(implicit
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+                                                        owner: Owner,
+                                                        _line: Line,
+                                                        _file: File
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }

@@ -21,7 +21,7 @@ package onera.pmlanalyzer.pml.model.hardware
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base class of sub-systems containing themselves hardware components
   * @see
@@ -33,7 +33,7 @@ import sourcecode.Name
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, _owner: Owner) extends Hardware {
+abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) extends Hardware(_line, _file) {
 
   /** the id of the owner of the composite (the platform or another composite)
     * @group identifier
@@ -82,9 +82,9 @@ abstract class Composite(n: Symbol, _owner: Owner) extends Hardware {
     *   the implicit owner
     */
   def this(compositeName: Symbol, dummy: Int = 0)(implicit
-      implicitOwner: Owner
+                                                  implicitOwner: Owner, _line: Line, _file: File
   ) = {
-    this(compositeName, implicitOwner)
+    this(compositeName, implicitOwner, _line, _file)
   }
 
   /** Alternative constructor without name, nor owner
@@ -93,8 +93,30 @@ abstract class Composite(n: Symbol, _owner: Owner) extends Hardware {
     * @param implicitOwner
     *   the implicit owner
     */
-  def this()(implicit implicitName: Name, implicitOwner: Owner) = {
-    this(Symbol(implicitName.value), implicitOwner)
+  def this()(implicit implicitName: Name, implicitOwner: Owner, _line: Line, _file: File) = {
+    this(Symbol(implicitName.value), implicitOwner, _line, _file)
+  }
+
+  /** Alternative constructor without name, nor owner
+   *
+   * @param implicitName
+   * the implicit name provided by the enclosing object
+   * @param implicitOwner
+   * the implicit owner
+   */
+  def this(_line: Line, _file: File)(implicit implicitName: Name, implicitOwner: Owner) = {
+    this(Symbol(implicitName.value), implicitOwner, _line, _file)
+  }
+
+  /** Alternative constructor without name, nor owner
+   *
+   * @param implicitName
+   * the implicit name provided by the enclosing object
+   * @param implicitOwner
+   * the implicit owner
+   */
+  def this(compositeName: Symbol, _line: Line, _file: File)(implicit implicitOwner: Owner) = {
+    this(compositeName, implicitOwner, _line, _file)
   }
 }
 
