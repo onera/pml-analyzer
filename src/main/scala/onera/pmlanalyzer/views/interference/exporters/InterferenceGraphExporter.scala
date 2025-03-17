@@ -18,8 +18,8 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.exporters.UMLExporter.DOTServiceOnly
-import onera.pmlanalyzer.pml.exporters.{FileManager, UMLExporter}
+import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
+import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
@@ -74,7 +74,7 @@ object InterferenceGraphExporter {
             )
           } yield as).toSeq
 
-        DOTServiceOnly.exportUML(
+        DOTServiceOnly.exportGraph(
           x,
           interfereAssociations ++ serviceAssociations
         )

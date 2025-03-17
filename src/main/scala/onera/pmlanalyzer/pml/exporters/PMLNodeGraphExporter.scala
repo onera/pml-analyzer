@@ -27,14 +27,13 @@ import java.io.{FileWriter, Writer}
 import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable.HashMap as MHashMap
 
-object UMLExporter {
+object PMLNodeGraphExporter {
 
   /** Extension methods
     */
   trait Ops {
 
-    /** Extension methods of platform to provide uml export features
-      *   the platform providing the export features
+    /** Extension methods of platform to provide graph export features
       */
     extension (platform: Platform) {
 
@@ -45,7 +44,7 @@ object UMLExporter {
         * @return
         *   the name of the export file
         */
-      def umlExportName(exporter: PlatformExporter): String =
+      def graphExportName(exporter: PlatformExporter): String =
         platform.fullName + exporter.name.name + "." + exporter.extension.name
 
       // TODO inconsistency with the platform naming format
@@ -58,7 +57,7 @@ object UMLExporter {
         * @return
         *   the name of the export file
         */
-      def umlExportName(
+      def graphExportName(
           sw: Application,
           exporter: RestrictedPlatformExporter
       ): String =
@@ -90,8 +89,8 @@ object UMLExporter {
             with FullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -110,8 +109,8 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -129,8 +128,8 @@ object UMLExporter {
             with FullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -149,8 +148,8 @@ object UMLExporter {
             with NullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -171,8 +170,8 @@ object UMLExporter {
             with NullHWExporter
             with FullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(sw, exporter))
-        exporter.exportUMLSW(platform, sw)(writer)
+        val writer = getWriter(graphExportName(sw, exporter))
+        exporter.exportGraphSW(platform, sw)(writer)
         writer.close()
       }
 
@@ -188,8 +187,8 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
 
@@ -205,8 +204,8 @@ object UMLExporter {
             with NullHWExporter
             with NullSWExporter
       ): Unit = {
-        val writer = getWriter(umlExportName(exporter))
-        exporter.exportUML(platform)(writer)
+        val writer = getWriter(graphExportName(exporter))
+        exporter.exportGraph(platform)(writer)
         writer.close()
       }
     }
@@ -700,15 +699,16 @@ object UMLExporter {
     val name: Symbol
     val extension: Symbol
 
-    /** Export the platform as an UML diagram
-      * @param platform
+    /** Export the platform as a graph
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit
 
-    def exportUML(platform: Platform, associations: Iterable[DOTAssociation])(
+    def exportGraph(platform: Platform, associations: Iterable[DOTAssociation])(
       implicit writer: Writer
     ): Unit = {
       import platform.*
@@ -782,12 +782,13 @@ object UMLExporter {
 
     /** Export the platform with all its software, hardware and services (even
       * the ones that are not used)
-      * @param platform
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit = {
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
       import platform._
       reset()
       writer.write(getHeader)
@@ -821,7 +822,7 @@ object UMLExporter {
           as <- getAssociation(p.head, p.last, "")
         } yield as
 
-      exportUML(
+      exportGraph(
         platform,
         hwLinkAssociations
           ++ applicationAssociations
@@ -852,12 +853,13 @@ object UMLExporter {
 
     /** Export the platform with only the hardware, software and services that
       * are used
-      * @param platform
+     *
+     * @param platform
       *   the platform to export
       * @param writer
       *   the implicit writer
-      */
-    def exportUML(platform: Platform)(implicit writer: Writer): Unit = {
+     */
+    def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
       import platform._
       reset()
       writer.write(getHeader)
@@ -894,7 +896,7 @@ object UMLExporter {
         as <- getAssociation(p.head, p.last, "")
       } yield as
 
-      exportUML(
+      exportGraph(
         platform,
         hardwareAssociations
           ++ applicationAssociations
@@ -908,15 +910,16 @@ object UMLExporter {
 
     /** Export the hardware and services used by a given software in the
       * platform
-      * @param platform
+     *
+     * @param platform
       *   the platform owing the software
       * @param toPrint
       *   the software to pring
       * @param writer
       *   the implicit writer
-      */
-    def exportUMLSW(platform: Platform, toPrint: Application)(implicit
-        writer: Writer
+     */
+    def exportGraphSW(platform: Platform, toPrint: Application)(implicit
+                                                                writer: Writer
     ): Unit = {
       import platform._
       reset()
@@ -939,7 +942,7 @@ object UMLExporter {
         as <- getAssociation(p._1, x, "")
       } yield as
 
-      exportUML(
+      exportGraph(
         platform,
         applicationAssociations
           ++ hardwareAssociations
