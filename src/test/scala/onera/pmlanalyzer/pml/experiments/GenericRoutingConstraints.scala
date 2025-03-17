@@ -43,4 +43,43 @@ trait GenericRoutingConstraints {
     dsp targeting sram useLink dsp to sram
   }
 
+  // DMA cannot enter groups going to configuration- or platform-level targets
+  for {
+    port <- group_inputs
+    target <- Seq(cfg_bus.dma_reg, eth)
+  } {
+    dma targeting target blockedBy port
+  }
+
+  // DMA targeting a SRAM cannot enter other groups or clusters
+  for {
+    group <- groupDSP
+    cluster <- group.clusters.flatten
+    sram <- cluster.SRAM
+  } {
+    for {
+      other_group <- groupDSP ++ groupCore
+      if other_group != group
+    } {
+      dma targeting sram blockedBy other_group.input_port
+    }
+
+    for {
+      other_cluster <- group.clusters.flatten
+      if other_cluster != cluster
+    } {
+      dma targeting sram blockedBy other_cluster.input_port
+    }
+  }
+
+  // DMA targeting DDR cannot enter groups or clusters
+  for {
+    ddr <- ddrs
+    bank <- ddr.banks
+    group <- groupDSP ++ groupCore
+  } {
+    dma targeting bank blockedBy group.input_port
+  }
+
+
 }

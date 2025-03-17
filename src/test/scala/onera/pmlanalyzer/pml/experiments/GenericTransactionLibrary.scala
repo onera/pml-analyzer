@@ -52,6 +52,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
   val coreToBanks: Map[Initiator, Seq[Target]] =
     clusterToBanks.flatMap((c, d) => partition_resources(c.cores, d))
 
+  /**
+   * General-purpose Cores transactions
+   */
   val basicCoreTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
     for { gId <- groupCore.indices } yield for {
       clIdI <- groupCore(gId).clusters.indices
@@ -73,6 +76,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       //        application write cluster.coresL1(cId)
       //      )
 
+      /**
+       * Cores read from and write to their cluster L2 cache.
+       */
       val readL2 = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L2_ld",
         application read cluster.L2
@@ -83,6 +89,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
         application write cluster.L2
       )
 
+      /**
+       * Cores read from and write to their allocated memory banks.
+       */
       // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_ld",
       val readBanks: Seq[Transaction] =
         for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
@@ -101,6 +110,10 @@ trait GenericTransactionLibrary extends TransactionLibrary {
           )
         }
 
+      /**
+       * Tag all core transactions as used
+       */
+
       //      readL1 used
       //      storeL1 used
 
@@ -117,6 +130,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       ) ++ readBanks ++ writeBanks
     }
 
+  /**
+   * DSP Cores transactions
+   */
   val basicDspTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
     for { gId <- groupDSP.indices } yield for {
       clIdI <- groupDSP(gId).clusters.indices
@@ -128,6 +144,9 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       val dsp = cluster.cores(cId)
       val sram = cluster.SRAM(cId)
 
+      /**
+       * DSP Cores read from and write to their local SRAM.
+       */
       val readSram = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_SRAM_ld",
         application read sram
@@ -148,4 +167,41 @@ trait GenericTransactionLibrary extends TransactionLibrary {
       )
 
     }
+
+  /**
+   * DMA Transactions
+   */
+  val basicDmaTransactions: Seq[Scenario] = {
+    val ddrCopies: Seq[Scenario] = for {
+      ddr <- ddrs
+      bank <- ddr.banks
+    } yield {
+      Scenario(
+        s"t_dma_st_DDR{ddr.name}_BK{bank.name}",
+        app_dma read eth,
+        app_dma write bank
+      )
+    }
+
+    val sramCopies: Seq[Scenario] = for {
+      group <- groupDSP
+      cluster <- group.clusters.flatten
+      sram <- cluster.SRAM
+    } yield {
+      Scenario(
+        s"t_dma_rd_G{group.id}_Cl{cluster.id}_SRAM{sram.name}",
+        app_dma read eth,
+        app_dma write sram
+      )
+    }
+
+    // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
+    //  (or tag all `used` during the definition)
+    val dma_rd_config = Scenario(app_dma read cfg_bus.dma_reg, app_dma write cfg_bus.dma_reg)
+
+    Seq(dma_rd_config) ++ ddrCopies ++ sramCopies
+  }
+
+  for (s <- basicDmaTransactions)
+    s used
 }
