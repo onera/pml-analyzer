@@ -49,30 +49,27 @@ object GenericExport extends App {
     // FIXME Assert ddrPartitions <= GP Core Count
     // FIXME Assert GP Core count is multiple of ddrPartitions
 
-    val gp_cores: Int = coreCount
-    val dsp_cores: Int = dspCount
-
-    // Create the required GP groups, based on target partition count
+    // Create a GP group per partition
     // FIXME How to configure more than 1 GP cluster per group?
     val gp_group_count: Int = ddrPartitions
     val gp_cluster_per_group: Int = 1
-    val gp_cores_per_cluster = gp_cores / gp_group_count / gp_cluster_per_group
+    val gp_cores_per_cluster = coreCount / gp_group_count / gp_cluster_per_group
 
     // Allocate banks to groups and cores
     val bank_count: Int =
-      Math.ceil(gp_cores / ddrPartitions / coresPerBankPerPartition).toInt
+      Math.ceil(coreCount / ddrPartitions / coresPerBankPerPartition).toInt
 
     // Create a single DSP group
-    // - No activity from DSP Cores to the outside
+    // - No activity from DSP Cores outside their cluster/group
     // - Only the (single) DMA comes into the DSP clusters
     val dsp_group_count: Int = 1
     val dsp_cluster_per_group: Int = 1
     val dsp_cores_per_cluster: Int =
-      dsp_cores / dsp_group_count / dsp_cluster_per_group
+      dspCount / dsp_group_count / dsp_cluster_per_group
 
     // Derive additional Generic Platform parameters
     val name = Symbol(
-      s"GenericSample_C${gp_cores}_D${dsp_cores}_P${ddrPartitions}_PerBank${coresPerBankPerPartition}"
+      s"GenericSample_${coreCount}Cores_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank"
     )
     val ddr_count: Int = ddrPartitions
 
@@ -99,11 +96,22 @@ object GenericExport extends App {
 
   val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
   val candidatePlatforms = for {
-    coreCount <- Seq(1, 2, 4, 8)
+    coreCount <- Seq(0, 1, 2, 4, 8)
     dspCount <- Seq(0, 1, 2, 4, 8)
-    ddrPartitions <- for {i <- 0 until log2(coreCount) + 1} yield Math.pow(2.0, i).toInt
-    coresPerBankPerPartition <- for {i <- 0 until log2(coreCount / ddrPartitions) + 1} yield Math.pow(2.0, i).toInt
-    if (coreCount + dspCount < 8)
+    ddrPartitions <- {
+      for { i <- 0 to Math.min(log2(coreCount), 1) } yield {
+        Math.pow(2.0, i).toInt
+      }
+    }
+    coresPerBankPerPartition <- {
+      for {
+        i <- 0 to log2(coreCount / ddrPartitions)
+      } yield {
+        Math.pow(2.0, i).toInt
+      }
+    }
+    if (0 < coreCount + dspCount)
+    if (coreCount + dspCount <= 12)
   } yield {
     generatePlatformFromConfiguration(
       coreCount = coreCount,
@@ -113,48 +121,49 @@ object GenericExport extends App {
     )
   }
 
+  println(s"Generated ${candidatePlatforms.length} platforms")
+
   for (platform <- candidatePlatforms) {
-    println(platform.name.name)
-      // Export only HW used by SW (explicit)
-      platform.exportRestrictedHWAndSWGraph()
+    // Export only HW used by SW (explicit)
+    platform.exportRestrictedHWAndSWGraph()
 
-      // Export HW and SW graph whether used or not
-      platform.exportHWAndSWGraph()
+    // Export HW and SW graph whether used or not
+    platform.exportHWAndSWGraph()
 
-      // Export Service graph whether used or not and considering that all services are non-exclusive
-      platform.exportServiceGraph()
+    // Export Service graph whether used or not and considering that all services are non-exclusive
+    platform.exportServiceGraph()
 
-      // Export Service graph considering and SW
-      platform.exportRestrictedServiceAndSWGraph()
+    // Export Service graph considering and SW
+    platform.exportRestrictedServiceAndSWGraph()
 
-      // Export Service graph considering that all services are non-exclusive
-      platform.exportServiceGraphWithInterfere()
+    // Export Service graph considering that all services are non-exclusive
+    platform.exportServiceGraphWithInterfere()
 
-      // Export individually the Service graph of each software
-      platform.applications foreach { s =>
-        platform.exportRestrictedServiceGraphForSW(s)
-      }
+    // Export individually the Service graph of each software
+    platform.applications foreach { s =>
+      platform.exportRestrictedServiceGraphForSW(s)
+    }
 
-      // Export the application allocation table
-      platform.exportAllocationTable()
+    // Export the application allocation table
+    platform.exportAllocationTable()
 
-      // Export the data allocation table
-      platform.exportDataAllocationTable()
+    // Export the data allocation table
+    platform.exportDataAllocationTable()
 
-      // Export the target used by software
-      platform.exportSWTargetUsageTable()
+    // Export the target used by software
+    platform.exportSWTargetUsageTable()
 
-      // Export the routing constraints
-      platform.exportRouteTable()
+    // Export the routing constraints
+    platform.exportRouteTable()
 
-      // Export the deactivated components
-      platform.exportDeactivatedComponents()
+    // Export the deactivated components
+    platform.exportDeactivatedComponents()
 
-      // Export the transactions defined by the user
-      platform.exportUserScenarios()
+    // Export the transactions defined by the user
+    platform.exportUserScenarios()
 
-      platform.exportSemanticsSize()
+    platform.exportSemanticsSize()
 
-      platform.exportAnalysisGraph()
+    platform.exportAnalysisGraph()
   }
 }
