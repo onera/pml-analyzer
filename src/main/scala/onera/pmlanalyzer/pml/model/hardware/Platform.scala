@@ -31,12 +31,13 @@ import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
 
 /** Base class for a platform
-  * @see
+ *
+ * @see
   *   usage are available in
   *   [[pml.examples.simpleKeystone.SimpleKeystonePlatform]]
   * @param name
   *   the name of the node
-  * @param _sourceFile
+ * @param _file
   *   the implicit descriptor of the source file where the platform is defined
   * @group hierarchical_class
   */
