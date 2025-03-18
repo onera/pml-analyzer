@@ -110,15 +110,16 @@ class MyProcPlatform(name: Symbol, line: Line, file: File) extends Platform(name
   /** Composite representing Keystone ARM cores and their internal L1 cache
     * @group composite_def
     */
-  class ARMCore(armName: Symbol, line: Line, file: File) extends Composite(armName, line: Line, file: File) {
+  class ARMCore(armName: Symbol, armLine: Line, armFile: File) extends Composite(armName, armLine: Line, armFile: File) {
 
     /** Enable to provide the name implicitly
-      * @param implicitName
+     *
+     * @param givenName
       *   the name of the object/class inheriting from this class will be the
       *   name of composite
-      */
-    def this()(implicit implicitName: Name, givenLine: Line, givenFile: File) = {
-      this(implicitName.value, givenLine, givenFile)
+     */
+    def this()(implicit givenName: Name, givenLine: Line, givenFile: File) = {
+      this(givenName.value, givenLine, givenFile)
     }
 
     /** Initiator modelling an ARM Core
