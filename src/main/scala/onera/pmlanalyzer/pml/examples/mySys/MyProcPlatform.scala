@@ -49,7 +49,7 @@ import sourcecode.{File, Line, Name}
   * @param name
   *   the name of the final object merging all facets of the model
   */
-class MyProcPlatform(name: Symbol, _line: Line, _file: File) extends Platform(name)(_line, _file) {
+class MyProcPlatform(name: Symbol, _line: Line, _file: File) extends Platform(name, _line, _file) {
 
   /** Enable to provide the name implicitly
     * @param implicitName

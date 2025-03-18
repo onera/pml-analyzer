@@ -19,9 +19,10 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
+import sourcecode.{File, Line}
 
 private[operators] trait Exclusive[T] {
-  def apply(l: T, r: T): Unit
+  def apply(l: T, r: T)(using _line: Line, _file: File): Unit
 }
 
 object Exclusive {
@@ -31,11 +32,11 @@ object Exclusive {
     */
   trait Ops {
     extension [T](l: T) {
-      def exclusiveWith(r: T)(using ev: Exclusive[T]): Unit = ev(l, r)
+      def exclusiveWith(r: T)(using ev: Exclusive[T], _line: Line, _file: File): Unit = ev(l, r)
     }
   }
 
   given [T](using relation: ExclusiveRelation[T]): Exclusive[T] with {
-    def apply(l: T, r: T): Unit = relation.add(l, r)
+    def apply(l: T, r: T)(using _line: Line, _file: File): Unit = relation.add(l, r)
   }
 }

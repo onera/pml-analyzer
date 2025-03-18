@@ -22,6 +22,7 @@ import onera.pmlanalyzer.pml.model.hardware.{Initiator, Target}
 import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, UseRelation}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import sourcecode.{File, Line}
 
 /** Base trait for use operator
   *
@@ -31,7 +32,7 @@ import onera.pmlanalyzer.pml.model.software.{Application, Data}
   *   the right type
   */
 trait Use[L, R] {
-  def apply(l: L, r: R): Unit
+  def apply(l: L, r: R)(using _line: Line, _file: File): Unit
 }
 
 object Use {
@@ -65,12 +66,12 @@ object Use {
       */
     extension [L <: Application | Initiator](self: L) {
 
-      private def use[B](b: B)(using ev: Use[L, B]): (L, B) = {
+      private def use[B](b: B)(using ev: Use[L, B], _line: Line, _file: File): (L, B) = {
         ev(self, b)
         self -> b
       }
 
-      private def use[B](b: Set[B])(using ev: Use[L, B]): Set[(L, B)] =
+      private def use[B](b: Set[B])(using ev: Use[L, B], _line: Line, _file: File): Set[(L, B)] =
         b.map(x => use(x))
 
       /** The PML keyword specify that self reads something
@@ -88,7 +89,7 @@ object Use {
         */
       def read[B](
           b: B
-      )(using p: Provided[B, Load], ev: Use[L, Load]): Set[(L, Load)] = use(
+                 )(using p: Provided[B, Load], ev: Use[L, Load], _line: Line, _file: File): Set[(L, Load)] = use(
         b.loads
       )
 
@@ -101,7 +102,7 @@ object Use {
         * @return
         *   the link
         */
-      def read(b: Set[Service])(using ev: Use[L, Load]): Set[(L, Load)] = use(
+      def read(b: Set[Service])(using ev: Use[L, Load], _line: Line, _file: File): Set[(L, Load)] = use(
         b.collect { case l: Load => l }
       )
 
@@ -120,7 +121,7 @@ object Use {
         */
       def read[B](
           b: Set[B]
-      )(using p: Provided[B, Load], ev: Use[L, Load]): Set[(L, Load)] = use(
+                 )(using p: Provided[B, Load], ev: Use[L, Load], _line: Line, _file: File): Set[(L, Load)] = use(
         b.loads
       )
 
@@ -139,7 +140,7 @@ object Use {
         */
       def write[B](
           b: B
-      )(using p: Provided[B, Store], ev: Use[L, Store]): Set[(L, Store)] = use(
+                  )(using p: Provided[B, Store], ev: Use[L, Store], _line: Line, _file: File): Set[(L, Store)] = use(
         b.stores
       )
 
@@ -152,7 +153,7 @@ object Use {
         * @return
         *   the link
         */
-      def write(b: Set[Service])(using ev: Use[L, Store]): Set[(L, Store)] =
+      def write(b: Set[Service])(using ev: Use[L, Store], _line: Line, _file: File): Set[(L, Store)] =
         use(b.collect { case l: Store => l })
     }
 
@@ -169,7 +170,7 @@ object Use {
         */
       def hostedBy(
           b: Initiator
-      )(using ev: Use[L, Initiator]): (L, Initiator) = {
+                  )(using ev: Use[L, Initiator], _line: Line, _file: File): (L, Initiator) = {
         ev(self, b)
         self -> b
       }
@@ -188,7 +189,7 @@ object Use {
         * @return
         *   the link
         */
-      def hostedBy(b: Target)(using ev: Use[Data, Target]): (Data, Target) = {
+      def hostedBy(b: Target)(using ev: Use[Data, Target], _line: Line, _file: File): (Data, Target) = {
         ev(self, b)
         self -> b
       }
@@ -205,14 +206,14 @@ object Use {
     I,
     S
   ] with {
-    def apply(a: I, b: S): Unit = l.add(a, b)
+    def apply(a: I, b: S)(using _line: Line, _file: File): Unit = l.add(a, b)
   }
 
   given [A <: Application, S <: Service](using
       l: UseRelation[Application, Service],
       aR: AuthorizeRelation[Application, Service]
   ): Use[A, S] with {
-    def apply(a: A, b: S): Unit = {
+    def apply(a: A, b: S)(using _line: Line, _file: File): Unit = {
       l.add(a, b)
       aR.add(a, b)
     }
@@ -220,6 +221,6 @@ object Use {
 
   given [AD <: Application | Data, H](using l: UseRelation[AD, H]): Use[AD, H]
   with {
-    def apply(a: AD, b: H): Unit = l.add(a, b)
+    def apply(a: AD, b: H)(using _line: Line, _file: File): Unit = l.add(a, b)
   }
 }

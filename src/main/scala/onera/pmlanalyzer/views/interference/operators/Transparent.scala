@@ -20,9 +20,10 @@ package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.TransparentSet
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import sourcecode.{File, Line}
 
 private[operators] trait Transparent[T] {
-  def apply(x: T): Unit
+  def apply(x: T)(using _line: Line, _file: File): Unit
 }
 
 object Transparent {
@@ -37,26 +38,26 @@ object Transparent {
         * @param ev
         *   proof that T can be discarded
         */
-      def isTransparent(using ev: Transparent[T]): Unit = ev(x)
+      def isTransparent(using ev: Transparent[T], _line: Line, _file: File): Unit = ev(x)
     }
   }
 
   given [T](using ev: TransparentSet[T]): Transparent[T] with {
-    def apply(x: T): Unit = ev.value += x
+    def apply(x: T)(using _line: Line, _file: File): Unit = ev.value += x
   }
 
   given [U](using
       transformation: Transform[U, Option[PhysicalTransactionId]],
       ev: Transparent[PhysicalTransactionId]
   ): Transparent[U] with {
-    def apply(x: U): Unit = for { id <- transformation(x) } ev(id)
+    def apply(x: U)(using _line: Line, _file: File): Unit = for {id <- transformation(x)} ev(id)
   }
 
   given [V](using
       transformation: Transform[V, Set[PhysicalTransactionId]],
       ev: Transparent[PhysicalTransactionId]
   ): Transparent[V] with {
-    def apply(x: V): Unit = for { id <- transformation(x) } ev(id)
+    def apply(x: V)(using _line: Line, _file: File): Unit = for {id <- transformation(x)} ev(id)
   }
 
 }
