@@ -322,10 +322,6 @@ trait TransactionLibrary {
       *   the original scenario like
       * @param name
       *   the implicitly derived name
-      * @param t
-      *   the type tag to solve erasure issue
-      * @tparam A
-      *   the type of request
       * @return
       *   the resulting scenario
       */
@@ -340,10 +336,6 @@ trait TransactionLibrary {
       * @param name
       *   the implicit name of the scenario (same as the variable used to refer
       *   to it)
-      * @param t
-      *   the type tag to distinguish the type of target service
-      * @tparam A
-      *   the type of targeted service
       * @return
       *   a scenario
       */

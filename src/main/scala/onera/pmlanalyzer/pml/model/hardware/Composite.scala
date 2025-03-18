@@ -121,8 +121,8 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File)
 
   /** Alternative constructor without name, nor owner
    *
-   * @param implicitName
-   * the implicit name provided by the enclosing object
+   * @param compositeName
+   * the name provided by the enclosing object
    * @param implicitOwner
    * the implicit owner
    */
