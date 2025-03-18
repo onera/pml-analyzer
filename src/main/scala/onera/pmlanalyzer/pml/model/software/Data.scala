@@ -29,7 +29,7 @@ import sourcecode.{File, Line, Name}
   *   the name of the data
   * @group software_class
   */
-final class Data private(val name: Symbol, _line: Line, _file: File) extends PMLNode(_line, _file) {
+final class Data private(val name: Symbol, line: Line, file: File) extends PMLNode(line, file) {
 
   override def toString: String = name.name
 }
@@ -47,8 +47,8 @@ object Data extends PMLNodeBuilder[Data] {
     * @return
     *   the data
     */
-  def apply(name: Symbol)(using owner: Owner, _line: Line, _file: File): Data = {
-    _memo.getOrElseUpdate((owner.s, name), new Data(name, _line, _file))
+  def apply(name: Symbol)(using owner: Owner, line: Line, file: File): Data = {
+    _memo.getOrElseUpdate((owner.s, name), new Data(name, line, file))
   }
 
   /** A data can be defined by the implicit name used during the definition
@@ -60,6 +60,6 @@ object Data extends PMLNodeBuilder[Data] {
     * @return
     *   the data
     */
-  def apply()(using name: Name, owner: Owner, _line: Line, _file: File): Data =
+  def apply()(using name: Name, owner: Owner, line: Line, file: File): Data =
     apply(Symbol(name.value))
 }

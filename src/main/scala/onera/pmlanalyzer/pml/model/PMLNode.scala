@@ -24,11 +24,11 @@ import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(_line: Line, _file: File)(using _enclosing: Enclosing) extends SourceCodeTraceable {
+abstract class PMLNode(line: Line, file: File)(using _enclosing: Enclosing) extends SourceCodeTraceable {
 
-  val line: Int = _line.value
+  val lineInFile: Int = line.value
 
-  val sourceFile: String = _file.value.split('.').init.mkString(java.io.File.separator)
+  val sourceFile: String = file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Name of the node
     *

@@ -24,7 +24,7 @@ trait SourceCodeTraceable {
   /**
    * Line in source code where node has been instantiated
    */
-  val line: Int
+  val lineInFile: Int
 
   /**
    * Source file in which node has been instantiated

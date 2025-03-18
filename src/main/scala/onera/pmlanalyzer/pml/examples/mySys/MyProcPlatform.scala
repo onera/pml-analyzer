@@ -49,15 +49,15 @@ import sourcecode.{File, Line, Name}
   * @param name
   *   the name of the final object merging all facets of the model
   */
-class MyProcPlatform(name: Symbol, _line: Line, _file: File) extends Platform(name, _line, _file) {
+class MyProcPlatform(name: Symbol, line: Line, file: File) extends Platform(name, line, file) {
 
   /** Enable to provide the name implicitly
     * @param implicitName
     *   the name of the object/class inheriting from this class will be the name
     *   of platform
     */
-  def this()(implicit implicitName: Name, _line: Line, _file: File) = {
-    this(Symbol(implicitName.value), _line, _file)
+  def this()(implicit implicitName: Name, givenLine: Line, givenFile: File) = {
+    this(Symbol(implicitName.value), givenLine, givenFile)
   }
 
   /** Initiator modelling the DMA
@@ -110,15 +110,15 @@ class MyProcPlatform(name: Symbol, _line: Line, _file: File) extends Platform(na
   /** Composite representing Keystone ARM cores and their internal L1 cache
     * @group composite_def
     */
-  class ARMCore(armName: Symbol, _line: Line, _file: File) extends Composite(armName, _line: Line, _file: File) {
+  class ARMCore(armName: Symbol, line: Line, file: File) extends Composite(armName, line: Line, file: File) {
 
     /** Enable to provide the name implicitly
       * @param implicitName
       *   the name of the object/class inheriting from this class will be the
       *   name of composite
       */
-    def this()(implicit implicitName: Name, _line: Line, _file: File) = {
-      this(implicitName.value, _line: Line, _file: File)
+    def this()(implicit implicitName: Name, givenLine: Line, givenFile: File) = {
+      this(implicitName.value, givenLine, givenFile)
     }
 
     /** Initiator modelling an ARM Core

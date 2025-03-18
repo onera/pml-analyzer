@@ -36,7 +36,7 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
     * @param a
     *   the element to remove
     */
-  override def remove(a: A)(using _line: Line, _file: File): Unit = {
+  override def remove(a: A)(using line: Line, file: File): Unit = {
     apply(a).foreach(remove(a, _))
     inverse(a).foreach(remove(_, a))
   }
