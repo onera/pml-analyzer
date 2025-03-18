@@ -128,10 +128,10 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
    * @param givenOwner
    * the implicit owner
    */
-  def this(compositeName: Symbol, line: Line, file: File)(using
-                                                          givenOwner: Owner
+  def this(compositeName: Symbol, explicitLine: Line, explicitFile: File)(using
+                                                                          givenOwner: Owner
   ) = {
-    this(compositeName, givenOwner, line, file)
+    this(compositeName, givenOwner, explicitLine, explicitFile)
   }
 }
 
