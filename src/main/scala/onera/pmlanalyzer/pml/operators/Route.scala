@@ -142,8 +142,8 @@ object Route {
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
                                       r: RoutingRelation[(Initiator, Service, Service), Service],
-                                      _line: Line,
-                                      _file: File
+                                      line: Line,
+                                      file: File
       ): Unit = {
         for {
           t <- targets
@@ -165,8 +165,8 @@ object Route {
       private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
                                                                   r: RoutingRelation[(Initiator, Service, Service), Service],
-                                                                  _line: Line,
-                                                                  _file: File
+                                                                  line: Line,
+                                                                  file: File
       ): Unit =
         r.get((a, t, on)) match {
           case Some(_) =>
@@ -209,8 +209,8 @@ object Route {
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
                              r: RoutingRelation[(Initiator, Service, Service), Service],
-                             _line: Line,
-                             _file: File
+                             line: Line,
+                             file: File
       ): Unit = {
         if (
           !next.services
@@ -239,8 +239,8 @@ object Route {
       private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
                                                                   r: RoutingRelation[(Initiator, Service, Service), Service],
-                                                                  _line: Line,
-                                                                  _file: File
+                                                                  line: Line,
+                                                                  file: File
       ): Unit = {
         r.get((a, t, on)) match {
           case Some(_) if forbid =>

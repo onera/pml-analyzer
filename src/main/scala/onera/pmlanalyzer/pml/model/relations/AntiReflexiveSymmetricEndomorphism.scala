@@ -24,13 +24,13 @@ import sourcecode.{File, Line, Name}
 abstract class AntiReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(
     using n: Name
 ) extends Endomorphism[A](iniValues) {
-  override def add(a: A, b: A)(using _line: Line, _file: File): Unit = if (a != b) {
+  override def add(a: A, b: A)(using line: Line, file: File): Unit = if (a != b) {
     super.add(a, b)
     super.add(b, a)
   } else
     println(Message.errorAntiReflexivityViolation(a, name))
 
-  override def remove(a: A, b: A)(using _line: Line, _file: File): Unit = {
+  override def remove(a: A, b: A)(using line: Line, file: File): Unit = {
     super.remove(a, b)
     super.remove(b, a)
   }

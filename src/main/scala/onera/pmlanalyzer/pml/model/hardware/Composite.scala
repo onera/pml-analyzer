@@ -33,8 +33,8 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File)
-  extends Hardware(_line, _file) {
+abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
+  extends Hardware(line, file) {
 
   /** the id of the owner of the composite (the platform or another composite)
     * @group identifier
@@ -75,61 +75,63 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File)
   }
 
   /** Alternative constructor without implicit owner
-    * @param compositeName
+   *
+   * @param compositeName
     *   the name of the composite
     * @param dummy
     *   dummy argument to avoid method signature conflict
-    * @param implicitOwner
+   * @param givenOwner
     *   the implicit owner
     */
   def this(compositeName: Symbol, dummy: Int = 0)(using
-                                                  implicitOwner: Owner,
-                                                  _line: Line,
-                                                  _file: File
+                                                  givenOwner: Owner,
+                                                  givenLine: Line,
+                                                  givenFile: File
   ) = {
-    this(compositeName, implicitOwner, _line, _file)
-  }
-
-  /** Alternative constructor without name, nor owner
-    * @param implicitName
-    *   the implicit name provided by the enclosing object
-    * @param implicitOwner
-    *   the implicit owner
-    */
-  def this()(using
-             implicitName: Name,
-             implicitOwner: Owner,
-             _line: Line,
-             _file: File
-  ) = {
-    this(Symbol(implicitName.value), implicitOwner, _line, _file)
+    this(compositeName, givenOwner, givenLine, givenFile)
   }
 
   /** Alternative constructor without name, nor owner
    *
-   * @param implicitName
+   * @param givenName
+    *   the implicit name provided by the enclosing object
+   * @param givenOwner
+    *   the implicit owner
+    */
+  def this()(using
+             givenName: Name,
+             givenOwner: Owner,
+             givenLine: Line,
+             givenFile: File
+  ) = {
+    this(Symbol(givenName.value), givenOwner, givenLine, givenFile)
+  }
+
+  /** Alternative constructor without name, nor owner
+   *
+   * @param givenName
    * the implicit name provided by the enclosing object
-   * @param implicitOwner
+   * @param givenOwner
    * the implicit owner
    */
-  def this(_line: Line, _file: File)(using
-                                     implicitName: Name,
-                                     implicitOwner: Owner
+  def this(explicitLine: Line, explicitFile: File)(using
+                                                   givenName: Name,
+                                                   givenOwner: Owner
   ) = {
-    this(Symbol(implicitName.value), implicitOwner, _line, _file)
+    this(Symbol(givenName.value), givenOwner, explicitLine, explicitFile)
   }
 
   /** Alternative constructor without name, nor owner
    *
    * @param compositeName
    * the name provided by the enclosing object
-   * @param implicitOwner
+   * @param givenOwner
    * the implicit owner
    */
-  def this(compositeName: Symbol, _line: Line, _file: File)(using
-                                                            implicitOwner: Owner
+  def this(compositeName: Symbol, line: Line, file: File)(using
+                                                          givenOwner: Owner
   ) = {
-    this(compositeName, implicitOwner, _line, _file)
+    this(compositeName, givenOwner, line, file)
   }
 }
 

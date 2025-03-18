@@ -85,7 +85,7 @@ object RelationExporter {
       /** Export the table providing for each service the select next service(s)
         * w.r.t. the initiator and the target service FORMAT: Initiator,
        * TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine (current_service_name,
-       * (initiator_name, target_service_name, next_service_name, source_code_filename, source_code_line )+
+       * (initiator_name, target_service_name, next_service_name, source_codefilename, source_codeline )+
         */
       def exportRouteTable(): Unit = {
         val writer = getWriter(routingExportName)
@@ -100,7 +100,7 @@ object RelationExporter {
             n
           )
         } yield {
-          s"$ini, $target, $router, $n, ${c.sourceFile}, ${c.line}\n"
+          s"$ini, $target, $router, $n, ${c.sourceFile}, ${c.lineInFile}\n"
         }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -120,7 +120,7 @@ object RelationExporter {
             ini <- initiators
             c <- platform.SWUseInitiator.getModificationsFor(sw, ini)
           } yield {
-            s"$sw, $ini, ${c.sourceFile}, ${c.line}\n"
+            s"$sw, $ini, ${c.sourceFile}, ${c.lineInFile}\n"
           }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -140,7 +140,7 @@ object RelationExporter {
             t <- d.hostingTargets
             c <- platform.DataUseTarget.getModificationsFor(d, t)
           } yield {
-            s"$d, $t, ${c.sourceFile}, ${c.line}\n"
+            s"$d, $t, ${c.sourceFile}, ${c.lineInFile}\n"
           }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -162,7 +162,7 @@ object RelationExporter {
             s <- services
             c <- platform.SWUseService.getModificationsFor(sw, s)
           } yield {
-            s"$sw, $s, ${c.sourceFile}, ${c.line}\n"
+            s"$sw, $s, ${c.sourceFile}, ${c.lineInFile}\n"
           }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -258,7 +258,7 @@ object RelationExporter {
         val toWrite = for {
           tr <- Transaction.all
           phyTr <- transactionByUserName.get(tr.userName)
-        } yield s"${tr.userName}, ${transactionsByName(phyTr).mkString("::")}, ${tr.sourceFile}, ${tr.line}\n"
+        } yield s"${tr.userName}, ${transactionsByName(phyTr).mkString("::")}, ${tr.sourceFile}, ${tr.lineInFile}\n"
         toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()
@@ -286,7 +286,7 @@ object RelationExporter {
             )
             .toSeq
             .sorted
-        } yield s"${sc.userName}, ${t.mkString("+")}, ${sc.sourceFile}, ${sc.line}\n"
+        } yield s"${sc.userName}, ${t.mkString("+")}, ${sc.sourceFile}, ${sc.lineInFile}\n"
         toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()

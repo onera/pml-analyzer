@@ -28,7 +28,7 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group target_class
   */
-final class Target private(val name: Symbol, _line: Line, _file: File) extends Hardware(_line, _file)
+final class Target private(val name: Symbol, line: Line, file: File) extends Hardware(line, file)
 
 /** Builder of targets
   * @group builder
@@ -41,6 +41,6 @@ object Target extends BaseHardwareNodeBuilder[Target] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using _line: Line, _file: File): Target = new Target(name, _line, _file)
+  protected def builder(name: Symbol)(using line: Line, file: File): Target = new Target(name, line, file)
 
 }

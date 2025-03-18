@@ -37,16 +37,16 @@ import scala.language.implicitConversions
   *   [[pml.examples.simpleKeystone.SimpleKeystonePlatform]]
   * @param name
   *   the name of the node
- * @param _file
+ * @param file
   *   the implicit descriptor of the source file where the platform is defined
   * @group hierarchical_class
   */
-abstract class Platform(val name: Symbol, _line: Line, _file: File)
-  extends PMLNode(_line, _file)
+abstract class Platform(val name: Symbol, line: Line, file: File)
+  extends PMLNode(line, file)
     with Relation.Instances {
 
-  def this(name: Symbol, dummy: Int = 0)(using _line: Line, _file: File) = {
-    this(name, _line, _file)
+  def this(n: Symbol, dummy: Int = 0)(using givenLine: Line, givenFile: File) = {
+    this(n, givenLine, givenFile)
   }
 
   implicit def toSymbol(s: String): Symbol = Symbol(s)

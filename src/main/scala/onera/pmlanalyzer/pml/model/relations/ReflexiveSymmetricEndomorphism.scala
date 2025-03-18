@@ -24,14 +24,14 @@ import sourcecode.{File, Line, Name}
 abstract class ReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(
     using n: Name
 ) extends Endomorphism[A](iniValues) {
-  override def add(a: A, b: A)(using _line: Line, _file: File): Unit = {
+  override def add(a: A, b: A)(using line: Line, file: File): Unit = {
     super.add(a, b)
     super.add(b, a)
     super.add(a, a)
     super.add(b, b)
   }
 
-  override def remove(a: A, b: A)(using _line: Line, _file: File): Unit = if (a != b) {
+  override def remove(a: A, b: A)(using line: Line, file: File): Unit = if (a != b) {
     super.remove(a, b)
     super.remove(b, a)
   } else println(Message.errorReflexivityViolation(a, name))

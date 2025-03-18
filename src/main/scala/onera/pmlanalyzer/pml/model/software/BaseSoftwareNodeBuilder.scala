@@ -50,7 +50,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(implicit _line: Line, _file: File): T
+  protected def builder(name: Symbol)(implicit line: Line, file: File): T
 
   /** A software component can be defined only its name
     *
@@ -61,7 +61,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     * @return
     *   the software
     */
-  def apply(name: Symbol)(implicit owner: Owner, _line: Line, _file: File): T =
+  def apply(name: Symbol)(implicit owner: Owner, line: Line, file: File): T =
     _memo.getOrElseUpdate((owner.s, name), builder(name))
 
   /** A software component can be defined by the name provided by the implicit
@@ -74,6 +74,6 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     * @return
     *   the software
     */
-  def apply()(implicit name: Name, owner: Owner, _line: Line, _file: File): T =
+  def apply()(implicit name: Name, owner: Owner, line: Line, file: File): T =
     apply(Symbol(name.value))
 }
