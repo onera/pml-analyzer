@@ -19,7 +19,7 @@
 package onera.pmlanalyzer.pml.model.relations
 
 import scalaz.Memo.immutableHashMapMemo
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Refinement for endomorphisms (relation on the same type A)
   *
@@ -36,7 +36,7 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
     * @param a
     *   the element to remove
     */
-  override def remove(a: A): Unit = {
+  override def remove(a: A)(using _line: Line, _file: File): Unit = {
     apply(a).foreach(remove(a, _))
     inverse(a).foreach(remove(_, a))
   }

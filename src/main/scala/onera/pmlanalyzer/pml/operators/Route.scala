@@ -18,11 +18,12 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware._
+import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.RoutingRelation
-import onera.pmlanalyzer.pml.model.service._
+import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.Message.uselessRoutingConstraintWarning
 import onera.pmlanalyzer.pml.model.utils.Owner
+import sourcecode.{File, Line}
 
 /** Extension methods
   */
@@ -82,7 +83,7 @@ object Route {
         *   a partial routing constraint where the initiator, the targets and
         *   the router are specified
         */
-      def useLink(router: Hardware)(implicit
+      def useLink(router: Hardware)(using
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = false)
@@ -94,7 +95,7 @@ object Route {
         *   a partial routing constraint where the initiator, the targets and
         *   the router are specified
         */
-      def cannotUseLink(router: Hardware)(implicit
+      def cannotUseLink(router: Hardware)(using
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = true)
@@ -137,10 +138,12 @@ object Route {
         * @param router
         *   an hardware
         */
-      def blockedBy(router: Hardware)(implicit
+      def blockedBy(router: Hardware)(using
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
-          r: RoutingRelation[(Initiator, Service, Service), Service]
+                                      r: RoutingRelation[(Initiator, Service, Service), Service],
+                                      _line: Line,
+                                      _file: File
       ): Unit = {
         for {
           t <- targets
@@ -159,9 +162,11 @@ object Route {
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(implicit
+      private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
-          r: RoutingRelation[(Initiator, Service, Service), Service]
+                                                                  r: RoutingRelation[(Initiator, Service, Service), Service],
+                                                                  _line: Line,
+                                                                  _file: File
       ): Unit =
         r.get((a, t, on)) match {
           case Some(_) =>
@@ -200,10 +205,12 @@ object Route {
         * @param r
         *   the proof that a routing relation exists
         */
-      def to(next: Hardware)(implicit
+      def to(next: Hardware)(using
           p: Provided[Hardware, Service],
           l: Linked[Service, Service],
-          r: RoutingRelation[(Initiator, Service, Service), Service]
+                             r: RoutingRelation[(Initiator, Service, Service), Service],
+                             _line: Line,
+                             _file: File
       ): Unit = {
         if (
           !next.services
@@ -229,9 +236,11 @@ object Route {
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(implicit
+      private def update[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
-          r: RoutingRelation[(Initiator, Service, Service), Service]
+                                                                  r: RoutingRelation[(Initiator, Service, Service), Service],
+                                                                  _line: Line,
+                                                                  _file: File
       ): Unit = {
         r.get((a, t, on)) match {
           case Some(_) if forbid =>
