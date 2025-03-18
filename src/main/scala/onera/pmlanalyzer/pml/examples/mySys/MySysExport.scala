@@ -80,6 +80,8 @@ object MySysExport extends App {
   // Export the transactions defined by the user
   MySys.exportUserScenarios()
 
+  println(MySys.Transaction.all(MySys.currentOwner).map(h => s"$h declared in ${h.sourceFile}:${h.line}").mkString("\n"))
+
   MySys.exportSemanticsSize()
 
   //  MySys.exportAnalysisGraph()

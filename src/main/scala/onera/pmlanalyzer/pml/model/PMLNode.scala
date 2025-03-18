@@ -24,7 +24,11 @@ import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(_line: Line, _file: File)(implicit _enclosing: Enclosing) {
+abstract class PMLNode(_line: Line, _file: File)(using _enclosing: Enclosing) extends SourceCodeTraceable {
+
+  val line: Int = _line.value
+
+  val sourceFile: String = _file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Name of the node
     *
@@ -39,16 +43,6 @@ abstract class PMLNode(_line: Line, _file: File)(implicit _enclosing: Enclosing)
   final val typeName: Symbol = Symbol(
     _enclosing.value.split(' ').head.split('.').last
   )
-
-  /**
-   * Line in source code where node has been instantiated
-   */
-  val line: Int = _line.value
-
-  /**
-   * Source file in which node has been instantiated
-   */
-  val sourceFile: String = _file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Print a node only by its [[name]]
     * @group printer_function

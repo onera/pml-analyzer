@@ -33,7 +33,8 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) extends Hardware(_line, _file) {
+abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File)
+  extends Hardware(_line, _file) {
 
   /** the id of the owner of the composite (the platform or another composite)
     * @group identifier
@@ -81,8 +82,10 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) ext
     * @param implicitOwner
     *   the implicit owner
     */
-  def this(compositeName: Symbol, dummy: Int = 0)(implicit
-                                                  implicitOwner: Owner, _line: Line, _file: File
+  def this(compositeName: Symbol, dummy: Int = 0)(using
+                                                  implicitOwner: Owner,
+                                                  _line: Line,
+                                                  _file: File
   ) = {
     this(compositeName, implicitOwner, _line, _file)
   }
@@ -93,7 +96,12 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) ext
     * @param implicitOwner
     *   the implicit owner
     */
-  def this()(implicit implicitName: Name, implicitOwner: Owner, _line: Line, _file: File) = {
+  def this()(using
+             implicitName: Name,
+             implicitOwner: Owner,
+             _line: Line,
+             _file: File
+  ) = {
     this(Symbol(implicitName.value), implicitOwner, _line, _file)
   }
 
@@ -104,7 +112,10 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) ext
    * @param implicitOwner
    * the implicit owner
    */
-  def this(_line: Line, _file: File)(implicit implicitName: Name, implicitOwner: Owner) = {
+  def this(_line: Line, _file: File)(using
+                                     implicitName: Name,
+                                     implicitOwner: Owner
+  ) = {
     this(Symbol(implicitName.value), implicitOwner, _line, _file)
   }
 
@@ -115,7 +126,9 @@ abstract class Composite(n: Symbol, _owner: Owner, _line: Line, _file: File) ext
    * @param implicitOwner
    * the implicit owner
    */
-  def this(compositeName: Symbol, _line: Line, _file: File)(implicit implicitOwner: Owner) = {
+  def this(compositeName: Symbol, _line: Line, _file: File)(using
+                                                            implicitOwner: Owner
+  ) = {
     this(compositeName, implicitOwner, _line, _file)
   }
 }
