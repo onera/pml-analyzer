@@ -110,12 +110,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   def apply(
       basics: Set[Service] = Set.empty,
       withDefaultServices: Boolean = true
-  )(implicit
+           )(using
       implicitName: Name,
       p: ProvideRelation[Hardware, Service],
-    owner: Owner,
-    _line: Line,
-    _file: File
+             owner: Owner,
+             _line: Line,
+             _file: File
   ): T =
     apply(Symbol(implicitName.value), basics, withDefaultServices)
 
@@ -143,7 +143,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol,
       basics: Set[Service],
       withDefaultServices: Boolean
-           )(implicit p: ProvideRelation[Hardware, Service], owner: Owner, _line: Line, _file: File): T = {
+           )(using
+             p: ProvideRelation[Hardware, Service],
+             owner: Owner,
+             _line: Line,
+             _file: File
+           ): T = {
     val formattedName = formatName(name, owner)
     val result =
       _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
@@ -173,7 +178,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   the physical component
     * @group publicConstructor
     */
-  def apply(name: Symbol, basics: Set[Service])(implicit
+  def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
                                                 owner: Owner,
                                                 _line: Line,
@@ -197,7 +202,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-           )(implicit p: ProvideRelation[Hardware, Service], owner: Owner, _line: Line, _file: File): T =
+           )(using
+             p: ProvideRelation[Hardware, Service],
+             owner: Owner,
+             _line: Line,
+             _file: File
+           ): T =
     apply(name, Set.empty, true)
 
   /** A physical component can be defined only its name, the services will be
@@ -216,7 +226,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     * @return
     *   the physical component
     */
-  def apply(name: Symbol, withDefaultServices: Boolean)(implicit
+  def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
                                                         owner: Owner,
                                                         _line: Line,

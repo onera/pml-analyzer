@@ -44,7 +44,7 @@ abstract class Platform(val name: Symbol, _line: Line, _file: File)
   extends PMLNode(_line, _file)
     with Relation.Instances {
 
-  def this(name: Symbol, dummy: Int = 0)(implicit _line: Line, _file: File) = {
+  def this(name: Symbol, dummy: Int = 0)(using _line: Line, _file: File) = {
     this(name, _line, _file)
   }
 

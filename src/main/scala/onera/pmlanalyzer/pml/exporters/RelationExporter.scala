@@ -90,7 +90,7 @@ object RelationExporter {
       def exportRouteTable(): Unit = {
         val writer = getWriter(routingExportName)
         writer.write("Initiator, TargetService, Router, NextService(s)\n")
-        platform.InitiatorRouting._values
+        platform.InitiatorRouting.edges
           .map(p =>
             s"${p._1._1}, ${p._1._2}, ${p._1._3}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
           )
@@ -107,7 +107,7 @@ object RelationExporter {
       def exportAllocationTable(): Unit = {
         val writer = getWriter(swAllocationExportName)
         writer.write("Software, Initiator(s)\n")
-        platform.SWUseInitiator._values
+        platform.SWUseInitiator.edges
           .map(p =>
             s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
           )
@@ -136,7 +136,7 @@ object RelationExporter {
       def exportSWTargetUsageTable(): Unit = {
         val writer = getWriter(swTargetUsage)
         writer.write("Software, Target Service(s)\n")
-        platform.SWUseService._values
+        platform.SWUseService.edges
           .map(p =>
             s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
           )

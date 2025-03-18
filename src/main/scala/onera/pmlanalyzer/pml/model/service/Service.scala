@@ -29,5 +29,5 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group service_class
   */
-abstract class Service private[service](_line: Line, _file: File)(implicit enclosing: Enclosing)
+abstract class Service private[service](_line: Line, _file: File)(using enclosing: Enclosing)
   extends PMLNode(_line, _file)

@@ -28,7 +28,7 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group software_class
   */
-final class Application(val name: Symbol)(implicit _line: Line, _file: File) extends PMLNode(_line, _file)
+final class Application(val name: Symbol, _line: Line, _file: File) extends PMLNode(_line, _file)
 
 /** Builder of [[Application]]
   * @group builder
@@ -41,6 +41,6 @@ object Application extends BaseSoftwareNodeBuilder[Application] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(implicit _line: Line, _file: File): Application = new Application(name)
+  protected def builder(name: Symbol)(using _line: Line, _file: File): Application = new Application(name, _line, _file)
 
 }
