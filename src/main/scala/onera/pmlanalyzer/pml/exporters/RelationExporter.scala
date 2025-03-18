@@ -84,18 +84,25 @@ object RelationExporter {
 
       /** Export the table providing for each service the select next service(s)
         * w.r.t. the initiator and the target service FORMAT: Initiator,
-        * TargetService, Router, NextService(s) (current_service_name,
-        * initiator_name, target_service_name(, next_service_name )+)+
+       * TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine (current_service_name,
+       * (initiator_name, target_service_name, next_service_name, source_code_filename, source_code_line )+
         */
       def exportRouteTable(): Unit = {
         val writer = getWriter(routingExportName)
-        writer.write("Initiator, TargetService, Router, NextService(s)\n")
-        platform.InitiatorRouting.edges
-          .map(p =>
-            s"${p._1._1}, ${p._1._2}, ${p._1._3}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
+        writer.write(
+          "Initiator, TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine\n"
+        )
+        val toWrite = for {
+          ((ini, target, router), next) <- platform.InitiatorRouting.edges
+          n <- next
+          c <- platform.InitiatorRouting.getModificationsFor(
+            (ini, target, router),
+            n
           )
-          .toSeq
-          .sorted
+        } yield {
+          s"$ini, $target, $router, $n, ${c.sourceFile}, ${c.line}\n"
+        }
+        toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()
         writer.close()
@@ -106,13 +113,16 @@ object RelationExporter {
         */
       def exportAllocationTable(): Unit = {
         val writer = getWriter(swAllocationExportName)
-        writer.write("Software, Initiator(s)\n")
-        platform.SWUseInitiator.edges
-          .map(p =>
-            s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
-          )
-          .toSeq
-          .sorted
+        writer.write("Software, Initiator(s), SourceCodeFile, SourceCodeLine\n")
+        val toWrite =
+          for {
+            (sw, initiators) <- platform.SWUseInitiator.edges
+            ini <- initiators
+            c <- platform.SWUseInitiator.getModificationsFor(sw, ini)
+          } yield {
+            s"$sw, $ini, ${c.sourceFile}, ${c.line}\n"
+          }
+        toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()
         writer.close()
@@ -123,9 +133,17 @@ object RelationExporter {
         */
       def exportDataAllocationTable(): Unit = {
         val writer = getWriter(dataAllocationExportName)
-        writer.write("Data, Target\n")
-        for (d <- Data.all.toSeq.sortBy(_.name.name))
-          writer.write(s"$d, ${d.hostingTargets.mkString(",")}\n")
+        writer.write("Data, Target, SourceCodeFile, SourceCodeLine\n")
+        val toWrite =
+          for {
+            d <- Data.all
+            t <- d.hostingTargets
+            c <- platform.DataUseTarget.getModificationsFor(d, t)
+          } yield {
+            s"$d, $t, ${c.sourceFile}, ${c.line}\n"
+          }
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
         writer.flush()
         writer.close()
       }
@@ -135,13 +153,18 @@ object RelationExporter {
         */
       def exportSWTargetUsageTable(): Unit = {
         val writer = getWriter(swTargetUsage)
-        writer.write("Software, Target Service(s)\n")
-        platform.SWUseService.edges
-          .map(p =>
-            s"${p._1}, ${p._2.toSeq.sortBy(_.name.name).mkString(", ")}\n"
-          )
-          .toSeq
-          .sorted
+        writer.write(
+          "Software, Target Service(s), SourceCodeFile, SourceCodeLine\n"
+        )
+        val toWrite =
+          for {
+            (sw, services) <- platform.SWUseService.edges
+            s <- services
+            c <- platform.SWUseService.getModificationsFor(sw, s)
+          } yield {
+            s"$sw, $s, ${c.sourceFile}, ${c.line}\n"
+          }
+        toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()
         writer.close()
@@ -229,10 +252,15 @@ object RelationExporter {
         */
       def exportUserTransactions(): Unit = {
         val writer = getWriter(transactionTable)
-        writer.write("Transaction Name, Transaction Path\n")
-        for {
-          (n, t) <- transactionByUserName.toSeq.sortBy(_.toString())
-        } yield writer.write(s"$n, ${transactionsByName(t).mkString("::")}\n")
+        writer.write(
+          "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
+        )
+        val toWrite = for {
+          tr <- Transaction.all
+          phyTr <- transactionByUserName.get(tr.userName)
+        } yield s"${tr.userName}, ${transactionsByName(phyTr).mkString("::")}, ${tr.sourceFile}, ${tr.line}\n"
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
         writer.flush()
         writer.close()
       }
@@ -242,9 +270,12 @@ object RelationExporter {
         */
       def exportUserScenarios(): Unit = {
         val writer = getWriter(scenarioTable)
-        writer.write("Scenario Name, Scenario Path\n")
-        for {
-          (n, s) <- scenarioByUserName.toSeq.sortBy(_._1.toString)
+        writer.write(
+          "Scenario Name, Scenario Path, SourceCodeFile, SourceCodeLine\n"
+        )
+        val toWrite = for {
+          sc <- Scenario.all
+          s <- scenarioByUserName.get(sc.userName)
           t = s
             .map(transactionsByName)
             .map(x =>
@@ -255,8 +286,9 @@ object RelationExporter {
             )
             .toSeq
             .sorted
-        }
-          writer.write(s"$n, ${t.mkString("+")}\n")
+        } yield s"${sc.userName}, ${t.mkString("+")}, ${sc.sourceFile}, ${sc.line}\n"
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
         writer.flush()
         writer.close()
       }

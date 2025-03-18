@@ -47,6 +47,16 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   val _inverse: MHashMap[R, MSet[L]] =
     _values.flatMap(p => p._2.map(b => b -> MSet(p._1)))
 
+  /**
+   * Get all modifications linked to a given edge
+   *
+   * @param l the left element
+   * @param r the right element
+   * @return all modification in order of execution
+   */
+  def getModificationsFor(l: L, r: R): Seq[Change[L, R]] =
+    modifications.filter(c => c.l == l && c.r == r).toSeq
+
   /** Provide the relation a map of edges
     *
     * @return
