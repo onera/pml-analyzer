@@ -28,7 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class Store private(val name: Symbol, line: Line, file: File) extends Service(line, file)
+final class Store private(val name: Symbol, line: Line, file: File)
+  extends Service(line, file)
 
 /** Builder of stores
   * @group builder
@@ -41,6 +42,9 @@ object Store extends BaseServiceBuilder[Store] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using line: Line, file: File): Store = new Store(name, line, file)
+  protected def builder(
+                         name: Symbol
+                       )(using givenLine: Line, givenFile: File): Store =
+    new Store(name, givenLine, givenFile)
 
 }

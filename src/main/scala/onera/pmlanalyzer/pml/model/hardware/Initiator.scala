@@ -28,7 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group initiator_class
   */
-final class Initiator private(val name: Symbol, line: Line, file: File) extends Hardware(line, file)
+final class Initiator private(val name: Symbol, line: Line, file: File)
+  extends Hardware(line, file)
 
 /** Builder of initiators
   * @group builder
@@ -41,6 +42,7 @@ object Initiator extends BaseHardwareNodeBuilder[Initiator] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using line: Line, file: File): Initiator = new Initiator(name, line, file)
+  protected def builder(name: Symbol)(using line: Line, file: File): Initiator =
+    new Initiator(name, line, file)
 
 }

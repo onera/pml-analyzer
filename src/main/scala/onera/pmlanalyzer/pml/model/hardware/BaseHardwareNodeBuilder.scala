@@ -84,19 +84,20 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   this method is implemented by concrete members (e.g.
     *   [[SimpleTransporter]], no further extension should be provided
     */
-  protected def builder(name: Symbol)(implicit line: Line, file: File): T
+  protected def builder(name: Symbol)(using line: Line, file: File): T
 
   /** A physical component can be defined only with the basic services it
     * provides The name will be retrieved by using the implicit declaration
     * context (the name of the value enclosing the object)
-    * @example
+   *
+   * @example
     *   {{{val mySimpleTransporter = SimpleTransporter()}}}
     * @param basics
     *   the set of basic services provided, if empty a default store and load
     *   services are added
     * @param withDefaultServices
     *   add default Load/Store services on creation
-    * @param implicitName
+   * @param givenName
     *   implicitly retrieved name from the declaration context
     * @param p
     *   implicitly retrieved relation linking components to their provided
@@ -111,13 +112,13 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       basics: Set[Service] = Set.empty,
       withDefaultServices: Boolean = true
            )(using
-      implicitName: Name,
+             givenName: Name,
       p: ProvideRelation[Hardware, Service],
              owner: Owner,
-             line: Line,
-             file: File
+             givenLine: Line,
+             givenFile: File
   ): T =
-    apply(Symbol(implicitName.value), basics, withDefaultServices)
+    apply(Symbol(givenName.value), basics, withDefaultServices)
 
   /** A physical component can be defined by its name and the basic services it
     * provides A transporter is only defined by its name, so if the transporter

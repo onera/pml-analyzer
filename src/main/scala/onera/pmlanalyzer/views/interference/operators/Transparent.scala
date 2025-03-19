@@ -38,7 +38,11 @@ object Transparent {
         * @param ev
         *   proof that T can be discarded
         */
-      def isTransparent(using ev: Transparent[T], line: Line, file: File): Unit = ev(x)
+      def isTransparent(using
+                        ev: Transparent[T],
+                        line: Line,
+                        file: File
+                       ): Unit = ev(x)
     }
   }
 
@@ -50,14 +54,18 @@ object Transparent {
       transformation: Transform[U, Option[PhysicalTransactionId]],
       ev: Transparent[PhysicalTransactionId]
   ): Transparent[U] with {
-    def apply(x: U)(using line: Line, file: File): Unit = for {id <- transformation(x)} ev(id)
+    def apply(x: U)(using line: Line, file: File): Unit = for {
+      id <- transformation(x)
+    } ev(id)
   }
 
   given [V](using
       transformation: Transform[V, Set[PhysicalTransactionId]],
       ev: Transparent[PhysicalTransactionId]
   ): Transparent[V] with {
-    def apply(x: V)(using line: Line, file: File): Unit = for {id <- transformation(x)} ev(id)
+    def apply(x: V)(using line: Line, file: File): Unit = for {
+      id <- transformation(x)
+    } ev(id)
   }
 
 }

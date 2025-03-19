@@ -28,7 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class ArtificialService private(val name: Symbol, line: Line, file: File) extends Service(line, file)
+final class ArtificialService private(val name: Symbol, line: Line, file: File)
+  extends Service(line, file)
 
 /** Builder of artificial services
   * @group builder
@@ -41,7 +42,9 @@ object ArtificialService extends BaseServiceBuilder[ArtificialService] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using line: Line, file: File): ArtificialService =
-    new ArtificialService(name, line, file)
+  protected def builder(
+                         name: Symbol
+                       )(using givenLine: Line, givenFile: File): ArtificialService =
+    new ArtificialService(name, givenLine, givenFile)
 
 }

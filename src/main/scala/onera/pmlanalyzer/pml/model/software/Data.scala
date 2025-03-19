@@ -29,7 +29,8 @@ import sourcecode.{File, Line, Name}
   *   the name of the data
   * @group software_class
   */
-final class Data private(val name: Symbol, line: Line, file: File) extends PMLNode(line, file) {
+final class Data private(val name: Symbol, line: Line, file: File)
+  extends PMLNode(line, file) {
 
   override def toString: String = name.name
 }

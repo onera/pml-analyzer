@@ -18,7 +18,12 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Target, Transporter}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Hardware,
+  Initiator,
+  Target,
+  Transporter
+}
 import onera.pmlanalyzer.pml.model.relations.LinkRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import sourcecode.{File, Line}
@@ -100,7 +105,9 @@ object Link {
         * @tparam R
         *   the type of the other object
         */
-      def link[R](b: R)(using linkable: Link[L, R], line: Line, file: File): Unit =
+      def link[R](
+                   b: R
+                 )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.link(self, b)
 
       /** PML keyword to unlink two objects
@@ -112,7 +119,9 @@ object Link {
         * @tparam R
         *   the type of the other object
         */
-      def unlink[R](b: R)(using linkable: Link[L, R], line: Line, file: File): Unit =
+      def unlink[R](
+                     b: R
+                   )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.unlink(self, b)
 
     }
@@ -133,9 +142,11 @@ object Link {
       canLink: ServiceLink[LS, RS],
       l: LinkRelation[Service]
   ): Link[LS, RS] with {
-    def link(a: LS, b: RS)(using line: Line, file: File): Unit = l.add(canLink(a), canLink(b))
+    def link(a: LS, b: RS)(using line: Line, file: File): Unit =
+      l.add(canLink(a), canLink(b))
 
-    def unlink(a: LS, b: RS)(using line: Line, file: File): Unit = l.remove(canLink(a), canLink(b))
+    def unlink(a: LS, b: RS)(using line: Line, file: File): Unit =
+      l.remove(canLink(a), canLink(b))
   }
 
   /** A linking implementation can be provided for all physical component

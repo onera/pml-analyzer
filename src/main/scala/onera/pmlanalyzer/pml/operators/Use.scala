@@ -66,12 +66,16 @@ object Use {
       */
     extension [L <: Application | Initiator](self: L) {
 
-      private def use[B](b: B)(using ev: Use[L, B], line: Line, file: File): (L, B) = {
+      private def use[B](
+                          b: B
+                        )(using ev: Use[L, B], line: Line, file: File): (L, B) = {
         ev(self, b)
         self -> b
       }
 
-      private def use[B](b: Set[B])(using ev: Use[L, B], line: Line, file: File): Set[(L, B)] =
+      private def use[B](
+                          b: Set[B]
+                        )(using ev: Use[L, B], line: Line, file: File): Set[(L, B)] =
         b.map(x => use(x))
 
       /** The PML keyword specify that self reads something
@@ -89,7 +93,12 @@ object Use {
         */
       def read[B](
           b: B
-                 )(using p: Provided[B, Load], ev: Use[L, Load], line: Line, file: File): Set[(L, Load)] = use(
+                 )(using
+                   p: Provided[B, Load],
+                   ev: Use[L, Load],
+                   line: Line,
+                   file: File
+                 ): Set[(L, Load)] = use(
         b.loads
       )
 
@@ -102,7 +111,9 @@ object Use {
         * @return
         *   the link
         */
-      def read(b: Set[Service])(using ev: Use[L, Load], line: Line, file: File): Set[(L, Load)] = use(
+      def read(
+                b: Set[Service]
+              )(using ev: Use[L, Load], line: Line, file: File): Set[(L, Load)] = use(
         b.collect { case l: Load => l }
       )
 
@@ -121,7 +132,12 @@ object Use {
         */
       def read[B](
           b: Set[B]
-                 )(using p: Provided[B, Load], ev: Use[L, Load], line: Line, file: File): Set[(L, Load)] = use(
+                 )(using
+                   p: Provided[B, Load],
+                   ev: Use[L, Load],
+                   line: Line,
+                   file: File
+                 ): Set[(L, Load)] = use(
         b.loads
       )
 
@@ -140,7 +156,12 @@ object Use {
         */
       def write[B](
           b: B
-                  )(using p: Provided[B, Store], ev: Use[L, Store], line: Line, file: File): Set[(L, Store)] = use(
+                  )(using
+                    p: Provided[B, Store],
+                    ev: Use[L, Store],
+                    line: Line,
+                    file: File
+                  ): Set[(L, Store)] = use(
         b.stores
       )
 
@@ -153,7 +174,9 @@ object Use {
         * @return
         *   the link
         */
-      def write(b: Set[Service])(using ev: Use[L, Store], line: Line, file: File): Set[(L, Store)] =
+      def write(
+                 b: Set[Service]
+               )(using ev: Use[L, Store], line: Line, file: File): Set[(L, Store)] =
         use(b.collect { case l: Store => l })
     }
 
@@ -189,7 +212,9 @@ object Use {
         * @return
         *   the link
         */
-      def hostedBy(b: Target)(using ev: Use[Data, Target], line: Line, file: File): (Data, Target) = {
+      def hostedBy(
+                    b: Target
+                  )(using ev: Use[Data, Target], line: Line, file: File): (Data, Target) = {
         ev(self, b)
         self -> b
       }

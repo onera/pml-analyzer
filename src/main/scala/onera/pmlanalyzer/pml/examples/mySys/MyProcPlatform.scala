@@ -42,22 +42,31 @@ import sourcecode.{File, Line, Name}
   * of the ARM0.core to the ones of the axi-bus Beware that all links are not
   * possible, for instance you cannot link two [[pml.model.hardware.Target]] or
   * a [[pml.model.hardware.Composite]] to another component.
-  * @see
+ *
+ * @see
   *   [[pml.operators.Link.Ops]] for link operator definition
   * @see
   *   [[pml.model.hardware.BaseHardwareNodeBuilder]] for component instantiation
-  * @param name
-  *   the name of the final object merging all facets of the model
-  */
-class MyProcPlatform(name: Symbol, line: Line, file: File) extends Platform(name, line, file) {
+ * @note
+ * The [[file]] and [[line]] enable source code traceability for PML Nodes.
+ * Note that these parameters are not explicitly provided by the used thanks to an alternative constructor for [[MyProcPlatform]]
+ * where the name, line and file are derived implicitly (using keyword in the alternative constructor).
+ * In this case we chose to remove access from the default constructor (private keyword)
+ * @param name the name of the platform name of the final object merging all facets of the model
+ * @param line the line where an instance of the this class will be defined
+ * @param file the file in which an instance of this class will be defined
+ */
+class MyProcPlatform private(name: Symbol, line: Line, file: File)
+  extends Platform(name, line, file) {
 
   /** Enable to provide the name implicitly
-    * @param implicitName
-    *   the name of the object/class inheriting from this class will be the name
-    *   of platform
-    */
-  def this()(implicit implicitName: Name, givenLine: Line, givenFile: File) = {
-    this(Symbol(implicitName.value), givenLine, givenFile)
+   *
+   * @param givenName the name of the platform derived by sourcecode package
+   * @param givenLine the line of the platform instantiation derived by sourcecode package
+   * @param givenFile the file of the platform instantiation derived by sourcecode package
+   */
+  def this()(using givenName: Name, givenLine: Line, givenFile: File) = {
+    this(Symbol(givenName.value), givenLine, givenFile)
   }
 
   /** Initiator modelling the DMA
@@ -108,15 +117,25 @@ class MyProcPlatform(name: Symbol, line: Line, file: File) extends Platform(name
   }
 
   /** Composite representing Keystone ARM cores and their internal L1 cache
-    * @group composite_def
-    */
-  class ARMCore(armName: Symbol, armLine: Line, armFile: File) extends Composite(armName, armLine: Line, armFile: File) {
+   *
+   * @group composite_def
+   * @note
+   * The [[armLine]] and [[armFile]] enable source code traceability for PML Nodes.
+   * Note that these parameters are not explicitly provided by the used thanks to an alternative constructor for [[ARMCore]]
+   * where the name, line and file are derived implicitly (using keyword in the alternative constructor).
+   * In this case we chose to remove access from the default constructor (private keyword)
+   * @param armName the name of the ARMCore instance of the this class
+   * @param armLine the line where an instance of the this class will be defined
+   * @param armFile the file in which an instance of this class will be defined
+   */
+  class ARMCore private(armName: Symbol, armLine: Line, armFile: File)
+    extends Composite(armName, armLine: Line, armFile: File) {
 
     /** Enable to provide the name implicitly
      *
-     * @param givenName
-      *   the name of the object/class inheriting from this class will be the
-      *   name of composite
+     * @param givenName the name of the composite derived by sourcecode package
+     * @param givenLine the line of the composite instantiation derived by sourcecode package
+     * @param givenFile the file of the composite instantiation derived by sourcecode package
      */
     def this()(implicit givenName: Name, givenLine: Line, givenFile: File) = {
       this(givenName.value, givenLine, givenFile)
