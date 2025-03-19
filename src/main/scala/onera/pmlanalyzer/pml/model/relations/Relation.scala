@@ -37,7 +37,8 @@ import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
   */
 abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 
-  private val modifications: mutable.ArrayBuffer[Change[L, R]] = mutable.ArrayBuffer.empty
+  private val modifications: mutable.ArrayBuffer[Change[L, R]] =
+    mutable.ArrayBuffer.empty
 
   val name: String = n.value
 
@@ -114,7 +115,8 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param b
     *   the removed elements
     */
-  def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit = b.foreach(remove(a, _))
+  def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
+    b.foreach(remove(a, _))
 
   /** Remove a from the relation WARNING: this is different from removing all
     * elements in relation with a
@@ -122,7 +124,8 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param a
     *   the input element
     */
-  def remove(a: L)(using line: Line, file: File): Unit = apply(a).foreach(remove(a, _))
+  def remove(a: L)(using line: Line, file: File): Unit =
+    apply(a).foreach(remove(a, _))
 
   /** Provide the elements in relation with a WARNING the function returns an
     * empty set either if a is not in the relation or if no elements are
@@ -171,17 +174,29 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 
 object Relation {
 
-  final case class Change[L, R](l: L, r: R, isAdd: Boolean, line: Line, file: File)(using name: Name) extends SourceCodeTraceable {
+  final case class Change[L, R](
+                                 l: L,
+                                 r: R,
+                                 isAdd: Boolean,
+                                 line: Line,
+                                 file: File
+                               )(using name: Name)
+    extends SourceCodeTraceable {
+
     /**
      * Line in source code where node has been instantiated
      */
     val lineInFile: Int = line.value
+
     /**
      * Source file in which node has been instantiated
      */
-    val sourceFile: String = file.value.split('.').init.mkString(java.io.File.separator)
+    val sourceFile: String =
+      file.value.split('.').init.mkString(java.io.File.separator)
 
-    override def toString: String = s"$sourceFile:$lineInFile ${if (isAdd) "adding" else "removing"} $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
+    override def toString: String = s"$sourceFile:$lineInFile ${
+      if (isAdd) "adding" else "removing"
+    } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
   }
 
   /** Trait gathering all relation instances

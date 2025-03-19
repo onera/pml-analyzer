@@ -25,7 +25,12 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Owner
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{Enclosing, File, Line}
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenario, PhysicalScenarioId, PhysicalTransaction, PhysicalTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalScenario,
+  PhysicalScenarioId,
+  PhysicalTransaction,
+  PhysicalTransactionId
+}
 
 import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
@@ -45,7 +50,10 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
   extends PMLNode(line, file)
     with Relation.Instances {
 
-  def this(n: Symbol, dummy: Int = 0)(using givenLine: Line, givenFile: File) = {
+  def this(n: Symbol, dummy: Int = 0)(using
+                                      givenLine: Line,
+                                      givenFile: File
+  ) = {
     this(n, givenLine, givenFile)
   }
 

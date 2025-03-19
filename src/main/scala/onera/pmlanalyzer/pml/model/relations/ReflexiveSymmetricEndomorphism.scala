@@ -31,7 +31,9 @@ abstract class ReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(
     super.add(b, b)
   }
 
-  override def remove(a: A, b: A)(using line: Line, file: File): Unit = if (a != b) {
+  override def remove(a: A, b: A)(using line: Line, file: File): Unit = if (
+    a != b
+  ) {
     super.remove(a, b)
     super.remove(b, a)
   } else println(Message.errorReflexivityViolation(a, name))

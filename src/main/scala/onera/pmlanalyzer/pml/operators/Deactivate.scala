@@ -19,7 +19,11 @@
 package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator}
-import onera.pmlanalyzer.pml.model.relations.{LinkRelation, ProvideRelation, UseRelation}
+import onera.pmlanalyzer.pml.model.relations.{
+  LinkRelation,
+  ProvideRelation,
+  UseRelation
+}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import sourcecode.{File, Line}

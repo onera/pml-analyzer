@@ -27,7 +27,10 @@ import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalTransaction, PhysicalTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalTransaction,
+  PhysicalTransactionId
+}
 
 import scala.reflect.ClassTag
 
@@ -140,7 +143,8 @@ trait TransactionLibrary {
     * @param name
     *   the name of the transaction or scenario
     */
-  sealed abstract class ScenarioLike(val name: Symbol, line: Line, file: File) extends PMLNode(line, file) {
+  sealed abstract class ScenarioLike(val name: Symbol, line: Line, file: File)
+    extends PMLNode(line, file) {
     val iniTgt: () => Set[(Service, Service)]
     val sw: () => Set[Application]
   }
@@ -160,14 +164,16 @@ trait TransactionLibrary {
       val iniTgt: () => Set[(Service, Service)],
       val sw: () => Set[Application],
       line: Line,
-      file: File) extends ScenarioLike(userName.id, line, file) {
+      file: File
+                                  ) extends ScenarioLike(userName.id, line, file) {
 
     /** Consider the transaction for the analysis
       *
       * @return
       *   the used transaction
       */
-    def used(using givenLine: Line, givenFile: File): UsedTransaction = UsedTransaction(userName, iniTgt(), sw())
+    def used(using givenLine: Line, givenFile: File): UsedTransaction =
+      UsedTransaction(userName, iniTgt(), sw())
 
     override def toString: String = s"$userName"
   }
@@ -235,7 +241,10 @@ trait TransactionLibrary {
       * @return
       *   the transaction (not used for now)
       */
-    def apply[A: AsTransaction](name: String, iniTgt: => A)(using line: Line, file: File): Transaction = {
+    def apply[A: AsTransaction](name: String, iniTgt: => A)(using
+                                                            line: Line,
+                                                            file: File
+    ): Transaction = {
       val result = TransactionParam(iniTgt)
       apply(UserTransactionId(name), result._1, result._2)
     }
@@ -250,7 +259,9 @@ trait TransactionLibrary {
       * @return
       *   the transaction (not used for now)
       */
-    def apply(from: Transaction)(using name: Name, line: Line, file: File): Transaction =
+    def apply(
+               from: Transaction
+             )(using name: Name, line: Line, file: File): Transaction =
       apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
   }
 
@@ -269,14 +280,16 @@ trait TransactionLibrary {
       val iniTgt: () => Set[(Service, Service)],
       val sw: () => Set[Application],
       line: Line,
-      file: File) extends ScenarioLike(userName.id, line, file) {
+      file: File
+                               ) extends ScenarioLike(userName.id, line, file) {
 
     /** Consider the transaction for the analysis
       *
       * @return
       *   the used scenario class
       */
-    def used(using givenLine: Line, givenFile: File): UsedScenario = UsedScenario(userName, iniTgt(), sw())
+    def used(using givenLine: Line, givenFile: File): UsedScenario =
+      UsedScenario(userName, iniTgt(), sw())
   }
 
   /** Builder of platform [[Scenario]]
@@ -302,7 +315,8 @@ trait TransactionLibrary {
         name: Name,
         ta: AsTransaction[Set[A]],
                                                             tb: AsTransaction[Set[B]],
-                                                            line: Line, file: File
+                                                            line: Line,
+                                                            file: File
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
@@ -325,7 +339,9 @@ trait TransactionLibrary {
       * @return
       *   the resulting scenario
       */
-    def apply(tr: ScenarioLike)(using name: Name, line: Line, file: File): Scenario =
+    def apply(
+               tr: ScenarioLike
+             )(using name: Name, line: Line, file: File): Scenario =
       apply(UserScenarioId(Symbol(name.value)), tr.iniTgt, tr.sw)
 
     /** Build a Scenario from a bunch of transactions, this should not be used
@@ -339,7 +355,9 @@ trait TransactionLibrary {
       * @return
       *   a scenario
       */
-    def apply(tr: Transaction*)(using name: Name, line: Line, file: File): Scenario =
+    def apply(
+               tr: Transaction*
+             )(using name: Name, line: Line, file: File): Scenario =
       apply(
         UserScenarioId(Symbol(name.value)),
         () => {
@@ -370,7 +388,10 @@ trait TransactionLibrary {
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
              )(using owner: Owner, line: Line, file: File): Scenario = {
-      _memo.getOrElseUpdate((owner.s, name.id), new Scenario(name, iniTgt, sw, line, file))
+      _memo.getOrElseUpdate(
+        (owner.s, name.id),
+        new Scenario(name, iniTgt, sw, line, file)
+      )
     }
   }
 
@@ -388,7 +409,8 @@ trait TransactionLibrary {
       iniTgt: Set[(Service, Service)],
       val sw: Set[Application],
       line: Line,
-      file: File) extends PMLNode(line, file) {
+      file: File
+                                   ) extends PMLNode(line, file) {
 
     val name: Symbol = userName.id
 
@@ -459,7 +481,8 @@ trait TransactionLibrary {
       iniTgt: Iterable[(Service, Service)],
       val sw: Set[Application],
       line: Line,
-      file: File) extends PMLNode(line, file) {
+      file: File
+                                      ) extends PMLNode(line, file) {
 
     val name: Symbol = userName.id
 
