@@ -145,13 +145,13 @@ object Interfere {
                             ev: Interfere[PhysicalTransactionId, Service],
                             p: Provided[RH, Service]
                            ): Interfere[L, RH] with {
-    def interfereWith(l: L, r: RH): Unit =
+    def interfereWith(l: L, r: RH)(using line: Line, file: File): Unit =
       for {id <- transformation(l)
            s <- r.services
            }
         ev.interfereWith(id, s)
 
-    def notInterfereWith(l: L, r: RH): Unit =
+    def notInterfereWith(l: L, r: RH)(using line: Line, file: File): Unit =
       for {id <- transformation(l)
            s <- r.services
            }
