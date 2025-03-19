@@ -17,13 +17,19 @@
 
 package onera.pmlanalyzer.pml.model
 
-import sourcecode.Enclosing
+import sourcecode.{Enclosing, File, Line}
 
 import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(implicit enclosing: Enclosing) {
+abstract class PMLNode(line: Line, file: File)(using _enclosing: Enclosing)
+    extends SourceCodeTraceable {
+
+  val lineInFile: Int = line.value
+
+  val sourceFile: String =
+    file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Name of the node
     *
@@ -36,7 +42,7 @@ abstract class PMLNode(implicit enclosing: Enclosing) {
     * @group identifier
     */
   final val typeName: Symbol = Symbol(
-    enclosing.value.split(' ').head.split('.').last
+    _enclosing.value.split(' ').head.split('.').last
   )
 
   /** Print a node only by its [[name]]

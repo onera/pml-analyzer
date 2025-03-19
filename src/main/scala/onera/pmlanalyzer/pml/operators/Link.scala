@@ -25,6 +25,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
 }
 import onera.pmlanalyzer.pml.model.relations.LinkRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
+import sourcecode.{File, Line}
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -36,8 +37,9 @@ import scala.reflect.{ClassTag, classTag}
   *   the right type
   */
 trait Link[L, R] {
-  def link(a: L, b: R): Unit
-  def unlink(a: L, b: R): Unit
+  def link(a: L, b: R)(using line: Line, file: File): Unit
+
+  def unlink(a: L, b: R)(using line: Line, file: File): Unit
 }
 
 /** Extension methods and inferences rules of high priority
@@ -102,7 +104,9 @@ object Link {
         * @tparam R
         *   the type of the other object
         */
-      def link[R](b: R)(using linkable: Link[L, R]): Unit =
+      def link[R](
+          b: R
+      )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.link(self, b)
 
       /** PML keyword to unlink two objects
@@ -114,7 +118,9 @@ object Link {
         * @tparam R
         *   the type of the other object
         */
-      def unlink[R](b: R)(using linkable: Link[L, R]): Unit =
+      def unlink[R](
+          b: R
+      )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.unlink(self, b)
 
     }
@@ -135,8 +141,11 @@ object Link {
       canLink: ServiceLink[LS, RS],
       l: LinkRelation[Service]
   ): Link[LS, RS] with {
-    def link(a: LS, b: RS): Unit = l.add(canLink(a), canLink(b))
-    def unlink(a: LS, b: RS): Unit = l.remove(canLink(a), canLink(b))
+    def link(a: LS, b: RS)(using line: Line, file: File): Unit =
+      l.add(canLink(a), canLink(b))
+
+    def unlink(a: LS, b: RS)(using line: Line, file: File): Unit =
+      l.remove(canLink(a), canLink(b))
   }
 
   /** A linking implementation can be provided for all physical component
@@ -154,7 +163,7 @@ object Link {
       pBS: Provided[RH, Store],
       pBL: Provided[RH, Load]
   ): Link[LH, RH] with {
-    def link(a: LH, b: RH): Unit = {
+    def link(a: LH, b: RH)(using line: Line, file: File): Unit = {
       mAB.add(canLink(a), canLink(b))
       a.loads foreach { l =>
         b.loads.foreach {
@@ -168,7 +177,7 @@ object Link {
       }
     }
 
-    def unlink(a: LH, b: RH): Unit = {
+    def unlink(a: LH, b: RH)(using line: Line, file: File): Unit = {
       mAB.remove(canLink(a), canLink(b))
       a.loads foreach { l =>
         b.loads.foreach {

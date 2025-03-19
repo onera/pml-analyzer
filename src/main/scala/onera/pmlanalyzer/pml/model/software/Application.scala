@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.PMLNode
+import sourcecode.{File, Line}
 
 /** Class for the application executed on initiators
   * @see
@@ -26,7 +27,8 @@ import onera.pmlanalyzer.pml.model.PMLNode
   *   the name of the node
   * @group software_class
   */
-final class Application(val name: Symbol) extends PMLNode
+final class Application(val name: Symbol, line: Line, file: File)
+    extends PMLNode(line, file)
 
 /** Builder of [[Application]]
   * @group builder
@@ -39,6 +41,9 @@ object Application extends BaseSoftwareNodeBuilder[Application] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): Application = new Application(name)
+  protected def builder(
+      name: Symbol
+  )(using givenLine: Line, givenFile: File): Application =
+    new Application(name, givenLine, givenFile)
 
 }

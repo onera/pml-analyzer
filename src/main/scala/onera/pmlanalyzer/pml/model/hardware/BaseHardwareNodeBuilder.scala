@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
   * implicitly derived from the name of the variable used during instantiation.
@@ -83,19 +83,20 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   this method is implemented by concrete members (e.g.
     *   [[SimpleTransporter]], no further extension should be provided
     */
-  protected def builder(name: Symbol): T
+  protected def builder(name: Symbol)(using line: Line, file: File): T
 
   /** A physical component can be defined only with the basic services it
     * provides The name will be retrieved by using the implicit declaration
     * context (the name of the value enclosing the object)
-    * @example
+   *
+   * @example
     *   {{{val mySimpleTransporter = SimpleTransporter()}}}
     * @param basics
     *   the set of basic services provided, if empty a default store and load
     *   services are added
     * @param withDefaultServices
     *   add default Load/Store services on creation
-    * @param implicitName
+   * @param givenName
     *   implicitly retrieved name from the declaration context
     * @param p
     *   implicitly retrieved relation linking components to their provided
@@ -109,12 +110,14 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   def apply(
       basics: Set[Service] = Set.empty,
       withDefaultServices: Boolean = true
-  )(implicit
-      implicitName: Name,
+  )(using
+      givenName: Name,
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+      owner: Owner,
+      givenLine: Line,
+      givenFile: File
   ): T =
-    apply(Symbol(implicitName.value), basics, withDefaultServices)
+    apply(Symbol(givenName.value), basics, withDefaultServices)
 
   /** A physical component can be defined by its name and the basic services it
     * provides A transporter is only defined by its name, so if the transporter
@@ -140,7 +143,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol,
       basics: Set[Service],
       withDefaultServices: Boolean
-  )(implicit p: ProvideRelation[Hardware, Service], owner: Owner): T = {
+  )(using
+      p: ProvideRelation[Hardware, Service],
+      owner: Owner,
+      line: Line,
+      file: File
+  ): T = {
     val formattedName = formatName(name, owner)
     val result =
       _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
@@ -170,9 +178,11 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   the physical component
     * @group publicConstructor
     */
-  def apply(name: Symbol, basics: Set[Service])(implicit
+  def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+      owner: Owner,
+      line: Line,
+      file: File
   ): T = {
     apply(name, basics, true)
   }
@@ -192,7 +202,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(implicit p: ProvideRelation[Hardware, Service], owner: Owner): T =
+  )(using
+      p: ProvideRelation[Hardware, Service],
+      owner: Owner,
+      line: Line,
+      file: File
+  ): T =
     apply(name, Set.empty, true)
 
   /** A physical component can be defined only its name, the services will be
@@ -211,9 +226,11 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     * @return
     *   the physical component
     */
-  def apply(name: Symbol, withDefaultServices: Boolean)(implicit
+  def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner
+      owner: Owner,
+      line: Line,
+      file: File
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }

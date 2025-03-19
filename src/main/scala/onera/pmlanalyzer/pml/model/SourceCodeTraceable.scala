@@ -15,35 +15,19 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.service
+package onera.pmlanalyzer.pml.model
 
 import sourcecode.{File, Line}
 
-/** Base class for store services
- *
- * @see
-  *   the possible constructors are provided by [[BaseServiceBuilder]]
-  * @param name
-  *   the name of the node
-  * @group service_class
-  */
-final class Store private (val name: Symbol, line: Line, file: File)
-    extends Service(line, file)
+trait SourceCodeTraceable {
 
-/** Builder of stores
-  * @group builder
-  */
-object Store extends BaseServiceBuilder[Store] {
+  /**
+   * Line in source code where node has been instantiated
+   */
+  val lineInFile: Int
 
-  /** Direct builder from name
-    * @param name
-    *   the name of the object
-    * @return
-    *   the object
-    */
-  protected def builder(
-      name: Symbol
-  )(using givenLine: Line, givenFile: File): Store =
-    new Store(name, givenLine, givenFile)
-
+  /**
+   * Source file in which node has been instantiated
+   */
+  val sourceFile: String
 }

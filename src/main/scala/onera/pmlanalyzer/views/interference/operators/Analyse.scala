@@ -922,7 +922,7 @@ object Analyse {
     ): Unit =
       writer write
         s"""Platform Name: ${platform.name.name}
-           |File:  ${platform.sourceFile.value}
+           |File:  ${platform.sourceFile}
            |Date: ${java.time.LocalDateTime.now()}
            |------------------------------------------
            |""".stripMargin

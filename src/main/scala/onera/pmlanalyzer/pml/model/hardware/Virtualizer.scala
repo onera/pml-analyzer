@@ -17,14 +17,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import sourcecode.{File, Line}
+
 /** A virtualizer is able to control the incoming transactions
-  * @group transporter_class
+ *
+ * @group transporter_class
   * @see
   *   the possible constructors are provided by [[BaseHardwareNodeBuilder]]
   * @param name
   *   the name of the node
   */
-final class Virtualizer private (val name: Symbol) extends Transporter
+final class Virtualizer private (val name: Symbol, line: Line, file: File)
+    extends Transporter(line, file)
 
 /** Builder of targets
   * @group builder
@@ -37,6 +41,9 @@ object Virtualizer extends BaseHardwareNodeBuilder[Virtualizer] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): Virtualizer = new Virtualizer(name)
+  protected def builder(
+      name: Symbol
+  )(using line: Line, file: File): Virtualizer =
+    new Virtualizer(name, line, file)
 
 }

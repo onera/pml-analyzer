@@ -109,9 +109,9 @@ object Message {
     "[WARNING] The paths computed on the graph may be incorrect since the graph is cyclic"
 
   inline def cycleWarning(
-                           path: Seq[Any],
-                           ini: Any,
-                           tgt: Any
+      path: Seq[Any],
+      ini: Any,
+      tgt: Any
   ): String =
     s"""[WARNING] A cycle have been found from initiator $ini to reach $tgt in the following path:
        |${path.mkString("[WARNING] ", "\n[WARNING] -> ", "")}""".stripMargin

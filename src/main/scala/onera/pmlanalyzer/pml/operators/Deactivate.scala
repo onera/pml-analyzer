@@ -25,6 +25,7 @@ import onera.pmlanalyzer.pml.model.relations.{
 }
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
+import sourcecode.{File, Line}
 
 /** Base trait for deactivation operations
   *
@@ -32,7 +33,7 @@ import onera.pmlanalyzer.pml.model.software.Application
   *   the type of the deactivatable component
   */
 trait Deactivate[-T] {
-  def apply(a: T): Unit
+  def apply(a: T)(using line: Line, file: File): Unit
 }
 
 /** Extension methods and inferences rules
@@ -60,7 +61,7 @@ object Deactivate {
 
   trait Ops {
     extension [T: Deactivate](a: T) {
-      def deactivated: Unit = Deactivate[T](a)
+      def deactivated(using line: Line, file: File): Unit = Deactivate[T](a)
     }
   }
 
@@ -77,7 +78,7 @@ object Deactivate {
       uSL: UseRelation[Application, Service],
       uAS: UseRelation[Application, Initiator]
   ): Deactivate[Application] with {
-    def apply(a: Application): Unit = {
+    def apply(a: Application)(using line: Line, file: File): Unit = {
       uSL.remove(a)
       uAS.remove(a)
     }
@@ -93,7 +94,7 @@ object Deactivate {
       p: ProvideRelation[Hardware, Service],
       u: UseRelation[Application, Service]
   ): Deactivate[Hardware] with {
-    def apply(a: Hardware): Unit = {
+    def apply(a: Hardware)(using line: Line, file: File): Unit = {
       p(a) foreach { s =>
         {
           l.remove(s)

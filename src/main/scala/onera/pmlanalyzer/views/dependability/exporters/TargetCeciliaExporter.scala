@@ -106,14 +106,12 @@ trait TargetCeciliaExporter {
               .distinct
               .sorted
               .mkString("\n")}
-           |${
-            obsSub.values
+           |${obsSub.values
               .flatMap(_._2)
               .toList
               .distinct
               .sorted
-              .mkString("\n")
-          }
+              .mkString("\n")}
            |
            |// observator of store states according to component state
            |${obsSub
@@ -177,14 +175,12 @@ trait TargetCeciliaExporter {
           Nil,
           s"""assert
            |// subcomponent assertions
-           |${
-            obsSub.values
+           |${obsSub.values
               .flatMap(_._2)
               .toList
               .distinct
               .sorted
-              .mkString("\n")
-          }
+              .mkString("\n")}
            |
            |// resulting store assertions
            |${obsSub

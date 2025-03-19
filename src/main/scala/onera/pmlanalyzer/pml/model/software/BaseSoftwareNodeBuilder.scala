@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
   * implicitly derived from the name of the variable used during instantiation.
@@ -49,7 +49,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): T
+  protected def builder(name: Symbol)(using givenLine: Line, givenFile: File): T
 
   /** A software component can be defined only its name
     *
@@ -60,19 +60,26 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     * @return
     *   the software
     */
-  def apply(name: Symbol)(implicit owner: Owner): T =
+  def apply(
+      name: Symbol
+  )(using owner: Owner, givenLine: Line, givenFile: File): T =
     _memo.getOrElseUpdate((owner.s, name), builder(name))
 
   /** A software component can be defined by the name provided by the implicit
     * declaration context (the name of the value enclosing the object)
     *
-    * @param name
+   * @param givenName
     *   the implicit software name
     * @param owner
     *   implicitly retrieved name of the platform
     * @return
     *   the software
     */
-  def apply()(implicit name: Name, owner: Owner): T =
-    apply(Symbol(name.value))
+  def apply()(using
+      givenName: Name,
+      owner: Owner,
+      givenLine: Line,
+      givenFile: File
+  ): T =
+    apply(Symbol(givenName.value))
 }

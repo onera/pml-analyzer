@@ -17,9 +17,12 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import sourcecode.Name
+import onera.pmlanalyzer.pml.model.SourceCodeTraceable
+import onera.pmlanalyzer.pml.model.relations.Relation.Change
+import sourcecode.{File, Line, Name}
 
-import scala.collection.mutable.{HashMap as MHashMap, Set as MSet}
+import scala.collection.mutable
+import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
 
 /** Relation between two finite sets Warning each one of the set contains the
   * empty set value thus R(a) = \emptyset not imply that a \notin R
@@ -33,6 +36,9 @@ import scala.collection.mutable.{HashMap as MHashMap, Set as MSet}
   */
 abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 
+  private val modifications: mutable.ArrayBuffer[Change[L, R]] =
+    mutable.ArrayBuffer.empty
+
   val name: String = n.value
 
   val _values: MHashMap[L, MSet[R]] = MHashMap(
@@ -40,6 +46,16 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   )
   val _inverse: MHashMap[R, MSet[L]] =
     _values.flatMap(p => p._2.map(b => b -> MSet(p._1)))
+
+  /**
+   * Get all modifications linked to a given edge
+   *
+   * @param l the left element
+   * @param r the right element
+   * @return all modification in order of execution
+   */
+  def getModificationsFor(l: L, r: R): Seq[Change[L, R]] =
+    modifications.filter(c => c.l == l && c.r == r).toSeq
 
   /** Provide the relation a map of edges
     *
@@ -57,9 +73,10 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param b
     *   the new element
     */
-  def add(a: L, b: R): Unit = {
+  def add(a: L, b: R)(using line: Line, file: File): Unit = {
     _values.getOrElseUpdate(a, MSet.empty[R]) += b
     _inverse.getOrElseUpdate(b, MSet.empty[L]) += a
+    modifications += Change(a, b, isAdd = true, line, file)
   }
 
   /** Add a collection of b elements to a Warning if the b is empty then all the
@@ -70,7 +87,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param b
     *   the collection of new elements
     */
-  def add(a: L, b: Iterable[R]): Unit =
+  def add(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
     if (b.nonEmpty)
       b.foreach(add(a, _))
     else
@@ -83,10 +100,11 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param b
     *   the removed element
     */
-  def remove(a: L, b: R): Unit =
+  def remove(a: L, b: R)(using line: Line, file: File): Unit =
     for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
       sb -= b
       sa -= a
+      modifications += Change(a, b, isAdd = false, line, file)
     }
 
   /** Remove the elements of the collection b from the relation with a
@@ -96,7 +114,8 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param b
     *   the removed elements
     */
-  def remove(a: L, b: Iterable[R]): Unit = b.foreach(remove(a, _))
+  def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
+    b.foreach(remove(a, _))
 
   /** Remove a from the relation WARNING: this is different from removing all
     * elements in relation with a
@@ -104,7 +123,8 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param a
     *   the input element
     */
-  def remove(a: L): Unit = apply(a).foreach(remove(a, _))
+  def remove(a: L)(using line: Line, file: File): Unit =
+    apply(a).foreach(remove(a, _))
 
   /** Provide the elements in relation with a WARNING the function returns an
     * empty set either if a is not in the relation or if no elements are
@@ -152,6 +172,31 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 }
 
 object Relation {
+
+  final case class Change[L, R](
+      l: L,
+      r: R,
+      isAdd: Boolean,
+      line: Line,
+      file: File
+  )(using name: Name)
+      extends SourceCodeTraceable {
+
+    /**
+     * Line in source code where node has been instantiated
+     */
+    val lineInFile: Int = line.value
+
+    /**
+     * Source file in which node has been instantiated
+     */
+    val sourceFile: String =
+      file.value.split('.').init.mkString(java.io.File.separator)
+
+    override def toString: String = s"$sourceFile:$lineInFile ${
+        if (isAdd) "adding" else "removing"
+      } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
+  }
 
   /** Trait gathering all relation instances
     */

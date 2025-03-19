@@ -29,4 +29,6 @@ package onera.pmlanalyzer.pml
   * Example of usages are provided in
   * [[pml.examples.simpleKeystone.SimpleKeystoneExport]]
   */
-package object exporters extends PMLNodeGraphExporter.Ops with RelationExporter.Ops
+package object exporters
+    extends PMLNodeGraphExporter.Ops
+    with RelationExporter.Ops
