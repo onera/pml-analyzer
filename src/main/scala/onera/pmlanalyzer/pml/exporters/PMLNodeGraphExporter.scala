@@ -280,18 +280,27 @@ object PMLNodeGraphExporter {
           case c: DOTCluster => c.contains(element)
           case _             => false
         }
-      override def toString: String =
+
+      def printOnlySubComponents(filter: DOTCluster | DOTElement => Boolean): String =
         s"""subgraph cluster_$name {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
            |\tcolor = ${colorMap(depth % colorMap.size)}
-           |${subElements.toSeq
+           |${
+          subElements.filter(filter).toSeq
             .sortBy(_.name)
-            .map(_.toString.replace(s"${name}_", ""))
+            .map {
+              case c:DOTCluster => c.printOnlySubComponents(filter)
+              case e => e.toString
+            }
+            .map(_.replace(s"${name}_", ""))
             .mkString("\t", "\t", "")}
            |\t}
            |""".stripMargin
+
+      override def toString: String =
+        printOnlySubComponents(_ => true)
     }
   }
 
@@ -716,11 +725,11 @@ object PMLNodeGraphExporter {
       } yield e
 
       val elements =
-        for {
+        (for {
           a <- associations
-          id <- List(a.left, a.right)
-          e <- getElement(id)
-        } yield e
+          eL <- getElement(a.left)
+          eR <- getElement(a.right)
+        } yield List(eL,eR)).flatten.toSet
 
       val clusters =
         for {
@@ -735,7 +744,12 @@ object PMLNodeGraphExporter {
         } yield e
 
       for {
-        e <- (clusters ++ primaryElements).toSeq.distinct.sortBy(_.name)
+        c <- clusters.toSeq.distinct.sortBy(_.name)
+      }
+        writer.write(s" ${c.printOnlySubComponents(elements.contains)}".replace(s"${platform.fullName}_", ""))
+
+      for {
+        e <- primaryElements.toSeq.distinct.sortBy(_.name)
       }
         writer.write(s" $e".replace(s"${platform.fullName}_", ""))
 
