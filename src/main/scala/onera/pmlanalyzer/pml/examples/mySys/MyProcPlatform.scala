@@ -56,8 +56,8 @@ import sourcecode.{File, Line, Name}
  * @param line the line where an instance of the this class will be defined
  * @param file the file in which an instance of this class will be defined
  */
-class MyProcPlatform private(name: Symbol, line: Line, file: File)
-  extends Platform(name, line, file) {
+class MyProcPlatform private (name: Symbol, line: Line, file: File)
+    extends Platform(name, line, file) {
 
   /** Enable to provide the name implicitly
    *
@@ -128,8 +128,8 @@ class MyProcPlatform private(name: Symbol, line: Line, file: File)
    * @param armLine the line where an instance of the this class will be defined
    * @param armFile the file in which an instance of this class will be defined
    */
-  class ARMCore private(armName: Symbol, armLine: Line, armFile: File)
-    extends Composite(armName, armLine: Line, armFile: File) {
+  class ARMCore private (armName: Symbol, armLine: Line, armFile: File)
+      extends Composite(armName, armLine: Line, armFile: File) {
 
     /** Enable to provide the name implicitly
      *

@@ -33,8 +33,8 @@ object Exclusive {
   trait Ops {
     extension [T](l: T) {
       def exclusiveWith(
-                         r: T
-                       )(using ev: Exclusive[T], line: Line, file: File): Unit = ev(l, r)
+          r: T
+      )(using ev: Exclusive[T], line: Line, file: File): Unit = ev(l, r)
     }
   }
 

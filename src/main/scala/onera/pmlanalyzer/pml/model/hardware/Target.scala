@@ -28,8 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group target_class
   */
-final class Target private(val name: Symbol, line: Line, file: File)
-  extends Hardware(line, file)
+final class Target private (val name: Symbol, line: Line, file: File)
+    extends Hardware(line, file)
 
 /** Builder of targets
   * @group builder

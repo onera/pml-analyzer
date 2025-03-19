@@ -216,7 +216,7 @@ object Used {
 
       def usedTransactionsBy[U <: Initiator | Application](x: U)(using
           u: Used[U, Service],
-                                                                 r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
+          r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
           typeable: Typeable[U & Initiator]
       ): (Set[Path[Service]], Set[String]) = {
 
@@ -325,7 +325,7 @@ object Used {
   private def pathsIn[A, B <: A](
       from: A,
       graph: Map[A, Set[B]]
-                                ): (Set[Path[A]], Set[String]) = {
+  ): (Set[Path[A]], Set[String]) = {
 
     /** This function value compute the path from a node of the graph to its
       * leaf nodes (first element of the Pair). A set of visited nodes is also
@@ -333,10 +333,10 @@ object Used {
       * memoized to avoid multiple computation of the paths
       */
     def _paths(
-                current: A,
-                path: Path[A],
-                visited: Set[A]
-              ): (Set[Path[A]], Set[String]) = {
+        current: A,
+        path: Path[A],
+        visited: Set[A]
+    ): (Set[Path[A]], Set[String]) = {
       if (visited.contains(current)) {
         (Set.empty, Set(cyclicGraphWarning))
       } else if (!graph.contains(current) || graph(current).isEmpty)

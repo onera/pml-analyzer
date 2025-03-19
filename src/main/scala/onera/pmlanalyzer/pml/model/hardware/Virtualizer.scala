@@ -28,8 +28,8 @@ import sourcecode.{File, Line}
   * @param name
   *   the name of the node
   */
-final class Virtualizer private(val name: Symbol, line: Line, file: File)
-  extends Transporter(line, file)
+final class Virtualizer private (val name: Symbol, line: Line, file: File)
+    extends Transporter(line, file)
 
 /** Builder of targets
   * @group builder
@@ -43,8 +43,8 @@ object Virtualizer extends BaseHardwareNodeBuilder[Virtualizer] {
     *   the object
     */
   protected def builder(
-                         name: Symbol
-                       )(using line: Line, file: File): Virtualizer =
+      name: Symbol
+  )(using line: Line, file: File): Virtualizer =
     new Virtualizer(name, line, file)
 
 }

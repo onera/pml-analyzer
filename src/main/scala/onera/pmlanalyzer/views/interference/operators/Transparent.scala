@@ -39,10 +39,10 @@ object Transparent {
         *   proof that T can be discarded
         */
       def isTransparent(using
-                        ev: Transparent[T],
-                        line: Line,
-                        file: File
-                       ): Unit = ev(x)
+          ev: Transparent[T],
+          line: Line,
+          file: File
+      ): Unit = ev(x)
     }
   }
 

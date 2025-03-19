@@ -25,7 +25,7 @@ import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class DbusC2D2B8TransactionLibraryTest
-  extends AnyFlatSpec
+    extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
 

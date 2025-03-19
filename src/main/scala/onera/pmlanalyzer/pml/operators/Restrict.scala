@@ -362,7 +362,7 @@ object Restrict {
       aR: AuthorizeRelation[Application, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service],
       pB: Provided[Initiator, Service]
-        ): Restrict[(Map[Service, Set[Service]], Set[String]), Application] with {
+  ): Restrict[(Map[Service, Set[Service]], Set[String]), Application] with {
 
     /** Check if the application uses some route between an initial service and
       * a target service
@@ -403,14 +403,14 @@ object Restrict {
     }
 
     def used(
-              a: Application,
-              from: Service,
-              to: Service
-            ): (Boolean, Set[String]) =
+        a: Application,
+        from: Service,
+        to: Service
+    ): (Boolean, Set[String]) =
       (from, to) match {
         case (fromL: Load, toL: Load)   => useBySW(a, fromL, toL)
         case (fromS: Store, toS: Store) => useBySW(a, fromS, toS)
-        case _ => (false, Set.empty)
+        case _                          => (false, Set.empty)
       }
 
     /** Provide the service graph of an application
@@ -424,7 +424,8 @@ object Restrict {
       val warnings = mutable.Set.empty[String]
       val graph = lS.edges collect { case (from, linked) =>
         from -> {
-          linked filter { to => {
+          linked filter { to =>
+            {
               val (isUsed, cycleWarnings) = used(b, from, to)
               if (isUsed)
                 warnings ++= cycleWarnings
@@ -442,8 +443,8 @@ object Restrict {
   given [T](using
       lP: LinkRelation[Hardware],
       pS: Provided[Hardware, Service],
-            restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
-           ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
+      restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
+  ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
     def apply(b: T): (Map[Hardware, Set[Hardware]], Set[String]) = {
       val restricted = restrict(b)
       // shortcut non-owner services, if k -> v and k is not owned by any HW then push v to all predecessors of k
@@ -508,15 +509,15 @@ object Restrict {
       lS: LinkRelation[Service],
       uSI: Used[Application, Initiator],
       aR: AuthorizeRelation[Application, Service],
-                                       r: RoutingRelation[(Initiator, Service, Service), Service]
-                                      ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
+      r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
 
     def used(
-              a: T,
-              tgt: Service,
-              from: Service,
-              to: Service
-            ): (Boolean, Set[String]) = {
+        a: T,
+        tgt: Service,
+        from: Service,
+        to: Service
+    ): (Boolean, Set[String]) = {
       val authorized = a match {
         case app: Application => aR(app).contains(tgt);
         case _                => true
@@ -562,7 +563,8 @@ object Restrict {
       val warnings = mutable.Set.empty[String]
       val graph = lS.edges collect { case (from, linked) =>
         from -> {
-          linked filter { to => {
+          linked filter { to =>
+            {
               val (isUsed, cycleWarning) = used(b._1, b._2, from, to)
               if (isUsed)
                 warnings ++= cycleWarning

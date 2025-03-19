@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 /** Base class for all PML Node
   */
 abstract class PMLNode(line: Line, file: File)(using _enclosing: Enclosing)
-  extends SourceCodeTraceable {
+    extends SourceCodeTraceable {
 
   val lineInFile: Int = line.value
 

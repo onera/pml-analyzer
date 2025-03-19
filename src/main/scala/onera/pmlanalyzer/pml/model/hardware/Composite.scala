@@ -34,7 +34,7 @@ import sourcecode.{File, Line, Name}
   * @group hierarchical_class
   */
 abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
-  extends Hardware(line, file) {
+    extends Hardware(line, file) {
 
   /** the id of the owner of the composite (the platform or another composite)
     * @group identifier
@@ -84,9 +84,9 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
     *   the implicit owner
     */
   def this(compositeName: Symbol, dummy: Int = 0)(using
-                                                  givenOwner: Owner,
-                                                  givenLine: Line,
-                                                  givenFile: File
+      givenOwner: Owner,
+      givenLine: Line,
+      givenFile: File
   ) = {
     this(compositeName, givenOwner, givenLine, givenFile)
   }
@@ -99,10 +99,10 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
     *   the implicit owner
     */
   def this()(using
-             givenName: Name,
-             givenOwner: Owner,
-             givenLine: Line,
-             givenFile: File
+      givenName: Name,
+      givenOwner: Owner,
+      givenLine: Line,
+      givenFile: File
   ) = {
     this(Symbol(givenName.value), givenOwner, givenLine, givenFile)
   }
@@ -115,8 +115,8 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
    * the implicit owner
    */
   def this(explicitLine: Line, explicitFile: File)(using
-                                                   givenName: Name,
-                                                   givenOwner: Owner
+      givenName: Name,
+      givenOwner: Owner
   ) = {
     this(Symbol(givenName.value), givenOwner, explicitLine, explicitFile)
   }
@@ -129,7 +129,7 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
    * the implicit owner
    */
   def this(compositeName: Symbol, explicitLine: Line, explicitFile: File)(using
-                                                                          givenOwner: Owner
+      givenOwner: Owner
   ) = {
     this(compositeName, givenOwner, explicitLine, explicitFile)
   }

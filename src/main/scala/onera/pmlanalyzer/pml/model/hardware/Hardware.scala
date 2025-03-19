@@ -30,6 +30,6 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group hardware_class
   */
-abstract class Hardware private[hardware](line: Line, file: File)(using
-                                                                  enclosing: Enclosing
+abstract class Hardware private[hardware] (line: Line, file: File)(using
+    enclosing: Enclosing
 ) extends PMLNode(line, file)

@@ -144,7 +144,7 @@ trait TransactionLibrary {
     *   the name of the transaction or scenario
     */
   sealed abstract class ScenarioLike(val name: Symbol, line: Line, file: File)
-    extends PMLNode(line, file) {
+      extends PMLNode(line, file) {
     val iniTgt: () => Set[(Service, Service)]
     val sw: () => Set[Application]
   }
@@ -165,7 +165,7 @@ trait TransactionLibrary {
       val sw: () => Set[Application],
       line: Line,
       file: File
-                                  ) extends ScenarioLike(userName.id, line, file) {
+  ) extends ScenarioLike(userName.id, line, file) {
 
     /** Consider the transaction for the analysis
       *
@@ -198,7 +198,7 @@ trait TransactionLibrary {
       */
     def apply[A: AsTransaction](
         iniTgt: => A
-                               )(using name: Name, line: Line, file: File): Transaction = {
+    )(using name: Name, line: Line, file: File): Transaction = {
       val result = TransactionParam(iniTgt)
       apply(UserTransactionId(Symbol(name.value)), result._1, result._2)
     }
@@ -222,7 +222,7 @@ trait TransactionLibrary {
         name: UserTransactionId,
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
-             )(using owner: Owner, line: Line, file: File): Transaction = {
+    )(using owner: Owner, line: Line, file: File): Transaction = {
       _memo.getOrElseUpdate(
         (owner.s, name.id),
         new Transaction(name, iniTgt, sw, line, file)
@@ -242,8 +242,8 @@ trait TransactionLibrary {
       *   the transaction (not used for now)
       */
     def apply[A: AsTransaction](name: String, iniTgt: => A)(using
-                                                            line: Line,
-                                                            file: File
+        line: Line,
+        file: File
     ): Transaction = {
       val result = TransactionParam(iniTgt)
       apply(UserTransactionId(name), result._1, result._2)
@@ -260,8 +260,8 @@ trait TransactionLibrary {
       *   the transaction (not used for now)
       */
     def apply(
-               from: Transaction
-             )(using name: Name, line: Line, file: File): Transaction =
+        from: Transaction
+    )(using name: Name, line: Line, file: File): Transaction =
       apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
   }
 
@@ -281,7 +281,7 @@ trait TransactionLibrary {
       val sw: () => Set[Application],
       line: Line,
       file: File
-                               ) extends ScenarioLike(userName.id, line, file) {
+  ) extends ScenarioLike(userName.id, line, file) {
 
     /** Consider the transaction for the analysis
       *
@@ -314,9 +314,9 @@ trait TransactionLibrary {
     def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
         name: Name,
         ta: AsTransaction[Set[A]],
-                                                            tb: AsTransaction[Set[B]],
-                                                            line: Line,
-                                                            file: File
+        tb: AsTransaction[Set[B]],
+        line: Line,
+        file: File
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
@@ -340,8 +340,8 @@ trait TransactionLibrary {
       *   the resulting scenario
       */
     def apply(
-               tr: ScenarioLike
-             )(using name: Name, line: Line, file: File): Scenario =
+        tr: ScenarioLike
+    )(using name: Name, line: Line, file: File): Scenario =
       apply(UserScenarioId(Symbol(name.value)), tr.iniTgt, tr.sw)
 
     /** Build a Scenario from a bunch of transactions, this should not be used
@@ -356,8 +356,8 @@ trait TransactionLibrary {
       *   a scenario
       */
     def apply(
-               tr: Transaction*
-             )(using name: Name, line: Line, file: File): Scenario =
+        tr: Transaction*
+    )(using name: Name, line: Line, file: File): Scenario =
       apply(
         UserScenarioId(Symbol(name.value)),
         () => {
@@ -387,7 +387,7 @@ trait TransactionLibrary {
         name: UserScenarioId,
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
-             )(using owner: Owner, line: Line, file: File): Scenario = {
+    )(using owner: Owner, line: Line, file: File): Scenario = {
       _memo.getOrElseUpdate(
         (owner.s, name.id),
         new Scenario(name, iniTgt, sw, line, file)
@@ -410,7 +410,7 @@ trait TransactionLibrary {
       val sw: Set[Application],
       line: Line,
       file: File
-                                   ) extends PMLNode(line, file) {
+  ) extends PMLNode(line, file) {
 
     val name: Symbol = userName.id
 
@@ -459,7 +459,7 @@ trait TransactionLibrary {
         name: UserScenarioId,
         iniTgt: Set[(Service, Service)],
         sw: Set[Application]
-             )(using owner: Owner, line: Line, file: File): UsedScenario = {
+    )(using owner: Owner, line: Line, file: File): UsedScenario = {
       _memo.getOrElseUpdate(
         (owner.s, name.id),
         new UsedScenario(name, iniTgt, sw, line, file)
@@ -482,7 +482,7 @@ trait TransactionLibrary {
       val sw: Set[Application],
       line: Line,
       file: File
-                                      ) extends PMLNode(line, file) {
+  ) extends PMLNode(line, file) {
 
     val name: Symbol = userName.id
 
@@ -533,7 +533,7 @@ trait TransactionLibrary {
         name: UserTransactionId,
         iniTgt: Iterable[(Service, Service)],
         sw: Set[Application]
-             )(using owner: Owner, line: Line, file: File): UsedTransaction = {
+    )(using owner: Owner, line: Line, file: File): UsedTransaction = {
       _memo.getOrElseUpdate(
         (owner.s, name.id),
         new UsedTransaction(name, iniTgt, sw, line, file)
