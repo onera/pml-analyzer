@@ -106,8 +106,8 @@ object Link {
         *   the type of the other object
         */
       def link[R](
-                   b: R
-                 )(using linkable: Link[L, R], line: Line, file: File): Unit =
+          b: R
+      )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.link(self, b)
 
       /** PML keyword to unlink two objects
@@ -120,8 +120,8 @@ object Link {
         *   the type of the other object
         */
       def unlink[R](
-                     b: R
-                   )(using linkable: Link[L, R], line: Line, file: File): Unit =
+          b: R
+      )(using linkable: Link[L, R], line: Line, file: File): Unit =
         linkable.unlink(self, b)
 
     }

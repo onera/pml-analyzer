@@ -46,21 +46,21 @@ object Interfere {
 
     extension [L](self: L) {
       def interfereWith[R](
-                            that: R
-                          )(using ev: Interfere[L, R], line: Line, file: File): Unit =
+          that: R
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         ev.interfereWith(self, that)
       def interfereWith[R](
-                            that: Iterable[R]
-                          )(using ev: Interfere[L, R], line: Line, file: File): Unit =
+          that: Iterable[R]
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         for { x <- that } ev.interfereWith(self, x)
       def notInterfereWith[R](
-                               that: R
-                             )(using ev: Interfere[L, R], line: Line, file: File): Unit =
+          that: R
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         ev.notInterfereWith(self, that)
       def notInterfereWith[R](that: Iterable[R])(using
-                                                 ev: Interfere[L, R],
-                                                 line: Line,
-                                                 file: File
+          ev: Interfere[L, R],
+          line: Line,
+          file: File
       ): Unit = for { x <- that } ev.notInterfereWith(self, x)
     }
 
@@ -73,18 +73,18 @@ object Interfere {
     extension (self: Hardware) {
       def hasInterferingServices(using
           prv: Provided[Hardware, Service],
-                                 ev: Interfere[Service, Service],
-                                 line: Line,
-                                 file: File
+          ev: Interfere[Service, Service],
+          line: Line,
+          file: File
       ): Unit =
         for { s1 <- self.services; s2 <- self.services }
           ev.interfereWith(s1, s2)
 
       def hasNonInterferingServices(using
           prv: Provided[Hardware, Service],
-                                    ev: Interfere[Service, Service],
-                                    line: Line,
-                                    file: File
+          ev: Interfere[Service, Service],
+          line: Line,
+          file: File
       ): Unit =
         for { s1 <- self.services; s2 <- self.services }
           ev.notInterfereWith(s1, s2)
@@ -116,14 +116,14 @@ object Interfere {
       ev: Interfere[PhysicalTransactionId, Service]
   ): Interfere[PhysicalTransactionId, R] with {
     def interfereWith(l: PhysicalTransactionId, r: R)(using
-                                                      line: Line,
-                                                      file: File
+        line: Line,
+        file: File
     ): Unit =
       ev.interfereWith(l, r)
 
     def notInterfereWith(l: PhysicalTransactionId, r: R)(using
-                                                         line: Line,
-                                                         file: File
+        line: Line,
+        file: File
     ): Unit =
       ev.notInterfereWith(l, r)
   }
