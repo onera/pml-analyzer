@@ -81,5 +81,4 @@ trait GenericRoutingConstraints {
     dma targeting bank blockedBy group.input_port
   }
 
-
 }

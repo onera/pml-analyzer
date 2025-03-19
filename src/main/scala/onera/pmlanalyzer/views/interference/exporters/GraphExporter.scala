@@ -54,9 +54,9 @@ object GraphExporter {
         )
         val file = FileManager.exportDirectory.getFile(
           s"${self.fullName}_${
-            if (multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString
-            else multiTransactionName
-          }.dot"
+              if (multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString
+              else multiTransactionName
+            }.dot"
         )
         implicit val writer: FileWriter = new FileWriter(file)
         DOTServiceOnly.resetService()

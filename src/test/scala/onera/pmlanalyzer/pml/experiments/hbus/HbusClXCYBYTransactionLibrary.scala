@@ -26,15 +26,22 @@ import scala.language.postfixOps
 trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
   self: HbusClXCYBYPlatform with HbusClXCYBYSoftware =>
 
-  private def coreTransactions(clusterId: Int, coreId: Int): Seq[Transaction] = {
+  private def coreTransactions(
+      clusterId: Int,
+      coreId: Int
+  ): Seq[Transaction] = {
     val readL1 = Transaction(
       s"t_Cl${clusterId}_C${coreId}_L1_ld",
-      clusterApplications(clusterId)(coreId) read cg0.clusters(clusterId).coresL1(coreId)
+      clusterApplications(clusterId)(coreId) read cg0
+        .clusters(clusterId)
+        .coresL1(coreId)
     )
 
     val storeL1 = Transaction(
       s"t_Cl${clusterId}_C${coreId}_L1_st",
-      clusterApplications(clusterId)(coreId) write cg0.clusters(clusterId).coresL1(coreId)
+      clusterApplications(clusterId)(coreId) write cg0
+        .clusters(clusterId)
+        .coresL1(coreId)
     )
 
     val readL2 = Transaction(
@@ -68,9 +75,9 @@ trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
   }
 
   val basicCoreTransactions: Seq[Seq[Seq[Transaction]]] =
-    for {i <- cg0.clusters.indices} yield
-      for {j <- cg0.clusters(i).cores.indices} yield
-        coreTransactions(i, j)
+    for { i <- cg0.clusters.indices } yield for {
+      j <- cg0.clusters(i).cores.indices
+    } yield coreTransactions(i, j)
 
   for {
     cl <- basicCoreTransactions
@@ -79,10 +86,14 @@ trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
   }
     tr used
 
-  val tC0_DMAReg_ld: Transaction = Transaction(clusterApplications(0)(0) read cfg_bus.dma_reg)
+  val tC0_DMAReg_ld: Transaction = Transaction(
+    clusterApplications(0)(0) read cfg_bus.dma_reg
+  )
   tC0_DMAReg_ld.used
 
-  val tC0_DMAReg_st: Transaction = Transaction(clusterApplications(0)(0) write cfg_bus.dma_reg)
+  val tC0_DMAReg_st: Transaction = Transaction(
+    clusterApplications(0)(0) write cfg_bus.dma_reg
+  )
   tC0_DMAReg_st.used
 
   val tC0ReadBankTransactions: Seq[Transaction] =
@@ -91,10 +102,11 @@ trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
     } yield {
       Transaction(
         s"t_Cl0_C0_BK${i}_ld",
-        clusterApplications(0)(0) read ddr.banks(i))
+        clusterApplications(0)(0) read ddr.banks(i)
+      )
     }
 
-  for {tr <- tC0ReadBankTransactions}
+  for { tr <- tC0ReadBankTransactions }
     tr used
 
   val tC0StoreBankTransactions: Seq[Transaction] =
@@ -103,10 +115,11 @@ trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
     } yield {
       Transaction(
         s"t_Cl0_C0_BK${i}_st",
-        clusterApplications(0)(0) write ddr.banks(i))
+        clusterApplications(0)(0) write ddr.banks(i)
+      )
     }
 
-  for {tr <- tC0StoreBankTransactions}
+  for { tr <- tC0StoreBankTransactions }
     tr used
 
   val dmaTransactions: Seq[Scenario] =
@@ -116,13 +129,17 @@ trait HbusClXCYBYTransactionLibrary extends TransactionLibrary {
       if (i == 2)
         Scenario(
           s"t_DMA_BK${i}_ETH",
-          app_dma read ddr.banks(i), app_dma write eth)
+          app_dma read ddr.banks(i),
+          app_dma write eth
+        )
       else
         Scenario(
           s"t_DMA_BK${i}_ETH",
-          app_dma write ddr.banks(i), app_dma read eth)
+          app_dma write ddr.banks(i),
+          app_dma read eth
+        )
     }
 
-  for {tr <- dmaTransactions}
+  for { tr <- dmaTransactions }
     tr used
 }

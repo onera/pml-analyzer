@@ -22,7 +22,8 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.Name
 
-class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) extends Platform(name) {
+class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int)
+    extends Platform(name) {
   def this(clusterNbr: Int, coreNbr: Int)(implicit implicitName: Name) = {
     this(Symbol(implicitName.value), clusterNbr, coreNbr)
   }
@@ -31,12 +32,10 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) ext
 
     case class Cluster(id: Int) extends Composite(Symbol(s"Cl$id")) {
       val cores: Seq[Initiator] =
-        for {i <- 0 until coreNumber} yield
-          Initiator(s"C$i")
+        for { i <- 0 until coreNumber } yield Initiator(s"C$i")
 
       val coresL1: Seq[Target] =
-        for {i <- 0 until coreNumber} yield
-          Target(s"C${i}_L1")
+        for { i <- 0 until coreNumber } yield Target(s"C${i}_L1")
 
       val bus: SimpleTransporter = SimpleTransporter()
 
@@ -46,10 +45,10 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) ext
 
       val output_port: SimpleTransporter = SimpleTransporter()
 
-      for {core <- cores}
+      for { core <- cores }
         core link bus
 
-      for {(core, l1) <- cores.zip(coresL1)}
+      for { (core, l1) <- cores.zip(coresL1) }
         core link l1
 
       bus link L2
@@ -61,8 +60,7 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) ext
     }
 
     val clusters: Seq[Cluster] =
-      for {i <- 0 until clusterNumber} yield
-        Cluster(i)
+      for { i <- 0 until clusterNumber } yield Cluster(i)
 
     val L0_0: SimpleTransporter = SimpleTransporter()
 
@@ -70,7 +68,7 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) ext
 
     val output_port: SimpleTransporter = SimpleTransporter()
 
-    for {cluster <- clusters} {
+    for { cluster <- clusters } {
       L0_0 link cluster.input_port
       cluster.output_port link L0_0
     }
@@ -82,14 +80,13 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int) ext
 
   object ddr extends Composite {
     val banks: Seq[Target] =
-      for {i <- 0 until clusterNumber} yield
-        Target(s"BK$i")
+      for { i <- 0 until clusterNumber } yield Target(s"BK$i")
 
     val ddr_ctrl: SimpleTransporter = SimpleTransporter()
 
     val input_port: SimpleTransporter = SimpleTransporter()
 
-    for {bank <- banks}
+    for { bank <- banks }
       ddr_ctrl link bank
 
     input_port link ddr_ctrl

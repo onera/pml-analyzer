@@ -136,7 +136,9 @@ class ConfigurationTest
 
     dmaDescriptor.hostingInitiators should be(Set(dma1))
     dmaDescriptor.targetLoads should be(dataMem1.loads ++ dataMem2.loads)
-    dmaDescriptor.targetStores should be(smart1.cache.stores ++ smart2.cache.stores)
+    dmaDescriptor.targetStores should be(
+      smart1.cache.stores ++ smart2.cache.stores
+    )
   }
 
   it should "encode the routing relation properly" in {

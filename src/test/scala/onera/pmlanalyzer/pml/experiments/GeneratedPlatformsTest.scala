@@ -29,7 +29,10 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{InterferenceSpecification, TableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  InterferenceSpecification,
+  TableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -42,35 +45,39 @@ import scala.language.postfixOps
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
-  val dbusInstances: Seq[DbusCXDYBXPlatform
-    & DbusCXDYBXSoftware
-    & DbusCXDYBXTransactionLibrary
-    & DbusCXDYBXRoutingConstraints
-    & TableBasedInterferenceSpecification] =
+  val dbusInstances: Seq[
+    DbusCXDYBXPlatform & DbusCXDYBXSoftware & DbusCXDYBXTransactionLibrary &
+      DbusCXDYBXRoutingConstraints & TableBasedInterferenceSpecification
+  ] =
     for {
       coreNumber <- 2 to 8 by 2
       dspNumber <- 2 to 8 by 2
       if coreNumber + dspNumber <= 12
     } yield {
-      new DbusCXDYBXPlatform(Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"), coreNumber, dspNumber)
-        with DbusCXDYBXSoftware
+      new DbusCXDYBXPlatform(
+        Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"),
+        coreNumber,
+        dspNumber
+      ) with DbusCXDYBXSoftware
         with DbusCXDYBXTransactionLibrary
         with DbusCXDYBXRoutingConstraints
         with TableBasedInterferenceSpecification {}
     }
 
-  val hbusInstances: Seq[HbusClXCYBYPlatform
-    & HbusClXCYBYSoftware
-    & HbusClXCYBYTransactionLibrary
-    & HbusClXCYBYRoutingConstraints
-    & TableBasedInterferenceSpecification] =
+  val hbusInstances: Seq[
+    HbusClXCYBYPlatform & HbusClXCYBYSoftware & HbusClXCYBYTransactionLibrary &
+      HbusClXCYBYRoutingConstraints & TableBasedInterferenceSpecification
+  ] =
     for {
       clusterNumber <- 2 to 8 by 2
       coreNumber <- 2 to 8 by 2
       if clusterNumber + coreNumber <= 12
     } yield {
-      new HbusClXCYBYPlatform(Symbol(s"HbusCl${clusterNumber}C${coreNumber}B$coreNumber"), clusterNumber, coreNumber)
-        with HbusClXCYBYSoftware
+      new HbusClXCYBYPlatform(
+        Symbol(s"HbusCl${clusterNumber}C${coreNumber}B$coreNumber"),
+        clusterNumber,
+        coreNumber
+      ) with HbusClXCYBYSoftware
         with HbusClXCYBYTransactionLibrary
         with HbusClXCYBYRoutingConstraints
         with TableBasedInterferenceSpecification {}
@@ -111,35 +118,45 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   final case class ExperimentResults(
-                                      nbInitiators: Int,
-                                      nbTargets: Int,
-                                      nbScenarios: Int,
-                                      analysisTime: Double,
-                                      semanticsDistribution: Map[Int, Int],
-                                      itfDistribution: Map[Int, Int],
-                                      freeDistribution: Map[Int, Int],
-                                      graphReduction: Double,
-                                      semanticsReduction: Double
-                                    ) {
+      nbInitiators: Int,
+      nbTargets: Int,
+      nbScenarios: Int,
+      analysisTime: Double,
+      semanticsDistribution: Map[Int, Int],
+      itfDistribution: Map[Int, Int],
+      freeDistribution: Map[Int, Int],
+      graphReduction: Double,
+      semanticsReduction: Double
+  ) {
     val semanticsSize: BigInt = semanticsDistribution.values.sum
     val redDistribution: Map[Int, BigInt] = semanticsDistribution
       .transform((k, v) =>
         v - freeDistribution.getOrElse(k, 0) - itfDistribution.getOrElse(k, 0)
       )
 
-    def printWith(writer: FileWriter, maxSemantics: Int, maxItf: Int, maxFree: Int, maxRed: Int): Unit =
-      writer.write(s"$nbInitiators, $nbTargets, $nbScenarios, $analysisTime, $semanticsSize, $graphReduction, $semanticsReduction, ")
-      for {i <- 2 to maxSemantics}
+    def printWith(
+        writer: FileWriter,
+        maxSemantics: Int,
+        maxItf: Int,
+        maxFree: Int,
+        maxRed: Int
+    ): Unit =
+      writer.write(
+        s"$nbInitiators, $nbTargets, $nbScenarios, $analysisTime, $semanticsSize, $graphReduction, $semanticsReduction, "
+      )
+      for { i <- 2 to maxSemantics }
         writer.write(s"${semanticsDistribution.getOrElse(i, 0)}, ")
 
-      for {i <- 2 to maxItf}
+      for { i <- 2 to maxItf }
         writer.write(s"${itfDistribution.getOrElse(i, 0)}, ")
 
-      for {i <- 2 to maxFree}
+      for { i <- 2 to maxFree }
         writer.write(s"${freeDistribution.getOrElse(i, 0)}, ")
 
-      for {i <- 2 to maxRed}
-        writer.write(s"${redDistribution.getOrElse(i, 0)} ${if (i == maxRed) "" else ", "}")
+      for { i <- 2 to maxRed }
+        writer.write(
+          s"${redDistribution.getOrElse(i, 0)} ${if (i == maxRed) "" else ", "}"
+        )
   }
 
   it should "be used to export performance plots" in {
@@ -147,15 +164,16 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     val writer = new FileWriter(resultFile)
     val result =
       (for {
-      p <- platforms
-      if FileManager.exportDirectory
-        .locate(FileManager.getSemanticSizeFileName(p))
-        .isDefined
-      (itf, free, analysisTime) <- PostProcess.parseSummaryFile(p)
-      semanticsReduction = p.computeSemanticReduction()
-      graphReduction = p.computeGraphReduction()
+        p <- platforms
+        if FileManager.exportDirectory
+          .locate(FileManager.getSemanticSizeFileName(p))
+          .isDefined
+        (itf, free, analysisTime) <- PostProcess.parseSummaryFile(p)
+        semanticsReduction = p.computeSemanticReduction()
+        graphReduction = p.computeGraphReduction()
       } yield {
-        val semanticsDistribution = p.getSemanticsSize().transform((_, v) => v.toInt)
+        val semanticsDistribution =
+          p.getSemanticsSize().transform((_, v) => v.toInt)
 
         p.fullName -> ExperimentResults(
           p.initiators.size,
@@ -166,17 +184,26 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
           itf,
           free,
           graphReduction.toDouble,
-          semanticsReduction.toDouble)
+          semanticsReduction.toDouble
+        )
       }).sortBy(_._1)
 
     val maxItfSize = result.map(_._2.itfDistribution.keySet.max).max
     val maxFreeSize = result.map(_._2.freeDistribution.keySet.max).max
     val maxRedSize = result.map(_._2.redDistribution.keySet.max).max
     val maxSemanticsSize = result.map(_._2.semanticsDistribution.keySet.max).max
-    writer.write("platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction, ")
-    writer.write((2 to maxSemanticsSize).map(i => s"sem size $i").mkString("", ",", ","))
-    writer.write((2 to maxItfSize).map(i => s"itf size $i").mkString("", ",", ","))
-    writer.write((2 to maxFreeSize).map(i => s"free size $i").mkString("", ",", ","))
+    writer.write(
+      "platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction, "
+    )
+    writer.write(
+      (2 to maxSemanticsSize).map(i => s"sem size $i").mkString("", ",", ",")
+    )
+    writer.write(
+      (2 to maxItfSize).map(i => s"itf size $i").mkString("", ",", ",")
+    )
+    writer.write(
+      (2 to maxFreeSize).map(i => s"free size $i").mkString("", ",", ",")
+    )
     writer.write((2 to maxRedSize).map(i => s"red size $i").mkString(","))
     writer.write("\n")
 

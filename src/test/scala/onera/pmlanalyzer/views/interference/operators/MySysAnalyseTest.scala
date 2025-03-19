@@ -28,12 +28,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 
-class MySysAnalyseTest
-  extends AnyFlatSpec
-    with should.Matchers {
+class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   MySys.fullName should "contain the expected semantics distribution" in {
-    val semanticsDistribution = MySys.getSemanticsSize(ignoreExistingFile = true)
+    val semanticsDistribution =
+      MySys.getSemanticsSize(ignoreExistingFile = true)
     semanticsDistribution(2) should be(40)
     semanticsDistribution(3) should be(33)
     semanticsDistribution(4) should be(4)
@@ -50,7 +49,9 @@ class MySysAnalyseTest
   }
 
   it should "provide a consistent graph and semantics reduction" in {
-    MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(BigDecimal(37) / 17)
+    MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(
+      BigDecimal(37) / 17
+    )
     MySys.computeGraphReduction() should be(BigDecimal(71) / 28)
   }
 

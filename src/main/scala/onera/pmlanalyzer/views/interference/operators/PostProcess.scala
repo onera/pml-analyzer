@@ -458,8 +458,8 @@ object PostProcess {
       .toMap
 
   def parseSummaryFile(
-                        platform: Platform
-                      ): Option[(Map[Int, Int], Map[Int, Int], Double)] =
+      platform: Platform
+  ): Option[(Map[Int, Int], Map[Int, Int], Double)] =
     for {
       file <- FileManager.analysisDirectory.locate(
         FileManager.getInterferenceAnalysisSummaryFileName(platform)
@@ -488,7 +488,9 @@ object PostProcess {
 
   def parseSemanticsSizeFile(platform: Platform): Option[Map[Int, BigInt]] = {
     for {
-      file <- FileManager.exportDirectory.locate(FileManager.getSemanticSizeFileName(platform))
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getSemanticSizeFileName(platform)
+      )
     } yield {
       val source = Source.fromFile(file)
       val res = source

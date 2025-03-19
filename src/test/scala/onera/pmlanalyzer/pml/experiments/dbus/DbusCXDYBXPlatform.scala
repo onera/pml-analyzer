@@ -17,11 +17,18 @@
 
 package onera.pmlanalyzer.pml.experiments.dbus
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Initiator, Platform, SimpleTransporter, Target}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target
+}
 import sourcecode.Name
 import onera.pmlanalyzer.pml.operators.*
 
-class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends Platform(name) {
+class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int)
+    extends Platform(name) {
   def this(cNbr: Int, dspNbr: Int)(implicit implicitName: Name) = {
     this(Symbol(implicitName.value), cNbr, dspNbr)
   }
@@ -33,7 +40,7 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
       object cl0 extends Composite {
 
         val cores: Seq[Initiator] =
-          for {i <- 0 until coreNumber} yield Initiator(s"C$i")
+          for { i <- 0 until coreNumber } yield Initiator(s"C$i")
 
         val bus: SimpleTransporter = SimpleTransporter()
 
@@ -42,19 +49,18 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
         val output_port: SimpleTransporter = SimpleTransporter()
 
         val L1Caches: Seq[Target] =
-          for {i <- 0 until coreNumber} yield Target(s"C${i}_L1")
+          for { i <- 0 until coreNumber } yield Target(s"C${i}_L1")
 
         val l2: Target = Target()
 
-        for {core <- cores}
+        for { core <- cores }
           core link bus
 
         input_port link bus
 
         bus link output_port
 
-        for {(core, l1) <- cores.zip(L1Caches)} yield
-          core link l1
+        for { (core, l1) <- cores.zip(L1Caches) } yield core link l1
 
         bus link l2
       }
@@ -73,7 +79,7 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
       object cl0 extends Composite {
 
         val cores: Seq[Initiator] =
-          for {i <- 0 until dspNumber} yield Initiator(s"C$i")
+          for { i <- 0 until dspNumber } yield Initiator(s"C$i")
 
         val bus: SimpleTransporter = SimpleTransporter()
 
@@ -82,20 +88,20 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
         val output_port: SimpleTransporter = SimpleTransporter()
 
         val SRAM: Seq[Target] =
-          for {i <- 0 until dspNumber} yield Target(s"C${i}_SRAM")
+          for { i <- 0 until dspNumber } yield Target(s"C${i}_SRAM")
 
-        for {core <- cores}
+        for { core <- cores }
           core link bus
 
-        //FIXME The DMA should be able to read SRAM, so a link to the bus is mandatory
-        for {sram <- SRAM}
+        // FIXME The DMA should be able to read SRAM, so a link to the bus is mandatory
+        for { sram <- SRAM }
           bus link sram
 
         input_port link bus
 
         bus link output_port
 
-        for {(core, sram) <- cores.zip(SRAM)}
+        for { (core, sram) <- cores.zip(SRAM) }
           core link sram
       }
 
@@ -111,13 +117,13 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
     object ddr extends Composite {
 
       val banks: Seq[Target] =
-        for {i <- 0 until coreNumber} yield Target(s"BK$i")
+        for { i <- 0 until coreNumber } yield Target(s"BK$i")
 
       val ddr_ctrl: SimpleTransporter = SimpleTransporter()
 
       val input_port: SimpleTransporter = SimpleTransporter()
 
-      for {bank <- banks}
+      for { bank <- banks }
         ddr_ctrl link bank
 
       input_port link ddr_ctrl
@@ -163,4 +169,3 @@ class DbusCXDYBXPlatform(name: Symbol, coreNumber: Int, dspNumber: Int) extends 
     pf_bus link eth
   }
 }
-

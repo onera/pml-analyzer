@@ -20,8 +20,7 @@ trait HbusClXCYBYRoutingConstraints {
     for {
       cluster <- cg0.clusters
       core <- cluster.cores
-    } yield
-      core
+    } yield core
 
   for {
     i <- cores

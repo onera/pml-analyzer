@@ -222,13 +222,13 @@ object Used {
     }
 
     def usedTransactionsBy[U <: Initiator | Application](x: U)(using
-                                                               uA: Used[Application, Initiator],
-                                                               uAI: Used[Application, Service],
-                                                               uS: Used[U, Service],
-                                                               uI: Used[U, Initiator],
-                                                               p: Provided[Initiator, Service],
-                                                               r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
-                                                               typeable: Typeable[U & Initiator]
+        uA: Used[Application, Initiator],
+        uAI: Used[Application, Service],
+        uS: Used[U, Service],
+        uI: Used[U, Initiator],
+        p: Provided[Initiator, Service],
+        r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
+        typeable: Typeable[U & Initiator]
     ): (Set[Path[Service]], Set[String]) = {
 
       // get all target services for x
@@ -281,14 +281,14 @@ object Used {
     def apply(a: A): Set[I] = l(a) collect { case s: I => s }
   }
 
-  given [AI <: Application | Initiator, I <: Initiator : Typeable](using
-                                                                   l: Used[Application, Initiator]
-                                                                  ): Used[AI, I] with {
+  given [AI <: Application | Initiator, I <: Initiator: Typeable](using
+      l: Used[Application, Initiator]
+  ): Used[AI, I] with {
     def apply(a: AI): Set[I] =
       a match
-        case i: I => Set(i)
+        case i: I           => Set(i)
         case a: Application => l(a) collect { case s: I => s }
-        case _ => Set.empty
+        case _              => Set.empty
   }
 
   /** ------------------------------------------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ object Used {
   private def pathsIn[A, B <: A](
       from: A,
       graph: Map[A, Set[B]]
-                                ): (Set[Path[A]], Set[String]) = {
+  ): (Set[Path[A]], Set[String]) = {
 
     /** This function value compute the path from a node of the graph to its
       * leaf nodes (first element of the Pair). A set of visited nodes is also
@@ -343,10 +343,10 @@ object Used {
       * memoized to avoid multiple computation of the paths
       */
     def _paths(
-                current: A,
-                path: Path[A],
-                visited: Set[A]
-              ): (Set[Path[A]], Set[String]) = {
+        current: A,
+        path: Path[A],
+        visited: Set[A]
+    ): (Set[Path[A]], Set[String]) = {
       if (visited.contains(current)) {
         (Set.empty, Set(cyclicGraphWarning))
       } else if (!graph.contains(current) || graph(current).isEmpty)

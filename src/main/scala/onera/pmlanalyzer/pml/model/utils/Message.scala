@@ -74,7 +74,9 @@ object Message {
       names: Iterable[UserTransactionId]
   ): String =
     s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
-       |${names.map(_.id.name).mkString("[WARNING] ", "\n[WARNING] ", "")}""".stripMargin
+       |${names
+        .map(_.id.name)
+        .mkString("[WARNING] ", "\n[WARNING] ", "")}""".stripMargin
 
   inline def impossibleScenarioWarning(userName: UserScenarioId): String =
     s"[WARNING] The physical scenario $userName is not possible, check your link and route constraints"
@@ -120,10 +122,10 @@ object Message {
     s"[INFO] $name exported successfully in $time s"
 
   inline def analysisResultFoundInfo(
-                                      folder: Any,
-                                      platform: Any,
-                                      analysis: Any
-                                    ): String =
+      folder: Any,
+      platform: Any,
+      analysis: Any
+  ): String =
     s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
@@ -162,10 +164,10 @@ object Message {
           over match
             case Some(value) =>
               s"[INFO] size ${p._1}: ${p._2} over ${value(p._1)} (${
-                if (value(p._1) == 0) "0"
-                else if (p._2 * 100 / value(p._1) == 0) "< 1"
-                else math.round(p._2 * 100 / value(p._1).toDouble).toInt
-              }%)"
+                  if (value(p._1) == 0) "0"
+                  else if (p._2 * 100 / value(p._1) == 0) "< 1"
+                  else math.round(p._2 * 100 / value(p._1).toDouble).toInt
+                }%)"
             case None =>
               s"[INFO] size ${p._1}: ${p._2}"
         )

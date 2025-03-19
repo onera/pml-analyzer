@@ -27,5 +27,5 @@ package onera.pmlanalyzer.views.interference
   */
 package object exporters
     extends IDPExporter.Ops
-      with GraphExporter.Ops
+    with GraphExporter.Ops
     with SemanticsExporter.Ops

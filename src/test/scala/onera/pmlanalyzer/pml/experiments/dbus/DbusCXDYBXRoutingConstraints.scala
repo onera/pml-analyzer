@@ -8,7 +8,7 @@ import scala.language.postfixOps
 trait DbusCXDYBXRoutingConstraints {
   self: DbusCXDYBXPlatform =>
 
-  //FIXME Add all inputs and outputs to the collections
+  // FIXME Add all inputs and outputs to the collections
   private val cluster_inputs: Seq[Hardware] = Seq(
     rosace.cg0.cl0.input_port,
     rosace.cg0.input_port,
@@ -34,7 +34,7 @@ trait DbusCXDYBXRoutingConstraints {
     core targeting target blockedBy in_port
   }
 
-  //FIXME The DSP cannot use the bus to access to their SRAM
+  // FIXME The DSP cannot use the bus to access to their SRAM
   for {
     dsp <- rosace.dg0.cl0.cores
     sram <- rosace.dg0.cl0.SRAM

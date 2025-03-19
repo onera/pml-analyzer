@@ -7,7 +7,7 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.operators.*
 
 trait GenericApplicationInterferenceSpecification
-  extends ApplicativeTableBasedInterferenceSpecification {
+    extends ApplicativeTableBasedInterferenceSpecification {
   self: GenericPlatform with GenericTransactionLibrary with GenericSoftware =>
 
   private val groups: Seq[Group[Cluster]] = groupDSP ++ groupCore
@@ -18,7 +18,8 @@ trait GenericApplicationInterferenceSpecification
       cJ <- cI
     } yield cJ
 
-  private val pf_crossbar_ports: Seq[Transporter] = PlatformCrossBar.groupDSPInputPorts ++
+  private val pf_crossbar_ports: Seq[Transporter] =
+    PlatformCrossBar.groupDSPInputPorts ++
       PlatformCrossBar.groupDSPOutputPorts ++
       PlatformCrossBar.groupCoreInputPorts ++
       PlatformCrossBar.groupCoreOutputPorts ++

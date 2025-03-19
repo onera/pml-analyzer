@@ -201,14 +201,15 @@ object Analyse {
           p: Provided[T, Hardware]
       ): Map[Int, BigInt] =
         if (!ignoreExistingFile)
-          PostProcess.parseSemanticsSizeFile(self)
+          PostProcess
+            .parseSemanticsSizeFile(self)
             .getOrElse(ev.getSemanticsSize(self, self.initiators.size))
         else
           ev.getSemanticsSize(self, self.initiators.size)
 
       def computeSemanticReduction(ignoreExistingFiles: Boolean = false)(using
-                                                                         ev: Analyse[T],
-                                                                         p: Provided[T, Hardware]
+          ev: Analyse[T],
+          p: Provided[T, Hardware]
       ): BigDecimal = {
         Await.result(
           ev.computeInterference(
@@ -361,10 +362,10 @@ object Analyse {
 
       files match
         case Some(vF)
-          if !ignoreExistingAnalysisFiles
-            && vF.forall(f =>
-            FileManager.analysisDirectory.locate(f.getName).isDefined
-          ) =>
+            if !ignoreExistingAnalysisFiles
+              && vF.forall(f =>
+                FileManager.analysisDirectory.locate(f.getName).isDefined
+              ) =>
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
@@ -374,10 +375,10 @@ object Analyse {
           )
           vF
         case None
-          if !ignoreExistingAnalysisFiles
-            && FileManager.analysisDirectory
-            .locate(summaryFile.getName)
-            .isDefined =>
+            if !ignoreExistingAnalysisFiles
+              && FileManager.analysisDirectory
+                .locate(summaryFile.getName)
+                .isDefined =>
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
@@ -391,15 +392,15 @@ object Analyse {
           val problem = computeProblemConstraints(platform, maxSize)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
-            for {iF <- interferenceFiles} yield iF.transform((_, v) =>
+            for { iF <- interferenceFiles } yield iF.transform((_, v) =>
               new FileWriter(v)
             )
           val freeWriters =
-            for {fF <- freeFiles} yield fF.transform((_, v) =>
+            for { fF <- freeFiles } yield fF.transform((_, v) =>
               new FileWriter(v)
             )
           val channelWriters =
-            for {cF <- channelFiles} yield cF.transform((_, v) =>
+            for { cF <- channelFiles } yield cF.transform((_, v) =>
               new FileWriter(v)
             )
           val allWriters =
@@ -427,19 +428,19 @@ object Analyse {
           val channels = mutable.Map.empty[Int, Map[Channel, Int]]
 
           val update = (
-                         isFree: Boolean,
-                         physical: Set[Set[PhysicalScenarioId]],
-                         user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
-                       ) => {
+              isFree: Boolean,
+              physical: Set[Set[PhysicalScenarioId]],
+              user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+          ) => {
             val userBySize =
               user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
             if (isFree) {
               updateNumber(nbFree, userBySize)
-              for {fW <- freeWriters}
+              for { fW <- freeWriters }
                 updateResultFile(fW, userBySize)
             } else {
               updateNumber(nbITF, userBySize)
-              for {iW <- interferenceWriters}
+              for { iW <- interferenceWriters }
                 updateResultFile(iW, userBySize)
               updateChannelNumber(problem, channels, physical, user)
             }
@@ -461,7 +462,11 @@ object Analyse {
             System.currentTimeMillis().toFloat
           val nonExclusiveScenarios =
             if (computeSemantics)
-              Some(platform.getSemanticsSize(ignoreExistingFile = ignoreExistingAnalysisFiles))
+              Some(
+                platform.getSemanticsSize(ignoreExistingFile =
+                  ignoreExistingAnalysisFiles
+                )
+              )
             else None
           println(
             Message.successfulNonExclusiveScenarioEstimationInfo(
@@ -577,7 +582,7 @@ object Analyse {
           }
           val computationTime =
             (System.currentTimeMillis() - assessmentStartDate) * 1e-3
-          for {cW <- channelWriters}
+          for { cW <- channelWriters }
             updateChannelFile(cW, channels)
 
           if (verboseResultFile) {

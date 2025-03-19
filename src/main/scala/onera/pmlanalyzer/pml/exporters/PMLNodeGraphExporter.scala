@@ -255,7 +255,7 @@ object PMLNodeGraphExporter {
   trait DOTNamer {
 
     private val colorMap = Map(
-      0-> "\"#D6EBA0\"",
+      0 -> "\"#D6EBA0\"",
       1 -> "\"#EBBFA0\"",
       2 -> "\"#A0E3EB\"",
       3 -> "\"#D4A0EB\"",

@@ -107,21 +107,21 @@ object FileManager {
   }
 
   def getInterferenceAnalysisITFFileName(
-                                          platform: Platform,
-                                          size: Int
-                                        ): String =
+      platform: Platform,
+      size: Int
+  ): String =
     s"${platform.fullName}_itf_$size.txt"
 
   def getInterferenceAnalysisFreeFileName(
-                                           platform: Platform,
-                                           size: Int
-                                         ): String =
+      platform: Platform,
+      size: Int
+  ): String =
     s"${platform.fullName}_free_$size.txt"
 
   def getInterferenceAnalysisChannelFileName(
-                                              platform: Platform,
-                                              size: Int
-                                            ): String =
+      platform: Platform,
+      size: Int
+  ): String =
     s"${platform.fullName}_channel_$size.txt"
 
   def getInterferenceAnalysisSummaryFileName(platform: Platform): String =

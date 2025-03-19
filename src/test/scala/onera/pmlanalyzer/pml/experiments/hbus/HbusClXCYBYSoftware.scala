@@ -27,8 +27,8 @@ trait HbusClXCYBYSoftware {
   self: HbusClXCYBYPlatform =>
 
   val clusterApplications: Seq[Seq[Application]] =
-    for {i <- cg0.clusters.indices} yield {
-      for {j <- cg0.clusters(i).cores.indices} yield {
+    for { i <- cg0.clusters.indices } yield {
+      for { j <- cg0.clusters(i).cores.indices } yield {
         val app = Application(s"app_Cl${i}_C$j")
         app hostedBy cg0.clusters(i).cores(j)
         app

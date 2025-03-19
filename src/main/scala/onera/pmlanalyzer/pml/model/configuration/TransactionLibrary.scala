@@ -297,11 +297,11 @@ trait TransactionLibrary {
     */
   object Scenario extends PMLNodeBuilder[Scenario] {
 
-    def apply[A, B](name:Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-                                                            ta: AsTransaction[Set[A]],
-                                                            tb: AsTransaction[Set[B]],
-                                                            line: Line,
-                                                            file: File
+    def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+        ta: AsTransaction[Set[A]],
+        tb: AsTransaction[Set[B]],
+        line: Line,
+        file: File
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)

@@ -47,14 +47,14 @@ import scala.collection.mutable.HashMap as MHashMap
 trait Restrict[L, R] {
 
   def reachableLinksByIni[U <: Service](ini: Initiator)(using
-                                                        lU: Linked[U, U],
-                                                        uI: Used[Initiator, U],
-                                                        pI: Provided[Initiator, U],
-                                                        r: RoutingRelation[(Initiator, Service, Service), Service]
+      lU: Linked[U, U],
+      uI: Used[Initiator, U],
+      pI: Provided[Initiator, U],
+      r: RoutingRelation[(Initiator, Service, Service), Service]
   ): (Set[(U, U)], Set[String]) = {
     val reachableEdges = mutable.Set.empty[(U, U)]
     val warnings = mutable.Set.empty[String]
-    for {tgt <- ini.used()} {
+    for { tgt <- ini.used() } {
       val (reachableFromOn, warningsFromOn) =
         reachableLinksByIniForTgt(ini, tgt)
       reachableEdges ++= reachableFromOn
@@ -75,16 +75,16 @@ trait Restrict[L, R] {
    * @return the set of collected edges and cycle warnings found on the way
    */
   def reachableLinksByIniForTgt[U <: Service](
-                                               ini: Initiator,
-                                               tgt: U
-                                             )(using
-                                               lU: Linked[U, U],
-                                               pI: Provided[Initiator, U],
-                                               r: RoutingRelation[(Initiator, Service, Service), Service]
-                                             ): (Set[(U, U)], Set[String]) = {
+      ini: Initiator,
+      tgt: U
+  )(using
+      lU: Linked[U, U],
+      pI: Provided[Initiator, U],
+      r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): (Set[(U, U)], Set[String]) = {
     val reachableEdges = mutable.Set.empty[(U, U)]
     val warnings = mutable.Set.empty[String]
-    for {on <- ini.provided} {
+    for { on <- ini.provided } {
       val (reachableFromOn, warningsFromOn) =
         reachableLinksByIniForTgt(ini, tgt, on, Seq.empty)
       reachableEdges ++= reachableFromOn
@@ -106,14 +106,14 @@ trait Restrict[L, R] {
    * @return the set of collected edges and cycle warnings found on the way
    */
   private def reachableLinksByIniForTgt[U <: Service](
-                                                       ini: Initiator,
-                                                       tgt: U,
-                                                       on: U,
-                                                       visited: Seq[(U, U)]
-                                                     )(using
-                                                       lU: Linked[U, U],
-                                                       r: RoutingRelation[(Initiator, Service, Service), Service]
-                                                     ): (Set[(U, U)], Set[String]) = {
+      ini: Initiator,
+      tgt: U,
+      on: U,
+      visited: Seq[(U, U)]
+  )(using
+      lU: Linked[U, U],
+      r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): (Set[(U, U)], Set[String]) = {
 
     val warnings = mutable.Set.empty[String]
     val reachableEdges = mutable.Set.empty[(U, U)]
@@ -123,7 +123,7 @@ trait Restrict[L, R] {
     val successors =
       r.get((ini, tgt, on)) match
         case Some(routed) => lU(on).filter(routed.contains)
-        case None => lU(on)
+        case None         => lU(on)
 
     for {
       succ <- successors
@@ -146,7 +146,7 @@ trait Restrict[L, R] {
         // we only add the current edge if at least one edge has been collected on the successor
         // otherwise no edges from the current successor leads to the target so return empty set
         reachableEdges ++= (if (nextEdge.nonEmpty) nextEdge + (on -> succ)
-        else nextEdge)
+                            else nextEdge)
       }
     }
     // we only send the warnings if it exists an edge leading to the target (i.e. reachableEdges is non empty)
@@ -176,11 +176,11 @@ object Restrict {
 
     extension (self: Application) {
       def serviceGraph(using
-                       ev: Restrict[(Map[Service, Set[Service]], Set[String]), Application]
-                      ): Map[Service, Set[Service]] = ev(self)._1
+          ev: Restrict[(Map[Service, Set[Service]], Set[String]), Application]
+      ): Map[Service, Set[Service]] = ev(self)._1
       def hardwareGraph(using
-                        ev: Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]
-                       ): Map[Hardware, Set[Hardware]] = ev(self)._1
+          ev: Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]
+      ): Map[Hardware, Set[Hardware]] = ev(self)._1
     }
 
     /** Extension method class
@@ -391,12 +391,12 @@ object Restrict {
     */
   given [AI <: Application | Initiator](using
       lS: LinkRelation[Service],
-                                        u: Used[AI, Service],
-                                        uSI: Used[AI, Initiator],
+      u: Used[AI, Service],
+      uSI: Used[AI, Initiator],
       aR: AuthorizeRelation[Application, Service],
       r: RoutingRelation[(Initiator, Service, Service), Service],
       pB: Provided[Initiator, Service]
-                                       ): Restrict[(Map[Service, Set[Service]], Set[String]), AI] with {
+  ): Restrict[(Map[Service, Set[Service]], Set[String]), AI] with {
 
     /** Provide the service graph of an application
       *
@@ -430,8 +430,8 @@ object Restrict {
   given [T](using
       lP: LinkRelation[Hardware],
       pS: Provided[Hardware, Service],
-            restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
-           ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
+      restrict: Restrict[(Map[Service, Set[Service]], Set[String]), T]
+  ): Restrict[(Map[Hardware, Set[Hardware]], Set[String]), T] with {
     def apply(b: T): (Map[Hardware, Set[Hardware]], Set[String]) = {
       val restricted = restrict(b)
       // shortcut non-owner services, if k -> v and k is not owned by any HW then push v to all predecessors of k
@@ -494,16 +494,16 @@ object Restrict {
 
   given [T <: Application | Initiator](using
       lS: LinkRelation[Service],
-                                       pI: Provided[Initiator, Service],
-                                       uSI: Used[T, Initiator],
-                                       r: RoutingRelation[(Initiator, Service, Service), Service]
-                                      ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
+      pI: Provided[Initiator, Service],
+      uSI: Used[T, Initiator],
+      r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): Restrict[(Map[Service, Set[Service]], Set[String]), (T, Service)] with {
 
     def apply(b: (T, Service)): (Map[Service, Set[Service]], Set[String]) = {
       val warnings = mutable.Set.empty[String]
       val reachableEdges = mutable.Set.empty[(Service, Service)]
 
-      for {ini <- b._1.hostingInitiators} {
+      for { ini <- b._1.hostingInitiators } {
         val (reachableEdgesIni, warningsIni) =
           reachableLinksByIniForTgt(ini, b._2)
         warnings ++= warningsIni

@@ -24,9 +24,9 @@ trait GenericSoftware {
   self: GenericPlatform =>
 
   val coreApplications: Seq[Seq[Seq[Seq[Application]]]] =
-    for {gId <- groupCore.indices} yield for {
+    for { gId <- groupCore.indices } yield for {
       cIdI <- groupCore(gId).clusters.indices
-    } yield for {cIdJ <- groupCore(gId).clusters(cIdI).indices} yield for {
+    } yield for { cIdJ <- groupCore(gId).clusters(cIdI).indices } yield for {
       coreId <- groupCore(gId).clusters(cIdI)(cIdJ).cores.indices
     } yield {
       val app = Application(s"app_rosace_cg${gId}_cl${cIdI}_${cIdJ}_C$coreId")
@@ -35,9 +35,9 @@ trait GenericSoftware {
     }
 
   val dspApplications: Seq[Seq[Seq[Seq[Application]]]] =
-    for {gId <- groupDSP.indices} yield for {
+    for { gId <- groupDSP.indices } yield for {
       cIdI <- groupDSP(gId).clusters.indices
-    } yield for {cIdJ <- groupDSP(gId).clusters(cIdI).indices} yield for {
+    } yield for { cIdJ <- groupDSP(gId).clusters(cIdI).indices } yield for {
       coreId <- groupDSP(gId).clusters(cIdI)(cIdJ).cores.indices
     } yield {
       val app = Application(s"app_rosace_dg${gId}_cl${cIdI}_${cIdJ}_C$coreId")

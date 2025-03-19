@@ -50,8 +50,8 @@ object SemanticsExporter {
       }
 
       def exportSemanticReduction()(using
-                                    ev: Analyse[T],
-                                    p: Provided[T, Hardware]
+          ev: Analyse[T],
+          p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
           FileManager.getSemanticsReductionFileName(self)

@@ -5,6 +5,6 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.operators.*
 
 trait GenericTransactionInterferenceSpecification
-  extends PhysicalTableBasedInterferenceSpecification {
+    extends PhysicalTableBasedInterferenceSpecification {
   self: GenericPlatform =>
 }
