@@ -28,8 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group transporter_class
   */
-final class SimpleTransporter private(val name: Symbol, line: Line, file: File)
-  extends Transporter(line, file)
+final class SimpleTransporter private (val name: Symbol, line: Line, file: File)
+    extends Transporter(line, file)
 
 /** Builder of simple transporters
   * @group builder
@@ -43,8 +43,8 @@ object SimpleTransporter extends BaseHardwareNodeBuilder[SimpleTransporter] {
     *   the object
     */
   protected def builder(
-                         name: Symbol
-                       )(using line: Line, file: File): SimpleTransporter =
+      name: Symbol
+  )(using line: Line, file: File): SimpleTransporter =
     new SimpleTransporter(name, line, file)
 
 }

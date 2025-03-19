@@ -29,6 +29,6 @@ import sourcecode.{Enclosing, File, Line}
   *   the implicit context that can be used to find the source code location of
   *   the node definition
   */
-abstract class Transporter private[hardware](line: Line, file: File)(using
-                                                                     enclosing: Enclosing
+abstract class Transporter private[hardware] (line: Line, file: File)(using
+    enclosing: Enclosing
 ) extends Hardware(line: Line, file: File)

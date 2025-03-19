@@ -175,13 +175,13 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 object Relation {
 
   final case class Change[L, R](
-                                 l: L,
-                                 r: R,
-                                 isAdd: Boolean,
-                                 line: Line,
-                                 file: File
-                               )(using name: Name)
-    extends SourceCodeTraceable {
+      l: L,
+      r: R,
+      isAdd: Boolean,
+      line: Line,
+      file: File
+  )(using name: Name)
+      extends SourceCodeTraceable {
 
     /**
      * Line in source code where node has been instantiated
@@ -195,8 +195,8 @@ object Relation {
       file.value.split('.').init.mkString(java.io.File.separator)
 
     override def toString: String = s"$sourceFile:$lineInFile ${
-      if (isAdd) "adding" else "removing"
-    } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
+        if (isAdd) "adding" else "removing"
+      } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
   }
 
   /** Trait gathering all relation instances

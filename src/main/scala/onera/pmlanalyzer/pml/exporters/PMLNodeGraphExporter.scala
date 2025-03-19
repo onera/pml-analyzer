@@ -236,11 +236,11 @@ object PMLNodeGraphExporter {
   trait DOTRelationExporter extends RelationExporter {
 
     final case class DOTAssociation(left: Int, right: Int, name: String)
-      extends Association {
+        extends Association {
       override def toString: String =
         s"$left -> $right [${
-          if (name.nonEmpty) s"label=$name, " else ""
-        }arrowhead=none]\n"
+            if (name.nonEmpty) s"label=$name, " else ""
+          }arrowhead=none]\n"
     }
 
     def getHeader: String =
@@ -270,16 +270,16 @@ object PMLNodeGraphExporter {
     }
 
     final case class DOTCluster(
-                                 name: String,
-                                 subElements: Set[DOTCluster | DOTElement]
-                               ) extends Element {
+        name: String,
+        subElements: Set[DOTCluster | DOTElement]
+    ) extends Element {
 
       private val depth: Int = name.count(_ == '_')
 
       def contains(element: DOTCluster | DOTElement): Boolean =
         subElements.contains(element) || subElements.exists {
           case c: DOTCluster => c.contains(element)
-          case _ => false
+          case _             => false
         }
       override def toString: String =
         s"""subgraph cluster_$name {
@@ -287,12 +287,10 @@ object PMLNodeGraphExporter {
            |\tlabeljust=l
            |\tstyle = filled
            |\tcolor = ${colorMap(depth)}
-           |${
-          subElements.toSeq
+           |${subElements.toSeq
             .sortBy(_.name)
             .map(_.toString.replace(s"${name}_", ""))
-            .mkString("\t", "\t", "")
-        }
+            .mkString("\t", "\t", "")}
            |\t}
            |""".stripMargin
     }
@@ -355,31 +353,31 @@ object PMLNodeGraphExporter {
   trait ServiceSetExporter extends DOTRelationExporter {
 
     def getAssociation(
-                        from: Set[Service],
-                        to: Set[Service],
-                        tyype: String
-                      ): Option[DOTAssociation]
+        from: Set[Service],
+        to: Set[Service],
+        tyype: String
+    ): Option[DOTAssociation]
   }
 
   trait FullServiceSetExporter extends ServiceSetExporter {
     self: ServiceSetNamer with RelationExporter =>
 
     def getAssociation(
-                        from: Set[Service],
-                        to: Set[Service],
-                        tyype: String
-                      ): Option[DOTAssociation] = {
-      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
+        from: Set[Service],
+        to: Set[Service],
+        tyype: String
+    ): Option[DOTAssociation] = {
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
     }
   }
 
   trait NullServiceSetExporter extends ServiceSetExporter {
 
     def getAssociation(
-                        from: Set[Service],
-                        to: Set[Service],
-                        tyype: String
-                      ): Option[DOTAssociation] = None
+        from: Set[Service],
+        to: Set[Service],
+        tyype: String
+    ): Option[DOTAssociation] = None
   }
 
   trait ServiceNamer extends DOTNamer {
@@ -420,10 +418,10 @@ object PMLNodeGraphExporter {
       *   the destination service
       */
     def getAssociation(
-                        from: Service,
-                        to: Service,
-                        tyype: String
-                      ): Option[DOTAssociation]
+        from: Service,
+        to: Service,
+        tyype: String
+    ): Option[DOTAssociation]
   }
 
   trait NullServiceNamer extends ServiceNamer {
@@ -434,10 +432,10 @@ object PMLNodeGraphExporter {
   trait NullServiceExporter extends ServiceExporter {
 
     def getAssociation(
-                        from: Service,
-                        to: Service,
-                        tyype: String
-                      ): Option[DOTAssociation] =
+        from: Service,
+        to: Service,
+        tyype: String
+    ): Option[DOTAssociation] =
       None
   }
 
@@ -448,7 +446,7 @@ object PMLNodeGraphExporter {
         x, {
           x match
             case a: ArtificialService => DOTElement(a.name.name, "gray")
-            case s => DOTElement(s.name.name, "green")
+            case s                    => DOTElement(s.name.name, "green")
         }
       )
     )
@@ -458,11 +456,11 @@ object PMLNodeGraphExporter {
     self: ServiceNamer with RelationExporter =>
 
     def getAssociation(
-                        from: Service,
-                        to: Service,
-                        tyype: String
-                      ): Option[DOTAssociation] = {
-      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
+        from: Service,
+        to: Service,
+        tyype: String
+    ): Option[DOTAssociation] = {
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
     }
   }
 
@@ -506,26 +504,26 @@ object PMLNodeGraphExporter {
       *   the element declaration
       */
     def getElement(x: Hardware)(using
-                                pb: Provided[Hardware, Service]
+        pb: Provided[Hardware, Service]
     ): Option[DOTElement | DOTCluster]
 
   }
 
   trait HWExporter extends DOTRelationExporter {
     def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
-                                                                    pb: Provided[Hardware, Service]
+        pb: Provided[Hardware, Service]
     ): Option[DOTAssociation]
   }
 
   trait NullHWExporter extends HWExporter {
     def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
-                                                                    pb: Provided[Hardware, Service]
+        pb: Provided[Hardware, Service]
     ): Option[DOTAssociation] = None
   }
 
   trait NullHWNamer extends HWNamer {
     def getElement(x: Hardware)(using
-                                pb: Provided[Hardware, Service]
+        pb: Provided[Hardware, Service]
     ): Option[DOTElement | DOTCluster] = None
   }
 
@@ -534,7 +532,7 @@ object PMLNodeGraphExporter {
     self: RelationExporter with ServiceNamer =>
 
     def getElement(x: Hardware)(using
-                                pb: Provided[Hardware, Service]
+        pb: Provided[Hardware, Service]
     ): Option[DOTElement | DOTCluster] = Some(
       _memoHWId.getOrElseUpdate(
         x, {
@@ -542,8 +540,8 @@ object PMLNodeGraphExporter {
             case a: (Transporter | Target | Initiator) =>
               val color = a match {
                 case _: Transporter => "mediumpurple1"
-                case _: Target => "darkolivegreen1"
-                case _: Initiator => "brown1"
+                case _: Target      => "darkolivegreen1"
+                case _: Initiator   => "brown1"
               }
               DOTElement(x.name.name, color)
             case c: Composite =>
@@ -566,7 +564,7 @@ object PMLNodeGraphExporter {
     def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
         pPB: Provided[Hardware, Service]
     ): Option[DOTAssociation] = {
-      for {f <- getId(from); t <- getId(to)} yield DOTAssociation(f, t, tyype)
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
     }
   }
 
@@ -685,7 +683,7 @@ object PMLNodeGraphExporter {
             case None =>
               getHWElement(id) match
                 case Some(value) => Some(value)
-                case None => getServiceSetElement(id)
+                case None        => getServiceSetElement(id)
     }
   }
 
@@ -709,7 +707,7 @@ object PMLNodeGraphExporter {
     def exportGraph(platform: Platform)(implicit writer: Writer): Unit
 
     def exportGraph(platform: Platform, associations: Iterable[DOTAssociation])(
-      implicit writer: Writer
+        implicit writer: Writer
     ): Unit = {
       import platform.*
 
@@ -919,7 +917,7 @@ object PMLNodeGraphExporter {
       *   the implicit writer
      */
     def exportGraphSW(platform: Platform, toPrint: Application)(implicit
-                                                                writer: Writer
+        writer: Writer
     ): Unit = {
       import platform._
       reset()

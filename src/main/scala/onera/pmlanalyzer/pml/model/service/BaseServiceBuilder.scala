@@ -63,10 +63,10 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     *   the service
     */
   def apply()(using
-              givenName: Name,
-              owner: Owner,
-              givenLine: Line,
-              givenFile: File
+      givenName: Name,
+      owner: Owner,
+      givenLine: Line,
+      givenFile: File
   ): T = apply(Symbol(givenName.value))
 
   /** A service can be defined by its name
@@ -79,8 +79,8 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     *   the service
     */
   def apply(
-             name: Symbol
-           )(using owner: Owner, givenLine: Line, givenFile: File): T = {
+      name: Symbol
+  )(using owner: Owner, givenLine: Line, givenFile: File): T = {
     _memo.getOrElseUpdate((name, owner.s), builder(name))
   }
 }

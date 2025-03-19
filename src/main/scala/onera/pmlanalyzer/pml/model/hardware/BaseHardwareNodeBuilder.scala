@@ -111,12 +111,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   def apply(
       basics: Set[Service] = Set.empty,
       withDefaultServices: Boolean = true
-           )(using
-             givenName: Name,
+  )(using
+      givenName: Name,
       p: ProvideRelation[Hardware, Service],
-             owner: Owner,
-             givenLine: Line,
-             givenFile: File
+      owner: Owner,
+      givenLine: Line,
+      givenFile: File
   ): T =
     apply(Symbol(givenName.value), basics, withDefaultServices)
 
@@ -144,12 +144,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol,
       basics: Set[Service],
       withDefaultServices: Boolean
-           )(using
-             p: ProvideRelation[Hardware, Service],
-             owner: Owner,
-             line: Line,
-             file: File
-           ): T = {
+  )(using
+      p: ProvideRelation[Hardware, Service],
+      owner: Owner,
+      line: Line,
+      file: File
+  ): T = {
     val formattedName = formatName(name, owner)
     val result =
       _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
@@ -181,9 +181,9 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
-                                                owner: Owner,
-                                                line: Line,
-                                                file: File
+      owner: Owner,
+      line: Line,
+      file: File
   ): T = {
     apply(name, basics, true)
   }
@@ -203,12 +203,12 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-           )(using
-             p: ProvideRelation[Hardware, Service],
-             owner: Owner,
-             line: Line,
-             file: File
-           ): T =
+  )(using
+      p: ProvideRelation[Hardware, Service],
+      owner: Owner,
+      line: Line,
+      file: File
+  ): T =
     apply(name, Set.empty, true)
 
   /** A physical component can be defined only its name, the services will be
@@ -229,9 +229,9 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
-                                                        owner: Owner,
-                                                        line: Line,
-                                                        file: File
+      owner: Owner,
+      line: Line,
+      file: File
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }

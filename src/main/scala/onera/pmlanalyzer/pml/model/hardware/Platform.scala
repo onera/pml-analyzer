@@ -47,12 +47,12 @@ import scala.language.implicitConversions
   * @group hierarchical_class
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
-  extends PMLNode(line, file)
+    extends PMLNode(line, file)
     with Relation.Instances {
 
   def this(n: Symbol, dummy: Int = 0)(using
-                                      givenLine: Line,
-                                      givenFile: File
+      givenLine: Line,
+      givenFile: File
   ) = {
     this(n, givenLine, givenFile)
   }
