@@ -255,13 +255,13 @@ object PMLNodeGraphExporter {
   trait DOTNamer {
 
     private val colorMap = Map(
-      1 -> "\"#D6EBA0\"",
-      2 -> "\"#EBBFA0\"",
-      3 -> "\"#A0E3EB\"",
-      4 -> "\"#D4A0EB\"",
-      5 -> "\"#769296\"",
-      6 -> "\"#606B42\""
-    ).withDefaultValue("white")
+      0-> "\"#D6EBA0\"",
+      1 -> "\"#EBBFA0\"",
+      2 -> "\"#A0E3EB\"",
+      3 -> "\"#D4A0EB\"",
+      4 -> "\"#769296\"",
+      5 -> "\"#606B42\""
+    )
 
     final case class DOTElement(name: String, color: String) extends Element {
       override def toString: String =
@@ -285,7 +285,7 @@ object PMLNodeGraphExporter {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
-           |\tcolor = ${colorMap(depth)}
+           |\tcolor = ${colorMap(depth % colorMap.size)}
            |${subElements.toSeq
             .sortBy(_.name)
             .map(_.toString.replace(s"${name}_", ""))

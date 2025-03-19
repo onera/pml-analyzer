@@ -162,8 +162,8 @@ object GenericExport extends App {
     // Export the transactions defined by the user
     platform.exportUserScenarios()
 
-    platform.exportSemanticsSize()
-
-    platform.exportAnalysisGraph()
+//    platform.exportSemanticsSize()
+//
+//    platform.exportAnalysisGraph()
   }
 }

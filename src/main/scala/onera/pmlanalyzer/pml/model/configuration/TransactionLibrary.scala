@@ -297,6 +297,25 @@ trait TransactionLibrary {
     */
   object Scenario extends PMLNodeBuilder[Scenario] {
 
+    def apply[A, B](name:Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+                                                            ta: AsTransaction[Set[A]],
+                                                            tb: AsTransaction[Set[B]],
+                                                            line: Line,
+                                                            file: File
+    ): Scenario = {
+      val resultL = TransactionParam(iniTgtL)
+      val resultR = TransactionParam(iniTgtR)
+      apply(
+        UserScenarioId(name),
+        () => {
+          resultL._1() ++ resultR._1()
+        },
+        () => {
+          resultL._2() ++ resultR._2()
+        }
+      )
+    }
+
     /** Build scenario from two write/read based transactions
       * @param iniTgtL
       *   the set of initiator/target of left member
@@ -317,19 +336,7 @@ trait TransactionLibrary {
         tb: AsTransaction[Set[B]],
         line: Line,
         file: File
-    ): Scenario = {
-      val resultL = TransactionParam(iniTgtL)
-      val resultR = TransactionParam(iniTgtR)
-      apply(
-        UserScenarioId(Symbol(name.value)),
-        () => {
-          resultL._1() ++ resultR._1()
-        },
-        () => {
-          resultL._2() ++ resultR._2()
-        }
-      )
-    }
+    ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
 
     /** Build a scenario from a transaction or another scenario
       * @param tr
