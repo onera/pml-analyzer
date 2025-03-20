@@ -32,6 +32,8 @@ import onera.pmlanalyzer.views.interference.model.specification.{
   PhysicalTableBasedInterferenceSpecification
 }
 import onera.pmlanalyzer.views.interference.operators.*
+import scala.concurrent.duration.*
+import scala.language.postfixOps
 
 /** Program entry point to export several version of Keystone
   */
@@ -39,6 +41,7 @@ object GenericExport extends App {
 
   def generatePlatformFromConfiguration(
       coreCount: Int,
+      clusterCount: Int,
       dspCount: Int,
       ddrPartitions: Int,
       coresPerBankPerPartition: Int,
@@ -49,10 +52,11 @@ object GenericExport extends App {
     with ApplicativeTableBasedInterferenceSpecification = {
     // FIXME Assert ddrPartitions <= GP Core Count
     // FIXME Assert GP Core count is multiple of ddrPartitions
+    // FIXME Assert GP Core count is multiple of ddrPartitions
 
     // Create a GP group per partition
     // FIXME How to configure more than 1 GP cluster per group?
-    val gp_group_count: Int = ddrPartitions
+    val gp_group_count: Int = clusterCount
     val gp_cluster_per_group: Int = 1
     val gp_cores_per_cluster = coreCount / gp_group_count / gp_cluster_per_group
 
@@ -70,7 +74,7 @@ object GenericExport extends App {
 
     // Derive additional Generic Platform parameters
     val name = Symbol(
-      s"GenericSample_${coreCount}Cores_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank"
+      s"GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${if withDMA then "" else "_noDMA"}"
     )
     val ddr_count: Int = ddrPartitions
 
@@ -99,14 +103,22 @@ object GenericExport extends App {
   val candidatePlatforms = for {
     coreCount <- Seq(0, 1, 2, 4, 8)
     dspCount <- Seq(0, 1, 2, 4, 8)
+
+
+    clusterCount <- {
+      for { i <- 0 until log2(coreCount) } yield {
+        Math.pow(2.0, i).toInt
+      }
+    }
+
     ddrPartitions <- {
-      for { i <- 0 to Math.min(log2(coreCount), 1) } yield {
+      for { i <- 0 to Math.min(log2(clusterCount), 2) } yield {
         Math.pow(2.0, i).toInt
       }
     }
     coresPerBankPerPartition <- {
       for {
-        i <- 0 to log2(coreCount / ddrPartitions)
+        i <- 0 to 0 // log2(clusterCount / ddrPartitions * coreCount)
       } yield {
         Math.pow(2.0, i).toInt
       }
@@ -117,6 +129,7 @@ object GenericExport extends App {
   } yield {
     generatePlatformFromConfiguration(
       coreCount = coreCount,
+      clusterCount = clusterCount,
       dspCount = dspCount,
       ddrPartitions = ddrPartitions,
       coresPerBankPerPartition = coresPerBankPerPartition,
@@ -165,8 +178,9 @@ object GenericExport extends App {
     // Export the transactions defined by the user
     platform.exportUserScenarios()
 
-//    platform.exportSemanticsSize()
-//
-//    platform.exportAnalysisGraph()
+    platform.exportSemanticsSize()
+
+    platform.exportAnalysisGraph()
+
   }
 }
