@@ -104,26 +104,26 @@ object GenericExport extends App {
     coreCount <- Seq(0, 1, 2, 4, 8)
     dspCount <- Seq(0, 1, 2, 4, 8)
 
+    dspCount <- Seq(0)
 
     clusterCount <- {
-      for { i <- 0 until log2(coreCount) } yield {
+      for { i <- 0 to log2(coreCount) } yield {
         Math.pow(2.0, i).toInt
       }
     }
-
     ddrPartitions <- {
-      for { i <- 0 to Math.min(log2(clusterCount), 2) } yield {
+      for { i <- 0 to Math.min(log2(clusterCount), 1) } yield {
         Math.pow(2.0, i).toInt
       }
     }
     coresPerBankPerPartition <- {
       for {
-        i <- 0 to 0 // log2(clusterCount / ddrPartitions * coreCount)
+        i <- 0 to log2((clusterCount / ddrPartitions) * (coreCount / clusterCount))
       } yield {
         Math.pow(2.0, i).toInt
       }
     }
-    withDMA <- Seq(false)
+    withDMA <- Seq(true, false)
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 12)
   } yield {
@@ -143,44 +143,49 @@ object GenericExport extends App {
     // Export only HW used by SW (explicit)
     platform.exportRestrictedHWAndSWGraph()
 
-    // Export HW and SW graph whether used or not
-    platform.exportHWAndSWGraph()
-
-    // Export Service graph whether used or not and considering that all services are non-exclusive
-    platform.exportServiceGraph()
-
-    // Export Service graph considering and SW
-    platform.exportRestrictedServiceAndSWGraph()
-
-    // Export Service graph considering that all services are non-exclusive
-    platform.exportServiceGraphWithInterfere()
-
-    // Export individually the Service graph of each software
-    platform.applications foreach { s =>
-      platform.exportRestrictedServiceGraphForSW(s)
-    }
-
-    // Export the application allocation table
-    platform.exportAllocationTable()
-
-    // Export the data allocation table
-    platform.exportDataAllocationTable()
-
-    // Export the target used by software
-    platform.exportSWTargetUsageTable()
-
-    // Export the routing constraints
-    platform.exportRouteTable()
-
-    // Export the deactivated components
-    platform.exportDeactivatedComponents()
-
-    // Export the transactions defined by the user
-    platform.exportUserScenarios()
+//    // Export HW and SW graph whether used or not
+//    platform.exportHWAndSWGraph()
+//
+//    // Export Service graph whether used or not and considering that all services are non-exclusive
+//    platform.exportServiceGraph()
+//
+//    // Export Service graph considering and SW
+//    platform.exportRestrictedServiceAndSWGraph()
+//
+//    // Export Service graph considering that all services are non-exclusive
+//    platform.exportServiceGraphWithInterfere()
+//
+//    // Export individually the Service graph of each software
+//    platform.applications foreach { s =>
+//      platform.exportRestrictedServiceGraphForSW(s)
+//    }
+//
+//    // Export the application allocation table
+//    platform.exportAllocationTable()
+//
+//    // Export the data allocation table
+//    platform.exportDataAllocationTable()
+//
+//    // Export the target used by software
+//    platform.exportSWTargetUsageTable()
+//
+//    // Export the routing constraints
+//    platform.exportRouteTable()
+//
+//    // Export the deactivated components
+//    platform.exportDeactivatedComponents()
+//
+//    // Export the transactions defined by the user
+//    platform.exportUserScenarios()
 
     platform.exportSemanticsSize()
 
     platform.exportAnalysisGraph()
+
+    platform.computeAllInterference(
+      1 hours,
+      onlySummary = true
+    )
 
   }
 }
