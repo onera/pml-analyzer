@@ -41,7 +41,8 @@ object GenericExport extends App {
       coreCount: Int,
       dspCount: Int,
       ddrPartitions: Int,
-      coresPerBankPerPartition: Int
+      coresPerBankPerPartition: Int,
+      withDMA: Boolean = true,
   ): Platform
     with TransactionLibrary
     with PhysicalTableBasedInterferenceSpecification
@@ -88,7 +89,7 @@ object GenericExport extends App {
       nbDDRBank = bank_count,
       nbDDRController = ddr_count
     ) with GenericSoftware
-      with GenericTransactionLibrary
+      with GenericTransactionLibrary(withDMA)
       with GenericRoutingConstraints
       with GenericTransactionInterferenceSpecification
       with GenericApplicationInterferenceSpecification
@@ -110,6 +111,7 @@ object GenericExport extends App {
         Math.pow(2.0, i).toInt
       }
     }
+    withDMA <- Seq(false)
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 12)
   } yield {
@@ -117,7 +119,8 @@ object GenericExport extends App {
       coreCount = coreCount,
       dspCount = dspCount,
       ddrPartitions = ddrPartitions,
-      coresPerBankPerPartition = coresPerBankPerPartition
+      coresPerBankPerPartition = coresPerBankPerPartition,
+      withDMA = withDMA,
     )
   }
 

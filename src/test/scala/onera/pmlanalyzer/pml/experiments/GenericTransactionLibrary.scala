@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
 
-trait GenericTransactionLibrary extends TransactionLibrary {
+trait GenericTransactionLibrary(withDMA: Boolean = true) extends TransactionLibrary {
   self: GenericPlatform with GenericSoftware =>
 
   def partition_resources[A, B](
@@ -206,6 +206,8 @@ trait GenericTransactionLibrary extends TransactionLibrary {
     Seq(dma_rd_config) ++ ddrCopies ++ sramCopies
   }
 
-  for (s <- basicDmaTransactions)
-    s used
+  if (withDMA) {
+    for (s <- basicDmaTransactions)
+      s used
+  }
 }
