@@ -92,8 +92,8 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     )
   }
 
-  // "Two user transaction Id" should "be able to be exclusive" in {
-  //   us1 exclusiveWith us2 
-  //   transactionExclusive(transactionByUserName(us1)) should contain(transactionByUserName(us2))
-  // }
+  "Two user transaction Id" should "be able to be exclusive" in {
+    us1 exclusiveWith us2 
+    transactionExclusive(transactionByUserName(us1)) should contain(transactionByUserName(us2))
+  }
 }
