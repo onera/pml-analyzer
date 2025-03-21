@@ -5,7 +5,10 @@ import onera.pmlanalyzer.views.operators.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, PhysicalTableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  PhysicalTableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
@@ -59,6 +62,9 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     val tr1: Transaction = Transaction(app1 read d1)
     val tr2: Transaction = Transaction(app2 read d2)
 
+    val tr3: Transaction = Transaction(app1 read d1)
+    val tr4: Transaction = Transaction(app2 read d2)
+
     i1 link st1
 
     st1 link t1
@@ -71,12 +77,9 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
     tr2 used
 
-    val us1 : UserTransactionId = UserTransactionId(Symbol("us1"))
-    val us2 : UserTransactionId = UserTransactionId(Symbol("us2"))
+    tr3 used
 
-    // val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
-
-    // val scn: Scenario = Scenario()
+    tr4 used
   }
 
   import PlatformFixture.{*, given}
@@ -94,7 +97,11 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
   }
 
   "Two user transaction Id" should "be able to be exclusive" in {
-    us1 exclusiveWith us2
-    transactionExclusive(transactionByUserName(us1)) should contain(transactionByUserName(us2))
+    tr3.userName exclusiveWith tr4.userName
+    transactionExclusive(
+      transactionByUserName(tr3.userName)
+    ) should contain(
+      transactionByUserName(tr4.userName)
+    )
   }
 }
