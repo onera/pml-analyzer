@@ -5,12 +5,13 @@ import onera.pmlanalyzer.views.operators.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, PhysicalTableBasedInterferenceSpecification}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
-
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -78,7 +79,7 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     // val scn: Scenario = Scenario()
   }
 
-  import PlatformFixture.*
+  import PlatformFixture.{*, given}
 
   "Two physical transaction" should "be able to be exclusive from each other" in {
     tr1Id exclusiveWith tr2Id
@@ -93,7 +94,7 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
   }
 
   "Two user transaction Id" should "be able to be exclusive" in {
-    us1 exclusiveWith us2 
+    us1 exclusiveWith us2
     transactionExclusive(transactionByUserName(us1)) should contain(transactionByUserName(us2))
   }
 }
