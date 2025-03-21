@@ -93,6 +93,44 @@ trait Restrict[L, R] {
     (reachableEdges.toSet, warnings.toSet)
   }
 
+  private val _memo = mutable.HashMap.empty[
+    (Initiator, Service, Service),
+    (Set[(Service, Service)], Set[String])
+  ]
+
+  /**
+   * Memoization of the acyclic subgraph of services leading to a tgt service from a
+   * given service by an initiator. Note that the memoization does not consider the visited edges
+   * since the subgraph does not depend on the path from which the initiator reach the [[on]] service
+   * @param ini     the initiator
+   * @param tgt     the target service
+   * @param on      the starting point of the collection
+   * @param visited the edges already visited
+   * @param lU      the link relation between services
+   * @param r       the routing relation
+   * @tparam U      the type of service
+   * @return the set of collected edges and cycle warnings found on the way
+   */
+  private def reachableLinksByIniForTgtMemo[U <: Service](
+                                                       ini: Initiator,
+                                                       tgt: U,
+                                                       on: U,
+                                                       visited: Seq[(U, U)]
+                                                     )(using
+                                                       lU: Linked[U, U],
+                                                       r: RoutingRelation[(Initiator, Service, Service), Service]
+                                                     ): (Set[(U, U)], Set[String]) = {
+    val (links,warnings) = _memo.getOrElseUpdate(
+      (ini,tgt, on),
+      {
+        val (itLinks,itWarnings) = reachableLinksByIniForTgt(ini, tgt, on, visited)
+        (itLinks.collect({case l:(Service,Service) => l}), itWarnings)
+      }
+    )
+    //since memo is not polymorph, we need to do the cast
+    (links.collect({case u:(U,U) => u}), warnings)
+  }
+
   /**
    * Collect the edges that are used by an initiator to reach a target from a service on
    *
@@ -114,7 +152,6 @@ trait Restrict[L, R] {
       lU: Linked[U, U],
       r: RoutingRelation[(Initiator, Service, Service), Service]
   ): (Set[(U, U)], Set[String]) = {
-
     val warnings = mutable.Set.empty[String]
     val reachableEdges = mutable.Set.empty[(U, U)]
 
@@ -141,7 +178,7 @@ trait Restrict[L, R] {
         // otherwise we apply the recursion on the successor
       } else {
         val (nextEdge, warning) =
-          reachableLinksByIniForTgt(ini, tgt, succ, visited :+ (on -> succ))
+          reachableLinksByIniForTgtMemo(ini, tgt, succ, visited :+ (on -> succ))
         warnings ++= warning
         // we only add the current edge if at least one edge has been collected on the successor
         // otherwise no edges from the current successor leads to the target so return empty set
