@@ -27,7 +27,7 @@ import sourcecode.*
  * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-class GenericPlatform(
+class GenericPlatform private (
     name: Symbol,
     nbGroupDSP: Int,
     nbGroupCore: Int,
@@ -38,10 +38,44 @@ class GenericPlatform(
     nbDSPPerCluster: Int,
     nbCorePerCluster: Int,
     nbDDRBank: Int,
-    nbDDRController: Int
-) extends Platform(name) {
+    nbDDRController: Int,
+    line: Line,
+    file: File
+) extends Platform(name, line, file) {
 
-  sealed abstract class Cluster(n: Symbol) extends Composite(n) {
+  def this(
+      name: Symbol,
+      nbGroupDSP: Int,
+      nbGroupCore: Int,
+      nbClusterGroupDSP: Int,
+      nbClusterGroupCore: Int,
+      nbClusterDSPPerGroup: Int,
+      nbClusterCorePerGroup: Int,
+      nbDSPPerCluster: Int,
+      nbCorePerCluster: Int,
+      nbDDRBank: Int,
+      nbDDRController: Int,
+      dummy: Int = 0
+  )(using givenLine: Line, givenFile: File) = {
+    this(
+      name,
+      nbGroupDSP,
+      nbGroupCore,
+      nbClusterGroupDSP,
+      nbClusterGroupCore,
+      nbClusterDSPPerGroup,
+      nbClusterCorePerGroup,
+      nbDSPPerCluster,
+      nbCorePerCluster,
+      nbDDRBank,
+      nbDDRController,
+      givenLine,
+      givenFile
+    )
+  }
+
+  sealed abstract class Cluster(n: Symbol, line: Line, file: File)
+      extends Composite(n, line, file) {
     val cores: Seq[Initiator]
     val input_port: SimpleTransporter = SimpleTransporter()
     val output_port: SimpleTransporter = SimpleTransporter()
@@ -58,7 +92,16 @@ class GenericPlatform(
 
   }
 
-  final case class ClusterCore(id: String) extends Cluster(Symbol(s"ClC$id")) {
+  final class ClusterCore private (val id: String, line: Line, file: File)
+      extends Cluster(Symbol(s"ClC$id"), line, file) {
+
+    def this(id: String, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, givenLine, givenFile)
+    }
+
     val cores: Seq[Initiator] =
       for { i <- 0 until nbCorePerCluster } yield Initiator(s"C$i")
 
@@ -75,7 +118,15 @@ class GenericPlatform(
     bus link L2
   }
 
-  final case class ClusterDSP(id: String) extends Cluster(Symbol(s"ClD$id")) {
+  final class ClusterDSP private (val id: String, line: Line, file: File)
+      extends Cluster(Symbol(s"ClD$id"), line, file) {
+
+    def this(id: String, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, givenLine, givenFile)
+    }
 
     val cores: Seq[Initiator] =
       for { i <- 0 until nbDSPPerCluster } yield Initiator(s"C$i")
@@ -92,8 +143,21 @@ class GenericPlatform(
       core link sram
   }
 
-  final case class GroupCrossBar(id: Int, nbCluster: Int, nbGroup: Int)
-      extends Composite(s"group_bus$id") {
+  final class GroupCrossBar private (
+      val id: Int,
+      nbCluster: Int,
+      nbGroup: Int,
+      line: Line,
+      file: File
+  ) extends Composite(s"group_bus$id", line, file) {
+
+    def this(id: Int, nbCluster: Int, nbGroup: Int, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, nbCluster, nbGroup, givenLine, givenFile)
+    }
+
     val clusterInput: Seq[Seq[SimpleTransporter]] =
       for {
         i <- 0 until nbCluster
@@ -130,8 +194,10 @@ class GenericPlatform(
   sealed abstract class Group[+T <: Cluster](
       id: Int,
       nbCluster: Int,
-      nbClusterGroup: Int
-  ) extends Composite(s"cg$id") {
+      nbClusterGroup: Int,
+      line: Line,
+      file: File
+  ) extends Composite(s"cg$id", line, file) {
     val clusters: Seq[Seq[T]]
 
     val bus: GroupCrossBar = GroupCrossBar(id, nbCluster, nbClusterGroup)
@@ -154,8 +220,22 @@ class GenericPlatform(
 
   }
 
-  final case class GroupDSP(id: Int)
-      extends Group[ClusterDSP](id, nbClusterDSPPerGroup, nbClusterGroupDSP) {
+  final class GroupDSP private (val id: Int, line: Line, file: File)
+      extends Group[ClusterDSP](
+        id,
+        nbClusterDSPPerGroup,
+        nbClusterGroupDSP,
+        line,
+        file
+      ) {
+
+    def this(id: Int, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, givenLine, givenFile)
+    }
+
     val clusters: Seq[Seq[ClusterDSP]] =
       for {
         i <- 0 until nbClusterDSPPerGroup
@@ -168,12 +248,22 @@ class GenericPlatform(
     prepare_topology()
   }
 
-  final case class GroupCore(id: Int)
+  final class GroupCore private (val id: Int, line: Line, file: File)
       extends Group[ClusterCore](
         id,
         nbClusterCorePerGroup,
-        nbClusterGroupCore
+        nbClusterGroupCore,
+        line,
+        file
       ) {
+
+    def this(id: Int, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, givenLine, givenFile)
+    }
+
     val clusters: Seq[Seq[ClusterCore]] =
       for {
         i <- 0 until nbClusterCorePerGroup
@@ -186,7 +276,15 @@ class GenericPlatform(
     prepare_topology()
   }
 
-  final case class ddr(id: Int) extends Composite(s"ddr$id") {
+  final class ddr private (val id: Int, line: Line, file: File)
+      extends Composite(s"ddr$id", line, file) {
+
+    def this(id: Int, dummy: Int = 0)(using
+        givenLine: Line,
+        givenFile: File
+    ) = {
+      this(id, givenLine, givenFile)
+    }
 
     val banks: Seq[Target] =
       for { i <- 0 until nbDDRBank } yield Target(s"BK$i")

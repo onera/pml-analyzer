@@ -112,23 +112,23 @@ trait Restrict[L, R] {
    * @return the set of collected edges and cycle warnings found on the way
    */
   private def reachableLinksByIniForTgtMemo[U <: Service](
-                                                       ini: Initiator,
-                                                       tgt: U,
-                                                       on: U,
-                                                       visited: Seq[(U, U)]
-                                                     )(using
-                                                       lU: Linked[U, U],
-                                                       r: RoutingRelation[(Initiator, Service, Service), Service]
-                                                     ): (Set[(U, U)], Set[String]) = {
-    val (links,warnings) = _memo.getOrElseUpdate(
-      (ini,tgt, on),
-      {
-        val (itLinks,itWarnings) = reachableLinksByIniForTgt(ini, tgt, on, visited)
-        (itLinks.collect({case l:(Service,Service) => l}), itWarnings)
+      ini: Initiator,
+      tgt: U,
+      on: U,
+      visited: Seq[(U, U)]
+  )(using
+      lU: Linked[U, U],
+      r: RoutingRelation[(Initiator, Service, Service), Service]
+  ): (Set[(U, U)], Set[String]) = {
+    val (links, warnings) = _memo.getOrElseUpdate(
+      (ini, tgt, on), {
+        val (itLinks, itWarnings) =
+          reachableLinksByIniForTgt(ini, tgt, on, visited)
+        (itLinks.collect({ case l: (Service, Service) => l }), itWarnings)
       }
     )
-    //since memo is not polymorph, we need to do the cast
-    (links.collect({case u:(U,U) => u}), warnings)
+    // since memo is not polymorph, we need to do the cast
+    (links.collect({ case u: (U, U) => u }), warnings)
   }
 
   /**

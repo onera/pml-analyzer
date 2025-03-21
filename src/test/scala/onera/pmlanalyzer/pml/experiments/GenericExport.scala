@@ -32,6 +32,7 @@ import onera.pmlanalyzer.views.interference.model.specification.{
   PhysicalTableBasedInterferenceSpecification
 }
 import onera.pmlanalyzer.views.interference.operators.*
+import sourcecode.{Line, File}
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
@@ -45,7 +46,7 @@ object GenericExport extends App {
       dspCount: Int,
       ddrPartitions: Int,
       coresPerBankPerPartition: Int,
-      withDMA: Boolean = true,
+      withDMA: Boolean = true
   ): Platform
     with TransactionLibrary
     with PhysicalTableBasedInterferenceSpecification
@@ -74,7 +75,9 @@ object GenericExport extends App {
 
     // Derive additional Generic Platform parameters
     val name = Symbol(
-      s"GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${if withDMA then "" else "_noDMA"}"
+      s"GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
+          if withDMA then "" else "_noDMA"
+        }"
     )
     val ddr_count: Int = ddrPartitions
 
@@ -118,7 +121,9 @@ object GenericExport extends App {
     }
     coresPerBankPerPartition <- {
       for {
-        i <- 0 to log2((clusterCount / ddrPartitions) * (coreCount / clusterCount))
+        i <- 0 to log2(
+          (clusterCount / ddrPartitions) * (coreCount / clusterCount)
+        )
       } yield {
         Math.pow(2.0, i).toInt
       }
@@ -133,7 +138,7 @@ object GenericExport extends App {
       dspCount = dspCount,
       ddrPartitions = ddrPartitions,
       coresPerBankPerPartition = coresPerBankPerPartition,
-      withDMA = withDMA,
+      withDMA = withDMA
     )
   }
 

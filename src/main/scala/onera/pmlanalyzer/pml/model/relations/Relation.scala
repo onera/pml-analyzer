@@ -76,7 +76,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def add(a: L, b: R)(using line: Line, file: File): Unit = {
     _values.getOrElseUpdate(a, MSet.empty[R]) += b
     _inverse.getOrElseUpdate(b, MSet.empty[L]) += a
-    modifications += Change(a, b, isAdd = true, line, file)
+    modifications += Change(a, Some(b), isAdd = true, line, file)
   }
 
   /** Add a collection of b elements to a Warning if the b is empty then all the
@@ -90,8 +90,12 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def add(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
     if (b.nonEmpty)
       b.foreach(add(a, _))
-    else
+    else {
+      _values.get(a) match
+        case Some(value) if value.isEmpty =>
+        case _ => modifications += Change(a, None, isAdd = false, line, file)
       _values.getOrElseUpdate(a, MSet.empty[R]).clear()
+    }
 
   /** Remove the element b from the relation with a
     *
@@ -104,7 +108,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
       sb -= b
       sa -= a
-      modifications += Change(a, b, isAdd = false, line, file)
+      modifications += Change(a, Some(b), isAdd = false, line, file)
     }
 
   /** Remove the elements of the collection b from the relation with a
@@ -175,7 +179,7 @@ object Relation {
 
   final case class Change[L, R](
       l: L,
-      r: R,
+      r: Option[R],
       isAdd: Boolean,
       line: Line,
       file: File
@@ -193,9 +197,13 @@ object Relation {
     val sourceFile: String =
       file.value.split('.').init.mkString(java.io.File.separator)
 
+    private val changeString: String = r match
+      case Some(value) => s"$l -> $value"
+      case None        => s"all edges from $l"
+
     override def toString: String = s"$sourceFile:$lineInFile ${
         if (isAdd) "adding" else "removing"
-      } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
+      } $changeString ${if (isAdd) "to" else "from"} ${name.value}"
   }
 
   /** Trait gathering all relation instances
