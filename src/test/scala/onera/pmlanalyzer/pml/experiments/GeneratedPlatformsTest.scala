@@ -29,10 +29,7 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  InterferenceSpecification,
-  TableBasedInterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification, PhysicalTableBasedInterferenceSpecification, TableBasedInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -44,6 +41,110 @@ import scala.io.Source
 import scala.language.postfixOps
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
+
+  def generatePlatformFromConfiguration(
+                                         coreCount: Int,
+                                         clusterCount: Int,
+                                         dspCount: Int,
+                                         ddrPartitions: Int,
+                                         coresPerBankPerPartition: Int,
+                                         withDMA: Boolean = true
+                                       ): Platform
+    with TransactionLibrary
+    with PhysicalTableBasedInterferenceSpecification
+    with ApplicativeTableBasedInterferenceSpecification = {
+    // FIXME Assert ddrPartitions <= GP Core Count
+    // FIXME Assert GP Core count is multiple of ddrPartitions
+    // FIXME Assert GP Core count is multiple of ddrPartitions
+
+    // Create a GP group per partition
+    // FIXME How to configure more than 1 GP cluster per group?
+    val gp_group_count: Int = clusterCount
+    val gp_cluster_per_group: Int = 1
+    val gp_cores_per_cluster = coreCount / gp_group_count / gp_cluster_per_group
+
+    // Allocate banks to groups and cores
+    val bank_count: Int =
+      Math.ceil(coreCount / ddrPartitions / coresPerBankPerPartition).toInt
+
+    // Create a single DSP group
+    // - No activity from DSP Cores outside their cluster/group
+    // - Only the (single) DMA comes into the DSP clusters
+    val dsp_group_count: Int = 1
+    val dsp_cluster_per_group: Int = 1
+    val dsp_cores_per_cluster: Int =
+      dspCount / dsp_group_count / dsp_cluster_per_group
+
+    // Derive additional Generic Platform parameters
+    val name = Symbol(
+      s"GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
+        if withDMA then "" else "_noDMA"
+      }"
+    )
+    val ddr_count: Int = ddrPartitions
+
+    new GenericPlatform(
+      name = name,
+      nbGroupCore = gp_group_count,
+      nbGroupDSP = dsp_group_count,
+      nbClusterGroupDSP =
+        1, // FIXME This input seems redundant with the DSP Per Group
+      nbClusterGroupCore =
+        1, // FIXME This input seems redundant with the Core Per Group
+      nbClusterCorePerGroup = gp_cluster_per_group,
+      nbClusterDSPPerGroup = dsp_cluster_per_group,
+      nbCorePerCluster = gp_cores_per_cluster,
+      nbDSPPerCluster = dsp_cores_per_cluster,
+      nbDDRBank = bank_count,
+      nbDDRController = ddr_count
+    ) with GenericSoftware
+      with GenericTransactionLibrary(withDMA)
+      with GenericRoutingConstraints
+      with GenericTransactionInterferenceSpecification
+      with GenericApplicationInterferenceSpecification
+  }
+
+  val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
+  val genericPlatformInstances: Seq[
+    Platform & TransactionLibrary &
+      PhysicalTableBasedInterferenceSpecification &
+      ApplicativeTableBasedInterferenceSpecification
+  ] = for {
+      coreCount <- Seq(2, 4, 8, 16)
+      dspCount <- Seq(0)
+
+      clusterCount <- {
+        for {i <- 0 to log2(coreCount)} yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      ddrPartitions <- {
+        for {i <- 0 to Math.min(log2(clusterCount), 1)} yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      coresPerBankPerPartition <- {
+        for {
+          i <- 0 to log2(
+            (clusterCount / ddrPartitions) * (coreCount / clusterCount)
+          )
+        } yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      withDMA <- Seq(false)
+      if (0 < coreCount + dspCount)
+      if (coreCount + dspCount <= 16)
+    } yield {
+      generatePlatformFromConfiguration(
+        coreCount = coreCount,
+        clusterCount = clusterCount,
+        dspCount = dspCount,
+        ddrPartitions = ddrPartitions,
+        coresPerBankPerPartition = coresPerBankPerPartition,
+        withDMA = withDMA
+      )
+    }
 
   val dbusInstances: Seq[
     DbusCXDYBXPlatform & DbusCXDYBXSoftware & DbusCXDYBXTransactionLibrary &
@@ -83,7 +184,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         with TableBasedInterferenceSpecification {}
     }
 
-  private val platforms = dbusInstances
+  private val platforms = genericPlatformInstances
 
   "Generated architectures" should "be analysable to compute their semantics" in {
     for {
