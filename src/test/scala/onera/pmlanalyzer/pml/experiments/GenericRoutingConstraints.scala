@@ -24,7 +24,8 @@ trait GenericRoutingConstraints {
   private val group_inputs: Seq[Hardware] = groups.map(_.input_port)
   private val cluster_outputs: Seq[Hardware] = clusters.map(_.output_port)
   private val cluster_inputs: Seq[Hardware] = clusters.map(_.input_port)
-  private val platform_to_group_ports: Seq[Hardware] = PlatformCrossBar.groupDSPOutputPorts ++ PlatformCrossBar.groupCoreOutputPorts
+  private val platform_to_group_ports: Seq[Hardware] =
+    PlatformCrossBar.groupDSPOutputPorts ++ PlatformCrossBar.groupCoreOutputPorts
 
   // Cores cannot re-enter their own or other clusters and groups
   for {

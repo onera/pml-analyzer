@@ -29,7 +29,12 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification, PhysicalTableBasedInterferenceSpecification, TableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification,
+  PhysicalTableBasedInterferenceSpecification,
+  TableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -43,13 +48,13 @@ import scala.language.postfixOps
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
   def generatePlatformFromConfiguration(
-                                         coreCount: Int,
-                                         clusterCount: Int,
-                                         dspCount: Int,
-                                         ddrPartitions: Int,
-                                         coresPerBankPerPartition: Int,
-                                         withDMA: Boolean = true
-                                       ): Platform
+      coreCount: Int,
+      clusterCount: Int,
+      dspCount: Int,
+      ddrPartitions: Int,
+      coresPerBankPerPartition: Int,
+      withDMA: Boolean = true
+  ): Platform
     with TransactionLibrary
     with PhysicalTableBasedInterferenceSpecification
     with ApplicativeTableBasedInterferenceSpecification = {
@@ -78,25 +83,24 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     // Derive additional Generic Platform parameters
     val name = Symbol(
       s"GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
-        if withDMA then "" else "_noDMA"
-      }"
+          if withDMA then "" else "_noDMA"
+        }"
     )
     val ddr_count: Int = ddrPartitions
 
     new GenericPlatform(
-      name = name,
-      nbGroupCore = gp_group_count,
-      nbGroupDSP = dsp_group_count,
-      nbClusterGroupDSP =
-        1, // FIXME This input seems redundant with the DSP Per Group
-      nbClusterGroupCore =
+      n = name,
+      nbGrpCore = gp_group_count,
+      nbGrpDSP = dsp_group_count,
+      nbClGrpDSP = 1, // FIXME This input seems redundant with the DSP Per Group
+      nbClGrpCore =
         1, // FIXME This input seems redundant with the Core Per Group
-      nbClusterCorePerGroup = gp_cluster_per_group,
-      nbClusterDSPPerGroup = dsp_cluster_per_group,
-      nbCorePerCluster = gp_cores_per_cluster,
-      nbDSPPerCluster = dsp_cores_per_cluster,
-      nbDDRBank = bank_count,
-      nbDDRController = ddr_count
+      nbClCorePerGrp = gp_cluster_per_group,
+      nbClDSPPerGrp = dsp_cluster_per_group,
+      nbCorePerCl = gp_cores_per_cluster,
+      nbDSPPerCl = dsp_cores_per_cluster,
+      nbDDRBk = bank_count,
+      nbDDRCtrl = ddr_count
     ) with GenericSoftware
       with GenericTransactionLibrary(withDMA)
       with GenericRoutingConstraints
@@ -110,41 +114,41 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       PhysicalTableBasedInterferenceSpecification &
       ApplicativeTableBasedInterferenceSpecification
   ] = for {
-      coreCount <- Seq(2, 4, 8, 16)
-      dspCount <- Seq(0)
+    coreCount <- Seq(2, 4, 8, 16)
+    dspCount <- Seq(0)
 
-      clusterCount <- {
-        for {i <- 0 to log2(coreCount)} yield {
-          Math.pow(2.0, i).toInt
-        }
+    clusterCount <- {
+      for { i <- 0 to log2(coreCount) } yield {
+        Math.pow(2.0, i).toInt
       }
-      ddrPartitions <- {
-        for {i <- 0 to Math.min(log2(clusterCount), 1)} yield {
-          Math.pow(2.0, i).toInt
-        }
-      }
-      coresPerBankPerPartition <- {
-        for {
-          i <- 0 to log2(
-            (clusterCount / ddrPartitions) * (coreCount / clusterCount)
-          )
-        } yield {
-          Math.pow(2.0, i).toInt
-        }
-      }
-      withDMA <- Seq(false)
-      if (0 < coreCount + dspCount)
-      if (coreCount + dspCount <= 16)
-    } yield {
-      generatePlatformFromConfiguration(
-        coreCount = coreCount,
-        clusterCount = clusterCount,
-        dspCount = dspCount,
-        ddrPartitions = ddrPartitions,
-        coresPerBankPerPartition = coresPerBankPerPartition,
-        withDMA = withDMA
-      )
     }
+    ddrPartitions <- {
+      for { i <- 0 to Math.min(log2(clusterCount), 1) } yield {
+        Math.pow(2.0, i).toInt
+      }
+    }
+    coresPerBankPerPartition <- {
+      for {
+        i <- 0 to log2(
+          (clusterCount / ddrPartitions) * (coreCount / clusterCount)
+        )
+      } yield {
+        Math.pow(2.0, i).toInt
+      }
+    }
+    withDMA <- Seq(false)
+    if (0 < coreCount + dspCount)
+    if (coreCount + dspCount <= 16)
+  } yield {
+    generatePlatformFromConfiguration(
+      coreCount = coreCount,
+      clusterCount = clusterCount,
+      dspCount = dspCount,
+      ddrPartitions = ddrPartitions,
+      coresPerBankPerPartition = coresPerBankPerPartition,
+      withDMA = withDMA
+    )
+  }
 
   val dbusInstances: Seq[
     DbusCXDYBXPlatform & DbusCXDYBXSoftware & DbusCXDYBXTransactionLibrary &
@@ -261,7 +265,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be used to export performance plots" in {
-    val resultFile = FileManager.exportDirectory.getFile(s"experiments.csv")
+    val resultFile = FileManager.exportDirectory.getFile("experiments.csv")
     val writer = new FileWriter(resultFile)
     val result =
       (for {
@@ -313,7 +317,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     } {
       writer.write(s"$p, ")
       r.printWith(writer, maxSemanticsSize, maxItfSize, maxFreeSize, maxRedSize)
-      writer.write(s"\n")
+      writer.write("\n")
     }
     writer.flush()
     writer.close()

@@ -43,7 +43,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
     }
   }
 
-  val groupToDdr: Map[GroupCore, Seq[ddr]] =
+  val groupToDdr: Map[GroupCore, Seq[DDR]] =
     partition_resources(groupCore, ddrs)
 
   val clusterToBanks: Map[ClusterCore, Seq[Target]] = groupToDdr.flatMap(
@@ -199,7 +199,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
     // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
     //  (or tag all `used` during the definition)
     val dma_rd_config = Scenario(
-      s"t_dma_rd_dma_reg",
+      "t_dma_rd_dma_reg",
       app_dma read cfg_bus.dma_reg,
       app_dma write cfg_bus.dma_reg
     )

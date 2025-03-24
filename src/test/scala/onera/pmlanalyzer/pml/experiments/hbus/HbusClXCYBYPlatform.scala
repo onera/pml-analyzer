@@ -30,7 +30,7 @@ class HbusClXCYBYPlatform(name: Symbol, clusterNumber: Int, coreNumber: Int)
 
   object cg0 extends Composite {
 
-    case class Cluster(id: Int) extends Composite(Symbol(s"Cl$id")) {
+    final case class Cluster(id: Int) extends Composite(Symbol(s"Cl$id")) {
       val cores: Seq[Initiator] =
         for { i <- 0 until coreNumber } yield Initiator(s"C$i")
 
