@@ -104,9 +104,7 @@ object GenericExport extends App {
 
   val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
   val candidatePlatforms = for {
-    coreCount <- Seq(0, 1, 2, 4, 8)
-    dspCount <- Seq(0, 1, 2, 4, 8)
-
+    coreCount <- Seq(1, 2, 4, 8, 16)
     dspCount <- Seq(0)
 
     clusterCount <- {
@@ -128,9 +126,9 @@ object GenericExport extends App {
         Math.pow(2.0, i).toInt
       }
     }
-    withDMA <- Seq(true, false)
+    withDMA <- Seq(false)
     if (0 < coreCount + dspCount)
-    if (coreCount + dspCount <= 12)
+    if (coreCount + dspCount <= 16)
   } yield {
     generatePlatformFromConfiguration(
       coreCount = coreCount,
@@ -188,7 +186,7 @@ object GenericExport extends App {
     platform.exportAnalysisGraph()
 
     platform.computeAllInterference(
-      1 hours,
+      1 day,
       onlySummary = true
     )
 
