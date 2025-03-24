@@ -50,11 +50,9 @@ object Exclusive {
 
   given [S](using
       transform: Transform[S, Option[PhysicalTransactionId]],
-      ev: Exclusive[PhysicalTransactionId],
-      line: Line,
-      file: File
+      ev: Exclusive[PhysicalTransactionId]
   ): Exclusive[S] with {
-    def apply(l: S, r: S): Unit = for {
+    def apply(l: S, r: S)(using line: Line, file: File): Unit = for {
       lId <- transform(l)
       rId <- transform(r)
     } yield lId exclusiveWith rId
