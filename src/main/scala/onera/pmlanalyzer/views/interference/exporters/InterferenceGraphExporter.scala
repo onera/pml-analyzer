@@ -18,8 +18,8 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.exporters.UMLExporter.DOTServiceOnly
-import onera.pmlanalyzer.pml.exporters.{FileManager, UMLExporter}
+import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
+import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
@@ -31,10 +31,8 @@ import java.io.FileWriter
 
 object InterferenceGraphExporter {
   trait Ops {
-    implicit class InterferenceGraphExporterOps(
-        x: Platform with InterferenceSpecification
-    ) extends UMLExporter.Ops {
-      def exportGraph(it: Set[PhysicalScenarioId]): Unit = {
+    extension (x: Platform with InterferenceSpecification) {
+      def exportMultiTransactionGraph(it: Set[PhysicalScenarioId]): Unit = {
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalScenarioId(x.id))
         )
@@ -47,19 +45,9 @@ object InterferenceGraphExporter {
           )
         )
         DOTServiceOnly.resetService()
-        DOTServiceOnly.writeHeader
-        val services = it
-          .flatMap(x.purifiedScenarios)
-          .flatMap(x.purifiedTransactions)
+        writer.write(DOTServiceOnly.getHeader)
 
-        for { s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last) }
-          DOTServiceOnly.writeAssociation(
-            DOTServiceOnly.getId(s.head).get,
-            DOTServiceOnly.getId(s.last).get,
-            "exclusive"
-          )
-
-        for {
+        val serviceAssociations = for {
           s <- it
           t <- x.purifiedScenarios(s)
           l = x
@@ -68,17 +56,29 @@ object InterferenceGraphExporter {
             .collect { case Seq(f, t) => f -> t }
             .toList
           if l.nonEmpty
-        } {
-          val transaction =
-            s"""${t.id.name}[label = "{${t.id.name} : Transaction}"]"""
-          writer.write(s"$transaction\n")
-          DOTServiceOnly.writeAssociation(
-            t.id.name,
-            DOTServiceOnly.getId(l.head._1).get
-          )
-          l.foreach(p => DOTServiceOnly.exportUML(p._1, p._2))
-        }
-        DOTServiceOnly.writeFooter
+          (l, r) <- l
+          as <- DOTServiceOnly.getAssociation(l, r, "")
+        } yield as
+
+        val services = it
+          .flatMap(x.purifiedScenarios)
+          .flatMap(x.purifiedTransactions)
+
+        val interfereAssociations =
+          (for {
+            s <- services.subsets(2) if x.finalInterfereWith(s.head, s.last)
+            as <- DOTServiceOnly.getAssociation(
+              s.head,
+              s.last,
+              "interfere"
+            )
+          } yield as).toSeq
+
+        DOTServiceOnly.exportGraph(
+          x,
+          interfereAssociations ++ serviceAssociations
+        )
+        writer.write(DOTServiceOnly.getFooter)
         writer.close()
       }
     }

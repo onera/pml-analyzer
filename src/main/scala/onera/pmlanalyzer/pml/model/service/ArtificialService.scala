@@ -18,14 +18,18 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import sourcecode.{File, Line}
+
 /** Base class for artificial services added to encode non topological affects
-  * @see
+ *
+ * @see
   *   the possible constructors are provided by [[BaseServiceBuilder]]
   * @param name
   *   the name of the node
   * @group service_class
   */
-final class ArtificialService private (val name: Symbol) extends Service
+final class ArtificialService private (val name: Symbol, line: Line, file: File)
+    extends Service(line, file)
 
 /** Builder of artificial services
   * @group builder
@@ -38,7 +42,9 @@ object ArtificialService extends BaseServiceBuilder[ArtificialService] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): ArtificialService =
-    new ArtificialService(name)
+  protected def builder(
+      name: Symbol
+  )(using givenLine: Line, givenFile: File): ArtificialService =
+    new ArtificialService(name, givenLine, givenFile)
 
 }

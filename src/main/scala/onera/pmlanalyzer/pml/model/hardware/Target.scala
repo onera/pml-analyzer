@@ -18,14 +18,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import sourcecode.{File, Line}
+
 /** Class for all transaction destination
-  * @see
+ *
+ * @see
   *   the possible constructors are provided by [[BaseHardwareNodeBuilder]]
   * @param name
   *   the name of the node
   * @group target_class
   */
-final class Target private (val name: Symbol) extends Hardware
+final class Target private (val name: Symbol, line: Line, file: File)
+    extends Hardware(line, file)
 
 /** Builder of targets
   * @group builder
@@ -38,6 +42,7 @@ object Target extends BaseHardwareNodeBuilder[Target] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): Target = new Target(name)
+  protected def builder(name: Symbol)(using line: Line, file: File): Target =
+    new Target(name, line, file)
 
 }

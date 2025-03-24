@@ -38,7 +38,7 @@ import scala.language.postfixOps
 class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
   "Cyclotron instances" should "contain exactly one transaction" in {
-    for {p <- CyclotronInstances.all} {
+    for { p <- CyclotronInstances.all } {
       p.transactionByUserName.size should be(1)
       p.scenarioByUserName.size should be(1)
       p.transactions.size should be(1)

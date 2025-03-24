@@ -26,11 +26,12 @@ import onera.pmlanalyzer.views.interference.model.relations.{
   NotInterfereRelation
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import sourcecode.{File, Line}
 
 private[operators] trait Interfere[L, R] {
-  def interfereWith(l: L, r: R): Unit
+  def interfereWith(l: L, r: R)(using line: Line, file: File): Unit
 
-  def notInterfereWith(l: L, r: R): Unit
+  def notInterfereWith(l: L, r: R)(using line: Line, file: File): Unit
 }
 
 object Interfere {
@@ -44,14 +45,22 @@ object Interfere {
   trait Ops {
 
     extension [L](self: L) {
-      def interfereWith[R](that: R)(using ev: Interfere[L, R]): Unit =
+      def interfereWith[R](
+          that: R
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         ev.interfereWith(self, that)
-      def interfereWith[R](that: Iterable[R])(using ev: Interfere[L, R]): Unit =
+      def interfereWith[R](
+          that: Iterable[R]
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         for { x <- that } ev.interfereWith(self, x)
-      def notInterfereWith[R](that: R)(using ev: Interfere[L, R]): Unit =
+      def notInterfereWith[R](
+          that: R
+      )(using ev: Interfere[L, R], line: Line, file: File): Unit =
         ev.notInterfereWith(self, that)
       def notInterfereWith[R](that: Iterable[R])(using
-          ev: Interfere[L, R]
+          ev: Interfere[L, R],
+          line: Line,
+          file: File
       ): Unit = for { x <- that } ev.notInterfereWith(self, x)
     }
 
@@ -64,14 +73,18 @@ object Interfere {
     extension (self: Hardware) {
       def hasInterferingServices(using
           prv: Provided[Hardware, Service],
-          ev: Interfere[Service, Service]
+          ev: Interfere[Service, Service],
+          line: Line,
+          file: File
       ): Unit =
         for { s1 <- self.services; s2 <- self.services }
           ev.interfereWith(s1, s2)
 
       def hasNonInterferingServices(using
           prv: Provided[Hardware, Service],
-          ev: Interfere[Service, Service]
+          ev: Interfere[Service, Service],
+          line: Line,
+          file: File
       ): Unit =
         for { s1 <- self.services; s2 <- self.services }
           ev.notInterfereWith(s1, s2)
@@ -82,26 +95,36 @@ object Interfere {
       a: InterfereRelation[L, R],
       n: NotInterfereRelation[L, R]
   ): Interfere[L, R] with {
-    def interfereWith(l: L, r: R): Unit = a.add(l, r)
+    def interfereWith(l: L, r: R)(using line: Line, file: File): Unit =
+      a.add(l, r)
 
-    def notInterfereWith(l: L, r: R): Unit = n.add(l, r)
+    def notInterfereWith(l: L, r: R)(using line: Line, file: File): Unit =
+      n.add(l, r)
   }
 
   given [LS <: Service, RS <: Service](using
       ev: Interfere[Service, Service]
   ): Interfere[LS, RS] with {
-    def interfereWith(l: LS, r: RS): Unit = ev.interfereWith(l, r)
+    def interfereWith(l: LS, r: RS)(using line: Line, file: File): Unit =
+      ev.interfereWith(l, r)
 
-    def notInterfereWith(l: LS, r: RS): Unit = ev.notInterfereWith(l, r)
+    def notInterfereWith(l: LS, r: RS)(using line: Line, file: File): Unit =
+      ev.notInterfereWith(l, r)
   }
 
   given [R <: Service](using
       ev: Interfere[PhysicalTransactionId, Service]
   ): Interfere[PhysicalTransactionId, R] with {
-    def interfereWith(l: PhysicalTransactionId, r: R): Unit =
+    def interfereWith(l: PhysicalTransactionId, r: R)(using
+        line: Line,
+        file: File
+    ): Unit =
       ev.interfereWith(l, r)
 
-    def notInterfereWith(l: PhysicalTransactionId, r: R): Unit =
+    def notInterfereWith(l: PhysicalTransactionId, r: R)(using
+        line: Line,
+        file: File
+    ): Unit =
       ev.notInterfereWith(l, r)
   }
 
@@ -109,11 +132,11 @@ object Interfere {
       transformation: Transform[L, Set[PhysicalTransactionId]],
       ev: Interfere[PhysicalTransactionId, Service]
   ): Interfere[L, RS] with {
-    def interfereWith(l: L, r: RS): Unit =
+    def interfereWith(l: L, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }
         ev.interfereWith(id, r)
 
-    def notInterfereWith(l: L, r: RS): Unit =
+    def notInterfereWith(l: L, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }
         ev.notInterfereWith(id, r)
   }
@@ -122,11 +145,11 @@ object Interfere {
       transformation: Transform[LP, Option[PhysicalTransactionId]],
       ev: Interfere[PhysicalTransactionId, Service]
   ): Interfere[LP, RS] with {
-    def interfereWith(l: LP, r: RS): Unit =
+    def interfereWith(l: LP, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }
         ev.interfereWith(id, r)
 
-    def notInterfereWith(l: LP, r: RS): Unit =
+    def notInterfereWith(l: LP, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }
         ev.notInterfereWith(id, r)
   }
@@ -134,10 +157,10 @@ object Interfere {
   given [LH <: Hardware, RH <: Hardware](using
       ev: Interfere[Hardware, Hardware]
   ): Interfere[LH, RH] with {
-    def interfereWith(lh: LH, rh: RH): Unit =
+    def interfereWith(lh: LH, rh: RH)(using line: Line, file: File): Unit =
       ev.interfereWith(lh, rh)
 
-    def notInterfereWith(lh: LH, rh: RH): Unit =
+    def notInterfereWith(lh: LH, rh: RH)(using line: Line, file: File): Unit =
       ev.notInterfereWith(lh, rh)
   }
 

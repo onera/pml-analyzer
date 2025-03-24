@@ -18,13 +18,13 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model._
+import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Owner
-import onera.pmlanalyzer.pml.operators._
-import sourcecode.File
+import onera.pmlanalyzer.pml.operators.*
+import sourcecode.{Enclosing, File, Line}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalScenario,
   PhysicalScenarioId,
@@ -32,27 +32,30 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransactionId
 }
 
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
 
 /** Base class for a platform
-  * @see
+ *
+ * @see
   *   usage are available in
   *   [[pml.examples.simpleKeystone.SimpleKeystonePlatform]]
   * @param name
   *   the name of the node
-  * @param _sourceFile
+ * @param file
   *   the implicit descriptor of the source file where the platform is defined
   * @group hierarchical_class
   */
-abstract class Platform(val name: Symbol)(implicit _sourceFile: File)
-    extends PMLNode
+abstract class Platform(val name: Symbol, line: Line, file: File)
+    extends PMLNode(line, file)
     with Relation.Instances {
 
-  /** the implicit descriptor of the source file where the platform is defined
-    * @group identifier
-    */
-  implicit val sourceFile: File = _sourceFile
+  def this(n: Symbol, dummy: Int = 0)(using
+      givenLine: Line,
+      givenFile: File
+  ) = {
+    this(n, givenLine, givenFile)
+  }
 
   implicit def toSymbol(s: String): Symbol = Symbol(s)
 

@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model.service
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
   * implicitly derived from the name of the variable used during instantiation.
@@ -50,19 +50,24 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol): T
+  protected def builder(name: Symbol)(using givenLine: Line, givenFile: File): T
 
   /** A service can be defined by the name provided by the implicit declaration
     * context (the name of the value enclosing the object)
     *
-    * @param name
+   * @param givenName
     *   the implicit service name
     * @param owner
     *   implicitly retrieved name of the platform
     * @return
     *   the service
     */
-  def apply()(implicit name: Name, owner: Owner): T = apply(Symbol(name.value))
+  def apply()(using
+      givenName: Name,
+      owner: Owner,
+      givenLine: Line,
+      givenFile: File
+  ): T = apply(Symbol(givenName.value))
 
   /** A service can be defined by its name
     *
@@ -73,7 +78,9 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     * @return
     *   the service
     */
-  def apply(name: Symbol)(implicit owner: Owner): T = {
+  def apply(
+      name: Symbol
+  )(using owner: Owner, givenLine: Line, givenFile: File): T = {
     _memo.getOrElseUpdate((name, owner.s), builder(name))
   }
 }

@@ -21,7 +21,7 @@ package onera.pmlanalyzer.pml.model.hardware
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
 import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
 /** Base class of sub-systems containing themselves hardware components
   * @see
@@ -33,7 +33,8 @@ import sourcecode.Name
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, _owner: Owner) extends Hardware {
+abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
+    extends Hardware(line, file) {
 
   /** the id of the owner of the composite (the platform or another composite)
     * @group identifier
@@ -74,27 +75,63 @@ abstract class Composite(n: Symbol, _owner: Owner) extends Hardware {
   }
 
   /** Alternative constructor without implicit owner
-    * @param compositeName
+   *
+   * @param compositeName
     *   the name of the composite
     * @param dummy
     *   dummy argument to avoid method signature conflict
-    * @param implicitOwner
+   * @param givenOwner
     *   the implicit owner
     */
-  def this(compositeName: Symbol, dummy: Int = 0)(implicit
-      implicitOwner: Owner
+  def this(compositeName: Symbol, dummy: Int = 0)(using
+      givenOwner: Owner,
+      givenLine: Line,
+      givenFile: File
   ) = {
-    this(compositeName, implicitOwner)
+    this(compositeName, givenOwner, givenLine, givenFile)
   }
 
   /** Alternative constructor without name, nor owner
-    * @param implicitName
+   *
+   * @param givenName
     *   the implicit name provided by the enclosing object
-    * @param implicitOwner
+   * @param givenOwner
     *   the implicit owner
     */
-  def this()(implicit implicitName: Name, implicitOwner: Owner) = {
-    this(Symbol(implicitName.value), implicitOwner)
+  def this()(using
+      givenName: Name,
+      givenOwner: Owner,
+      givenLine: Line,
+      givenFile: File
+  ) = {
+    this(Symbol(givenName.value), givenOwner, givenLine, givenFile)
+  }
+
+  /** Alternative constructor without name, nor owner
+   *
+   * @param givenName
+   * the implicit name provided by the enclosing object
+   * @param givenOwner
+   * the implicit owner
+   */
+  def this(explicitLine: Line, explicitFile: File)(using
+      givenName: Name,
+      givenOwner: Owner
+  ) = {
+    this(Symbol(givenName.value), givenOwner, explicitLine, explicitFile)
+  }
+
+  /** Alternative constructor without name, nor owner
+   *
+   * @param compositeName
+   * the name provided by the enclosing object
+   * @param givenOwner
+   * the implicit owner
+   */
+  def this(compositeName: Symbol, explicitLine: Line, explicitFile: File)(using
+      givenOwner: Owner
+  ) = {
+    this(compositeName, givenOwner, explicitLine, explicitFile)
   }
 }
 
