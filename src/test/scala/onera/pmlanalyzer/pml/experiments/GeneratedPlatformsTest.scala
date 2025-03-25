@@ -29,12 +29,7 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  InterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification,
-  TableBasedInterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification, PhysicalTableBasedInterferenceSpecification, TableBasedInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -47,6 +42,8 @@ import scala.concurrent.duration.*
 import scala.io.Source
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
+import scala.collection.parallel.CollectionConverters.*
+import scala.collection.parallel.ParSeq
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
@@ -194,9 +191,9 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   private val platforms = genericPlatformInstances
 
   "Generated architectures" should "be analysable to compute their semantics" in {
-    val timeout = (1 hours)
+    val timeout = (1 hour)
     for {
-      p <- platforms
+      p <- platforms.par
       c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
     } {
       c match

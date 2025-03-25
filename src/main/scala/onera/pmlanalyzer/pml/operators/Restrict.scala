@@ -21,12 +21,7 @@ import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
 import onera.pmlanalyzer.pml.examples.simpleT1042.SimpleT1042Platform
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
-import onera.pmlanalyzer.pml.model.relations.{
-  AuthorizeRelation,
-  LinkRelation,
-  RoutingRelation,
-  UseRelation
-}
+import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, LinkRelation, RoutingRelation, UseRelation}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
@@ -35,6 +30,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap
+import scala.reflect.Typeable
 
 /** Base trait for restrict operator used to restrict the connection graph of
   * elements L to the elements R that are used
@@ -46,7 +42,7 @@ import scala.collection.mutable.HashMap as MHashMap
   */
 trait Restrict[L, R] {
 
-  def reachableLinksByIni[U <: Service](ini: Initiator)(using
+  def reachableLinksByIni[U <: Service: Typeable](ini: Initiator)(using
       lU: Linked[U, U],
       uI: Used[Initiator, U],
       pI: Provided[Initiator, U],
@@ -74,7 +70,7 @@ trait Restrict[L, R] {
    * @tparam U the type of service
    * @return the set of collected edges and cycle warnings found on the way
    */
-  def reachableLinksByIniForTgt[U <: Service](
+  def reachableLinksByIniForTgt[U <: Service: Typeable](
       ini: Initiator,
       tgt: U
   )(using
@@ -111,7 +107,7 @@ trait Restrict[L, R] {
    * @tparam U      the type of service
    * @return the set of collected edges and cycle warnings found on the way
    */
-  private def reachableLinksByIniForTgtMemo[U <: Service](
+  private def reachableLinksByIniForTgtMemo[U <: Service: Typeable](
       ini: Initiator,
       tgt: U,
       on: U,
@@ -128,7 +124,7 @@ trait Restrict[L, R] {
       }
     )
     // since memo is not polymorph, we need to do the cast
-    (links.collect({ case u: (U, U) => u }), warnings)
+    (links.collect({ case (l:U, r:U) => (l,r) }), warnings)
   }
 
   /**
@@ -143,7 +139,7 @@ trait Restrict[L, R] {
    * @tparam U the type of service
    * @return the set of collected edges and cycle warnings found on the way
    */
-  private def reachableLinksByIniForTgt[U <: Service](
+  private def reachableLinksByIniForTgt[U <: Service: Typeable](
       ini: Initiator,
       tgt: U,
       on: U,

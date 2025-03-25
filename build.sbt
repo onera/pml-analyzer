@@ -6,6 +6,8 @@ val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
+val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
+
 lazy val modelCode =
   taskKey[Seq[(String, File)]]("files to be embedded in docker")
 
@@ -136,7 +138,7 @@ lazy val commonSettings = Seq(
   ),
   publishMavenStyle := true,
   version := "1.1.1",
-  scalaVersion := "3.2.2",
+  scalaVersion := "3.3.5",
   sbtVersion := "1.8.2",
   scalafixOnCompile := true,
   semanticdbEnabled := true,
@@ -152,7 +154,8 @@ lazy val commonSettings = Seq(
     sourceCode,
     scalatest,
     scalactic,
-    scalaplus
+    scalaplus,
+    parallel
   ),
   docSetting
 ) ++ dockerSettings ++ assemblySettings
