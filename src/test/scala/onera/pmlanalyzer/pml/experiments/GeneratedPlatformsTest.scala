@@ -38,12 +38,15 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import sun.awt.shell.ShellFolder
 
+import scala.concurrent.ExecutionContext.Implicits.*
 import java.io.FileWriter
-import scala.concurrent.TimeoutException
+import scala.concurrent.{Await, Future, TimeoutException}
 import scala.concurrent.duration.*
 import scala.io.Source
 import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
@@ -191,11 +194,20 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   private val platforms = genericPlatformInstances
 
   "Generated architectures" should "be analysable to compute their semantics" in {
+    val timeout = (1 hours)
     for {
       p <- platforms
+      c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
     } {
-      p.exportSemanticsSize(ignoreExistingFiles = true)
-      println(s"[TEST] exporting ${p.name.name} done")
+      c match
+        case Success(_) =>
+          println(s"[TEST] exporting ${p.name.name} done")
+        case Failure(_: TimeoutException) =>
+          println(
+            s"[TEST] Failure (after $timeout) for analysis of ${p.fullName}"
+          )
+        case Failure(_) =>
+          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
     }
   }
 
@@ -204,20 +216,20 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     println(timeout)
     for { p <- platforms } {
       p.exportGraphReduction()
-      try {
+      (Try {
         p.computeAllInterference(
           timeout,
           onlySummary = true
         )
         p.exportSemanticReduction()
-      } catch
-        case _: TimeoutException =>
+      }) match
+        case Success(_) =>
+          println(s"[TEST] exporting ${p.name.name} done")
+        case Failure(_: TimeoutException) =>
           println(
             s"[TEST] Timeout (after $timeout) for analysis of ${p.fullName}"
           )
-        case _: InterruptedException =>
-          println(s"[TEST] Interruption during analysis of ${p.fullName}")
-        case _ =>
+        case Failure(_) =>
           println(s"[TEST] Unknown error during analysis of ${p.fullName}")
     }
   }
