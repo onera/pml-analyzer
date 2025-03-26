@@ -29,13 +29,6 @@ class CompositeNamingTest
       ) = {
         this(Symbol(givenName.value), givenLine, givenFile)
       }
-
-      val core: Initiator = Initiator()
-      val bus: SimpleTransporter = SimpleTransporter()
-      val cache: Target = Target()
-
-      core link bus
-      bus link cache
     }
 
     final class Cluster private (
@@ -63,6 +56,7 @@ class CompositeNamingTest
   "Hardware in different instances of a nested composite" should "have different names" in {
     assert(InstantiatedNamingPlatform.cl0.name != InstantiatedNamingPlatform.cl1.name)
     assert(InstantiatedNamingPlatform.cl0.c0.name != InstantiatedNamingPlatform.cl1.c0.name)
+    assert(InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name)
     assert(InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name)
   }
 
