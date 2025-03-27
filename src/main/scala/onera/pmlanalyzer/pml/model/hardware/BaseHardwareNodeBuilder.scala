@@ -152,7 +152,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   ): T = {
     val formattedName = formatName(name, owner)
     val result =
-      _memo.getOrElseUpdate((owner.s, formattedName), builder(formattedName))
+      getOrElseUpdate(owner, formattedName, builder(formattedName))
     val mutableBasic = collection.mutable.Set(basics.toSeq: _*)
     if (withDefaultServices && !basics.exists(_.isInstanceOf[Load]))
       mutableBasic += Load(Symbol(s"${formattedName.name}_load"))

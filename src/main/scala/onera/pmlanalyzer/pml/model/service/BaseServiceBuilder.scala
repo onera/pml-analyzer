@@ -81,6 +81,6 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
   def apply(
       name: Symbol
   )(using owner: Owner, givenLine: Line, givenFile: File): T = {
-    _memo.getOrElseUpdate((name, owner.s), builder(name))
+    getOrElseUpdate(owner, name, builder(name))
   }
 }

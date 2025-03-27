@@ -27,7 +27,7 @@ class CyclotronPlatform(name: Symbol) extends Platform(name) {
     this(Symbol(implicitName.value))
   }
 
-  object group extends Composite {
+  object group extends Composite("group") {
     val L0: SimpleTransporter = SimpleTransporter()
     val L1: SimpleTransporter = SimpleTransporter()
 

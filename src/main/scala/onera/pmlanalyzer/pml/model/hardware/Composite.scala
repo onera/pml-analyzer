@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Message, Owner}
 import sourcecode.{File, Line, Name}
 
 /** Base class of sub-systems containing themselves hardware components
@@ -93,36 +93,6 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
 
   /** Alternative constructor without name, nor owner
    *
-   * @param givenName
-    *   the implicit name provided by the enclosing object
-   * @param givenOwner
-    *   the implicit owner
-    */
-  def this()(using
-      givenName: Name,
-      givenOwner: Owner,
-      givenLine: Line,
-      givenFile: File
-  ) = {
-    this(Symbol(givenName.value), givenOwner, givenLine, givenFile)
-  }
-
-  /** Alternative constructor without name, nor owner
-   *
-   * @param givenName
-   * the implicit name provided by the enclosing object
-   * @param givenOwner
-   * the implicit owner
-   */
-  def this(explicitLine: Line, explicitFile: File)(using
-      givenName: Name,
-      givenOwner: Owner
-  ) = {
-    this(Symbol(givenName.value), givenOwner, explicitLine, explicitFile)
-  }
-
-  /** Alternative constructor without name, nor owner
-   *
    * @param compositeName
    * the name provided by the enclosing object
    * @param givenOwner
@@ -148,7 +118,7 @@ object Composite extends PMLNodeBuilder[Composite] {
     * @return
     *   the formatted name
     */
-  private def formatName(name: Symbol, owner: Owner): Symbol = Symbol(
+  def formatName(name: Symbol, owner: Owner): Symbol = Symbol(
     owner.s.name + "_" + name.name
   )
 
@@ -158,6 +128,7 @@ object Composite extends PMLNodeBuilder[Composite] {
     * @param owner
     *   its owner
     */
-  private def add(c: Composite, owner: Owner): Unit =
-    _memo.addOne((owner.s, c.name), c)
+  private def add(c: Composite, owner: Owner): Unit = {
+    add(owner, c.name, c)
+  }
 }

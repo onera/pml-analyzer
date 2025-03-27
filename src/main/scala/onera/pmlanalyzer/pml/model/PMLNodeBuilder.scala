@@ -19,20 +19,36 @@
 package onera.pmlanalyzer.pml.model
 
 import onera.pmlanalyzer.pml.model.hardware.Composite
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Message, Owner}
 
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.mutable.HashMap as MHashMap
 
 /** Trait for pml node builder (usually companion object) that must adopt an
   * h-consign like object handling
   * @tparam T
   *   the concrete type of built object
   */
-trait PMLNodeBuilder[T] {
+trait PMLNodeBuilder[T<: PMLNode] {
 
   // TODO WARNING IF TWO PLATFORMS CONTAINS THE SAME NAMED COMPOSITE THEN MIX IN THE _memo OF THE COMPOSITES' SUBCOMPONENT
-  protected val _memo: MHashMap[(Symbol, Symbol), T] = MHashMap.empty
+  private val _memo: MHashMap[(Symbol, Symbol), T] = MHashMap.empty
 
+  def get(owner: Owner,name:Symbol):Option[T] =
+    _memo.get((owner.s, name))
+
+  def add(owner: Owner,name:Symbol, v:T): Unit = {
+    for {l <- _memo.get((owner.s,name))} {
+      println(Message.errorMultipleInstantiation(s"$l in ${l.sourceFile} at line ${l.lineInFile}", s"$v in ${v.sourceFile} at line ${v.lineInFile}"))
+    }
+    _memo.addOne(((owner.s,name),v))
+  }
+
+  def getOrElseUpdate(owner: Owner, name: Symbol, v:T): T = {
+    for {l <- _memo.get((owner.s,name))} {
+      println(Message.errorMultipleInstantiation(s"$l in ${l.sourceFile} at line ${l.lineInFile}", s"$v in ${v.sourceFile} at line ${v.lineInFile}"))
+    }
+    _memo.getOrElseUpdate((owner.s,name),v)
+  }
   /** Provide all the object of the current type created for the platform,
     * including the ones created in composite components
     * @group embedFunctions

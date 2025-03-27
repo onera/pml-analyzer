@@ -49,7 +49,7 @@ object Data extends PMLNodeBuilder[Data] {
     *   the data
     */
   def apply(name: Symbol)(using owner: Owner, line: Line, file: File): Data = {
-    _memo.getOrElseUpdate((owner.s, name), new Data(name, line, file))
+    getOrElseUpdate(owner, name, new Data(name, line, file))
   }
 
   /** A data can be defined by the implicit name used during the definition
