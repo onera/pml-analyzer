@@ -21,7 +21,12 @@ import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
 import onera.pmlanalyzer.pml.examples.simpleT1042.SimpleT1042Platform
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
-import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, LinkRelation, RoutingRelation, UseRelation}
+import onera.pmlanalyzer.pml.model.relations.{
+  AuthorizeRelation,
+  LinkRelation,
+  RoutingRelation,
+  UseRelation
+}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
@@ -124,7 +129,7 @@ trait Restrict[L, R] {
       }
     )
     // since memo is not polymorph, we need to do the cast
-    (links.collect({ case (l:U, r:U) => (l,r) }), warnings)
+    (links.collect({ case (l: U, r: U) => (l, r) }), warnings)
   }
 
   /**

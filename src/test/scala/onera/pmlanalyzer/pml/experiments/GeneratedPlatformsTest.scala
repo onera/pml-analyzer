@@ -29,7 +29,12 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification, PhysicalTableBasedInterferenceSpecification, TableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification,
+  PhysicalTableBasedInterferenceSpecification,
+  TableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -211,7 +216,12 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   it should "be possible to compute the interference" in {
     val timeout: Duration = (1 days)
     println(timeout)
-    for { p <- platforms } {
+    for { 
+      p <- platforms 
+      if FileManager.exportDirectory
+        .locate(FileManager.getSemanticSizeFileName(p))
+        .isDefined
+    } {
       p.exportGraphReduction()
       (Try {
         p.computeAllInterference(

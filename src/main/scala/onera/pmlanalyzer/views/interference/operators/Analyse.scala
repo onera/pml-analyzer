@@ -225,15 +225,18 @@ object Analyse {
         (for {
           (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(self)
         } yield {
-          val numberITF = itfResult.filter(_._1 >= 3).values.sum
-          val numberFree = freeResult.filter(_._1 >= 3).values.sum
-          BigDecimal(
-            self
-              .getSemanticsSize(ignoreExistingFiles)
-              .filter(_._1 >= 3)
-              .values
-              .sum
-          ) / BigDecimal(numberFree + numberITF)
+          val nonRed =
+            itfResult.filter(_._1 >= 3).values.sum
+              + freeResult.filter(_._1 >= 3).values.sum
+          if (nonRed != 0) {
+            BigDecimal(
+              self
+                .getSemanticsSize(ignoreExistingFiles)
+                .filter(_._1 >= 3)
+                .values
+                .sum
+            ) / BigDecimal(nonRed)
+          } else BigDecimal(0)
         }) getOrElse BigDecimal(-1)
       }
 
