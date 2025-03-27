@@ -228,15 +228,17 @@ object Analyse {
           val nonRed =
             itfResult.filter(_._1 >= 3).values.sum
               + freeResult.filter(_._1 >= 3).values.sum
+          val semantics = self
+            .getSemanticsSize(ignoreExistingFiles)
+            .filter(_._1 >= 3)
+            .values
+            .sum
           if (nonRed != 0) {
-            BigDecimal(
-              self
-                .getSemanticsSize(ignoreExistingFiles)
-                .filter(_._1 >= 3)
-                .values
-                .sum
-            ) / BigDecimal(nonRed)
-          } else BigDecimal(0)
+            BigDecimal(semantics) / BigDecimal(nonRed)
+          } else if( semantics != 0)
+            BigDecimal(-1)
+          else
+            BigDecimal(1)
         }) getOrElse BigDecimal(-1)
       }
 
@@ -248,7 +250,14 @@ object Analyse {
             .toSet
             .size
         val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
-        BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
+        val graphSize = BigDecimal(nodeSize + edgeSize)
+        if(graphSize != 0){
+          BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
+        } else if(BigDecimal(systemGraphSize) != 0)
+          BigDecimal(-1)
+        else 
+          BigDecimal(1)
+       
       }
 
       def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
