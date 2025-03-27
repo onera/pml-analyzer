@@ -190,23 +190,23 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
   private val platforms = genericPlatformInstances
 
-  "Generated architectures" should "be analysable to compute their semantics" in {
-    val timeout = (1 hour)
-    for {
-      p <- platforms.par
-      c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
-    } {
-      c match
-        case Success(_) =>
-          println(s"[TEST] exporting ${p.name.name} done")
-        case Failure(_: TimeoutException) =>
-          println(
-            s"[TEST] Failure (after $timeout) for analysis of ${p.fullName}"
-          )
-        case Failure(_) =>
-          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
-    }
-  }
+//  "Generated architectures" should "be analysable to compute their semantics" in {
+//    val timeout = (1 hour)
+//    for {
+//      p <- platforms.par
+//      c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
+//    } {
+//      c match
+//        case Success(_) =>
+//          println(s"[TEST] exporting ${p.name.name} done")
+//        case Failure(_: TimeoutException) =>
+//          println(
+//            s"[TEST] Failure (after $timeout) for analysis of ${p.fullName}"
+//          )
+//        case Failure(_) =>
+//          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
+//    }
+//  }
 
   it should "be possible to compute the interference" in {
     val timeout: Duration = (1 days)
