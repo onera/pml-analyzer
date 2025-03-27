@@ -26,6 +26,7 @@ trait StoreTest {
   implicit val genStore: Arbitrary[Store] = Arbitrary(
     for {
       name <- Gen.identifier
+      if Store.get(currentOwner, name).isEmpty
     } yield Store(name)
   )
 

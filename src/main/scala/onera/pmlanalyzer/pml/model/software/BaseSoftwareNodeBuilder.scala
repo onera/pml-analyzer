@@ -64,7 +64,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
   def apply(
       name: Symbol
   )(using owner: Owner, givenLine: Line, givenFile: File): T =
-    _memo.getOrElseUpdate((owner.s, name), builder(name))
+    getOrElseUpdate(owner, name, builder(name))
 
   /** A software component can be defined by the name provided by the implicit
     * declaration context (the name of the value enclosing the object)

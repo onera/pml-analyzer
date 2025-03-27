@@ -27,6 +27,7 @@ trait SimpleTransporterTest {
   implicit val genSimpleTransporter: Arbitrary[SimpleTransporter] = Arbitrary(
     for {
       name <- Gen.identifier
+      if SimpleTransporter.get(currentOwner, SimpleTransporter.formatName(name,currentOwner)).isEmpty
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield SimpleTransporter(name, (loads ++ stores).toSet)

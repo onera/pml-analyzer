@@ -223,8 +223,8 @@ trait TransactionLibrary {
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
     )(using owner: Owner, line: Line, file: File): Transaction = {
-      _memo.getOrElseUpdate(
-        (owner.s, name.id),
+      getOrElseUpdate(
+        owner, name.id,
         new Transaction(name, iniTgt, sw, line, file)
       )
     }
@@ -388,8 +388,8 @@ trait TransactionLibrary {
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
     )(using owner: Owner, line: Line, file: File): Scenario = {
-      _memo.getOrElseUpdate(
-        (owner.s, name.id),
+      getOrElseUpdate(
+        owner, name.id,
         new Scenario(name, iniTgt, sw, line, file)
       )
     }
@@ -460,8 +460,8 @@ trait TransactionLibrary {
         iniTgt: Set[(Service, Service)],
         sw: Set[Application]
     )(using owner: Owner, line: Line, file: File): UsedScenario = {
-      _memo.getOrElseUpdate(
-        (owner.s, name.id),
+      getOrElseUpdate(
+        owner, name.id,
         new UsedScenario(name, iniTgt, sw, line, file)
       )
     }
@@ -534,8 +534,8 @@ trait TransactionLibrary {
         iniTgt: Iterable[(Service, Service)],
         sw: Set[Application]
     )(using owner: Owner, line: Line, file: File): UsedTransaction = {
-      _memo.getOrElseUpdate(
-        (owner.s, name.id),
+      getOrElseUpdate(
+        owner, name.id,
         new UsedTransaction(name, iniTgt, sw, line, file)
       )
     }

@@ -77,7 +77,7 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
   /** Composite modelling the Teranet
     * @group composite
     */
-  object TeraNet extends Composite {
+  object TeraNet extends Composite("TeraNet") {
 
     /** Transporter modelling the peripheral interconnect
       * @group transporter
@@ -95,7 +95,7 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
   /** Composite modelling memory subsystem
     * @group composite
     */
-  object MemorySubsystem extends Composite {
+  object MemorySubsystem extends Composite("MemorySubSystem") {
 
     /** Transporter modelling the MSMC controller
       * @group transporter

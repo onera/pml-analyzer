@@ -27,6 +27,7 @@ trait SmartTest {
   implicit val genSmart: Arbitrary[Initiator] = Arbitrary(
     for {
       name <- Gen.identifier
+      if Initiator.get(currentOwner, Initiator.formatName(name,currentOwner)).isEmpty
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Initiator(name, (loads ++ stores).toSet)
