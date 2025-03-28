@@ -27,7 +27,7 @@ trait VirtualizerTest {
   implicit val genVirtualizer: Arbitrary[Virtualizer] = Arbitrary(
     for {
       name <- Gen.identifier
-      if Virtualizer.get(currentOwner, Virtualizer.formatName(name,currentOwner)).isEmpty
+      if Virtualizer.get(Virtualizer.formatName(name, currentOwner)).isEmpty
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Virtualizer(name, (loads ++ stores).toSet)

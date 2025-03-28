@@ -21,7 +21,7 @@ package onera.pmlanalyzer.pml.model.hardware
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
@@ -84,7 +84,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     *   this method is implemented by concrete members (e.g.
     *   [[SimpleTransporter]], no further extension should be provided
     */
-  protected def builder(name: Symbol)(using line: Line, file: File): T
+  protected def builder(name: Symbol)(using givenInfo: ReflexiveInfo): T
 
   /** A physical component can be defined only with the basic services it
     * provides The name will be retrieved by using the implicit declaration
@@ -114,9 +114,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   )(using
       givenName: Name,
       p: ProvideRelation[Hardware, Service],
-      owner: Owner,
-      givenLine: Line,
-      givenFile: File
+      givenInfo: ReflexiveInfo
   ): T =
     apply(Symbol(givenName.value), basics, withDefaultServices)
 
@@ -146,13 +144,11 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       withDefaultServices: Boolean
   )(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner,
-      line: Line,
-      file: File
+      givenInfo: ReflexiveInfo
   ): T = {
-    val formattedName = formatName(name, owner)
+    val formattedName = formatName(name, givenInfo.owner)
     val result =
-      getOrElseUpdate(owner, formattedName, builder(formattedName))
+      getOrElseUpdate(formattedName, builder(formattedName))
     val mutableBasic = collection.mutable.Set(basics.toSeq: _*)
     if (withDefaultServices && !basics.exists(_.isInstanceOf[Load]))
       mutableBasic += Load(Symbol(s"${formattedName.name}_load"))
@@ -181,9 +177,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner,
-      line: Line,
-      file: File
+      givenInfo: ReflexiveInfo
   ): T = {
     apply(name, basics, true)
   }
@@ -205,9 +199,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol
   )(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner,
-      line: Line,
-      file: File
+      givenInfo: ReflexiveInfo
   ): T =
     apply(name, Set.empty, true)
 
@@ -229,9 +221,7 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
-      owner: Owner,
-      line: Line,
-      file: File
+      givenInfo: ReflexiveInfo
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }

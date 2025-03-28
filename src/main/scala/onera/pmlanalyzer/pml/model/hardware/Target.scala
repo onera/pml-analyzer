@@ -18,6 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** Class for all transaction destination
@@ -28,8 +29,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group target_class
   */
-final class Target private (val name: Symbol, line: Line, file: File)
-    extends Hardware(line, file)
+final class Target private (val name: Symbol, info: ReflexiveInfo)
+    extends Hardware(info)
 
 /** Builder of targets
   * @group builder
@@ -42,7 +43,7 @@ object Target extends BaseHardwareNodeBuilder[Target] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using line: Line, file: File): Target =
-    new Target(name, line, file)
+  protected def builder(name: Symbol)(using givenInfo: ReflexiveInfo): Target =
+    new Target(name, givenInfo)
 
 }

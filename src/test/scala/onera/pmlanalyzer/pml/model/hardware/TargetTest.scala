@@ -27,7 +27,7 @@ trait TargetTest {
   implicit val genTarget: Arbitrary[Target] = Arbitrary(
     for {
       name <- Gen.identifier
-      if Target.get(currentOwner, Target.formatName(name,currentOwner)).isEmpty
+      if Target.get(Target.formatName(name, currentOwner)).isEmpty
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Target(name, (loads ++ stores).toSet)

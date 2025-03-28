@@ -26,7 +26,7 @@ trait LoadTest {
 
   implicit val genLoad: Arbitrary[Load] = Arbitrary(for {
     name <- Gen.identifier
-    if Load.get(currentOwner, name).isEmpty
+    if Load.get(name).isEmpty
   } yield Load(name))
 
 }

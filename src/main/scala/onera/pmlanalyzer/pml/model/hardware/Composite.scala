@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
-import onera.pmlanalyzer.pml.model.utils.{Message, Owner}
+import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 /** Base class of sub-systems containing themselves hardware components
@@ -33,13 +33,8 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
-    extends Hardware(line, file) {
-
-  /** the id of the owner of the composite (the platform or another composite)
-    * @group identifier
-    */
-  val owner: Owner = _owner
+abstract class Composite(n: Symbol, info: ReflexiveInfo)
+    extends Hardware(info) {
 
   val name: Symbol = formatName(n, owner)
 
@@ -53,7 +48,7 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
 
   /** notify the initialisation of a new composite to the companion object
     */
-  Composite.add(this, owner)
+  Composite.addComposite(this, owner)
 
   /** Provide all the physical elements declared inside the composite
     * @group component_access
@@ -80,28 +75,13 @@ abstract class Composite(n: Symbol, _owner: Owner, line: Line, file: File)
     *   the name of the composite
     * @param dummy
     *   dummy argument to avoid method signature conflict
-   * @param givenOwner
-    *   the implicit owner
+   * @param givenInfo
+    *   the implicit info of the composite
     */
   def this(compositeName: Symbol, dummy: Int = 0)(using
-      givenOwner: Owner,
-      givenLine: Line,
-      givenFile: File
+      givenInfo: ReflexiveInfo
   ) = {
-    this(compositeName, givenOwner, givenLine, givenFile)
-  }
-
-  /** Alternative constructor without name, nor owner
-   *
-   * @param compositeName
-   * the name provided by the enclosing object
-   * @param givenOwner
-   * the implicit owner
-   */
-  def this(compositeName: Symbol, explicitLine: Line, explicitFile: File)(using
-      givenOwner: Owner
-  ) = {
-    this(compositeName, givenOwner, explicitLine, explicitFile)
+    this(compositeName, givenInfo)
   }
 }
 
@@ -128,7 +108,7 @@ object Composite extends PMLNodeBuilder[Composite] {
     * @param owner
     *   its owner
     */
-  private def add(c: Composite, owner: Owner): Unit = {
-    add(owner, c.name, c)
+  private def addComposite(c: Composite, owner: Owner): Unit = {
+    add(c)
   }
 }

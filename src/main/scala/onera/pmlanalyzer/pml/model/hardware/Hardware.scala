@@ -19,6 +19,7 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNode
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{Enclosing, File, Line}
 
 /** Base class for all physical element of a platform
@@ -30,6 +31,6 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group hardware_class
   */
-abstract class Hardware private[hardware] (line: Line, file: File)(using
+abstract class Hardware private[hardware] (info: ReflexiveInfo)(using
     enclosing: Enclosing
-) extends PMLNode(line, file)
+) extends PMLNode(info)

@@ -18,6 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** Base class for artificial services added to encode non topological affects
@@ -28,8 +29,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class ArtificialService private (val name: Symbol, line: Line, file: File)
-    extends Service(line, file)
+final class ArtificialService private (val name: Symbol, info: ReflexiveInfo)
+    extends Service(info)
 
 /** Builder of artificial services
   * @group builder
@@ -44,7 +45,7 @@ object ArtificialService extends BaseServiceBuilder[ArtificialService] {
     */
   protected def builder(
       name: Symbol
-  )(using givenLine: Line, givenFile: File): ArtificialService =
-    new ArtificialService(name, givenLine, givenFile)
+  )(using givenInfo: ReflexiveInfo): ArtificialService =
+    new ArtificialService(name, givenInfo)
 
 }

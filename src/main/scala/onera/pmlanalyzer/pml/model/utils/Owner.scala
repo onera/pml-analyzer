@@ -24,3 +24,7 @@ package onera.pmlanalyzer.pml.model.utils
   *   the owner's name
   */
 final case class Owner(s: Symbol)
+
+object Owner {
+  val empty: Owner = Owner(Symbol(""))
+}

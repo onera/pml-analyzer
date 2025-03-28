@@ -18,6 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** A virtualizer is able to control the incoming transactions
@@ -28,8 +29,8 @@ import sourcecode.{File, Line}
   * @param name
   *   the name of the node
   */
-final class Virtualizer private (val name: Symbol, line: Line, file: File)
-    extends Transporter(line, file)
+final class Virtualizer private (val name: Symbol, info: ReflexiveInfo)
+    extends Transporter(info)
 
 /** Builder of targets
   * @group builder
@@ -44,7 +45,7 @@ object Virtualizer extends BaseHardwareNodeBuilder[Virtualizer] {
     */
   protected def builder(
       name: Symbol
-  )(using line: Line, file: File): Virtualizer =
-    new Virtualizer(name, line, file)
+  )(using givenInfo: ReflexiveInfo): Virtualizer =
+    new Virtualizer(name, givenInfo)
 
 }

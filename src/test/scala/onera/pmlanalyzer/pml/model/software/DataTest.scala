@@ -27,7 +27,7 @@ trait DataTest {
   implicit val genData: Arbitrary[Data] = Arbitrary(
     for {
       name <- Gen.identifier
-      if Data.get(currentOwner, name).isEmpty
+      if Data.get(name).isEmpty
     } yield Data(name)
   )
 }

@@ -1,6 +1,13 @@
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Initiator, Platform, SimpleTransporter, Target}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target
+}
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -19,29 +26,25 @@ class CompositeNamingTest
 
     final class Core private (
         val id: Symbol,
-        loc: Line,
-        foc: File
-    ) extends Composite(id, loc, foc) {
+        info: ReflexiveInfo
+    ) extends Composite(id, info) {
       def this()(implicit
-                 givenName: Name,
-                 givenLine: Line,
-                 givenFile: File
+          givenName: Name,
+          givenInfo: ReflexiveInfo
       ) = {
-        this(Symbol(givenName.value), givenLine, givenFile)
+        this(Symbol(givenName.value), givenInfo)
       }
     }
 
     final class Cluster private (
         val id: Symbol,
-        loc: Line,
-        foc: File
-    ) extends Composite(id, loc, foc) {
+        info: ReflexiveInfo
+    ) extends Composite(id, info) {
       def this()(implicit
           givenName: Name,
-          givenLine: Line,
-          givenFile: File
+          givenInfo: ReflexiveInfo
       ) = {
-        this(Symbol(givenName.value), givenLine, givenFile)
+        this(Symbol(givenName.value), givenInfo)
       }
       val c0 = Core()
       val c1 = Core()
@@ -54,10 +57,18 @@ class CompositeNamingTest
   object InstantiatedNamingPlatform extends NamingPlatform
 
   "Hardware in different instances of a nested composite" should "have different names" in {
-    assert(InstantiatedNamingPlatform.cl0.name != InstantiatedNamingPlatform.cl1.name)
-    assert(InstantiatedNamingPlatform.cl0.c0.name != InstantiatedNamingPlatform.cl1.c0.name)
-    assert(InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name)
-    assert(InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name)
+    assert(
+      InstantiatedNamingPlatform.cl0.name != InstantiatedNamingPlatform.cl1.name
+    )
+    assert(
+      InstantiatedNamingPlatform.cl0.c0.name != InstantiatedNamingPlatform.cl1.c0.name
+    )
+    assert(
+      InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name
+    )
+    assert(
+      InstantiatedNamingPlatform.cl0.c1.name != InstantiatedNamingPlatform.cl1.c1.name
+    )
   }
 
 }

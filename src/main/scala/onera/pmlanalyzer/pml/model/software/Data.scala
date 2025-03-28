@@ -18,7 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.software
 
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import sourcecode.{File, Line, Name}
 
@@ -29,8 +29,8 @@ import sourcecode.{File, Line, Name}
   *   the name of the data
   * @group software_class
   */
-final class Data private (val name: Symbol, line: Line, file: File)
-    extends PMLNode(line, file) {
+final class Data private (val name: Symbol, info: ReflexiveInfo)
+    extends PMLNode(info) {
 
   override def toString: String = name.name
 }
@@ -48,8 +48,8 @@ object Data extends PMLNodeBuilder[Data] {
     * @return
     *   the data
     */
-  def apply(name: Symbol)(using owner: Owner, line: Line, file: File): Data = {
-    getOrElseUpdate(owner, name, new Data(name, line, file))
+  def apply(name: Symbol)(using givenInfo: ReflexiveInfo): Data = {
+    getOrElseUpdate(name, new Data(name, givenInfo))
   }
 
   /** A data can be defined by the implicit name used during the definition
@@ -61,6 +61,6 @@ object Data extends PMLNodeBuilder[Data] {
     * @return
     *   the data
     */
-  def apply()(using name: Name, owner: Owner, line: Line, file: File): Data =
+  def apply()(using name: Name, givenInfo: ReflexiveInfo): Data =
     apply(Symbol(name.value))
 }
