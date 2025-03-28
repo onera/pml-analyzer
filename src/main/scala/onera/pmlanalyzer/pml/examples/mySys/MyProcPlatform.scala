@@ -19,6 +19,7 @@
 package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 
@@ -128,8 +129,8 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
    * @param armLine the line where an instance of the this class will be defined
    * @param armFile the file in which an instance of this class will be defined
    */
-  class ARMCore private (armName: Symbol, armLine: Line, armFile: File)
-      extends Composite(armName, armLine: Line, armFile: File) {
+  class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
+      extends Composite(armName, armInfo) {
 
     /** Enable to provide the name implicitly
      *
@@ -137,8 +138,8 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
      * @param givenLine the line of the composite instantiation derived by sourcecode package
      * @param givenFile the file of the composite instantiation derived by sourcecode package
      */
-    def this()(implicit givenName: Name, givenLine: Line, givenFile: File) = {
-      this(givenName.value, givenLine, givenFile)
+    def this()(implicit givenName: Name, givenInfo: ReflexiveInfo) = {
+      this(givenName.value, givenInfo)
     }
 
     /** Initiator modelling an ARM Core

@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.{Message, Owner}
+import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
@@ -143,8 +143,8 @@ trait TransactionLibrary {
     * @param name
     *   the name of the transaction or scenario
     */
-  sealed abstract class ScenarioLike(val name: Symbol, line: Line, file: File)
-      extends PMLNode(line, file) {
+  sealed abstract class ScenarioLike(val name: Symbol, info: ReflexiveInfo)
+      extends PMLNode(info) {
     val iniTgt: () => Set[(Service, Service)]
     val sw: () => Set[Application]
   }
@@ -163,16 +163,15 @@ trait TransactionLibrary {
       val userName: UserTransactionId,
       val iniTgt: () => Set[(Service, Service)],
       val sw: () => Set[Application],
-      line: Line,
-      file: File
-  ) extends ScenarioLike(userName.id, line, file) {
+      info: ReflexiveInfo
+  ) extends ScenarioLike(userName.id, info) {
 
     /** Consider the transaction for the analysis
       *
       * @return
       *   the used transaction
       */
-    def used(using givenLine: Line, givenFile: File): UsedTransaction =
+    def used(using givenInfo: ReflexiveInfo): UsedTransaction =
       UsedTransaction(userName, iniTgt(), sw())
 
     override def toString: String = s"$userName"
@@ -198,7 +197,7 @@ trait TransactionLibrary {
       */
     def apply[A: AsTransaction](
         iniTgt: => A
-    )(using name: Name, line: Line, file: File): Transaction = {
+    )(using name: Name, givenInfo: ReflexiveInfo): Transaction = {
       val result = TransactionParam(iniTgt)
       apply(UserTransactionId(Symbol(name.value)), result._1, result._2)
     }
@@ -222,10 +221,10 @@ trait TransactionLibrary {
         name: UserTransactionId,
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
-    )(using owner: Owner, line: Line, file: File): Transaction = {
+    )(using givenInfo: ReflexiveInfo): Transaction = {
       getOrElseUpdate(
-        owner, name.id,
-        new Transaction(name, iniTgt, sw, line, file)
+        name.id,
+        new Transaction(name, iniTgt, sw, givenInfo)
       )
     }
 
@@ -242,8 +241,7 @@ trait TransactionLibrary {
       *   the transaction (not used for now)
       */
     def apply[A: AsTransaction](name: String, iniTgt: => A)(using
-        line: Line,
-        file: File
+        givenInfo: ReflexiveInfo
     ): Transaction = {
       val result = TransactionParam(iniTgt)
       apply(UserTransactionId(name), result._1, result._2)
@@ -261,7 +259,7 @@ trait TransactionLibrary {
       */
     def apply(
         from: Transaction
-    )(using name: Name, line: Line, file: File): Transaction =
+    )(using name: Name, info: ReflexiveInfo): Transaction =
       apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
   }
 
@@ -279,16 +277,15 @@ trait TransactionLibrary {
       val userName: UserScenarioId,
       val iniTgt: () => Set[(Service, Service)],
       val sw: () => Set[Application],
-      line: Line,
-      file: File
-  ) extends ScenarioLike(userName.id, line, file) {
+      info: ReflexiveInfo
+  ) extends ScenarioLike(userName.id, info) {
 
     /** Consider the transaction for the analysis
       *
       * @return
       *   the used scenario class
       */
-    def used(using givenLine: Line, givenFile: File): UsedScenario =
+    def used(using givenInfo: ReflexiveInfo): UsedScenario =
       UsedScenario(userName, iniTgt(), sw())
   }
 
@@ -315,8 +312,7 @@ trait TransactionLibrary {
         name: Name,
         ta: AsTransaction[Set[A]],
         tb: AsTransaction[Set[B]],
-        line: Line,
-        file: File
+        info: ReflexiveInfo
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
@@ -341,7 +337,7 @@ trait TransactionLibrary {
       */
     def apply(
         tr: ScenarioLike
-    )(using name: Name, line: Line, file: File): Scenario =
+    )(using name: Name, givenInfo: ReflexiveInfo): Scenario =
       apply(UserScenarioId(Symbol(name.value)), tr.iniTgt, tr.sw)
 
     /** Build a Scenario from a bunch of transactions, this should not be used
@@ -357,7 +353,7 @@ trait TransactionLibrary {
       */
     def apply(
         tr: Transaction*
-    )(using name: Name, line: Line, file: File): Scenario =
+    )(using name: Name, givenInfo: ReflexiveInfo): Scenario =
       apply(
         UserScenarioId(Symbol(name.value)),
         () => {
@@ -387,10 +383,10 @@ trait TransactionLibrary {
         name: UserScenarioId,
         iniTgt: () => Set[(Service, Service)],
         sw: () => Set[Application]
-    )(using owner: Owner, line: Line, file: File): Scenario = {
+    )(using givenInfo: ReflexiveInfo): Scenario = {
       getOrElseUpdate(
-        owner, name.id,
-        new Scenario(name, iniTgt, sw, line, file)
+        name.id,
+        new Scenario(name, iniTgt, sw, givenInfo)
       )
     }
   }
@@ -408,9 +404,8 @@ trait TransactionLibrary {
       val userName: UserScenarioId,
       iniTgt: Set[(Service, Service)],
       val sw: Set[Application],
-      line: Line,
-      file: File
-  ) extends PMLNode(line, file) {
+      info: ReflexiveInfo
+  ) extends PMLNode(info) {
 
     val name: Symbol = userName.id
 
@@ -459,10 +454,10 @@ trait TransactionLibrary {
         name: UserScenarioId,
         iniTgt: Set[(Service, Service)],
         sw: Set[Application]
-    )(using owner: Owner, line: Line, file: File): UsedScenario = {
+    )(using givenInfo: ReflexiveInfo): UsedScenario = {
       getOrElseUpdate(
-        owner, name.id,
-        new UsedScenario(name, iniTgt, sw, line, file)
+        name.id,
+        new UsedScenario(name, iniTgt, sw, givenInfo)
       )
     }
   }
@@ -480,9 +475,8 @@ trait TransactionLibrary {
       val userName: UserTransactionId,
       iniTgt: Iterable[(Service, Service)],
       val sw: Set[Application],
-      line: Line,
-      file: File
-  ) extends PMLNode(line, file) {
+      info: ReflexiveInfo
+  ) extends PMLNode(info) {
 
     val name: Symbol = userName.id
 
@@ -533,10 +527,10 @@ trait TransactionLibrary {
         name: UserTransactionId,
         iniTgt: Iterable[(Service, Service)],
         sw: Set[Application]
-    )(using owner: Owner, line: Line, file: File): UsedTransaction = {
+    )(using givenInfo: ReflexiveInfo): UsedTransaction = {
       getOrElseUpdate(
-        owner, name.id,
-        new UsedTransaction(name, iniTgt, sw, line, file)
+        name.id,
+        new UsedTransaction(name, iniTgt, sw, givenInfo)
       )
     }
 

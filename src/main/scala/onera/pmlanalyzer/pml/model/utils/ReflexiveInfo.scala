@@ -15,22 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model
+package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.utils.Owner
-import sourcecode.{File, Line}
+import sourcecode.{Line, File}
 
-trait SourceCodeTraceable {
+class ReflexiveInfo private (val line: Line, val file: File, val owner: Owner)
 
-  val owner: Owner
+object ReflexiveInfo {
 
-  /**
-   * Line in source code where node has been instantiated
-   */
-  val lineInFile: Int
+  def apply(l: Line, f: File, o: Owner) = new ReflexiveInfo(l, f, o)
 
-  /**
-   * Source file in which node has been instantiated
-   */
-  val sourceFile: String
+  given (using
+      givenLine: Line,
+      givenFile: File,
+      givenOwner: Owner
+  ): ReflexiveInfo =
+    ReflexiveInfo(givenLine, givenFile, givenOwner)
 }

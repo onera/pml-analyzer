@@ -18,6 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** Base class for store services
@@ -28,8 +29,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class Store private (val name: Symbol, line: Line, file: File)
-    extends Service(line, file)
+final class Store private (val name: Symbol, info: ReflexiveInfo)
+    extends Service(info)
 
 /** Builder of stores
   * @group builder
@@ -44,7 +45,7 @@ object Store extends BaseServiceBuilder[Store] {
     */
   protected def builder(
       name: Symbol
-  )(using givenLine: Line, givenFile: File): Store =
-    new Store(name, givenLine, givenFile)
+  )(using givenInfo: ReflexiveInfo): Store =
+    new Store(name, givenInfo)
 
 }

@@ -71,7 +71,9 @@ class PlatformTest
 
   it should "retrieve composite properly" in {
     forAll("name") { (name: Symbol) =>
-      whenever(Composite.get(currentOwner, Composite.formatName(name, currentOwner)).isEmpty) {
+      whenever(
+        Composite.get(Composite.formatName(name, currentOwner)).isEmpty
+      ) {
         val CompositeTest = new Composite(name) {}
         // redundant ownership test but enforce object initialization
         CompositeTest.owner should be(currentOwner)
@@ -84,8 +86,9 @@ class PlatformTest
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
-          whenever(Initiator.get(currentOwner, Initiator.formatName(name,currentOwner)).isEmpty)
-           {
+          whenever(
+            Initiator.get(Initiator.formatName(name, currentOwner)).isEmpty
+          ) {
             val smart = Initiator(name, (loads ++ stores).toSet)
             testBasics(smart, loads, stores)
             Initiator.all should contain(smart)
@@ -99,7 +102,7 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Target.get(currentOwner, Target.formatName(name,currentOwner)).isEmpty
+            Target.get(Target.formatName(name, currentOwner)).isEmpty
           ) {
             val target = Target(name, (loads ++ stores).toSet)
             testBasics(target, loads, stores)
@@ -114,7 +117,9 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            SimpleTransporter.get(currentOwner, SimpleTransporter.formatName(name,currentOwner)).isEmpty
+            SimpleTransporter
+              .get(SimpleTransporter.formatName(name, currentOwner))
+              .isEmpty
           ) {
             val transporter = SimpleTransporter(name, (loads ++ stores).toSet)
             testBasics(transporter, loads, stores)
@@ -129,7 +134,7 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Virtualizer.get(currentOwner, Virtualizer.formatName(name,currentOwner)).isEmpty
+            Virtualizer.get(Virtualizer.formatName(name, currentOwner)).isEmpty
           ) {
             val virtualizer = Virtualizer(name, (loads ++ stores).toSet)
             testBasics(virtualizer, loads, stores)

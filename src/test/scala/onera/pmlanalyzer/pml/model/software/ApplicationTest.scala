@@ -25,6 +25,6 @@ trait ApplicationTest {
   self: Platform =>
   implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
     name <- Gen.identifier
-    if Application.get(currentOwner, name).isEmpty
+    if Application.get(name).isEmpty
   } yield Application(name))
 }

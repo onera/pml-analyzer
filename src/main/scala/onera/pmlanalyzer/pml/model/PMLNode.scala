@@ -18,19 +18,22 @@
 
 package onera.pmlanalyzer.pml.model
 
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{Enclosing, File, Line}
 
 import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(line: Line, file: File)(using _enclosing: Enclosing)
+abstract class PMLNode(info: ReflexiveInfo)(using _enclosing: Enclosing)
     extends SourceCodeTraceable {
 
-  val lineInFile: Int = line.value
+  val owner: Owner = info.owner
+
+  val lineInFile: Int = info.line.value
 
   val sourceFile: String =
-    file.value.split('.').init.mkString(java.io.File.separator)
+    info.file.value.split('.').init.mkString(java.io.File.separator)
 
   /** Name of the node
     *

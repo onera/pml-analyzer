@@ -28,27 +28,38 @@ import scala.collection.mutable.HashMap as MHashMap
   * @tparam T
   *   the concrete type of built object
   */
-trait PMLNodeBuilder[T<: PMLNode] {
+trait PMLNodeBuilder[T <: PMLNode] {
 
   // TODO WARNING IF TWO PLATFORMS CONTAINS THE SAME NAMED COMPOSITE THEN MIX IN THE _memo OF THE COMPOSITES' SUBCOMPONENT
-  private val _memo: MHashMap[(Symbol, Symbol), T] = MHashMap.empty
+  private val _memo: MHashMap[Symbol, T] = MHashMap.empty
 
-  def get(owner: Owner,name:Symbol):Option[T] =
-    _memo.get((owner.s, name))
+  def get(name: Symbol): Option[T] =
+    _memo.get(name)
 
-  def add(owner: Owner,name:Symbol, v:T): Unit = {
-    for {l <- _memo.get((owner.s,name))} {
-      println(Message.errorMultipleInstantiation(s"$l in ${l.sourceFile} at line ${l.lineInFile}", s"$v in ${v.sourceFile} at line ${v.lineInFile}"))
+  def add(v: T): Unit = {
+    for { l <- _memo.get(v.name) } {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"$v in ${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
     }
-    _memo.addOne(((owner.s,name),v))
+    _memo.addOne((v.name, v))
   }
 
-  def getOrElseUpdate(owner: Owner, name: Symbol, v:T): T = {
-    for {l <- _memo.get((owner.s,name))} {
-      println(Message.errorMultipleInstantiation(s"$l in ${l.sourceFile} at line ${l.lineInFile}", s"$v in ${v.sourceFile} at line ${v.lineInFile}"))
+  def getOrElseUpdate(name: Symbol, v: => T): T = {
+    for { l <- _memo.get(name) } {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"$v in ${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
     }
-    _memo.getOrElseUpdate((owner.s,name),v)
+    _memo.getOrElseUpdate(name, v)
   }
+
   /** Provide all the object of the current type created for the platform,
     * including the ones created in composite components
     * @group embedFunctions
@@ -70,6 +81,8 @@ trait PMLNodeBuilder[T<: PMLNode] {
     *   set of created objects
     */
   def allDirect(implicit owner: Owner): Set[T] =
-    _memo.filter(_._1._1 == owner.s).values.toSet
-
+    for {
+      v <- _memo.values.toSet
+      if v.owner == owner
+    } yield v
 }

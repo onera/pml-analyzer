@@ -2,6 +2,7 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -23,7 +24,7 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     for (h <- List(t, s, i, v)) {
       exactly(1, h.services) shouldBe a[Load]
       exactly(1, h.services) shouldBe a[Store]
-      h.services.size should be (2)
+      h.services.size should be(2)
     }
   }
 
@@ -54,31 +55,35 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     val j = Target(Symbol("j"), withDefaultServices = false)
     j.services.size should be(0)
   }
-  
-  it should "raise a warning when using multiple implementation with the same name" in  {
-    class X(xLine: Line, xFile:File) extends Composite("X", xLine, xFile) {
-      val c:Initiator = Initiator()
-      
-      def this(dummy:Int =0)(using givenLine:Line, givenFile:File) =
-        this(givenLine, givenFile)
+
+  it should "raise a warning when using multiple implementation with the same name" in {
+    final class X(xName: Symbol, info: ReflexiveInfo)
+        extends Composite(xName, info) {
+      val c: Initiator = Initiator()
+
+      def this()(using givenInfo: ReflexiveInfo) = {
+        this("X", givenInfo)
+      }
     }
 
-    class Y(yLine: Line, yFile:File) extends Composite("Y",yLine,yFile) {
+    final class Y(yName: Symbol, info: ReflexiveInfo)
+        extends Composite(yName, info) {
       val x = X()
 
-      def this(dummy: Int = 0)(using givenLine: Line, givenFile: File) =
-        this(givenLine, givenFile)
+      def this()(using givenInfo: ReflexiveInfo) = {
+        this("Y", givenInfo)
+      }
     }
 
     val y1 = Y()
-    val y2 = Y() 
-    
-    y1.name should equal (y2.name)
-    y1.x.name should equal (y2.x.name)
-    y1.x.c.name should equal (y2.x.c.name)
+    val y2 = Y()
+
+    y1.name should equal(y2.name)
+    y1.x.name should equal(y2.x.name)
+    y1.x.c.name should equal(y2.x.c.name)
     y1 should not equal (y2)
     y1.x should not equal (y2.x)
-    y1.x.c should equal (y2.x.c)
+    y1.x.c should equal(y2.x.c)
   }
 
 }
