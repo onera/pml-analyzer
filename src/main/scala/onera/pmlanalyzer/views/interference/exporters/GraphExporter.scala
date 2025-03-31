@@ -36,7 +36,7 @@ object GraphExporter {
 
       def exportGraphReduction()(using ev: Analyse[T]): File = {
         val file = FileManager.exportDirectory.getFile(
-          self.fullName + "GraphReduction.txt"
+          FileManager.getGraphReductionFileName(self)
         )
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")

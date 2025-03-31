@@ -132,4 +132,7 @@ object FileManager {
 
   def getSemanticsReductionFileName(platform: Platform): String =
     s"${platform.fullName}SemanticsReduction.txt"
+
+  def getGraphReductionFileName(platform: Platform): String =
+    s"${platform.fullName}GraphReduction.txt"
 }

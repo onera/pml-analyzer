@@ -448,18 +448,18 @@ object PostProcess {
     }
   }
 
-  private def extractSize(in: Iterable[String]): Map[Int, Int] =
+  private def extractSize(in: Iterable[String]): Map[Int, BigInt] =
     in.filter(_.startsWith("[INFO] size "))
       .map(_.split("over").head)
       .map(s => {
         val data = s.split(':')
-        data.head.filter(_.isDigit).toInt -> data.last.filter(_.isDigit).toInt
+        data.head.filter(_.isDigit).toInt -> BigInt(data.last.filter(_.isDigit))
       })
       .toMap
 
   def parseSummaryFile(
       platform: Platform
-  ): Option[(Map[Int, Int], Map[Int, Int], Double)] =
+  ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
     for {
       file <- FileManager.analysisDirectory.locate(
         FileManager.getInterferenceAnalysisSummaryFileName(platform)
@@ -519,5 +519,21 @@ object PostProcess {
       .sortBy(_.mkString("||"))
     source.close()
     res
+  }
+
+  def parseGraphReductionFile(platform: Platform): Option[BigDecimal] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getGraphReductionFileName(platform)
+      )
+    } yield {
+      val source = Source.fromFile(file)
+      val res = source
+        .getLines()
+        .toSeq(1)
+        .toDouble
+      source.close()
+      BigDecimal(res)
+    }
   }
 }
