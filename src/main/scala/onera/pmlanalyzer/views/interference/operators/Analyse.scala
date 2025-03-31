@@ -235,13 +235,13 @@ object Analyse {
             .sum
           if (nonRed != 0) {
             BigDecimal(semantics) / BigDecimal(nonRed)
-          } else if( semantics != 0)
+          } else if (semantics != 0)
             BigDecimal(-1)
           else
             BigDecimal(1)
         }) getOrElse BigDecimal(-1)
       }
-      
+
       private def computeGraphReduction(using ev: Analyse[T]): BigDecimal = {
         val graph = self.fullServiceGraphWithInterfere()
         val systemGraphSize =
@@ -251,19 +251,21 @@ object Analyse {
             .size
         val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
         val graphSize = BigDecimal(nodeSize + edgeSize)
-        if(graphSize != 0){
+        if (graphSize != 0) {
           BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
-        } else if(BigDecimal(systemGraphSize) != 0)
+        } else if (BigDecimal(systemGraphSize) != 0)
           BigDecimal(-1)
         else
           BigDecimal(1)
 
       }
 
-      def computeGraphReduction(ignoreExistingFile: Boolean = false)(using ev: Analyse[T]): BigDecimal = {
+      def computeGraphReduction(
+          ignoreExistingFile: Boolean = false
+      )(using ev: Analyse[T]): BigDecimal = {
         PostProcess.parseGraphReductionFile(self) match
           case Some(value) if !ignoreExistingFile => value
-          case _ => computeGraphReduction
+          case _                                  => computeGraphReduction
       }
 
       def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =

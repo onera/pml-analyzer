@@ -216,8 +216,8 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   it should "be possible to compute the interference" in {
     val timeout: Duration = (1 days)
     println(timeout)
-    for { 
-      p <- platforms 
+    for {
+      p <- platforms
       if FileManager.exportDirectory
         .locate(FileManager.getSemanticSizeFileName(p))
         .isDefined
@@ -253,15 +253,15 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       semanticsReduction: Option[BigDecimal]
   ) {
     val semanticsSize: BigInt =
-      if(semanticsDistribution.nonEmpty)
+      if (semanticsDistribution.nonEmpty)
         semanticsDistribution.values.sum
       else 0
     val redDistribution: Map[Int, BigInt] =
       for {
-        (k,v) <- semanticsDistribution
+        (k, v) <- semanticsDistribution
         if freeDistribution.contains(k) || itfDistribution.contains(k)
-      } yield
-        k -> (v - freeDistribution.getOrElse(k, 0) - itfDistribution.getOrElse(k, 0))
+      } yield k -> (v - freeDistribution.getOrElse(k, 0) - itfDistribution
+        .getOrElse(k, 0))
 
     def printWith(
         writer: FileWriter,
@@ -273,36 +273,44 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       val printTime =
         analysisTime match
           case Some(value) => value.toString
-          case None => "none"
+          case None        => "none"
       val printSemRed =
         semanticsReduction match
           case Some(value) if value == -1 => "inf"
-          case Some(value) => value.toString
-          case None => "none"
+          case Some(value)                => value.toString
+          case None                       => "none"
       val pintGraphRed =
         graphReduction match
           case Some(value) if value == -1 => "inf"
-          case Some(value) => value.toString
-          case None => "none"
+          case Some(value)                => value.toString
+          case None                       => "none"
       writer.write(
         s"$nbInitiators, $nbTargets, $nbScenarios, $printTime, $semanticsSize, $pintGraphRed, $printSemRed, "
       )
       for { i <- 2 to maxSemantics }
-        writer.write(s"${semanticsDistribution.get(i).map(_.toString).getOrElse("none")}, ")
+        writer.write(
+          s"${semanticsDistribution.get(i).map(_.toString).getOrElse("none")}, "
+        )
 
       for { i <- 2 to maxItf }
-        writer.write(s"${itfDistribution.get(i).map(_.toString).getOrElse("none")}, ")
+        writer.write(
+          s"${itfDistribution.get(i).map(_.toString).getOrElse("none")}, "
+        )
 
       for { i <- 2 to maxFree }
-        writer.write(s"${freeDistribution.get(i).map(_.toString).getOrElse("none")}, ")
+        writer.write(
+          s"${freeDistribution.get(i).map(_.toString).getOrElse("none")}, "
+        )
 
       for { i <- 2 to maxRed }
         writer.write(
-          s"${redDistribution.get(i).map(_.toString).getOrElse("none")} ${if (i == maxRed) "" else ", "}"
+          s"${redDistribution.get(i).map(_.toString).getOrElse("none")} ${
+              if (i == maxRed) "" else ", "
+            }"
         )
   }
 
-  def getMaxScenarioSize(results:Seq[Set[Int]]):Int =
+  def getMaxScenarioSize(results: Seq[Set[Int]]): Int =
     results.filter(_.nonEmpty).map(_.max).max
 
   it should "be used to export performance plots" in {
@@ -318,13 +326,13 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         val semanticsDistribution = p.getSemanticsSize()
 
         val (itf, free, analysisTime) = PostProcess.parseSummaryFile(p) match
-          case Some(value) => (value._1,value._2,Some(value._3))
-          case None => (Map.empty[Int,BigInt], Map.empty[Int,BigInt], None)
+          case Some(value) => (value._1, value._2, Some(value._3))
+          case None => (Map.empty[Int, BigInt], Map.empty[Int, BigInt], None)
 
         val semanticsReduction =
-          if(itf.nonEmpty) Some(p.computeSemanticReduction()) else None
+          if (itf.nonEmpty) Some(p.computeSemanticReduction()) else None
         val graphReduction =
-          if(itf.nonEmpty) Some(p.computeGraphReduction()) else None
+          if (itf.nonEmpty) Some(p.computeGraphReduction()) else None
 
         p.fullName -> ExperimentResults(
           p.initiators.size,
@@ -340,9 +348,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       }).sortBy(_._1)
 
     val maxItfSize = getMaxScenarioSize(result.map(_._2.itfDistribution.keySet))
-    val maxFreeSize = getMaxScenarioSize(result.map(_._2.freeDistribution.keySet))
+    val maxFreeSize =
+      getMaxScenarioSize(result.map(_._2.freeDistribution.keySet))
     val maxRedSize = getMaxScenarioSize(result.map(_._2.redDistribution.keySet))
-    val maxSemanticsSize = getMaxScenarioSize(result.map(_._2.semanticsDistribution.keySet))
+    val maxSemanticsSize =
+      getMaxScenarioSize(result.map(_._2.semanticsDistribution.keySet))
     writer.write(
       "platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction, "
     )
