@@ -18,7 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.software
 
-import onera.pmlanalyzer.pml.model.PMLNode
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
@@ -29,7 +29,7 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group software_class
   */
-final class Application(val name: Symbol, info: ReflexiveInfo)
+final class Application private(val name: Symbol, info: ReflexiveInfo)
     extends PMLNode(info)
 
 /** Builder of [[Application]]
@@ -46,6 +46,6 @@ object Application extends BaseSoftwareNodeBuilder[Application] {
   protected def builder(
       name: Symbol
   )(using givenInfo: ReflexiveInfo): Application =
-    new Application(name, givenInfo)
+    new Application(PMLNodeBuilder.formatName(name, givenInfo.owner), givenInfo)
 
 }
