@@ -18,16 +18,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait VirtualizerTest {
   self: Platform with LoadTest with StoreTest =>
 
-  implicit val genVirtualizer: Arbitrary[Virtualizer] = Arbitrary(
+  given Arbitrary[Virtualizer] = Arbitrary(
     for {
-      name <- Gen.identifier
-      if Virtualizer.get(Virtualizer.formatName(name, currentOwner)).isEmpty
+      name <- Gen.identifier.suchThat(s =>
+        Virtualizer.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+      )
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Virtualizer(name, (loads ++ stores).toSet)

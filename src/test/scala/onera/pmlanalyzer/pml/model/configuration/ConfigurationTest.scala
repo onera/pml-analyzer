@@ -44,7 +44,7 @@ class ConfigurationTest
       with StoreTest
       with TargetTest
       with SimpleTransporterTest
-      with SmartTest {
+      with InitiatorTest {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()

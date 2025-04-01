@@ -271,10 +271,9 @@ object PMLNodeGraphExporter {
 
     final case class DOTCluster(
         name: String,
+        level: Int,
         subElements: Set[DOTCluster | DOTElement]
     ) extends Element {
-
-      private val depth: Int = name.count(_ == '_')
 
       def contains(element: DOTCluster | DOTElement): Boolean =
         subElements.contains(element) || subElements.exists {
@@ -286,7 +285,7 @@ object PMLNodeGraphExporter {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
-           |\tcolor = ${colorMap(depth)}
+           |\tcolor = ${colorMap(level)}
            |${subElements.toSeq
             .sortBy(_.name)
             .map(_.toString.replace(s"${name}_", ""))
@@ -550,7 +549,7 @@ object PMLNodeGraphExporter {
                   h <- c.hardware
                   e <- getElement(h)
                 } yield e
-              DOTCluster(x.name.name, elements)
+              DOTCluster(x.name.name, c.owner.path.size, elements)
           }
         }
       )

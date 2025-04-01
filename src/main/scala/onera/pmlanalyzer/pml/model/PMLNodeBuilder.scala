@@ -86,3 +86,23 @@ trait PMLNodeBuilder[T <: PMLNode] {
       if v.owner == owner
     } yield v
 }
+
+object PMLNodeBuilder {
+
+  /** Formatting of object name
+   *
+   * @param name
+   * the name of the object
+   * @param owner
+   * the name of its owner
+   * @return
+   * the formatted name
+   * @note
+   * this method should not be used in models
+   * @group utilFun
+   */
+  final def formatName(name: Symbol, owner: Owner): Symbol = Symbol(
+    s"${owner}_${name.name}"
+  )
+
+}

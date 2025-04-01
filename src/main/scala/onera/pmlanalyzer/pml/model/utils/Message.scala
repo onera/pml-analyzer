@@ -182,6 +182,6 @@ object Message {
   ): String =
     s"[INFO] The $size-itf differences between $x and $y have been exported to $file"
 
-  inline def errorMultipleInstantiation(l:Any, r:Any): String =
+  inline def errorMultipleInstantiation(l: Any, r: Any): String =
     s"[WARNING] $r has already be instantiated in $l"
 }
