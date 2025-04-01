@@ -18,16 +18,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait TargetTest {
   self: Platform with LoadTest with StoreTest =>
 
-  implicit val genTarget: Arbitrary[Target] = Arbitrary(
+  given Arbitrary[Target] = Arbitrary(
     for {
-      name <- Gen.identifier
-      if Target.get(Target.formatName(name, currentOwner)).isEmpty
+      name <- Gen.identifier.suchThat(s =>
+        Target.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+      )
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Target(name, (loads ++ stores).toSet)

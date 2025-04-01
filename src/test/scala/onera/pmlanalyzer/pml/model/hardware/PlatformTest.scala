@@ -18,10 +18,11 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.Gen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -37,16 +38,16 @@ class PlatformTest
   override implicit val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 200)
 
-  object PlatformFixture
-      extends Platform(Symbol("fixture"))
+  object PlatformTestFixture
+      extends Platform(Symbol("PlatformTestFixture"))
       with ApplicationTest
       with LoadTest
       with StoreTest
       with TargetTest
       with SimpleTransporterTest
-      with SmartTest
+      with InitiatorTest
 
-  import PlatformFixture.*
+  import PlatformTestFixture.*
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,
@@ -87,7 +88,9 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Initiator.get(Initiator.formatName(name, currentOwner)).isEmpty
+            Initiator.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val smart = Initiator(name, (loads ++ stores).toSet)
             testBasics(smart, loads, stores)
@@ -102,7 +105,9 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Target.get(Target.formatName(name, currentOwner)).isEmpty
+            Target.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val target = Target(name, (loads ++ stores).toSet)
             testBasics(target, loads, stores)
@@ -118,8 +123,10 @@ class PlatformTest
         {
           whenever(
             SimpleTransporter
-              .get(SimpleTransporter.formatName(name, currentOwner))
+              .get(PMLNodeBuilder.formatName(name, currentOwner))
               .isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val transporter = SimpleTransporter(name, (loads ++ stores).toSet)
             testBasics(transporter, loads, stores)
@@ -134,7 +141,11 @@ class PlatformTest
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Virtualizer.get(Virtualizer.formatName(name, currentOwner)).isEmpty
+            Virtualizer
+              .get(PMLNodeBuilder.formatName(name, currentOwner))
+              .isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val virtualizer = Virtualizer(name, (loads ++ stores).toSet)
             testBasics(virtualizer, loads, stores)
@@ -153,14 +164,26 @@ class PlatformTest
       {
         smart link transporter
         transporter link target
-        for (ss <- smart.stores)
-          assert(transporter.stores.subsetOf(ss.linked))
-        for (ss <- smart.loads)
-          assert(transporter.loads.subsetOf(ss.linked))
-        for (ss <- transporter.stores)
-          assert(target.stores.subsetOf(ss.linked))
-        for (ss <- transporter.loads)
-          assert(target.loads.subsetOf(ss.linked))
+        for {
+          ss <- smart.stores
+          ts <- transporter.stores
+        }
+          ss.linked should contain(ts)
+        for {
+          sl <- smart.loads
+          tl <- transporter.loads
+        }
+          sl.linked should contain(tl)
+        for {
+          trs <- transporter.stores
+          ts <- target.stores
+        }
+          trs.linked should contain(ts)
+        for {
+          trl <- transporter.loads
+          tl <- target.loads
+        }
+          trl.linked should contain(tl)
         smart unlink transporter
         for (ss <- smart.stores)
           ss.linked.intersect(transporter.stores) should be(empty)

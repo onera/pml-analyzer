@@ -60,21 +60,6 @@ import sourcecode.{File, Line, Name}
   */
 trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
 
-  /** Formatting of object name
-    * @param name
-    *   the name of the object
-    * @param owner
-    *   the name of its owner
-    * @return
-    *   the formatted name
-    * @note
-    *   this method should not be used in models
-    * @group utilFun
-    */
-  final def formatName(name: Symbol, owner: Owner): Symbol = Symbol(
-    owner.s.name + "_" + name.name
-  )
-
   /** The builder that must be implemented by specific builder
     * @param name
     *   the name of the object
@@ -146,14 +131,15 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       p: ProvideRelation[Hardware, Service],
       givenInfo: ReflexiveInfo
   ): T = {
-    val formattedName = formatName(name, givenInfo.owner)
+    val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
+    val hwOwner = givenInfo.owner.add(name)
     val result =
       getOrElseUpdate(formattedName, builder(formattedName))
     val mutableBasic = collection.mutable.Set(basics.toSeq: _*)
     if (withDefaultServices && !basics.exists(_.isInstanceOf[Load]))
-      mutableBasic += Load(Symbol(s"${formattedName.name}_load"))
+      mutableBasic += Load(PMLNodeBuilder.formatName(Symbol("load"), hwOwner))
     if (withDefaultServices && !basics.exists(_.isInstanceOf[Store]))
-      mutableBasic += Store(Symbol(s"${formattedName.name}_store"))
+      mutableBasic += Store(PMLNodeBuilder.formatName(Symbol("store"), hwOwner))
     p.add(result, mutableBasic)
     result
   }

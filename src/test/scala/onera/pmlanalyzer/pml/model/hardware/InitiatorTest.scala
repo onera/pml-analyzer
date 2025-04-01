@@ -18,16 +18,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
 import org.scalacheck.{Arbitrary, Gen}
 
-trait SmartTest {
+trait InitiatorTest {
   self: Platform with LoadTest with StoreTest =>
 
-  implicit val genSmart: Arbitrary[Initiator] = Arbitrary(
+  given Arbitrary[Initiator] = Arbitrary(
     for {
-      name <- Gen.identifier
-      if Initiator.get(Initiator.formatName(name, currentOwner)).isEmpty
+      name <- Gen.identifier.suchThat(s =>
+        Initiator.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+      )
       loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
       stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
     } yield Initiator(name, (loads ++ stores).toSet)

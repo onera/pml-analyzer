@@ -72,7 +72,7 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * configuration if available
     * @group identifier
     */
-  final lazy val fullName: String = currentOwner.s.name
+  final lazy val fullName: String = currentOwner.toString
 
   /** Map from the physical transaction id and their service sequence
     * representation computed through an analysis of the platform WARNING: this

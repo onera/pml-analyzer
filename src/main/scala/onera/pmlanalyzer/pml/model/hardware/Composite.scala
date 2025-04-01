@@ -44,7 +44,7 @@ abstract class Composite(n: Symbol, info: ReflexiveInfo)
     *   the initial value of the owner is stored in [[owner]]
     * @group identifier
     */
-  implicit val currentOwner: Owner = Owner(formatName(n, owner))
+  implicit val currentOwner: Owner = owner.add(n)
 
   /** notify the initialisation of a new composite to the companion object
     */
@@ -99,7 +99,7 @@ object Composite extends PMLNodeBuilder[Composite] {
     *   the formatted name
     */
   def formatName(name: Symbol, owner: Owner): Symbol = Symbol(
-    owner.s.name + "_" + name.name
+    s"${owner}_${name.name}"
   )
 
   /** Notify that a new composite has been defined

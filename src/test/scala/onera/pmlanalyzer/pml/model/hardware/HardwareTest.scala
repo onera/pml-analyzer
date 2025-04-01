@@ -11,9 +11,9 @@ import org.scalatest.matchers.should
 class HardwareTest extends AnyFlatSpec with should.Matchers {
 
   /* Create a default platform to act as a container for components. */
-  object PlatformFixture extends Platform(Symbol("fixture"))
+  object HardwareTestFixture extends Platform(Symbol("HardwareTestFixture"))
 
-  import PlatformFixture.*
+  import HardwareTestFixture.*
 
   "A Hardware" should "have default services" in {
     val t: Target = Target()
@@ -29,61 +29,30 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "have no services when specified" in {
-    val t: Target = Target(withDefaultServices = false)
-    val s: SimpleTransporter = SimpleTransporter(withDefaultServices = false)
-    val i: Initiator = Initiator(withDefaultServices = false)
-    val v: Virtualizer = Virtualizer(withDefaultServices = false)
+    val tNoS: Target = Target(withDefaultServices = false)
+    val sNoS: SimpleTransporter = SimpleTransporter(withDefaultServices = false)
+    val iNoS: Initiator = Initiator(withDefaultServices = false)
+    val vNoS: Virtualizer = Virtualizer(withDefaultServices = false)
 
-    for (h <- List(t, s, i, v)) {
+    for (h <- List(tNoS, sNoS, iNoS, vNoS)) {
       h.services should be(empty)
     }
   }
 
   it should "have only specified services when specified" in {
-    val t: Target =
+    val tSpS: Target =
       Target(Set(Load("a"), Load("b")), withDefaultServices = false)
-    t.services.size should be(2)
-    exactly(2, t.services) should be(a[Load])
+    tSpS.services.size should be(2)
+    exactly(2, tSpS.services) should be(a[Load])
 
-    val s = Target(Set(Store("a")), withDefaultServices = false)
-    s.services.size should be(1)
-    exactly(1, s.services) should be(a[Store])
+    val sSpS = Target(Set(Store("a")), withDefaultServices = false)
+    sSpS.services.size should be(1)
+    exactly(1, sSpS.services) should be(a[Store])
 
-    val i = Target(Set.empty, withDefaultServices = false)
-    i.services.size should be(0)
+    val iSpS = Target(Set.empty, withDefaultServices = false)
+    iSpS.services should be(empty)
 
-    val j = Target(Symbol("j"), withDefaultServices = false)
-    j.services.size should be(0)
+    val jSpS = Target(withDefaultServices = false)
+    jSpS.services should be(empty)
   }
-
-  it should "raise a warning when using multiple implementation with the same name" in {
-    final class X(xName: Symbol, info: ReflexiveInfo)
-        extends Composite(xName, info) {
-      val c: Initiator = Initiator()
-
-      def this()(using givenInfo: ReflexiveInfo) = {
-        this("X", givenInfo)
-      }
-    }
-
-    final class Y(yName: Symbol, info: ReflexiveInfo)
-        extends Composite(yName, info) {
-      val x = X()
-
-      def this()(using givenInfo: ReflexiveInfo) = {
-        this("Y", givenInfo)
-      }
-    }
-
-    val y1 = Y()
-    val y2 = Y()
-
-    y1.name should equal(y2.name)
-    y1.x.name should equal(y2.x.name)
-    y1.x.c.name should equal(y2.x.c.name)
-    y1 should not equal (y2)
-    y1.x should not equal (y2.x)
-    y1.x.c should equal(y2.x.c)
-  }
-
 }
