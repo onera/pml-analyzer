@@ -49,7 +49,8 @@ object Data extends PMLNodeBuilder[Data] {
     *   the data
     */
   def apply(name: Symbol)(using givenInfo: ReflexiveInfo): Data = {
-    getOrElseUpdate(name, new Data(PMLNodeBuilder.formatName(name, givenInfo.owner), givenInfo))
+    val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
+    getOrElseUpdate(formattedName, new Data(formattedName, givenInfo))
   }
 
   /** A data can be defined by the implicit name used during the definition
@@ -62,5 +63,5 @@ object Data extends PMLNodeBuilder[Data] {
     *   the data
     */
   def apply()(using name: Name, givenInfo: ReflexiveInfo): Data =
-    apply(PMLNodeBuilder.formatName(Symbol(name.value), givenInfo.owner))
+    apply(Symbol(name.value))
 }

@@ -63,8 +63,10 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(using givenInfo: ReflexiveInfo): T =
-    getOrElseUpdate(name, builder(name))
+  )(using givenInfo: ReflexiveInfo): T = {
+    val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
+    getOrElseUpdate(formattedName, builder(formattedName))
+  }
 
   /** A software component can be defined by the name provided by the implicit
     * declaration context (the name of the value enclosing the object)

@@ -46,6 +46,6 @@ object Application extends BaseSoftwareNodeBuilder[Application] {
   protected def builder(
       name: Symbol
   )(using givenInfo: ReflexiveInfo): Application =
-    new Application(PMLNodeBuilder.formatName(name, givenInfo.owner), givenInfo)
+    new Application(name, givenInfo)
 
 }
