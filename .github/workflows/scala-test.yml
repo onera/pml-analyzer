@@ -53,7 +53,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
-          args: '-DJAVA=ON' '-DCMAKE_POLICY_VERSION_MINIMUM=3.5'
+          args: '-DJAVA=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5'
 
       # If cache miss compile monosat
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
