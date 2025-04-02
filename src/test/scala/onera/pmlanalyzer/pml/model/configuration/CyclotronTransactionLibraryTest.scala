@@ -48,7 +48,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.transactionByUserName
-        trPhysicalPath <- p.tr.used.toPhysical
+        trPhysicalPath <- p.usedTr.toPhysical
       } {
         name should be(p.tr.userName)
         path should be(trPhysicalPath)
@@ -56,7 +56,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.scenarioByUserName
-        trPhysicalPath <- p.tr.used.toPhysical
+        trPhysicalPath <- p.usedTr.toPhysical
       } {
         name should not be (p.tr.userName)
         path should be(Set(trPhysicalPath))

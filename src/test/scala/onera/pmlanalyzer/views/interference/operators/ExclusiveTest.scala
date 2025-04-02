@@ -1,7 +1,7 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.operators.*
+import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.operators.*
@@ -34,8 +34,8 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 
 class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
-  object PlatformFixture
-      extends Platform(Symbol("fixture"))
+  object ExclusiveTestPlatform
+      extends Platform(Symbol("ExclusiveTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
       with TransactionLibraryInstances
       with TransactionLibrary {
@@ -82,7 +82,7 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     tr4 used
   }
 
-  import PlatformFixture.{*, given}
+  import ExclusiveTestPlatform.{*, given}
 
   "Two physical transaction" should "be able to be exclusive from each other" in {
     tr1Id exclusiveWith tr2Id
