@@ -30,7 +30,6 @@ import scala.collection.mutable.HashMap as MHashMap
   */
 trait PMLNodeBuilder[T <: PMLNode] {
 
-  // TODO WARNING IF TWO PLATFORMS CONTAINS THE SAME NAMED COMPOSITE THEN MIX IN THE _memo OF THE COMPOSITES' SUBCOMPONENT
   private val _memo: MHashMap[Symbol, T] = MHashMap.empty
 
   def get(name: Symbol): Option[T] =
@@ -41,7 +40,7 @@ trait PMLNodeBuilder[T <: PMLNode] {
       println(
         Message.errorMultipleInstantiation(
           s"$l in ${l.sourceFile} at line ${l.lineInFile}",
-          s"$v in ${v.sourceFile} at line ${v.lineInFile}"
+          s"${v.sourceFile} at line ${v.lineInFile}"
         )
       )
     }
@@ -53,7 +52,7 @@ trait PMLNodeBuilder[T <: PMLNode] {
       println(
         Message.errorMultipleInstantiation(
           s"$l in ${l.sourceFile} at line ${l.lineInFile}",
-          s"$v in ${v.sourceFile} at line ${v.lineInFile}"
+          s"${v.sourceFile} at line ${v.lineInFile}"
         )
       )
     }

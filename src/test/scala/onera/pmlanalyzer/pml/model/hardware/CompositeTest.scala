@@ -87,12 +87,22 @@ class CompositeTest
      * to c0 and c1
      *
      * @param givenName implicit name at instantiation
-     * @param givenInfo code traceability information at instantiation
+     * @param info code traceability information at instantiation
      */
-    final class IncorrectCluster(using
-        givenName: Name,
-        givenInfo: ReflexiveInfo
-    ) extends Composite(Symbol(givenName.value), givenInfo) {
+    final class IncorrectCluster private (info: ReflexiveInfo)(using
+        givenName: Name
+    ) extends Composite(Symbol(givenName.value), info) {
+
+      def this()(using
+          otherGivenName: Name,
+          givenInfo: ReflexiveInfo
+      ) = {
+        this(givenInfo)
+      }
+
+      // Here the cores will use the givenName provided by givenName
+      // since it is visible in the scope so they will be be both
+      // named according to the name of the platform
       val c0 = Core()
       val c1 = Core()
     }
