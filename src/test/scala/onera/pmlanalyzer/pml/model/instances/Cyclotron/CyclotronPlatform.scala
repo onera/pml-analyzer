@@ -20,11 +20,12 @@ package onera.pmlanalyzer.pml.model.instances.Cyclotron
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
-import sourcecode.Name
+import sourcecode.{File, Line, Name}
 
-class CyclotronPlatform(name: Symbol) extends Platform(name) {
-  def this()(implicit implicitName: Name) = {
-    this(Symbol(implicitName.value))
+class CyclotronPlatform(name: Symbol, line: Line, file: File)
+    extends Platform(name, line, file) {
+  def this()(using givenName: Name, givenLine: Line, givenFile: File) = {
+    this(Symbol(givenName.value), givenLine, givenFile)
   }
 
   object group extends Composite("group") {

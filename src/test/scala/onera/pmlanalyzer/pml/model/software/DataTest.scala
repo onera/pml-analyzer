@@ -18,6 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.software
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 
@@ -26,8 +27,9 @@ trait DataTest {
 
   implicit val genData: Arbitrary[Data] = Arbitrary(
     for {
-      name <- Gen.identifier
-      if Data.get(name).isEmpty
+      name <- Gen.identifier.suchThat(s =>
+        Data.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+      )
     } yield Data(name)
   )
 }

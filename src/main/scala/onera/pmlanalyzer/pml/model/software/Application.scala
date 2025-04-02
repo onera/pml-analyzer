@@ -29,7 +29,7 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group software_class
   */
-final class Application private(val name: Symbol, info: ReflexiveInfo)
+final class Application private (val name: Symbol, info: ReflexiveInfo)
     extends PMLNode(info)
 
 /** Builder of [[Application]]
