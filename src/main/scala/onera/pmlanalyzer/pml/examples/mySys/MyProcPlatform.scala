@@ -35,8 +35,13 @@ import sourcecode.{File, Line, Name}
   * {{{object TeraNet extends Composite}}} You can also define a type of
   * Composite that may be instantiated afterward, for instance here ARMCores are
   * defined as a composition of a core (initiator) and a cache (transporter). A
-  * name is given as a parameter of the ARMCore class
-  * {{{class ARMCore (name:Symbol) extends Composite}}} Then components can be
+  * name is given as a parameter of the ARMCore class. If you choose to do so please
+  * note that you must use specific design patterns to ensure the correct naming of
+  * inner components. The default constructor of your class MUST take as inputs
+  * the name and the reflexive info. If your class is final (cannot be further refined)
+  * then you can define an alternative constructor where the name and reflexive info are
+  * deduced from the instantiation context as illustrated in ARMCore.
+  * {{{final class ARMCore (name:Symbol) extends Composite}}} Then components can be
   * linked together, this operation simply connect the service of the same type
   * provided by the two components. For instance {{{ARM0.core link axi_bus}}}
   * links the [[pml.model.service.Load]] and [[pml.model.service.Store]] service
@@ -129,7 +134,7 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
    * @param armLine the line where an instance of the this class will be defined
    * @param armFile the file in which an instance of this class will be defined
    */
-  class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
+  final class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
       extends Composite(armName, armInfo) {
 
     /** Enable to provide the name implicitly
