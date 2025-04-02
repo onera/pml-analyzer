@@ -26,7 +26,7 @@ trait ApplicationTest {
   self: Platform =>
   implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
     name <- Gen.identifier.suchThat(s =>
-      Application.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+      Application.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
     )
   } yield Application(name))
 }

@@ -28,7 +28,7 @@ trait DataTest {
   implicit val genData: Arbitrary[Data] = Arbitrary(
     for {
       name <- Gen.identifier.suchThat(s =>
-        Data.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+        Data.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
       )
     } yield Data(name)
   )
