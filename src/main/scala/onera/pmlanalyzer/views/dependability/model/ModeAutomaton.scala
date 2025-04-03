@@ -62,7 +62,7 @@ abstract class ModeAutomaton[T: IsCriticityOrdering: IsFinite]
     }
   }
 
-  def direction(e: Event): Option[Direction.Value] = {
+  def direction(e: Event): Option[Direction] = {
     for (t <- fireable(e); nextState = t.computeNewState()) yield {
       if (nextState == state)
         Constant

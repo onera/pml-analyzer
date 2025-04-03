@@ -43,8 +43,8 @@ trait TargetCeciliaExporter {
         val out = Flow(x.loadO.id.name, tyype, Out)
         val obs = Flow(Symbol("storeO"), iTyype, Out)
         val direction =
-          Flow(Symbol("direction"), typeModel[Direction.Value], Out)
-        val fire = Flow(Symbol("fire"), typeModel[Fire.Value], In)
+          Flow(Symbol("direction"), typeModel[Direction], Out)
+        val fire = Flow(Symbol("fire"), typeModel[Fire], In)
         val componentExport = x.fMAutomaton.toCecilia
         val automaton = SubComponent(x.fMAutomaton.id.name, componentExport)
         val myFields = allOf[(InitiatorId, TargetId)].collect {

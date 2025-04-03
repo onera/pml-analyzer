@@ -28,21 +28,6 @@ trait IsFinite[T] {
   def all: Seq[T] = allWithNone.filterNot(_ == none)
 }
 
-trait IsFiniteOps {
-
-  implicit class HasName[T](x: T)(implicit ev: IsFinite[T]) {
-    def name: Symbol = ev.name(x)
-  }
-
-  def nameOf[T](implicit ev: IsFinite[T]): Symbol = ev.typeName
-
-  def allOf[T](implicit ev: IsFinite[T]): Seq[T] = ev.all
-
-  def noneOf[T](implicit ev: IsFinite[T]): T = ev.none
-
-  def allWithNone[T](implicit ev: IsFinite[T]): Seq[T] = ev.allWithNone
-}
-
 object IsFinite {
   implicit def tupleIsFinite[T, U](implicit
       evT: IsFinite[T],
@@ -58,4 +43,20 @@ object IsFinite {
     )
     val none: (T, U) = (evT.none, evU.none)
   }
+
+  trait Ops {
+
+    implicit class HasName[T](x: T)(implicit ev: IsFinite[T]) {
+      def name: Symbol = ev.name(x)
+    }
+
+    def nameOf[T](implicit ev: IsFinite[T]): Symbol = ev.typeName
+
+    def allOf[T](implicit ev: IsFinite[T]): Seq[T] = ev.all
+
+    def noneOf[T](implicit ev: IsFinite[T]): T = ev.none
+
+    def allWithNone[T](implicit ev: IsFinite[T]): Seq[T] = ev.allWithNone
+  }
+
 }

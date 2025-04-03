@@ -24,28 +24,24 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-trait EnumFailureMode extends Enumeration {
+trait EnumFailureMode[T] {
   self =>
 
-  implicit object criticityOrdering extends IsCriticityOrdering[Value] {
-    def compare(x: Value, y: Value): Int = x.id - y.id
-  }
+  implicit val isFinite: IsFinite[T]
 
-  implicit val isFinite: IsFinite[Value]
-
-  implicit object isShadowOrdering extends IsShadowOrdering[Value] {
-    def containerShadow(init: Value, containerState: Value): Value =
+  implicit object isShadowOrdering extends IsShadowOrdering[T] {
+    def containerShadow(init: T, containerState: T): T =
       self.containerShadow(init, containerState)
 
-    def corruptingFM(fm: Value): Boolean = self.corruptingFM(fm)
+    def corruptingFM(fm: T): Boolean = self.corruptingFM(fm)
 
-    def inputShadow(input: Value, containerState: Value): Value =
+    def inputShadow(input: T, containerState: T): T =
       self.inputShadow(input, containerState)
   }
 
-  def containerShadow(init: Value, containerFM: Value): Value
+  def containerShadow(init: T, containerFM: T): T
 
-  def corruptingFM(fm: Value): Boolean
+  def corruptingFM(fm: T): Boolean
 
-  def inputShadow(input: Value, containerState: Value): Value
+  def inputShadow(input: T, containerState: T): T
 }
