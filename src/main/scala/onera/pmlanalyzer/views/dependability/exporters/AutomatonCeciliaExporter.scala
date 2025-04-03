@@ -81,7 +81,7 @@ trait AutomatonCeciliaExporter {
 
       def toCecilia(x: InputFMAutomaton[T]): ComponentModel = {
         val in = Flow(x.in.id.name, typeModel[T], In)
-        val fire = Flow(Symbol("fire"), typeModel[Fire.Value], In)
+        val fire = Flow(Symbol("fire"), typeModel[Fire], In)
         val o = Flow(x.o.id.name, typeModel[T], Out)
         val state = State(Symbol("s"), typeModel[T], x.initialState.name.name)
         val nextState = Flow(Symbol("nextState"), typeModel[T], Local)
@@ -94,7 +94,7 @@ trait AutomatonCeciliaExporter {
           )
           .mkString(s"$nextState = case {\n", "\n", s"\nelse $state};")
         val direction =
-          Flow(Symbol("direction"), typeModel[Direction.Value], Out)
+          Flow(Symbol("direction"), typeModel[Direction], Out)
         val directionAssertion = allOf[T]
           .flatMap(from =>
             allOf[T].collect {

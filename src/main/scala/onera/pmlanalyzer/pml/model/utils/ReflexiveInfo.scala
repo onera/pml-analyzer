@@ -15,21 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.dependability.model
+package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.views.dependability.operators.IsFinite
+import sourcecode.{Line, File}
 
-enum Fire(i: Int, name: String) extends BaseEnumeration(i, name) {
-  case Apply extends Fire(3, "apply")
-  case Wait extends Fire(2, "wait")
-  case No extends Fire(1, "no")
-}
-object Fire {
+class ReflexiveInfo private (val line: Line, val file: File, val owner: Owner)
 
-  implicit val isFinite: IsFinite[Fire] = new IsFinite[Fire] {
-    val none: Fire = No
-    def allWithNone: Seq[Fire] = Fire.values.toSeq
-    def name(x: Fire): Symbol = Symbol(x.toString)
-  }
+object ReflexiveInfo {
 
+  def apply(l: Line, f: File, o: Owner) = new ReflexiveInfo(l, f, o)
+
+  given (using
+      givenLine: Line,
+      givenFile: File,
+      givenOwner: Owner
+  ): ReflexiveInfo =
+    ReflexiveInfo(givenLine, givenFile, givenOwner)
 }

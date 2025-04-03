@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** Class modelling simple transporters.
@@ -27,8 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group transporter_class
   */
-final class SimpleTransporter private (val name: Symbol, line: Line, file: File)
-    extends Transporter(line, file)
+final class SimpleTransporter private (val name: Symbol, info: ReflexiveInfo)
+    extends Transporter(info)
 
 /** Builder of simple transporters
   * @group builder
@@ -43,7 +44,7 @@ object SimpleTransporter extends BaseHardwareNodeBuilder[SimpleTransporter] {
     */
   protected def builder(
       name: Symbol
-  )(using line: Line, file: File): SimpleTransporter =
-    new SimpleTransporter(name, line, file)
+  )(using givenInfo: ReflexiveInfo): SimpleTransporter =
+    new SimpleTransporter(name, givenInfo)
 
 }

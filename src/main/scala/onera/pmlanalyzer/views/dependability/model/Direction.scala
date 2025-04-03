@@ -22,19 +22,20 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsFinite
 }
 
-object Direction extends Enumeration {
+enum Direction(id: Int, name: String) extends BaseEnumeration(id, name) {
 
-  val Degradation: Value = Value(3, "degradation")
-  val Reparation: Value = Value(2, "reparation")
-  val Constant: Value = Value(1, "constant")
+  case Degradation extends Direction(3, "degradation")
+  case Reparation extends Direction(2, "reparation")
+  case Constant extends Direction(1, "constant")
+}
 
-  implicit val isFinite: IsFinite[Value] = new IsFinite[Value] {
-    val none: Value = Constant
-    def allWithNone: Seq[Value] = values.toSeq
-    def name(x: Value): Symbol = Symbol(x.toString)
+object Direction {
+  given IsFinite[Direction] with {
+    val none: Direction = Constant
+    def allWithNone: Seq[Direction] = values.toSeq
+    def name(x: Direction): Symbol = Symbol(x.toString)
   }
 
-  implicit val isCriticityOrdering: IsCriticityOrdering[Value] =
-    (x: Direction.Value, y: Direction.Value) => x.id - y.id
-
+  given IsCriticityOrdering[Direction] =
+    (x: Direction, y: Direction) => x.id - y.id
 }

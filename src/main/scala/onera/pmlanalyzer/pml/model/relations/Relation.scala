@@ -19,6 +19,7 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.model.SourceCodeTraceable
 import onera.pmlanalyzer.pml.model.relations.Relation.Change
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 import scala.collection.mutable
@@ -183,8 +184,7 @@ object Relation {
       isAdd: Boolean,
       line: Line,
       file: File
-  )(using name: Name)
-      extends SourceCodeTraceable {
+  )(using name: Name) {
 
     /**
      * Line in source code where node has been instantiated

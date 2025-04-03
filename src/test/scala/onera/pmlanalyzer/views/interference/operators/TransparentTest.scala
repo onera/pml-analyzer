@@ -1,21 +1,15 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.operators.*
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
+import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
-
-import sourcecode.Name
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.flatspec.{AnyFlatSpec, AnyFlatSpecLike}
 import org.scalatest.matchers.should
-// import onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
-// import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
+import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalTransaction,
   PhysicalTransactionId
@@ -25,14 +19,14 @@ import scala.language.postfixOps
 
 class TransparentTest extends AnyFlatSpecLike with should.Matchers {
 
-  object PlatformFixture
-      extends Platform(Symbol("fixture"))
+  object TransparentTestPlatform
+      extends Platform(Symbol("TransparentTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification {
     val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
     val tr2Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr2"))
   }
 
-  import PlatformFixture.*
+  import TransparentTestPlatform.*
 
   "A transaction" should "be able to be transparent" in {
     tr1Id.isTransparent

@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{Enclosing, File, Line}
 
 /** Base class for all physical element of a platform that cannot initiate nor
@@ -28,6 +29,6 @@ import sourcecode.{Enclosing, File, Line}
   *   the implicit context that can be used to find the source code location of
   *   the node definition
   */
-abstract class Transporter private[hardware] (line: Line, file: File)(using
+abstract class Transporter private[hardware] (info: ReflexiveInfo)(using
     enclosing: Enclosing
-) extends Hardware(line: Line, file: File)
+) extends Hardware(info)

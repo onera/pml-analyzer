@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{Enclosing, File, Line}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
@@ -46,7 +46,7 @@ import scala.language.implicitConversions
   * @group hierarchical_class
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
-    extends PMLNode(line, file)
+    extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
     with Relation.Instances {
 
   def this(n: Symbol, dummy: Int = 0)(using
@@ -71,7 +71,7 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * configuration if available
     * @group identifier
     */
-  final lazy val fullName: String = currentOwner.s.name
+  final lazy val fullName: String = currentOwner.toString
 
   /** Map from the physical transaction id and their service sequence
     * representation computed through an analysis of the platform WARNING: this

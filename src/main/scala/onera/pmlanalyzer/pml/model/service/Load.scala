@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{File, Line}
 
 /** Base class for load services
@@ -27,8 +28,8 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class Load private (val name: Symbol, line: Line, file: File)
-    extends Service(line, file)
+final class Load private (val name: Symbol, info: ReflexiveInfo)
+    extends Service(info)
 
 /** Builder of loads
   * @group builder
@@ -43,7 +44,7 @@ object Load extends BaseServiceBuilder[Load] {
     */
   protected def builder(
       name: Symbol
-  )(using givenLine: Line, givenFile: File): Load =
-    new Load(name, givenLine, givenFile)
+  )(using givenInfo: ReflexiveInfo): Load =
+    new Load(name, givenInfo)
 
 }

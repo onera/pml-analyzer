@@ -1,4 +1,4 @@
-package onera.pmlanalyzer.views.operators
+package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
@@ -28,8 +28,8 @@ import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibra
 
 class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
-  object PlatformFixture
-      extends Platform(Symbol("fixture"))
+  object InterfereTestPlatform
+      extends Platform(Symbol("InterfereTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
       with TransactionLibraryInstances
       with TransactionLibrary {
@@ -61,12 +61,12 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     val scn: Scenario = Scenario()
   }
 
-  import PlatformFixture.*
+  import InterfereTestPlatform.*
 
   "Two services" should "be able to interfere with each other" in {
     for {
-      a <- PlatformFixture.hardware
-      b <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
+      b <- InterfereTestPlatform.hardware
     } {
       for {
         l <- a.services
@@ -78,10 +78,10 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "They" should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" in {
     for {
-      a <- PlatformFixture.hardware
-      b <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
+      b <- InterfereTestPlatform.hardware
     } {
       for {
         l <- a.services
@@ -106,7 +106,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "They" should "be able not to interfere" in {
+  it should "be able not to interfere" in {
     for {
       s <- i2.services
     } {
@@ -129,29 +129,29 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
   "Two Hardwares components" should "be able to interfere with each other" in {
     for {
-      a <- PlatformFixture.hardware
-      b <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
+      b <- InterfereTestPlatform.hardware
     } {
       a interfereWith b
       hardwareInterfere(a) should contain(b)
     }
   }
 
-  "These two" should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" in {
     for {
-      a <- PlatformFixture.hardware
-      b <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
+      b <- InterfereTestPlatform.hardware
     } {
       a notInterfereWith b
       // hardwareInterfere(a) should not contain (b)
       hardwareNotInterfere(a) should contain(b)
     }
-    PlatformFixture.hardware.size should be(6)
+    InterfereTestPlatform.hardware.size should be(6)
   }
 
   "A Hardware component" should "be able to have interfering services" in {
     for {
-      a <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
     } {
       a.hasInterferingServices
       for {
@@ -163,9 +163,9 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "It" should "be able to have non-interfering services" in {
+  it should "be able to have non-interfering services" in {
     for {
-      a <- PlatformFixture.hardware
+      a <- InterfereTestPlatform.hardware
     } {
       a.hasNonInterferingServices
       for {

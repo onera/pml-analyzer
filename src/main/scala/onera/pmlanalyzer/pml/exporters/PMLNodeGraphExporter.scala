@@ -1,19 +1,20 @@
-/*******************************************************************************
- * Copyright (c)  2023. ONERA
- * This file is part of PML Analyzer
- *
- * PML Analyzer is free software ;
- * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation ;
- * either version 2 of  the License, or (at your option) any later version.
- *
- * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this program ;
- *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- ******************************************************************************/
+/** *****************************************************************************
+  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
+  *
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
+  *
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
 
 package onera.pmlanalyzer.pml.exporters
 
@@ -255,13 +256,13 @@ object PMLNodeGraphExporter {
   trait DOTNamer {
 
     private val colorMap = Map(
-      0 -> "\"#D6EBA0\"",
-      1 -> "\"#EBBFA0\"",
-      2 -> "\"#A0E3EB\"",
-      3 -> "\"#D4A0EB\"",
-      4 -> "\"#769296\"",
-      5 -> "\"#606B42\""
-    )
+      1 -> "\"#D6EBA0\"",
+      2 -> "\"#EBBFA0\"",
+      3 -> "\"#A0E3EB\"",
+      4 -> "\"#D4A0EB\"",
+      5 -> "\"#769296\"",
+      6 -> "\"#606B42\""
+    ).withDefaultValue("white")
 
     final case class DOTElement(name: String, color: String) extends Element {
       override def toString: String =
@@ -270,40 +271,27 @@ object PMLNodeGraphExporter {
 
     final case class DOTCluster(
         name: String,
+        level: Int,
         subElements: Set[DOTCluster | DOTElement]
     ) extends Element {
-
-      private val depth: Int = name.count(_ == '_')
 
       def contains(element: DOTCluster | DOTElement): Boolean =
         subElements.contains(element) || subElements.exists {
           case c: DOTCluster => c.contains(element)
           case _             => false
         }
-
-      def printOnlySubComponents(
-          filter: DOTCluster | DOTElement => Boolean
-      ): String =
+      override def toString: String =
         s"""subgraph cluster_$name {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
-           |\tcolor = ${colorMap(depth % colorMap.size)}
-           |${subElements
-            .filter(filter)
-            .toSeq
+           |\tcolor = ${colorMap(level)}
+           |${subElements.toSeq
             .sortBy(_.name)
-            .map {
-              case c: DOTCluster => c.printOnlySubComponents(filter)
-              case e             => e.toString
-            }
-            .map(_.replace(s"${name}_", ""))
+            .map(_.toString.replace(s"${name}_", ""))
             .mkString("\t", "\t", "")}
            |\t}
            |""".stripMargin
-
-      override def toString: String =
-        printOnlySubComponents(_ => true)
     }
   }
 
@@ -561,7 +549,7 @@ object PMLNodeGraphExporter {
                   h <- c.hardware
                   e <- getElement(h)
                 } yield e
-              DOTCluster(x.name.name, elements)
+              DOTCluster(x.name.name, c.owner.path.size, elements)
           }
         }
       )
@@ -728,11 +716,11 @@ object PMLNodeGraphExporter {
       } yield e
 
       val elements =
-        (for {
+        for {
           a <- associations
-          eL <- getElement(a.left)
-          eR <- getElement(a.right)
-        } yield List(eL, eR)).flatten.toSet
+          id <- List(a.left, a.right)
+          e <- getElement(id)
+        } yield e
 
       val clusters =
         for {
@@ -747,15 +735,7 @@ object PMLNodeGraphExporter {
         } yield e
 
       for {
-        c <- clusters.toSeq.distinct.sortBy(_.name)
-      }
-        writer.write(
-          s" ${c.printOnlySubComponents(elements.contains)}"
-            .replace(s"${platform.fullName}_", "")
-        )
-
-      for {
-        e <- primaryElements.toSeq.distinct.sortBy(_.name)
+        e <- (clusters ++ primaryElements).toSeq.distinct.sortBy(_.name)
       }
         writer.write(s" $e".replace(s"${platform.fullName}_", ""))
 

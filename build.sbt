@@ -92,7 +92,7 @@ lazy val docSetting =
     "doc",
     "-doc-root-content",
     "doc/_assets/text/rootContent.txt",
-    "-skip-by-regex:pml.expertises,views.dependability.*,pml.examples,views.interference.examples,pml.model.relations,views.interference.model.relations",
+    "-skip-by-regex:onera.pmlanalyzer.views.dependability.*",
     "-project-logo",
     "doc/_assets/images/phylog_logo.gif"
   )

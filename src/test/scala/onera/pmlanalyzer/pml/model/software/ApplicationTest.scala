@@ -17,12 +17,15 @@
 
 package onera.pmlanalyzer.pml.model.software
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 
 trait ApplicationTest {
   self: Platform =>
   implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
-    name <- Gen.identifier
+    name <- Gen.identifier.suchThat(s =>
+      Application.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+    )
   } yield Application(name))
 }

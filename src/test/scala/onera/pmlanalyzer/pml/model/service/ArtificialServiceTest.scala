@@ -25,5 +25,6 @@ trait ArtificialServiceTest {
 
   val genArtificialService: Arbitrary[ArtificialService] = Arbitrary(for {
     name <- Gen.identifier
+    if ArtificialService.get(name).isEmpty
   } yield ArtificialService(name))
 }

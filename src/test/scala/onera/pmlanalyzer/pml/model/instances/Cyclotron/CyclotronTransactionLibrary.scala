@@ -28,5 +28,5 @@ trait CyclotronTransactionLibrary extends TransactionLibrary {
   self: CyclotronPlatform =>
 
   val tr: Transaction = Transaction(dma read eth)
-  tr.used
+  val usedTr: UsedTransaction = tr.used
 }

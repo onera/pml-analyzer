@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.model.service
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is
@@ -49,7 +49,7 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     * @return
     *   the object
     */
-  protected def builder(name: Symbol)(using givenLine: Line, givenFile: File): T
+  protected def builder(name: Symbol)(using givenInfo: ReflexiveInfo): T
 
   /** A service can be defined by the name provided by the implicit declaration
     * context (the name of the value enclosing the object)
@@ -63,9 +63,7 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     */
   def apply()(using
       givenName: Name,
-      owner: Owner,
-      givenLine: Line,
-      givenFile: File
+      givenInfo: ReflexiveInfo
   ): T = apply(Symbol(givenName.value))
 
   /** A service can be defined by its name
@@ -79,7 +77,7 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(using owner: Owner, givenLine: Line, givenFile: File): T = {
-    _memo.getOrElseUpdate((name, owner.s), builder(name))
+  )(using givenInfo: ReflexiveInfo): T = {
+    getOrElseUpdate(name, builder(name))
   }
 }
