@@ -31,10 +31,10 @@ import onera.pmlanalyzer.views.interference.operators.*
 /** The interference calculus assumptions for the MySys's applications are
   * gathered here. For instance app22 and app3 cannot execute simultaneously so
   * {{{app22 exclusiveWith app3}}} The app3 transfer transaction does not
-  * significantly impact the [[TeraNet]]
+  * significantly impact the [[onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform.TeraNet]]
   * {{{app3 notInterfereWith TeraNet.periph_bus.loads}}}
   * @see
-  *   [[views.interference.operators.Exclusive.Ops]] for interfere operator
+  *   [[onera.pmlanalyzer.views.interference.operators.Exclusive.Ops]] for interfere operator
   *   definition
   */
 trait MySysInterferenceSpecification

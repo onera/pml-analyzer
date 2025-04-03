@@ -25,8 +25,8 @@ import scala.language.postfixOps
 
 /** This trait contains a library of all transactions that can occur on the
   * platform One way to define a
-  * [[pml.model.configuration.TransactionLibrary.Transaction]] or a
-  * [[pml.model.configuration.TransactionLibrary.Scenario]] is to use the
+  * [[onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.Transaction]] or a
+  * [[onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.Scenario]] is to use the
   * read/write operators specifying which [[pml.model.software.Data]] is used by
   * which [[pml.model.software.Application]]. For instance
   * {{{val app4_wr_input_d : Transaction = Transaction(app4 write input_d)}}}
@@ -35,18 +35,18 @@ import scala.language.postfixOps
   * the data are provided in the [[MySysSoftwareAllocation]] trait.
   *
   * If you want to define several paths representing a multi-transaction use the
-  * [[pml.model.configuration.TransactionLibrary.Scenario]] For instance
+  * [[onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.Scenario]] For instance
   * {{{val app1_rd_wr_L1 : Scenario = Scenario(app1_rd_L1, app1_wr_L1)}}}
   * defines a scenario named '''app1_rd_wr_L1''' where app1 is reading and
   * writing L1 cache
   * @note
   *   A transaction or a scenario is only '''declared''' here, it will be
   *   considered during the interference analysis if it is actually used. This
-  *   is done in the [[SimpleKeystoneLibraryConfiguration]] files. A transaction
+  *   is done in the [[MySysTransactionLibrary]] files. A transaction
   *   should be a path from an initiator to a target, if several paths are
   *   possible a warning will be raised.
   * @see
-  *   [[pml.operators.Use.Ops]] for read/write operator definitions
+  *   [[onera.pmlanalyzer.pml.operators.Use.Ops]] for read/write operator definitions
   */
 trait MySysTransactionLibrary extends TransactionLibrary {
   self: MyProcPlatform with MySysSoftwareAllocation =>

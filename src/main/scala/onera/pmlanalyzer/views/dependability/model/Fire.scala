@@ -20,16 +20,17 @@ package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.views.dependability.operators.IsFinite
 
-object Fire extends Enumeration {
+enum Fire(i: Int, name: String) extends BaseEnumeration(i, name) {
+  case Apply extends Fire(3, "apply")
+  case Wait extends Fire(2, "wait")
+  case No extends Fire(1, "no")
+}
+object Fire {
 
-  val Apply: Value = Value(3, "apply")
-  val Wait: Value = Value(2, "wait")
-  val No: Value = Value(1, "no")
-
-  implicit val isFinite: IsFinite[Value] = new IsFinite[Value] {
-    val none: Value = No
-    def allWithNone: Seq[Value] = values.toSeq
-    def name(x: Value): Symbol = Symbol(x.toString)
+  implicit val isFinite: IsFinite[Fire] = new IsFinite[Fire] {
+    val none: Fire = No
+    def allWithNone: Seq[Fire] = Fire.values.toSeq
+    def name(x: Fire): Symbol = Symbol(x.toString)
   }
 
 }

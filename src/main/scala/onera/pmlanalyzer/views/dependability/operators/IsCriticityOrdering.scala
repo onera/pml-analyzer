@@ -18,20 +18,30 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
+import onera.pmlanalyzer.views.dependability.model.BaseEnumeration
+
 trait IsCriticityOrdering[T] extends Ordering[T]
-
-trait IsCriticityOrderingOps {
-  def min[T: IsCriticityOrdering: IsFinite]: T = allOf[T].min
-  def max[T: IsCriticityOrdering: IsFinite]: T = allOf[T].max
-  def worst[T: IsCriticityOrdering](l: T*): T = l.max
-  def best[T: IsCriticityOrdering](l: T*): T = l.min
-
-  implicit class CriticityOrderOps[T: IsCriticityOrdering](a: T)
-      extends Ordered[T] {
-    def compare(that: T): Int = IsCriticityOrdering[T].compare(a, that)
-  }
-}
 
 object IsCriticityOrdering {
   def apply[T](implicit ev: IsCriticityOrdering[T]): IsCriticityOrdering[T] = ev
+
+  trait Ops {
+    def min[T: IsCriticityOrdering: IsFinite]: T = allOf[T].min
+
+    def max[T: IsCriticityOrdering: IsFinite]: T = allOf[T].max
+
+    def worst[T: IsCriticityOrdering](l: T*): T = l.max
+
+    def best[T: IsCriticityOrdering](l: T*): T = l.min
+
+    implicit class CriticityOrderOps[T: IsCriticityOrdering](a: T)
+        extends Ordered[T] {
+      def compare(that: T): Int = IsCriticityOrdering[T].compare(a, that)
+    }
+  }
+
+  given [T <: BaseEnumeration]: IsCriticityOrdering[T] with {
+    def compare(x: T, y: T): Int = x.id - y.id
+  }
+
 }

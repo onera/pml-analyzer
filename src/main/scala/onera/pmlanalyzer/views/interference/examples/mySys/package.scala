@@ -20,7 +20,7 @@ package onera.pmlanalyzer.views.interference.examples
 
 /** Package containing an example on a simplification of a TI Keystone platform
   * @see
-  *   [[MyProcPhysicalTableBasedInterferenceSpecification]] provides an example
+  *   [[MyProcInterferenceSpecification]] provides an example
   *   of hardware interference assumption modelling
   * @see
   *   [[MySysInterferenceSpecification]] provides an example of application

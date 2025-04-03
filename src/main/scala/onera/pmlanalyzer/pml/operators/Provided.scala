@@ -52,14 +52,14 @@ object Provided {
     * can be used
     *
     * To access to the load services provided by an element l (e.g. a
-    * [[Hardware]]) {{{l.loads}}} To access to the store services provided by an
+    * [[onera.pmlanalyzer.pml.model.hardware.Hardware]]) {{{l.loads}}} To access to the store services provided by an
     * element l {{{l.stores}}} To access to the services provided by an element
     * l {{{l.services}}} To access to the initiators provided by an element l
-    * (e.g. a [[pml.model.hardware.Platform]]) {{{l.initiators}}} To access to
+    * (e.g. a [[onera.pmlanalyzer.pml.model.hardware.Platform]]) {{{l.initiators}}} To access to
     * the targets provided by an element l {{{l.targets}}} To access to the
     * transporters provided by an element l {{{l.transporters}}} To access to
     * the hardware provided by an element l {{{l.hardware}}} To access to the
-    * initiator providing an element l (e.g. a [[Service]])
+    * initiator providing an element l (e.g. a [[onera.pmlanalyzer.pml.model.service.Service]])
     * {{{l.initiatorOwner}}} To access to the target providing an element l
     * {{{l.targetOwner}}} To access to the transporter providing an element l
     * {{{l.transporterOwner}}} To access to the hardware providing an element l
@@ -67,11 +67,11 @@ object Provided {
     * {{{l.hardwareOwnerIs(r)}}}
     *
     * @note
-    *   currently provide operators are maily applicable on [[Hardware]] and
-    *   [[pml.model.software.Data]]
+    *   currently provide operators are maily applicable on [[onera.pmlanalyzer.pml.model.hardware.Hardware]] and
+    *   [[onera.pmlanalyzer.pml.model.software.Data]]
     * @see
     *   provide usage can be found in
-    *   [[views.interference.examples.simpleKeystone.SimpleKeystonePhysicalTableBasedInterferenceSpecification]]
+    *   [[onera.pmlanalyzer.views.interference.examples.mySys.MyProcInterferenceSpecification]]
     */
   trait Ops {
 

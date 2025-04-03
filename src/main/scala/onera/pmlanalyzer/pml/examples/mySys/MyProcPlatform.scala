@@ -26,21 +26,21 @@ import sourcecode.{File, Line, Name}
 /** Simple model of the Keystone platform illustrating the main features of PML.
   * The components of the architectures can be created using the constructors
   * provided in [[pml.model.hardware.BaseHardwareNodeBuilder]] For instance the
-  * [[package.SimpleKeystonePlatform.dma]] is built with:
+  * [[MyProcPlatform.dma]] is built with:
   * {{{val dma: Initiator = Initiator()}}} An axi-bus is built with:
   * {{{val axi-bus: SimpleTransporter= SimpleTransporter()}}} A peripheral or a
   * memory is built with {{{val sram: Target = Target()}}} Some components may
   * be composite, if you want to define one instance of composite you can use
-  * the object instantiation pattern used for the TeraNet
+  * the object instantiation pattern used for the [[MyProcPlatform.TeraNet]]
   * {{{object TeraNet extends Composite}}} You can also define a type of
   * Composite that may be instantiated afterward, for instance here ARMCores are
   * defined as a composition of a core (initiator) and a cache (transporter). A
-  * name is given as a parameter of the ARMCore class. If you choose to do so please
+  * name is given as a parameter of the [[MyProcPlatform.ARMCore]] class. If you choose to do so please
   * note that you must use specific design patterns to ensure the correct naming of
   * inner components. The default constructor of your class MUST take as inputs
   * the name and the reflexive info. If your class is final (cannot be further refined)
   * then you can define an alternative constructor where the name and reflexive info are
-  * deduced from the instantiation context as illustrated in ARMCore.
+  * deduced from the instantiation context as illustrated in [[MyProcPlatform.ARMCore]].
   * {{{final class ARMCore (name:Symbol) extends Composite}}} Then components can be
   * linked together, this operation simply connect the service of the same type
   * provided by the two components. For instance {{{ARM0.core link axi_bus}}}
@@ -126,13 +126,12 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
    *
    * @group composite_def
    * @note
-   * The [[armLine]] and [[armFile]] enable source code traceability for PML Nodes.
+   * The armInfo enables source code traceability for PML Nodes.
    * Note that these parameters are not explicitly provided by the used thanks to an alternative constructor for [[ARMCore]]
    * where the name, line and file are derived implicitly (using keyword in the alternative constructor).
    * In this case we chose to remove access from the default constructor (private keyword)
-   * @param armName the name of the ARMCore instance of the this class
-   * @param armLine the line where an instance of the this class will be defined
-   * @param armFile the file in which an instance of this class will be defined
+   * @param armName the name of the ARMCore instance of this class
+   * @param armInfo structure containing source code traceability information
    */
   final class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
       extends Composite(armName, armInfo) {
@@ -140,8 +139,7 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
     /** Enable to provide the name implicitly
      *
      * @param givenName the name of the composite derived by sourcecode package
-     * @param givenLine the line of the composite instantiation derived by sourcecode package
-     * @param givenFile the file of the composite instantiation derived by sourcecode package
+     * @param givenInfo structure containing source code traceability information derived by sourcecode package
      */
     def this()(implicit givenName: Name, givenInfo: ReflexiveInfo) = {
       this(givenName.value, givenInfo)
