@@ -281,18 +281,21 @@ object PMLNodeGraphExporter {
           case _             => false
         }
 
-      def printOnlySubComponents(filter: DOTCluster | DOTElement => Boolean): String =
+      def printOnlySubComponents(
+          filter: DOTCluster | DOTElement => Boolean
+      ): String =
         s"""subgraph cluster_$name {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
            |\tcolor = ${colorMap(level % colorMap.size)}
-           |${
-          subElements.filter(filter).toSeq
+           |${subElements
+            .filter(filter)
+            .toSeq
             .sortBy(_.name)
             .map {
-              case c:DOTCluster => c.printOnlySubComponents(filter)
-              case e => e.toString
+              case c: DOTCluster => c.printOnlySubComponents(filter)
+              case e             => e.toString
             }
             .map(_.replace(s"${name}_", ""))
             .mkString("\t", "\t", "")}
@@ -729,7 +732,7 @@ object PMLNodeGraphExporter {
           a <- associations
           eL <- getElement(a.left)
           eR <- getElement(a.right)
-        } yield List(eL,eR)).flatten.toSet
+        } yield List(eL, eR)).flatten.toSet
 
       val clusters =
         for {
@@ -740,10 +743,10 @@ object PMLNodeGraphExporter {
       val containerMap =
         (for {
           e <- elements
-        } yield
-          e -> getContainers(e)).toMap
+        } yield e -> getContainers(e)).toMap
 
-      val allContainers = containerMap.values.flatten.toSeq
+      val allContainers =
+        containerMap.values.flatten.toSet[DOTCluster | DOTElement]
 
       val primaryElements =
         for {
@@ -754,7 +757,9 @@ object PMLNodeGraphExporter {
       for {
         c <- clusters.toSeq.distinct.sortBy(_.name)
       }
-        writer.write(s" ${c.printOnlySubComponents(e => elements.contains(e) || allContainers.contains(e))}".replace(s"${platform.fullName}_", ""))
+        writer.write(s" ${c.printOnlySubComponents(e =>
+            elements.contains(e) || allContainers.contains(e)
+          )}".replace(s"${platform.fullName}_", ""))
 
       for {
         e <- primaryElements.toSeq.distinct.sortBy(_.name)

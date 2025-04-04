@@ -136,9 +136,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 16)
   } yield {
-    println(s"[INFO] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
-      if withDMA then "" else "_noDMA"
-    }")
+    println(
+      s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
+          if withDMA then "" else "_noDMA"
+        }"
+    )
     generatePlatformFromConfiguration(
       coreCount = coreCount,
       clusterCount = clusterCount,
@@ -170,7 +172,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be possible to export the HW and SW graph" in {
-    for{
+    for {
       p <- platforms
     }
       p.exportRestrictedHWAndSWGraph()

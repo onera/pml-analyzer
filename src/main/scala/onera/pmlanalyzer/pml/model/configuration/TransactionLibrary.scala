@@ -294,9 +294,9 @@ trait TransactionLibrary {
     */
   object Scenario extends PMLNodeBuilder[Scenario] {
     def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-                                                                          ta: AsTransaction[Set[A]],
-                                                                          tb: AsTransaction[Set[B]],
-                                                                          info:ReflexiveInfo
+        ta: AsTransaction[Set[A]],
+        tb: AsTransaction[Set[B]],
+        info: ReflexiveInfo
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
@@ -327,10 +327,10 @@ trait TransactionLibrary {
      * the corresponding scenario
      */
     def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-                                                            name: Name,
-                                                            ta: AsTransaction[Set[A]],
-                                                            tb: AsTransaction[Set[B]],
-                                                            info: ReflexiveInfo
+        name: Name,
+        ta: AsTransaction[Set[A]],
+        tb: AsTransaction[Set[B]],
+        info: ReflexiveInfo
     ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
 
     /** Build a scenario from a transaction or another scenario
@@ -462,7 +462,7 @@ trait TransactionLibrary {
         sw: Set[Application]
     )(using givenInfo: ReflexiveInfo): UsedScenario = {
       getOrElseUpdate(
-        PMLNodeBuilder.formatName(name.id,givenInfo.owner),
+        PMLNodeBuilder.formatName(name.id, givenInfo.owner),
         new UsedScenario(name, iniTgt, sw, givenInfo)
       )
     }
@@ -535,7 +535,7 @@ trait TransactionLibrary {
         sw: Set[Application]
     )(using givenInfo: ReflexiveInfo): UsedTransaction = {
       getOrElseUpdate(
-        PMLNodeBuilder.formatName(name.id,givenInfo.owner),
+        PMLNodeBuilder.formatName(name.id, givenInfo.owner),
         new UsedTransaction(name, iniTgt, sw, givenInfo)
       )
     }

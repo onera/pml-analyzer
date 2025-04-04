@@ -1,6 +1,12 @@
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Initiator, Platform, SimpleTransporter, Target}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target
+}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.*
@@ -69,7 +75,7 @@ class GenericPlatform private (
     )
   }
 
-  sealed abstract class Cluster(n: Symbol, clusterInfo:ReflexiveInfo)
+  sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo)
       extends Composite(n, clusterInfo) {
     val cores: Seq[Initiator]
     val input_port: SimpleTransporter = SimpleTransporter()
@@ -88,8 +94,8 @@ class GenericPlatform private (
   }
 
   final class ClusterCore private (
-                                    val id: String,
-                                    clusterCoreInfo:ReflexiveInfo
+      val id: String,
+      clusterCoreInfo: ReflexiveInfo
   ) extends Cluster(Symbol(s"ClC$id"), clusterCoreInfo) {
 
     def this(ident: String, dummy: Int = 0)(using
@@ -144,7 +150,7 @@ class GenericPlatform private (
       val id: Int,
       nbCluster: Int,
       nbGroup: Int,
-      groupCrossBarInfo:ReflexiveInfo
+      groupCrossBarInfo: ReflexiveInfo
   ) extends Composite(s"group_bus$id", groupCrossBarInfo) {
 
     def this(ident: Int, nbCl: Int, nbGr: Int, dummy: Int = 0)(using
