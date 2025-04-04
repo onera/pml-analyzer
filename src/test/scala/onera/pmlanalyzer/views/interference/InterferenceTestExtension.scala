@@ -30,6 +30,16 @@ import scala.concurrent.duration.DurationInt
 
 object InterferenceTestExtension {
 
+  var monosatLibraryLoaded: Boolean = true
+  try {
+    System.loadLibrary("monosat")
+  } catch {
+    case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
+  }
+
+  val experimentationMode: Boolean =
+    System.getProperty("runExperimentation", "false").toBoolean
+
   extension (x: ConfiguredPlatform) {
 
     def test(

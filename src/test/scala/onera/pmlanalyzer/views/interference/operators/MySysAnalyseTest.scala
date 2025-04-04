@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
@@ -41,6 +42,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
   private val expectedResultsDirectoryPath = "mySys"
 
   it should "provide the verified interference and free" in {
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
     val diff =
       Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
     if (diff.exists(_.nonEmpty)) {
@@ -49,6 +54,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "provide a consistent graph and semantics reduction" in {
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
     MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(
       BigDecimal(37) / 17
     )

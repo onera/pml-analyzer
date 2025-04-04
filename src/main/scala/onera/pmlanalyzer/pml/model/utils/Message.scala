@@ -194,4 +194,10 @@ object Message {
 
   inline def errorMultipleInstantiation(l: Any, r: Any): String =
     s"[WARNING] $l has already be instantiated in $r"
+
+  val monosatLibraryNotLoaded: String =
+    "[WARNING] monosat dynamic library cannot be found"
+
+  val experimationDisabled: String =
+    "[WARNING] experimentation are not executed, to be activated add -DrunExperimentation=true when running SBT"
 }

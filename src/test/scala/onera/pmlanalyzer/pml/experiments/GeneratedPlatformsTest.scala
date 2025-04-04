@@ -21,7 +21,9 @@ package onera.pmlanalyzer.pml.experiments
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
@@ -105,7 +107,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
   private val cores = Seq(2, 4, 8, 16)
   private val dsps = Seq(0)
-  val genericPlatformInstances: Seq[
+  private lazy val platforms: Seq[
     Platform & TransactionLibrary &
       PhysicalTableBasedInterferenceSpecification &
       ApplicativeTableBasedInterferenceSpecification
@@ -151,9 +153,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
-  private val platforms = genericPlatformInstances
-
   "Generated architectures" should "be analysable to compute their semantics" in {
+    assume(
+      InterferenceTestExtension.experimentationMode,
+      Message.experimationDisabled
+    )
     val timeout = (1 hour)
     for {
       p <- platforms.par
@@ -172,6 +176,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be possible to export the HW and SW graph" in {
+    assume(
+      InterferenceTestExtension.experimentationMode,
+      Message.experimationDisabled
+    )
     for {
       p <- platforms
     }
@@ -179,6 +187,14 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be possible to compute the interference" in {
+    assume(
+      InterferenceTestExtension.experimentationMode,
+      Message.experimationDisabled
+    )
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
     val timeout: Duration = (1 days)
     println(timeout)
     for {
@@ -279,6 +295,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     results.filter(_.nonEmpty).map(_.max).max
 
   it should "be used to export performance plots" in {
+    assume(
+      InterferenceTestExtension.experimentationMode,
+      Message.experimationDisabled
+    )
     val resultFile = FileManager.exportDirectory.getFile("experiments.csv")
     val writer = new FileWriter(resultFile)
     val result =
