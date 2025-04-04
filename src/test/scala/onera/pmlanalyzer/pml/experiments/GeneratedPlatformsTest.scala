@@ -18,37 +18,26 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-// import onera.pmlanalyzer.GnuPlotWriter
-import onera.pmlanalyzer.pml.experiments.hbus.*
-import onera.pmlanalyzer.pml.experiments.dbus.*
-import onera.pmlanalyzer.pml.experiments.noc.*
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
-  InterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification,
-  TableBasedInterferenceSpecification
+  PhysicalTableBasedInterferenceSpecification
 }
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import sun.awt.shell.ShellFolder
 
-import scala.concurrent.ExecutionContext.Implicits.*
 import java.io.FileWriter
-import scala.concurrent.{Await, Future, TimeoutException}
+import scala.collection.parallel.CollectionConverters.*
+import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.*
-import scala.io.Source
+import scala.concurrent.{Await, Future, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
-import scala.collection.parallel.CollectionConverters.*
-import scala.collection.parallel.ParSeq
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
@@ -114,13 +103,15 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
+  private val cores = Seq(2, 4, 8, 16)
+  private val dsps = Seq(0)
   val genericPlatformInstances: Seq[
     Platform & TransactionLibrary &
       PhysicalTableBasedInterferenceSpecification &
       ApplicativeTableBasedInterferenceSpecification
   ] = for {
-    coreCount <- Seq(2, 4, 8, 16)
-    dspCount <- Seq(0)
+    coreCount <- cores
+    dspCount <- dsps
 
     clusterCount <- {
       for { i <- 0 to log2(coreCount) } yield {
@@ -145,6 +136,9 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 16)
   } yield {
+    println(s"[INFO] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
+      if withDMA then "" else "_noDMA"
+    }")
     generatePlatformFromConfiguration(
       coreCount = coreCount,
       clusterCount = clusterCount,
@@ -155,63 +149,32 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
-  val dbusInstances: Seq[
-    DbusCXDYBXPlatform & DbusCXDYBXSoftware & DbusCXDYBXTransactionLibrary &
-      DbusCXDYBXRoutingConstraints & TableBasedInterferenceSpecification
-  ] =
-    for {
-      coreNumber <- 2 to 8 by 2
-      dspNumber <- 2 to 8 by 2
-      if coreNumber + dspNumber <= 12
-    } yield {
-      new DbusCXDYBXPlatform(
-        Symbol(s"DbusC${coreNumber}D${dspNumber}B$coreNumber"),
-        coreNumber,
-        dspNumber
-      ) with DbusCXDYBXSoftware
-        with DbusCXDYBXTransactionLibrary
-        with DbusCXDYBXRoutingConstraints
-        with TableBasedInterferenceSpecification {}
-    }
-
-  val hbusInstances: Seq[
-    HbusClXCYBYPlatform & HbusClXCYBYSoftware & HbusClXCYBYTransactionLibrary &
-      HbusClXCYBYRoutingConstraints & TableBasedInterferenceSpecification
-  ] =
-    for {
-      clusterNumber <- 2 to 8 by 2
-      coreNumber <- 2 to 8 by 2
-      if clusterNumber + coreNumber <= 12
-    } yield {
-      new HbusClXCYBYPlatform(
-        Symbol(s"HbusCl${clusterNumber}C${coreNumber}B$coreNumber"),
-        clusterNumber,
-        coreNumber
-      ) with HbusClXCYBYSoftware
-        with HbusClXCYBYTransactionLibrary
-        with HbusClXCYBYRoutingConstraints
-        with TableBasedInterferenceSpecification {}
-    }
-
   private val platforms = genericPlatformInstances
 
-//  "Generated architectures" should "be analysable to compute their semantics" in {
-//    val timeout = (1 hour)
-//    for {
-//      p <- platforms.par
-//      c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
-//    } {
-//      c match
-//        case Success(_) =>
-//          println(s"[TEST] exporting ${p.name.name} done")
-//        case Failure(_: TimeoutException) =>
-//          println(
-//            s"[TEST] Failure (after $timeout) for analysis of ${p.fullName}"
-//          )
-//        case Failure(_) =>
-//          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
-//    }
-//  }
+  "Generated architectures" should "be analysable to compute their semantics" in {
+    val timeout = (1 hour)
+    for {
+      p <- platforms.par
+      c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
+    } {
+      c match
+        case Success(_) =>
+          println(s"[TEST] exporting ${p.name.name} done")
+        case Failure(_: TimeoutException) =>
+          println(
+            s"[TEST] Failure (after $timeout) for analysis of ${p.fullName}"
+          )
+        case Failure(_) =>
+          println(s"[TEST] Unknown error during analysis of ${p.fullName}")
+    }
+  }
+
+  it should "be possible to export the HW and SW graph" in {
+    for{
+      p <- platforms
+    }
+      p.exportRestrictedHWAndSWGraph()
+  }
 
   it should "be possible to compute the interference" in {
     val timeout: Duration = (1 days)

@@ -223,7 +223,7 @@ trait TransactionLibrary {
         sw: () => Set[Application]
     )(using givenInfo: ReflexiveInfo): Transaction = {
       getOrElseUpdate(
-        name.id,
+        PMLNodeBuilder.formatName(name.id, givenInfo.owner),
         new Transaction(name, iniTgt, sw, givenInfo)
       )
     }
@@ -293,31 +293,15 @@ trait TransactionLibrary {
     * @group scenario_class
     */
   object Scenario extends PMLNodeBuilder[Scenario] {
-
-    /** Build scenario from two write/read based transactions
-      * @param iniTgtL
-      *   the set of initiator/target of left member
-      * @param iniTgtR
-      *   the set of initiator/target of right member
-      * @param name
-      *   the implicitly derived name
-      * @tparam A
-      *   the type of left request
-      * @tparam B
-      *   the type of right request
-      * @return
-      *   the corresponding scenario
-      */
-    def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-        name: Name,
-        ta: AsTransaction[Set[A]],
-        tb: AsTransaction[Set[B]],
-        info: ReflexiveInfo
+    def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+                                                                          ta: AsTransaction[Set[A]],
+                                                                          tb: AsTransaction[Set[B]],
+                                                                          info:ReflexiveInfo
     ): Scenario = {
       val resultL = TransactionParam(iniTgtL)
       val resultR = TransactionParam(iniTgtR)
       apply(
-        UserScenarioId(Symbol(name.value)),
+        UserScenarioId(name),
         () => {
           resultL._1() ++ resultR._1()
         },
@@ -326,6 +310,28 @@ trait TransactionLibrary {
         }
       )
     }
+
+    /** Build scenario from two write/read based transactions
+     *
+     * @param iniTgtL
+     * the set of initiator/target of left member
+     * @param iniTgtR
+     * the set of initiator/target of right member
+     * @param name
+     * the implicitly derived name
+     * @tparam A
+     * the type of left request
+     * @tparam B
+     * the type of right request
+     * @return
+     * the corresponding scenario
+     */
+    def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+                                                            name: Name,
+                                                            ta: AsTransaction[Set[A]],
+                                                            tb: AsTransaction[Set[B]],
+                                                            info: ReflexiveInfo
+    ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
 
     /** Build a scenario from a transaction or another scenario
       * @param tr
@@ -385,7 +391,7 @@ trait TransactionLibrary {
         sw: () => Set[Application]
     )(using givenInfo: ReflexiveInfo): Scenario = {
       getOrElseUpdate(
-        name.id,
+        PMLNodeBuilder.formatName(name.id, givenInfo.owner),
         new Scenario(name, iniTgt, sw, givenInfo)
       )
     }
@@ -456,7 +462,7 @@ trait TransactionLibrary {
         sw: Set[Application]
     )(using givenInfo: ReflexiveInfo): UsedScenario = {
       getOrElseUpdate(
-        name.id,
+        PMLNodeBuilder.formatName(name.id,givenInfo.owner),
         new UsedScenario(name, iniTgt, sw, givenInfo)
       )
     }
@@ -529,7 +535,7 @@ trait TransactionLibrary {
         sw: Set[Application]
     )(using givenInfo: ReflexiveInfo): UsedTransaction = {
       getOrElseUpdate(
-        name.id,
+        PMLNodeBuilder.formatName(name.id,givenInfo.owner),
         new UsedTransaction(name, iniTgt, sw, givenInfo)
       )
     }

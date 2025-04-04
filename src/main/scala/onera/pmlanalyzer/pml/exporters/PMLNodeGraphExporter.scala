@@ -256,12 +256,12 @@ object PMLNodeGraphExporter {
   trait DOTNamer {
 
     private val colorMap = Map(
-      1 -> "\"#D6EBA0\"",
-      2 -> "\"#EBBFA0\"",
-      3 -> "\"#A0E3EB\"",
-      4 -> "\"#D4A0EB\"",
-      5 -> "\"#769296\"",
-      6 -> "\"#606B42\""
+      0 -> "\"#D6EBA0\"",
+      1 -> "\"#EBBFA0\"",
+      2 -> "\"#A0E3EB\"",
+      3 -> "\"#D4A0EB\"",
+      4 -> "\"#769296\"",
+      5 -> "\"#606B42\""
     ).withDefaultValue("white")
 
     final case class DOTElement(name: String, color: String) extends Element {
@@ -280,18 +280,27 @@ object PMLNodeGraphExporter {
           case c: DOTCluster => c.contains(element)
           case _             => false
         }
-      override def toString: String =
+
+      def printOnlySubComponents(filter: DOTCluster | DOTElement => Boolean): String =
         s"""subgraph cluster_$name {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
-           |\tcolor = ${colorMap(level)}
-           |${subElements.toSeq
+           |\tcolor = ${colorMap(level % colorMap.size)}
+           |${
+          subElements.filter(filter).toSeq
             .sortBy(_.name)
-            .map(_.toString.replace(s"${name}_", ""))
+            .map {
+              case c:DOTCluster => c.printOnlySubComponents(filter)
+              case e => e.toString
+            }
+            .map(_.replace(s"${name}_", ""))
             .mkString("\t", "\t", "")}
            |\t}
            |""".stripMargin
+
+      override def toString: String =
+        printOnlySubComponents(_ => true)
     }
   }
 
@@ -716,11 +725,11 @@ object PMLNodeGraphExporter {
       } yield e
 
       val elements =
-        for {
+        (for {
           a <- associations
-          id <- List(a.left, a.right)
-          e <- getElement(id)
-        } yield e
+          eL <- getElement(a.left)
+          eR <- getElement(a.right)
+        } yield List(eL,eR)).flatten.toSet
 
       val clusters =
         for {
@@ -728,14 +737,27 @@ object PMLNodeGraphExporter {
           if elements.exists(e => getContainers(e).contains(c))
         } yield c
 
+      val containerMap =
+        (for {
+          e <- elements
+        } yield
+          e -> getContainers(e)).toMap
+
+      val allContainers = containerMap.values.flatten.toSeq
+
       val primaryElements =
         for {
-          e <- elements
-          if getContainers(e).isEmpty
+          (e, c) <- containerMap
+          if c.isEmpty
         } yield e
 
       for {
-        e <- (clusters ++ primaryElements).toSeq.distinct.sortBy(_.name)
+        c <- clusters.toSeq.distinct.sortBy(_.name)
+      }
+        writer.write(s" ${c.printOnlySubComponents(e => elements.contains(e) || allContainers.contains(e))}".replace(s"${platform.fullName}_", ""))
+
+      for {
+        e <- primaryElements.toSeq.distinct.sortBy(_.name)
       }
         writer.write(s" $e".replace(s"${platform.fullName}_", ""))
 
