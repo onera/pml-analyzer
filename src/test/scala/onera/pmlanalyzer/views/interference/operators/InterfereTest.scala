@@ -25,6 +25,7 @@ import scala.language.postfixOps
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
@@ -63,7 +64,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
   import InterfereTestPlatform.*
 
-  "Two services" should "be able to interfere with each other" in {
+  "Two services" should "be able to interfere with each other" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
       b <- InterfereTestPlatform.hardware
@@ -78,7 +79,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  it should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
       b <- InterfereTestPlatform.hardware
@@ -93,7 +94,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A transaction and a service" should "be able to interfere" in {
+  "A transaction and a service" should "be able to interfere" taggedAs UnitTests in {
     for {
       s <- i1.services
     } {
@@ -106,7 +107,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  it should "be able not to interfere" in {
+  it should "be able not to interfere" taggedAs UnitTests in {
     for {
       s <- i2.services
     } {
@@ -119,7 +120,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A Scenario and a set of physical transaction" should "be able to interfere" in {
+  "A Scenario and a set of physical transaction" should "be able to interfere" taggedAs UnitTests in {
     for {
       s <- i1.services
     } {
@@ -127,7 +128,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "Two Hardwares components" should "be able to interfere with each other" in {
+  "Two Hardwares components" should "be able to interfere with each other" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
       b <- InterfereTestPlatform.hardware
@@ -137,7 +138,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  it should "be able not to interfere with each other" in {
+  it should "be able not to interfere with each other" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
       b <- InterfereTestPlatform.hardware
@@ -149,7 +150,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     InterfereTestPlatform.hardware.size should be(6)
   }
 
-  "A Hardware component" should "be able to have interfering services" in {
+  "A Hardware component" should "be able to have interfering services" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
     } {
@@ -163,7 +164,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  it should "be able to have non-interfering services" in {
+  it should "be able to have non-interfering services" taggedAs UnitTests in {
     for {
       a <- InterfereTestPlatform.hardware
     } {

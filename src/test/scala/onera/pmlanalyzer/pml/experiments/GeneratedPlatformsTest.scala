@@ -40,6 +40,7 @@ import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
+import InterferenceTestExtension.PerfTests
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
@@ -153,11 +154,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
-  "Generated architectures" should "be analysable to compute their semantics" in {
-    assume(
-      InterferenceTestExtension.experimentationMode,
-      Message.experimationDisabled
-    )
+  "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
     val timeout = (1 hour)
     for {
       p <- platforms.par
@@ -175,22 +172,14 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     }
   }
 
-  it should "be possible to export the HW and SW graph" in {
-    assume(
-      InterferenceTestExtension.experimentationMode,
-      Message.experimationDisabled
-    )
+  it should "be possible to export the HW and SW graph" taggedAs PerfTests in {
     for {
       p <- platforms
     }
       p.exportRestrictedHWAndSWGraph()
   }
 
-  it should "be possible to compute the interference" in {
-    assume(
-      InterferenceTestExtension.experimentationMode,
-      Message.experimationDisabled
-    )
+  it should "be possible to compute the interference" taggedAs PerfTests in {
     assume(
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
@@ -294,11 +283,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   def getMaxScenarioSize(results: Seq[Set[Int]]): Int =
     results.filter(_.nonEmpty).map(_.max).max
 
-  it should "be used to export performance plots" in {
-    assume(
-      InterferenceTestExtension.experimentationMode,
-      Message.experimationDisabled
-    )
+  it should "be used to export performance plots" taggedAs PerfTests in {
     val resultFile = FileManager.exportDirectory.getFile("experiments.csv")
     val writer = new FileWriter(resultFile)
     val result =

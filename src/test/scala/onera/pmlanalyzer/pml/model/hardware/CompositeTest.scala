@@ -30,6 +30,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import sourcecode.{File, Line, Name}
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class CompositeTest
     extends AnyFlatSpec
@@ -54,7 +55,7 @@ class CompositeTest
 
   import CompositeTestPlatform.*
 
-  "Hardware in different instances of a nested composite" should "have different names" in {
+  "Hardware in different instances of a nested composite" should "have different names" taggedAs UnitTests in {
     final class Cluster private (
         val id: Symbol,
         info: ReflexiveInfo
@@ -78,7 +79,7 @@ class CompositeTest
     cl0.c1.name should not equal (cl1.c1.name)
   }
 
-  it should "raise a warning when using multiple implementation with the same name" in {
+  it should "raise a warning when using multiple implementation with the same name" taggedAs UnitTests in {
 
     /**
      * Such a pattern MUST NEVER be used since the

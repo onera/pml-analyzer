@@ -30,6 +30,7 @@ import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibra
 
 import scala.language.postfixOps
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
@@ -83,19 +84,19 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
   import ExclusiveTestPlatform.{*, given}
 
-  "Two physical transaction" should "be able to be exclusive from each other" in {
+  "Two physical transaction" should "be able to be exclusive from each other" taggedAs UnitTests in {
     tr1Id exclusiveWith tr2Id
     transactionExclusive(tr1Id) should contain(tr2Id)
   }
 
-  "Two transaction" should "be able to be exclusive from each other" in {
+  "Two transaction" should "be able to be exclusive from each other" taggedAs UnitTests in {
     tr1 exclusiveWith tr2
     transactionExclusive(transactionByUserName(tr1.userName)) should contain(
       transactionByUserName(tr2.userName)
     )
   }
 
-  "Two user transaction Id" should "be able to be exclusive" in {
+  "Two user transaction Id" should "be able to be exclusive" taggedAs UnitTests in {
     tr3.userName exclusiveWith tr4.userName
     transactionExclusive(
       transactionByUserName(tr3.userName)

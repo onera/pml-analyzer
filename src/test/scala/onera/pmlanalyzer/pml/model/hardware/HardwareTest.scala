@@ -7,6 +7,7 @@ import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class HardwareTest extends AnyFlatSpec with should.Matchers {
 
@@ -15,7 +16,7 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
 
   import HardwareTestFixture.*
 
-  "A Hardware" should "have default services" in {
+  "A Hardware" should "have default services" taggedAs UnitTests in {
     val t: Target = Target()
     val s: SimpleTransporter = SimpleTransporter()
     val i: Initiator = Initiator()
@@ -28,7 +29,7 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     }
   }
 
-  it should "have no services when specified" in {
+  it should "have no services when specified" taggedAs UnitTests in {
     val tNoS: Target = Target(withDefaultServices = false)
     val sNoS: SimpleTransporter = SimpleTransporter(withDefaultServices = false)
     val iNoS: Initiator = Initiator(withDefaultServices = false)
@@ -39,7 +40,7 @@ class HardwareTest extends AnyFlatSpec with should.Matchers {
     }
   }
 
-  it should "have only specified services when specified" in {
+  it should "have only specified services when specified" taggedAs UnitTests in {
     val tSpS: Target =
       Target(Set(Load("a"), Load("b")), withDefaultServices = false)
     tSpS.services.size should be(2)

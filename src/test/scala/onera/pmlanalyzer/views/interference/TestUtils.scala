@@ -23,12 +23,16 @@ import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
 import scala.concurrent.ExecutionContext.Implicits.*
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.io.Source
 import scala.language.postfixOps
-import scala.concurrent.duration.DurationInt
+import org.scalatest.Tag
 
 object InterferenceTestExtension {
+
+  object PerfTests extends Tag("PerfTests")
+  object UnitTests extends Tag("UnitTests")
+  object FastTests extends Tag("FastTests")
 
   var monosatLibraryLoaded: Boolean = true
   try {
@@ -36,9 +40,6 @@ object InterferenceTestExtension {
   } catch {
     case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
   }
-
-  val experimentationMode: Boolean =
-    System.getProperty("runExperimentation", "false").toBoolean
 
   extension (x: ConfiguredPlatform) {
 

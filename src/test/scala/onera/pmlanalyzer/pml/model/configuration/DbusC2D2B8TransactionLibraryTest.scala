@@ -22,13 +22,14 @@ import onera.pmlanalyzer.views.interference.model.specification.TableBasedInterf
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 
 class DbusC2D2B8TransactionLibraryTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
 
-  DbusC2D2B8.fullName should "contain the expected numbers of transactions" in {
+  DbusC2D2B8.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
     DbusC2D2B8.transactionByUserName.size should be(32)
     DbusC2D2B8.scenarioByUserName.size should be(36)
     DbusC2D2B8.transactions.size should be(36)

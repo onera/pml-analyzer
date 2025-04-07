@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
-import onera.pmlanalyzer.views.interference.model.specification.TableBasedInterferenceSpecification
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -28,7 +28,7 @@ class MySysTransactionLibraryTest
     with ScalaCheckPropertyChecks
     with should.Matchers {
 
-  MySys.fullName should "contain the expected numbers of transactions" in {
+  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
     MySys.transactionByUserName.size should be(10)
     MySys.scenarioByUserName.size should be(12)
     MySys.transactions.size should be(14)
