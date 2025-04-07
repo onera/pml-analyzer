@@ -22,24 +22,12 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import org.scalacheck.{Arbitrary, Gen}
 
-trait PlaceGenTest {
-  implicit val genPlace: Gen[Place] =
-    for {
-      name <- Gen.identifier
-    } yield Place(name)
-}
-
-class PlaceTest extends AnyFlatSpec with PlaceGenTest with should.Matchers {
-
-  // TODO provide a generator of Places for tests
-
-  // TODO provide a generator of Places for tests
+class PlaceTest extends AnyFlatSpec with should.Matchers {
 
   val p1: Place = Place("p1")
 
   "A place" should "have a name" in {
-    p1.name should be("p1")
+    p1.name shouldBe "p1"
   }
 }
