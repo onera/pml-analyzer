@@ -34,4 +34,4 @@ enum PlaceType:
   *  The name of the place
   */
 
-final case class Place(name: String)
+case class Place(name: String)
