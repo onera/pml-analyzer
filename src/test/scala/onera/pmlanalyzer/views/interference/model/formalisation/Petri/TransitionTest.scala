@@ -27,7 +27,7 @@ import org.scalatest.matchers.should
 
 class TransitionTest extends AnyFlatSpec with should.Matchers {
 
-  //TODO Provide a generator for Transition
+  // TODO Provide a generator for Transition
 
   val p0: Place = Place("p0")
   val p1: Place = Place("p1")
@@ -50,6 +50,6 @@ class TransitionTest extends AnyFlatSpec with should.Matchers {
 
   "A transition" should "be able to admit empty Pre or Post condition" in {
     t1.pre should be(empty)
-    t1.post should be (empty)
+    t1.post should be(empty)
   }
 }

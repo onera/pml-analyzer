@@ -32,9 +32,9 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
   *   The postcondition modeliong the transition's effects
   */
 final case class Transition(
-                       name: String,
-                       pre: Marking,
-                       post: Marking
+    name: String,
+    pre: Marking,
+    post: Marking
 ) {
 
   /**
