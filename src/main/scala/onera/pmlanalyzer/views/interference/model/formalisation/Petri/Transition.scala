@@ -18,52 +18,47 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
+import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Marking.*
+
 import scala.collection.mutable
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 
-/* Inductive type mapping transitions to their platform interpretation */
-// enum TransitionType:
-//   case ServiceP
-//   case ApplicationP
-//   case ExclusiveP
-//   case CtrlP
-//   case TransINOutP
-//   case CheckInOutP
-type Marking = mutable.Map[Place, Int]
-
-def >=(x: Marking, y: Marking): Boolean =
-  if (x.keySet ++ y.keySet == x.keySet) {
-    val compare = for {
-      k <- y.keySet
-    } yield x(k) < y(k)
-    if (compare.size >= 1) then false else true
-  } else false
-
-def isEmpty(m: Marking) = (m == mutable.Map.empty)
-
-/** Class defining places 
+/** Class defining places
   * @param name
   *  The name of the place
-  * @param Pre
+  * @param pre
   *   The precondition modeling the transition's demand
-  * @param Post
+  * @param post
   *   The postcondition modeliong the transition's effects
   */
-case class Transition(
-    name: String,
-    Pre: Marking,
-    Post: Marking
+final case class Transition(
+                       name: String,
+                       pre: Marking,
+                       post: Marking
 ) {
 
-  /* Function that add a weighted arc from a place to a transition */
-  def add_place_to_pre(p: Place, weight: Int) = Pre.getOrElseUpdate(p, weight)
+  /**
+   * Function that add a weighted arc from a place to a transition
+   * @param p
+   * @param weight
+   * @return
+   */
+  def addPlaceToPre(p: Place, weight: Int) = pre.getOrElseUpdate(p, weight)
 
-  /* Function that add a weighted arc from a transition to a place */
-  def add_place_to_post(p: Place, weight: Int) = Post.getOrElseUpdate(p, weight)
+  /**
+   * Function that add a weighted arc from a transition to a place
+   * @param p
+   * @param weight
+   * @return
+   */
+  def addPlaceToPost(p: Place, weight: Int) = post.getOrElseUpdate(p, weight)
 
-  /* Function that returns whether or not a transition is enabled in a marking */
-  def enabled(m: Marking): Boolean = >=(m, this.Pre)
+  /**
+   *  Function that returns whether or not a transition is enabled in a marking
+   * @param m
+   * @return
+   */
+  def enabled(m: Marking): Boolean = m >= this.pre
 
-  override def toString(): String = name
-
+  override def toString: String = name
 }

@@ -18,38 +18,45 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
+import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Marking.Marking
+
 import scala.collection.mutable
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Transition
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.PetriNetStruct
 
-final class PetriNet(
-    name: String,
-    places: mutable.Set[Place],
-    transitions: mutable.Set[Transition],
-    initialMarking: Marking
-) extends PetriNetStruct(
-      name: String,
-      places: mutable.Set[Place],
-      transitions: mutable.Set[Transition]
-    ) {
+import scala.annotation.tailrec
 
-  val state = initialMarking
+final class PetriNet private(
+                      name: String,
+                      places: mutable.Set[Place],
+                      transitions: mutable.Set[Transition],
+                      initialMarking: Marking
+) extends PetriNetStruct(name, places, transitions) {
 
-  def fireTransition(t: Transition) =
+  val state: Marking = initialMarking
+
+  def fireTransition(t: Transition): Unit =
     if (transitions.contains(t) && t.enabled(state)) then
-      for { (p, i) <- t.Pre } { state.getOrElseUpdate(p, (state(p) - i)) }
-      for { (p, i) <- t.Post } { state.getOrElseUpdate(p, (state(p) + i)) }
-    else println(s"Transition ${t} is not enabled.\n")
+      for { (p, i) <- t.pre} { state.getOrElseUpdate(p, state(p) - i) }
+      for { (p, i) <- t.post} { state.getOrElseUpdate(p, state(p) + i) }
+    else println(s"Transition $t is not enabled.\n")
 
-  def fireSequence(transSeq: List[Transition]): Unit =
-    if (!transSeq.isEmpty) then
-      if (transitions.contains(transSeq.head) && transSeq.head.enabled(state))
-      then
-        fireTransition(transSeq.head)
-        fireSequence(transSeq.tail)
-      else println(s"Transition ${transSeq.head} is not enabled.\n")
+  def fireSequence(transSeq: Seq[Transition]): Unit =
+    for {
+      t <- transSeq
+      if transitions.contains(t)
+    }
+      if(t.enabled(state))
+        fireTransition(t)
+      else
+        println(s"Transition $t is not enabled.")
 
-  override def toString() =
-    s"Petri net ${name}:\nplaces: ${places}\ntransitions: ${transitions}\nmarking: ${state}\n"
+  override def toString: String =
+    s"Petri net $name:\nplaces: $places\ntransitions: $transitions\nmarking: $state\n"
+}
+
+object PetriNet {
+  def apply(name:String, struct: PetriNetStruct, initialMarking: Marking): PetriNet =
+   new PetriNet(name,struct.places, struct.transitions, initialMarking)
 }
