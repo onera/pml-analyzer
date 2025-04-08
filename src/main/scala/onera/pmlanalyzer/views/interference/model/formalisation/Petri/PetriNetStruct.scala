@@ -22,6 +22,7 @@ import scala.collection.mutable
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Transition
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Marking
+import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Marking.Marking
 
 /**
   * Trait defining the structure of a Petri net (without the marking)
@@ -33,17 +34,39 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Marking
   * @param transitions
   *   The set of transitions
   */
-case class PetriNetStruct(
-    name: String,
-    places: mutable.Set[Place],
-    transitions: mutable.Set[Transition]
+class PetriNetStruct(
+    val name: String,
+    val places: mutable.Set[Place],
+    val transitions: mutable.Set[Transition]
 ) {
 
-  /* Function that add a place to a PetriNetSturct */
-  def addPlace(p: Place) =
-    places.union(Set(p))
+  /**
+   * Function that add a place to a PetriNetSturct
+   * @param p
+   * @return
+   */
+  def addPlace(p: Place): Unit =
+    places += p
 
-  /* Function that add a transition to a PetriNetSturct */
-  def addTransition(t: Transition) =
-    transitions.union(Set(t))
+  /**
+   * Function that add a transition to a PetriNetSturct
+   * @param t
+   * @return
+   */
+  def addTransition(t: Transition): Unit =
+    transitions += t
+
+  /**
+   *
+   * @param initialMarking
+   * @param newName
+   * @return
+   */
+  def withMarking(initialMarking: Marking, newName: String = name): PetriNet =
+    PetriNet(newName, this, initialMarking)
+}
+
+object PetriNetStruct {
+  val empty: PetriNetStruct =
+    PetriNetStruct("empty", mutable.Set.empty, mutable.Set.empty)
 }
