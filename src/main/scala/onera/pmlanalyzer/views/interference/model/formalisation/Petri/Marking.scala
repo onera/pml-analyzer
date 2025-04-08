@@ -16,42 +16,24 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-// package onera.pmlanalyzer.views.interference.model.formalisation.Petri
+package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
-// import scala.collection.mutable
-// import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
-// import math.Ordering.Implicits.infixOrderingOps
-// import math.Ordered.orderingToOrdered
+import scala.collection.mutable
+import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
+import math.Ordering.Implicits.infixOrderingOps
+import math.Ordered.orderingToOrdered
 
-// object Marking {
+object Marking {
+  type Marking = mutable.Map[Place, Int]
 
-//   def apply(elems: (Place, Int)*): Marking = mutable.HashMap.from(elems)
+  val empty: Marking = mutable.Map.empty
 
-//   def empty(): Marking = mutable.HashMap.empty
+  def apply(elem: (Place, Int)*): Marking =
+    mutable.Map(elem: _*)
 
-//   given Ordering[Marking] with {
-//     def compare(x: Marking, y: Marking): Int = {
-//       if (x.keySet ++ y.keySet == x.keySet) {
-//         val compare = for {
-//           k <- y.keySet
-//         } yield x(k).compare(y(k))
-//         if (compare.size == 1)
-//           compare.head
-//         else -1
-//       } else -1
-//     }
-//   }
-// }
-
-// object MarkingApp extends App {
-
-//   import Marking.given
-
-//   val m1 = Marking(Place(1) -> 2, Place(0) -> 0)
-//   val m2 = Marking(Place(1) -> 1, Place(0) -> 0)
-//   val m3 = Marking(Place(0) -> 0)
-
-//   println(m1 > m2)
-//   println(m1 <= m2)
-//   println(m3 > m2)
-// }
+  extension (x: Marking) {
+    def >=(y: Marking): Boolean =
+      y.keySet.subsetOf(x.keySet) &&
+        y.keySet.forall(k => x(k) >= y(k))
+  }
+}

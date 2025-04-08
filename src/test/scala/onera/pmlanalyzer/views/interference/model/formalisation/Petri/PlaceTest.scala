@@ -30,6 +30,6 @@ class PlaceTest extends AnyFlatSpec with should.Matchers {
   val p1: Place = Place("p1")
 
   "A place" should "have a name" in {
-    p1.name shouldBe "p1"
+    p1.name should be("p1")
   }
 }
