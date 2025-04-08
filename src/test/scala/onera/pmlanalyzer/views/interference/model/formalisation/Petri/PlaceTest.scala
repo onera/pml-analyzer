@@ -37,7 +37,7 @@ class PlaceTest extends AnyFlatSpec with PlaceGenTest with should.Matchers {
 
   // TODO provide a generator of Places for tests
 
-  //TODO provide a generator of Places for tests
+  // TODO provide a generator of Places for tests
 
   val p1: Place = Place("p1")
 
