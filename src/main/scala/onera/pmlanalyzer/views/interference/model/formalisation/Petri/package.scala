@@ -16,7 +16,7 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-package onera.pmlanalyzer.views.interference.formalisation
+package onera.pmlanalyzer.views.interference.model.formalisation
 
 /** Package containing the model extensions for interference analysis
   *

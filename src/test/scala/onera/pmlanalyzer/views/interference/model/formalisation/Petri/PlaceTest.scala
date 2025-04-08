@@ -25,9 +25,11 @@ import org.scalatest.matchers.should
 
 class PlaceTest extends AnyFlatSpec with should.Matchers {
 
+  //TODO provide a generator of Places for tests
+
   val p1: Place = Place("p1")
 
   "A place" should "have a name" in {
-    p1.name shouldBe "p1"
+    p1.name should be("p1")
   }
 }
