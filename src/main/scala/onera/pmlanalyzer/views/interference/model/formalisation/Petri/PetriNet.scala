@@ -27,19 +27,19 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Petri.PetriNetSt
 
 import scala.annotation.tailrec
 
-final class PetriNet private(
-                      name: String,
-                      places: mutable.Set[Place],
-                      transitions: mutable.Set[Transition],
-                      initialMarking: Marking
+final class PetriNet private (
+    name: String,
+    places: mutable.Set[Place],
+    transitions: mutable.Set[Transition],
+    initialMarking: Marking
 ) extends PetriNetStruct(name, places, transitions) {
 
   val state: Marking = initialMarking
 
   def fireTransition(t: Transition): Unit =
     if (transitions.contains(t) && t.enabled(state)) then
-      for { (p, i) <- t.pre} { state.getOrElseUpdate(p, state(p) - i) }
-      for { (p, i) <- t.post} { state.getOrElseUpdate(p, state(p) + i) }
+      for { (p, i) <- t.pre } { state.getOrElseUpdate(p, state(p) - i) }
+      for { (p, i) <- t.post } { state.getOrElseUpdate(p, state(p) + i) }
     else println(s"Transition $t is not enabled.\n")
 
   def fireSequence(transSeq: Seq[Transition]): Unit =
@@ -47,7 +47,7 @@ final class PetriNet private(
       t <- transSeq
       if transitions.contains(t)
     }
-      if(t.enabled(state))
+      if (t.enabled(state))
         fireTransition(t)
       else
         println(s"Transition $t is not enabled.")
@@ -57,6 +57,10 @@ final class PetriNet private(
 }
 
 object PetriNet {
-  def apply(name:String, struct: PetriNetStruct, initialMarking: Marking): PetriNet =
-   new PetriNet(name,struct.places, struct.transitions, initialMarking)
+  def apply(
+      name: String,
+      struct: PetriNetStruct,
+      initialMarking: Marking
+  ): PetriNet =
+    new PetriNet(name, struct.places, struct.transitions, initialMarking)
 }

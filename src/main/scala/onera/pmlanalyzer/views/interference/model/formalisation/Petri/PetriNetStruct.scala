@@ -39,6 +39,7 @@ class PetriNetStruct(
     val places: mutable.Set[Place],
     val transitions: mutable.Set[Transition]
 ) {
+
   /**
    * Function that add a place to a PetriNetSturct
    * @param p
@@ -61,10 +62,11 @@ class PetriNetStruct(
    * @param newName
    * @return
    */
-  def withMarking(initialMarking: Marking, newName:String = name): PetriNet =
+  def withMarking(initialMarking: Marking, newName: String = name): PetriNet =
     PetriNet(newName, this, initialMarking)
 }
 
 object PetriNetStruct {
-  val empty: PetriNetStruct = PetriNetStruct("empty",mutable.Set.empty, mutable.Set.empty)
+  val empty: PetriNetStruct =
+    PetriNetStruct("empty", mutable.Set.empty, mutable.Set.empty)
 }

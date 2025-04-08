@@ -93,7 +93,7 @@ class PetriNetTest extends AnyFlatSpec with should.Matchers {
     N2S1.places should contain(p2)
   }
 
-  //FIXME Not very safe to change the structure from a PetriNet
+  // FIXME Not very safe to change the structure from a PetriNet
   // the possibility to modify places and transitions after instantiation
   // is difficult to manage safely.
   // Perhaps consider immutable places and transitions after transformation into PetriNets.
@@ -101,6 +101,6 @@ class PetriNetTest extends AnyFlatSpec with should.Matchers {
   // To be discussed
   "Changing PetriNet" should "change structure (DANGEROUS)" in {
     N1S1.addPlace(p3)
-    struct.places should contain (p3)
+    struct.places should contain(p3)
   }
 }
