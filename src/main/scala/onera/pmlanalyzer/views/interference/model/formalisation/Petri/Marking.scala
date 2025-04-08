@@ -28,8 +28,8 @@ object Marking {
 
   val empty: Marking = mutable.Map.empty
 
-  def apply(elem:(Place,Int)*):Marking =
-    mutable.Map(elem:_*)
+  def apply(elem: (Place, Int)*): Marking =
+    mutable.Map(elem: _*)
 
   extension (x: Marking) {
     def >=(y: Marking): Boolean =
