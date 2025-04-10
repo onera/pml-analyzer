@@ -20,10 +20,29 @@ package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Transition
+import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place.*
 import scala.collection.mutable
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import org.scalacheck.{Arbitrary, Gen}
+
+// trait TransitionGenTest extends PlaceGenTest {
+//   def testGen(p: Place, i: Int) = (p, i)
+//   implicit val genTransition: Arbitrary[Transition] = Arbitrary(
+//     for {
+//       name <- Gen.identifier
+//       pre <- Gen
+//         .mapOf[Place, Int](
+//           Gen.listOf(genPlace.arbitrary, Arbitrary.arbitrary[Int])
+//         )
+//       post <- Gen
+//         .buildableOf[Marking](
+//           Gen.listOf(testGen(genPlace.arbitrary, Arbitrary.arbitrary[Int]))
+//         )
+//     } yield Transition(name, pre, post)
+//   )
+// }
 
 class TransitionTest extends AnyFlatSpec with should.Matchers {
 
