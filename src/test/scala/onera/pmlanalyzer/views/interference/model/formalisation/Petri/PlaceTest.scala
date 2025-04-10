@@ -22,8 +22,15 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Petri.Place
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import org.scalacheck.{Arbitrary, Gen}
 
-class PlaceTest extends AnyFlatSpec with should.Matchers {
+trait PlaceGenTest {
+  implicit val genPlace: Arbitrary[Place] = Arbitrary(for {
+    name <- Gen.identifier
+  } yield Place(name))
+}
+
+class PlaceTest extends AnyFlatSpec with PlaceGenTest with should.Matchers {
 
   // TODO provide a generator of Places for tests
 
