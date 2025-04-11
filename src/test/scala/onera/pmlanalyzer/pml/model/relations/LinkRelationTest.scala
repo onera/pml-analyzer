@@ -53,20 +53,21 @@ class LinkRelationTest
   import LinkRelationTestFixture.given
   import LinkRelationTestFixture._
 
-  private def getServiceMap(m: Map[Hardware, Set[Hardware]]): Map[Service,Set[Service]] = {
+  private def getServiceMap(
+      m: Map[Hardware, Set[Hardware]]
+  ): Map[Service, Set[Service]] = {
     val r = for {
-      (k,v) <- m.toSeq
+      (k, v) <- m.toSeq
       kL <- k.loads
       kS <- k.stores
       x <- v
       xL <- x.loads
       xS <- x.stores
       (nK, nV) <- List(kL -> xL, kS -> xS)
-    } yield
-      nK -> nV
+    } yield nK -> nV
     r.groupMap(_._1)(_._2).view.mapValues(_.toSet).toMap
   }
-  private def applyAll(m: Map[Hardware, Set[Hardware]], link:Boolean): Unit =
+  private def applyAll(m: Map[Hardware, Set[Hardware]], link: Boolean): Unit =
     for {
       (l, v) <- m
     } {
@@ -80,7 +81,7 @@ class LinkRelationTest
                 else
                   i unlink tr
               case tg: Target =>
-                if(link)
+                if (link)
                   i link tg
                 else
                   i unlink tg
@@ -94,23 +95,23 @@ class LinkRelationTest
                 else
                   tr unlink rTr
               case tg: Target =>
-                if(link)
+                if (link)
                   tr link tg
                 else
                   tr unlink tg
               case _ =>
         case _ =>
     }
-  
+
   "LinkRelation" should "record properly link and unlink" taggedAs UnitTests in {
     forAll { (m: Map[Hardware, Set[Hardware]]) =>
       {
-        applyAll(m, link= true)
+        applyAll(m, link = true)
         PLLinkableToPL.edges should equal(m)
-        ServiceLinkableToService.edges should equal (getServiceMap(m))
-        applyAll(m, link= false)
-        PLLinkableToPL.edges should be (empty)
-        ServiceLinkableToService.edges should be (empty)
+        ServiceLinkableToService.edges should equal(getServiceMap(m))
+        applyAll(m, link = false)
+        PLLinkableToPL.edges should be(empty)
+        ServiceLinkableToService.edges should be(empty)
       }
     }
   }

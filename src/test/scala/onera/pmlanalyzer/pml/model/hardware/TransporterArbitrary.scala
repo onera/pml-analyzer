@@ -20,12 +20,15 @@ package onera.pmlanalyzer.pml.model.hardware
 import org.scalacheck.{Arbitrary, Gen}
 
 trait TransporterArbitrary {
-  
-  given (using arbV:Arbitrary[Virtualizer], arbS:Arbitrary[SimpleTransporter]): Arbitrary[Transporter] = Arbitrary(
+
+  given (using
+      arbV: Arbitrary[Virtualizer],
+      arbS: Arbitrary[SimpleTransporter]
+  ): Arbitrary[Transporter] = Arbitrary(
     for {
       v <- arbV.arbitrary
       s <- arbS.arbitrary
-      r <- Gen.oneOf(List(v,s)) 
+      r <- Gen.oneOf(List(v, s))
     } yield r
-  ) 
+  )
 }

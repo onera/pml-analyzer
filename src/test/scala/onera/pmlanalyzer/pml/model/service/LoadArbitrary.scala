@@ -24,10 +24,12 @@ import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 trait LoadArbitrary {
   self: Platform =>
 
-  given (using r:ReflexiveInfo): Arbitrary[Load] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield
-    Load.get(name)
-      .getOrElse(Load(name)))
+  given (using r: ReflexiveInfo): Arbitrary[Load] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield Load
+      .get(name)
+      .getOrElse(Load(name))
+  )
 
 }

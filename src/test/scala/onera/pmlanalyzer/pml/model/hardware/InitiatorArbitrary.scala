@@ -18,23 +18,29 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{Load, LoadArbitrary, Store, StoreArbitrary}
+import onera.pmlanalyzer.pml.model.service.{
+  Load,
+  LoadArbitrary,
+  Store,
+  StoreArbitrary
+}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
 
 trait InitiatorArbitrary {
   self: Platform =>
-  
-  
 
-  given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Initiator] = Arbitrary(
+  given (using
+      genLoad: Arbitrary[Load],
+      genStore: Arbitrary[Store],
+      r: ReflexiveInfo
+  ): Arbitrary[Initiator] = Arbitrary(
     for {
       name <- Gen.identifier
       loads <- Gen.listOfN(3, genLoad.arbitrary)
       stores <- Gen.listOfN(3, genStore.arbitrary)
-    } yield
-      Initiator
-        .get(PMLNodeBuilder.formatName(name, currentOwner))
-        .getOrElse(Initiator(name, (loads ++ stores).toSet))
+    } yield Initiator
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Initiator(name, (loads ++ stores).toSet))
   )
 }

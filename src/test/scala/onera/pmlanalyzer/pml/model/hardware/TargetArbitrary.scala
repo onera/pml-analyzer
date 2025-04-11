@@ -18,7 +18,12 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{Load, LoadArbitrary, Store, StoreArbitrary}
+import onera.pmlanalyzer.pml.model.service.{
+  Load,
+  LoadArbitrary,
+  Store,
+  StoreArbitrary
+}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
 
@@ -28,14 +33,17 @@ trait TargetArbitrary {
   val maxTargetLoad: Int = 3
   val maxTargetStore: Int = 3
 
-  given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Target] = Arbitrary(
+  given (using
+      genLoad: Arbitrary[Load],
+      genStore: Arbitrary[Store],
+      r: ReflexiveInfo
+  ): Arbitrary[Target] = Arbitrary(
     for {
       name <- Gen.identifier
       loads <- Gen.listOfN(maxTargetLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(maxTargetStore, genStore.arbitrary)
-    } yield
-      Target
-        .get(PMLNodeBuilder.formatName(name, currentOwner))
-        .getOrElse(Target(name, (loads ++ stores).toSet))
+    } yield Target
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Target(name, (loads ++ stores).toSet))
   )
 }

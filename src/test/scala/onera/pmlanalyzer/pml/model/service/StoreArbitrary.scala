@@ -23,12 +23,12 @@ import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 trait StoreArbitrary {
   self: Platform =>
 
-  given (using r:ReflexiveInfo): Arbitrary[Store] = Arbitrary(
+  given (using r: ReflexiveInfo): Arbitrary[Store] = Arbitrary(
     for {
       name <- Gen.identifier
-    } yield
-      Store.get(name)
-        .getOrElse(Store(name))
+    } yield Store
+      .get(name)
+      .getOrElse(Store(name))
   )
 
 }

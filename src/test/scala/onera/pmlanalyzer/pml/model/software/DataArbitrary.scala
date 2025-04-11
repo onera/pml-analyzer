@@ -27,8 +27,8 @@ trait DataArbitrary {
   given Arbitrary[Data] = Arbitrary(
     for {
       name <- Gen.identifier
-    } yield
-      Data.get(PMLNodeBuilder.formatName(name, currentOwner))
-        .getOrElse(Data(name))
+    } yield Data
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Data(name))
   )
 }

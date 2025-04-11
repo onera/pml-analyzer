@@ -48,7 +48,7 @@ class PlatformTest
       with InitiatorArbitrary
 
   import PlatformTestFixture.*
-  import PlatformTestFixture.given 
+  import PlatformTestFixture.given
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,

@@ -24,9 +24,11 @@ import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 trait ArtificialServiceArbitrary {
   self: Platform =>
 
-  given (using r:ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield
-    ArtificialService.get(name)
-      .getOrElse(ArtificialService(name)))
+  given (using r: ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield ArtificialService
+      .get(name)
+      .getOrElse(ArtificialService(name))
+  )
 }

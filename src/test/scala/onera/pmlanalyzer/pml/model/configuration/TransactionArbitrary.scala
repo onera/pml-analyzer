@@ -47,8 +47,8 @@ trait TransactionArbitrary {
   )
 
   given (using
-         arbTr: Arbitrary[Transaction],
-         r: ReflexiveInfo
+      arbTr: Arbitrary[Transaction],
+      r: ReflexiveInfo
   ): Arbitrary[Scenario] = Arbitrary(
     for {
       tSeq <- Gen.nonEmptyListOf(arbTr.arbitrary)

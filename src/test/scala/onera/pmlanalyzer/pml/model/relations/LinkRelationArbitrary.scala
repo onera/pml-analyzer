@@ -21,20 +21,25 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import org.scalacheck.{Arbitrary, Gen}
 
 trait LinkRelationArbitrary {
-  self:Platform =>
+  self: Platform =>
 
   given (using
-         arbI: Arbitrary[Initiator],
-         arbTr: Arbitrary[Transporter],
-         arbTg: Arbitrary[Target]): Arbitrary[Map[Hardware,Set[Hardware]]] = Arbitrary(
+      arbI: Arbitrary[Initiator],
+      arbTr: Arbitrary[Transporter],
+      arbTg: Arbitrary[Target]
+  ): Arbitrary[Map[Hardware, Set[Hardware]]] = Arbitrary(
     for {
-      iSet <- Gen.listOfN(4,arbI.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
-      trSet <- Gen.listOfN(8,arbTr.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
-      tgSet <- Gen.listOfN(4,arbTg.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
-      map <- Gen.mapOf(Gen.zip(
-        Gen.oneOf(trSet ++ iSet),
-        Gen.atLeastOne(trSet ++ tgSet)
-          .map(_.toSet)))
-    } yield map.filter((k,v) => !v.contains(k))
+      iSet <- Gen.listOfN(4, arbI.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
+      trSet <- Gen.listOfN(8, arbTr.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
+      tgSet <- Gen.listOfN(4, arbTg.arbitrary).map(_.toSet).suchThat(_.nonEmpty)
+      map <- Gen.mapOf(
+        Gen.zip(
+          Gen.oneOf(trSet ++ iSet),
+          Gen
+            .atLeastOne(trSet ++ tgSet)
+            .map(_.toSet)
+        )
+      )
+    } yield map.filter((k, v) => !v.contains(k))
   )
 }

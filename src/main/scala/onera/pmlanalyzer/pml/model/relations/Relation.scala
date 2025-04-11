@@ -108,10 +108,10 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def remove(a: L, b: R)(using line: Line, file: File): Unit =
     for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
       sb -= b
-      if(sb.isEmpty) 
+      if (sb.isEmpty)
         _values.remove(a)
       sa -= a
-      if(sa.isEmpty)
+      if (sa.isEmpty)
         _inverse.remove(b)
       modifications += Change(a, Some(b), isAdd = false, line, file)
     }
