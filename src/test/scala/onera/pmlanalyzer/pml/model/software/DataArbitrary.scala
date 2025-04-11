@@ -21,11 +21,14 @@ import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 
-trait ApplicationTest {
+trait DataArbitrary {
   self: Platform =>
-  implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
-    name <- Gen.identifier.suchThat(s =>
-      Application.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-    )
-  } yield Application(name))
+
+  implicit val genData: Arbitrary[Data] = Arbitrary(
+    for {
+      name <- Gen.identifier.suchThat(s =>
+        Data.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+      )
+    } yield Data(name)
+  )
 }

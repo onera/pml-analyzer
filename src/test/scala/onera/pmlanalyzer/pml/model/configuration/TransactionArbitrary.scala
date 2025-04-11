@@ -15,24 +15,35 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
-
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
+package onera.pmlanalyzer.pml.model.configuration
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.software.{Application, ApplicationArbitrary, Data, DataArbitrary}
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
 
-trait SimpleTransporterTest {
-  self: Platform with LoadTest with StoreTest =>
+trait TransactionArbitrary {
+  self:Platform with TransactionLibrary =>
 
-  given Arbitrary[SimpleTransporter] = Arbitrary(
+  given (using r:ReflexiveInfo): Arbitrary[Transaction] = Arbitrary(
     for {
-      name <- Gen.identifier.suchThat(s =>
-        SimpleTransporter
-          .get(PMLNodeBuilder.formatName(s, currentOwner))
-          .isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield SimpleTransporter(name, (loads ++ stores).toSet)
+      app <- Gen.oneOf(Application.all)
+      data <- Gen.oneOf(Data.all)
+      name <- Gen.identifier
+      isRead <- Gen.prob(0.5)
+    } yield
+      if(isRead)
+        Transaction(name, app read data)
+      else
+        Transaction(name, app write data)
   )
+
+  given (using t:Arbitrary[Transaction], r:ReflexiveInfo) : Arbitrary[Scenario] = Arbitrary(
+    for {
+      tSeq <- Gen.listOf(t.arbitrary)
+      name <- Gen.identifier
+    } yield
+      Scenario(name, tSeq:_*)
+  )
+
 }

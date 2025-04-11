@@ -15,22 +15,17 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
 import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.hardware.Platform
 
-trait TargetTest {
-  self: Platform with LoadTest with StoreTest =>
-
-  given Arbitrary[Target] = Arbitrary(
-    for {
-      name <- Gen.identifier.suchThat(s =>
-        Target.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Target(name, (loads ++ stores).toSet)
-  )
+trait ApplicationArbitrary {
+  self: Platform =>
+  implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
+    name <- Gen.identifier.suchThat(s =>
+      Application.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+    )
+  } yield Application(name))
 }

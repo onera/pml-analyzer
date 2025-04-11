@@ -15,22 +15,17 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.service
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
 import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 
-trait InitiatorTest {
-  self: Platform with LoadTest with StoreTest =>
+trait ArtificialServiceArbitrary {
+  self: Platform =>
 
-  given Arbitrary[Initiator] = Arbitrary(
-    for {
-      name <- Gen.identifier.suchThat(s =>
-        Initiator.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Initiator(name, (loads ++ stores).toSet)
-  )
+  given (using r:ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(for {
+    name <- Gen.identifier
+    if ArtificialService.get(name).isEmpty
+  } yield ArtificialService(name))
 }

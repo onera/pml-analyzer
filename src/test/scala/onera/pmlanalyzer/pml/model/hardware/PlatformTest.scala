@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -40,14 +40,15 @@ class PlatformTest
 
   object PlatformTestFixture
       extends Platform(Symbol("PlatformTestFixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with InitiatorTest
+      with ApplicationArbitrary
+      with LoadArbitrary
+      with StoreArbitrary
+      with TargetArbitrary
+      with SimpleTransporterArbitrary
+      with InitiatorArbitrary
 
   import PlatformTestFixture.*
+  import PlatformTestFixture.given 
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,

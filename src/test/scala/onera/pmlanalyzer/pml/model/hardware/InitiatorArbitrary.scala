@@ -15,20 +15,23 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.software
+package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.service.{Load, LoadArbitrary, Store, StoreArbitrary}
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.hardware.Platform
 
-trait DataTest {
+trait InitiatorArbitrary {
   self: Platform =>
 
-  implicit val genData: Arbitrary[Data] = Arbitrary(
+  given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Initiator] = Arbitrary(
     for {
       name <- Gen.identifier.suchThat(s =>
-        Data.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+        Initiator.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
       )
-    } yield Data(name)
+      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
+      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
+    } yield Initiator(name, (loads ++ stores).toSet)
   )
 }

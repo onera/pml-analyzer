@@ -360,8 +360,11 @@ trait TransactionLibrary {
     def apply(
         tr: Transaction*
     )(using name: Name, givenInfo: ReflexiveInfo): Scenario =
+      apply(name.value, tr:_*)
+
+    def apply(name:String, tr:Transaction*)(using givenInfo:ReflexiveInfo): Scenario =
       apply(
-        UserScenarioId(Symbol(name.value)),
+        UserScenarioId(name),
         () => {
           tr.flatMap(_.iniTgt()).toSet
         },

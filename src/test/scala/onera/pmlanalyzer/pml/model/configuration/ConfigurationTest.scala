@@ -38,12 +38,12 @@ class ConfigurationTest
     */
   object ConfigurationFixture
       extends Platform(Symbol("fixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with InitiatorTest {
+      with ApplicationArbitrary
+      with LoadArbitrary
+      with StoreArbitrary
+      with TargetArbitrary
+      with SimpleTransporterArbitrary
+      with InitiatorArbitrary {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()
