@@ -26,8 +26,9 @@ trait StoreArbitrary {
   given (using r:ReflexiveInfo): Arbitrary[Store] = Arbitrary(
     for {
       name <- Gen.identifier
-      if Store.get(name).isEmpty
-    } yield Store(name)
+    } yield
+      Store.get(name)
+        .getOrElse(Store(name))
   )
 
 }

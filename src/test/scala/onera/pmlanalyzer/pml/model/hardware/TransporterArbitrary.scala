@@ -17,25 +17,15 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{Load, LoadArbitrary, Store, StoreArbitrary}
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
 
-trait SimpleTransporterArbitrary {
-  self: Platform =>
+trait TransporterArbitrary {
   
-  val maxSimpleTransporterLoad: Int = 3
-  val maxSimpleTransporterStore: Int = 3
-
-  given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[SimpleTransporter] = Arbitrary(
+  given (using arbV:Arbitrary[Virtualizer], arbS:Arbitrary[SimpleTransporter]): Arbitrary[Transporter] = Arbitrary(
     for {
-      name <- Gen.identifier
-      loads <- Gen.listOfN(maxSimpleTransporterLoad, genLoad.arbitrary)
-      stores <- Gen.listOfN(maxSimpleTransporterStore, genStore.arbitrary)
-    } yield
-      SimpleTransporter
-        .get(PMLNodeBuilder.formatName(name, currentOwner))
-        .getOrElse(SimpleTransporter(name, (loads ++ stores).toSet))
-  )
+      v <- arbV.arbitrary
+      s <- arbS.arbitrary
+      r <- Gen.oneOf(List(v,s)) 
+    } yield r
+  ) 
 }

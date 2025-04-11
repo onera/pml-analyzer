@@ -25,13 +25,17 @@ import org.scalacheck.{Arbitrary, Gen}
 trait TargetArbitrary {
   self: Platform =>
 
+  val maxTargetLoad: Int = 3
+  val maxTargetStore: Int = 3
+
   given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Target] = Arbitrary(
     for {
-      name <- Gen.identifier.suchThat(s =>
-        Target.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Target(name, (loads ++ stores).toSet)
+      name <- Gen.identifier
+      loads <- Gen.listOfN(maxTargetLoad, genLoad.arbitrary)
+      stores <- Gen.listOfN(maxTargetStore, genStore.arbitrary)
+    } yield
+      Target
+        .get(PMLNodeBuilder.formatName(name, currentOwner))
+        .getOrElse(Target(name, (loads ++ stores).toSet))
   )
 }

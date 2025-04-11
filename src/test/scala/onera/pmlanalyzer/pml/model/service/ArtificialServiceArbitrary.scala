@@ -26,6 +26,7 @@ trait ArtificialServiceArbitrary {
 
   given (using r:ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(for {
     name <- Gen.identifier
-    if ArtificialService.get(name).isEmpty
-  } yield ArtificialService(name))
+  } yield
+    ArtificialService.get(name)
+      .getOrElse(ArtificialService(name)))
 }

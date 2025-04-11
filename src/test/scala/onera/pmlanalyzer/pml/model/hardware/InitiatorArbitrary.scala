@@ -24,14 +24,17 @@ import org.scalacheck.{Arbitrary, Gen}
 
 trait InitiatorArbitrary {
   self: Platform =>
+  
+  
 
   given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Initiator] = Arbitrary(
     for {
-      name <- Gen.identifier.suchThat(s =>
-        Initiator.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Initiator(name, (loads ++ stores).toSet)
+      name <- Gen.identifier
+      loads <- Gen.listOfN(3, genLoad.arbitrary)
+      stores <- Gen.listOfN(3, genStore.arbitrary)
+    } yield
+      Initiator
+        .get(PMLNodeBuilder.formatName(name, currentOwner))
+        .getOrElse(Initiator(name, (loads ++ stores).toSet))
   )
 }

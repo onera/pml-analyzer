@@ -23,9 +23,12 @@ import onera.pmlanalyzer.pml.model.hardware.Platform
 
 trait ApplicationArbitrary {
   self: Platform =>
-  implicit val genApplication: Arbitrary[Application] = Arbitrary(for {
-    name <- Gen.identifier.suchThat(s =>
-      Application.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-    )
-  } yield Application(name))
+
+  given Arbitrary[Application] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield Application
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Application(name))
+  )
 }

@@ -25,13 +25,17 @@ import org.scalacheck.{Arbitrary, Gen}
 trait VirtualizerArbitrary {
   self: Platform =>
 
+  val maxVirtualizerLoad: Int = 3
+  val maxVirtualizerStore: Int = 3
+
   given (using genLoad:Arbitrary[Load], genStore:Arbitrary[Store], r:ReflexiveInfo): Arbitrary[Virtualizer] = Arbitrary(
     for {
-      name <- Gen.identifier.suchThat(s =>
-        Virtualizer.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Virtualizer(name, (loads ++ stores).toSet)
+      name <- Gen.identifier
+      loads <- Gen.listOfN(maxVirtualizerLoad, genLoad.arbitrary)
+      stores <- Gen.listOfN(maxVirtualizerStore, genStore.arbitrary)
+    } yield
+      Virtualizer
+        .get(PMLNodeBuilder.formatName(name, currentOwner))
+        .getOrElse(Virtualizer(name, (loads ++ stores).toSet))
   )
 }

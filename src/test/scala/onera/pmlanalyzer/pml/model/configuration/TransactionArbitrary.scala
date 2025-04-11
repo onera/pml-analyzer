@@ -16,34 +16,63 @@
  ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.configuration
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.software.{Application, ApplicationArbitrary, Data, DataArbitrary}
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.{Arbitrary, Gen}
 
 trait TransactionArbitrary {
-  self:Platform with TransactionLibrary =>
+  self: Platform with TransactionLibrary =>
 
-  given (using r:ReflexiveInfo): Arbitrary[Transaction] = Arbitrary(
+  given (using
+      arbApp: Arbitrary[Application],
+      arbData: Arbitrary[Data],
+      r: ReflexiveInfo
+  ): Arbitrary[Transaction] = Arbitrary(
     for {
-      app <- Gen.oneOf(Application.all)
-      data <- Gen.oneOf(Data.all)
+      app <- arbApp.arbitrary
+      data <- arbData.arbitrary
       name <- Gen.identifier
       isRead <- Gen.prob(0.5)
-    } yield
-      if(isRead)
-        Transaction(name, app read data)
-      else
-        Transaction(name, app write data)
+    } yield Transaction
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(
+        if (isRead)
+          Transaction(name, app read data)
+        else
+          Transaction(name, app write data)
+      )
   )
 
-  given (using t:Arbitrary[Transaction], r:ReflexiveInfo) : Arbitrary[Scenario] = Arbitrary(
+  given (using
+         arbTr: Arbitrary[Transaction],
+         r: ReflexiveInfo
+  ): Arbitrary[Scenario] = Arbitrary(
     for {
-      tSeq <- Gen.listOf(t.arbitrary)
+      tSeq <- Gen.nonEmptyListOf(arbTr.arbitrary)
       name <- Gen.identifier
-    } yield
-      Scenario(name, tSeq:_*)
+    } yield Scenario
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Scenario(name, tSeq: _*))
   )
 
+  given (using
+      arbTr: Arbitrary[Transaction],
+      r: ReflexiveInfo
+  ): Arbitrary[UsedTransaction] = Arbitrary(
+    for {
+      t <- arbTr.arbitrary
+    } yield t.used
+  )
+
+  given (using
+      arbSc: Arbitrary[Scenario],
+      r: ReflexiveInfo
+  ): Arbitrary[UsedScenario] = Arbitrary(
+    for {
+      s <- arbSc.arbitrary
+    } yield s.used
+  )
 }

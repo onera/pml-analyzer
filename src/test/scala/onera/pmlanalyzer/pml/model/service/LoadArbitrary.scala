@@ -26,7 +26,8 @@ trait LoadArbitrary {
 
   given (using r:ReflexiveInfo): Arbitrary[Load] = Arbitrary(for {
     name <- Gen.identifier
-    if Load.get(name).isEmpty
-  } yield Load(name))
+  } yield
+    Load.get(name)
+      .getOrElse(Load(name)))
 
 }

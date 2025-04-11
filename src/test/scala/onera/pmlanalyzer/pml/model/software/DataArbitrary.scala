@@ -24,11 +24,11 @@ import onera.pmlanalyzer.pml.model.hardware.Platform
 trait DataArbitrary {
   self: Platform =>
 
-  implicit val genData: Arbitrary[Data] = Arbitrary(
+  given Arbitrary[Data] = Arbitrary(
     for {
-      name <- Gen.identifier.suchThat(s =>
-        Data.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
-      )
-    } yield Data(name)
+      name <- Gen.identifier
+    } yield
+      Data.get(PMLNodeBuilder.formatName(name, currentOwner))
+        .getOrElse(Data(name))
   )
 }
