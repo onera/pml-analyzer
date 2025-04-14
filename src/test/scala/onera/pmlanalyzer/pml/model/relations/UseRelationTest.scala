@@ -17,47 +17,42 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.{
-  LoadArbitrary,
-  Service,
-  StoreArbitrary
-}
-import onera.pmlanalyzer.pml.model.software.ApplicationArbitrary
-import onera.pmlanalyzer.pml.model.utils.All
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{*, given}
+import onera.pmlanalyzer.pml.model.service.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import PlatformArbitrary.given
-import PlatformArbitrary.PopulatedPlatform
 
-class LinkRelationTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+class UseRelationTest  extends AnyFlatSpec
+  with ScalaCheckPropertyChecks
+  with should.Matchers {
 
-  /**
-   * This test first create a platform
-   * then it build a random link relation on it and test the link and unlink
-   */
-  "LinkRelation" should "record properly link and unlink" taggedAs UnitTests in {
-    forAll(minSuccessful(10)) { (p:PopulatedPlatform) =>
-      {
+  //FIXME modify the generator of use to directly consider a linking relation?
+  "UseRelation" should "encode properly use" in {
+    forAll(minSuccessful(10)) {
+      (p:PopulatedPlatform) =>
         import p.given
-        import p._
-        forAll(minSuccessful(20)) { (m: Map[Hardware, Set[Hardware]]) =>
-          {
-            applyAll(m, link = true)
-            PLLinkableToPL.edges should equal(m)
-            ServiceLinkableToService.edges should equal(getServiceMap(m))
-            applyAll(m, link = false)
-            PLLinkableToPL.edges should be(empty)
-            ServiceLinkableToService.edges should be(empty)
-          }
+        import p.*
+        forAll(minSuccessful(10)) {
+          (link:Map[Hardware,Set[Hardware]]) =>
+            applyAll(link, link=true)
+            forAll(minSuccessful(10)) {
+              (use:Map[Initiator,Set[Service]]) =>
+                for {
+                  (i,ss) <- use
+                } yield {
+                  i read ss
+                  i write ss
+                  for {
+                    s <- ss
+                  }
+                  i.targetService should contain (s)
+                }
+            }
+            applyAll(link, link=false)
         }
-      }
     }
   }
 }

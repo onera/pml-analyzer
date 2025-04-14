@@ -17,12 +17,37 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
 
-trait OwnerTest {
-
-  implicit val genOwner: Arbitrary[Owner] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield Owner(Symbol(name)))
-
+trait All[T] {
+  def apply():Set[T]
 }
+
+object All {
+  trait Instances {
+    self:Platform =>
+    
+    given All[Target] with {
+      def apply(): Set[Target] = Target.all
+    }
+
+    given All[Transporter] with {
+      def apply(): Set[Transporter] = SimpleTransporter.all ++ Virtualizer.all
+    }
+
+    given All[Initiator] with {
+      def apply(): Set[Initiator] = Initiator.all
+    }
+
+    given All[Application] with {
+      def apply(): Set[Application] = Application.all
+    }
+
+    given All[Data] with {
+      def apply(): Set[Data] = Data.all
+    }
+
+  }
+}
+

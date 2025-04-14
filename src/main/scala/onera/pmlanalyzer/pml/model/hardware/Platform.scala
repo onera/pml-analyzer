@@ -21,15 +21,10 @@ import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{Enclosing, File, Line}
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenario,
-  PhysicalScenarioId,
-  PhysicalTransaction,
-  PhysicalTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenario, PhysicalScenarioId, PhysicalTransaction, PhysicalTransactionId}
 
 import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
@@ -63,9 +58,9 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     */
   implicit val currentOwner: Owner = Owner(name)
 
-  /** notify the initialisation of a new composite to the companion object
+  /** notify the initialisation of a new platform to the companion object
     */
-  Platform._memo(name) = this
+  Platform.add(this)
 
   /** The full name of a platform is its base name concatenated with the
     * configuration if available
@@ -234,6 +229,32 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
+
+  def get(id:Symbol):Option[Platform] = _memo.get(id)
+
+  def add(v: Platform): Unit = {
+    for { l <- _memo.get(v.name) } {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
+    }
+    _memo.addOne((v.name, v))
+  }
+
+  def getOrElseUpdate(name: Symbol, v: => Platform): Platform = {
+    for {l <- _memo.get(name)} {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
+    }
+    _memo.getOrElseUpdate(name, v)
+  }
 
   /** Provide all the platforms defined in the project
     * @return
