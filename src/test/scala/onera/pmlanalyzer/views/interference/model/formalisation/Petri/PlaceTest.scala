@@ -25,9 +25,10 @@ import org.scalatest.matchers.should
 import org.scalacheck.{Arbitrary, Gen}
 
 trait PlaceGenTest {
-  implicit val genPlace: Arbitrary[Place] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield Place(name))
+  implicit val genPlace: Gen[Place] =
+    for {
+      name <- Gen.identifier
+    } yield Place(name)
 }
 
 class PlaceTest extends AnyFlatSpec with PlaceGenTest with should.Matchers {
