@@ -14,8 +14,6 @@ import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
-// import onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
-// import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalTransaction,
   PhysicalTransactionId
