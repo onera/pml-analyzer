@@ -27,22 +27,20 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalacheck.{Arbitrary, Gen}
 
-// trait TransitionGenTest extends PlaceGenTest {
-//   def testGen(p: Place, i: Int) = (p, i)
-//   implicit val genTransition: Arbitrary[Transition] = Arbitrary(
-//     for {
-//       name <- Gen.identifier
-//       pre <- Gen
-//         .mapOf[Place, Int](
-//           Gen.listOf(genPlace.arbitrary, Arbitrary.arbitrary[Int])
-//         )
-//       post <- Gen
-//         .buildableOf[Marking](
-//           Gen.listOf(testGen(genPlace.arbitrary, Arbitrary.arbitrary[Int]))
-//         )
-//     } yield Transition(name, pre, post)
-//   )
-// }
+trait TransitionGenTest extends PlaceGenTest {
+  val markingGen: Gen[Marking.Marking] =
+    for {
+      places <- Gen.listOf(genPlace)
+      int <- Gen.listOfN(places.size, Gen.choose(1, 10))
+    } yield mutable.Map(places.zip(int): _*)
+
+  val transitionGen: Gen[Transition] =
+    for {
+      name <- Gen.identifier
+      pre <- markingGen
+      post <- markingGen
+    } yield Transition(name, pre, post)
+}
 
 class TransitionTest extends AnyFlatSpec with should.Matchers {
 
