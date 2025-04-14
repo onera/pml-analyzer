@@ -29,6 +29,26 @@ import scala.collection.mutable
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import org.scalacheck.{Arbitrary, Gen}
+
+trait PetriNetGenTest extends PlaceGenTest with TransitionGenTest {
+  val petriNetGen: Gen[PetriNet] =
+    for {
+      nameN <- Gen.identifier
+      nameS <- Gen.identifier
+      places <- Gen.listOf(genPlace)
+      transitions <- Gen.listOf(transitionGen)
+      initMarking <- markingGen
+    } yield PetriNet(
+      nameN,
+      PetriNetStruct(
+        nameS,
+        places.to(mutable.Set),
+        transitions.to(mutable.Set)
+      ),
+      initMarking
+    )
+}
 
 class PetriNetTest extends AnyFlatSpec with should.Matchers {
 
