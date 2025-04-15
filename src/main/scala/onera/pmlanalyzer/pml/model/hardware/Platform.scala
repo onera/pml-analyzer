@@ -24,7 +24,12 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{Enclosing, File, Line}
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenario, PhysicalScenarioId, PhysicalTransaction, PhysicalTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalScenario,
+  PhysicalScenarioId,
+  PhysicalTransaction,
+  PhysicalTransactionId
+}
 
 import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
@@ -230,7 +235,7 @@ object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
 
-  def get(id:Symbol):Option[Platform] = _memo.get(id)
+  def get(id: Symbol): Option[Platform] = _memo.get(id)
 
   def add(v: Platform): Unit = {
     for { l <- _memo.get(v.name) } {
@@ -245,7 +250,7 @@ object Platform {
   }
 
   def getOrElseUpdate(name: Symbol, v: => Platform): Platform = {
-    for {l <- _memo.get(name)} {
+    for { l <- _memo.get(name) } {
       println(
         Message.errorMultipleInstantiation(
           s"$l in ${l.sourceFile} at line ${l.lineInFile}",

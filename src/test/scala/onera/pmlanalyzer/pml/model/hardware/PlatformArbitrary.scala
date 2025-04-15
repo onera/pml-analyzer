@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   UseRelationArbitrary
 }
-import onera.pmlanalyzer.pml.model.utils.All
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 
@@ -32,7 +32,11 @@ object PlatformArbitrary {
   type PopulatedPlatform = Platform & LinkRelationArbitrary &
     UseRelationArbitrary & All.Instances
 
-  given (using line: Line, file: File): Arbitrary[PopulatedPlatform] =
+  given (using
+      conf: ArbitraryConfiguration,
+      line: Line,
+      file: File
+  ): Arbitrary[PopulatedPlatform] =
     Arbitrary(
       for {
         id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)

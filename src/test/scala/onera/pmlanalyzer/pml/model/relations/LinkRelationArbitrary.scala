@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.utils.All
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.operators.*
 
@@ -27,8 +27,8 @@ trait LinkRelationArbitrary {
   self: Platform =>
 
   def getServiceMap(
-                             m: Map[Hardware, Set[Hardware]]
-                           ): Map[Service, Set[Service]] = {
+      m: Map[Hardware, Set[Hardware]]
+  ): Map[Service, Set[Service]] = {
     val r = for {
       (k, v) <- m.toSeq
       kL <- k.loads
@@ -47,7 +47,7 @@ trait LinkRelationArbitrary {
     } {
       l match
         case i: Initiator =>
-          for {r <- v}
+          for { r <- v }
             r match
               case tr: Transporter =>
                 if (link)
@@ -61,7 +61,7 @@ trait LinkRelationArbitrary {
                   i unlink tg
               case _ =>
         case tr: Transporter =>
-          for {r <- v}
+          for { r <- v }
             r match
               case rTr: Transporter =>
                 if (link)
@@ -80,20 +80,30 @@ trait LinkRelationArbitrary {
   given (using
       allI: All[Initiator],
       allTr: All[Transporter],
-      allTg: All[Target]
+      allTg: All[Target],
+      conf: ArbitraryConfiguration
   ): Arbitrary[Map[Hardware, Set[Hardware]]] = Arbitrary(
     if (allI().nonEmpty && allTr().nonEmpty && allTg().nonEmpty)
       for {
         iSet <- Gen
-          .listOfN(List(4, allI().size).min, Gen.oneOf(allI()))
+          .listOfN(
+            List(conf.maxInitiatorSetLink, allI().size).min,
+            Gen.oneOf(allI())
+          )
           .map(_.toSet)
           .suchThat(_.nonEmpty)
         trSet <- Gen
-          .listOfN(List(8, allTr().size).min, Gen.oneOf(allTr()))
+          .listOfN(
+            List(conf.maxTransporterSetLink, allTr().size).min,
+            Gen.oneOf(allTr())
+          )
           .map(_.toSet)
           .suchThat(_.nonEmpty)
         tgSet <- Gen
-          .listOfN(List(4, allTg().size).min, Gen.oneOf(allTg()))
+          .listOfN(
+            List(conf.maxTargetSetLink, allTg().size).min,
+            Gen.oneOf(allTg())
+          )
           .map(_.toSet)
           .suchThat(_.nonEmpty)
         map <- Gen.mapOf(

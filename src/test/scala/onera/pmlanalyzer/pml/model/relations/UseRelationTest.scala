@@ -25,34 +25,32 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class UseRelationTest  extends AnyFlatSpec
-  with ScalaCheckPropertyChecks
-  with should.Matchers {
+class UseRelationTest
+    extends AnyFlatSpec
+    with ScalaCheckPropertyChecks
+    with should.Matchers {
 
-  //FIXME modify the generator of use to directly consider a linking relation?
+  // FIXME modify the generator of use to directly consider a linking relation?
   "UseRelation" should "encode properly use" in {
-    forAll(minSuccessful(10)) {
-      (p:PopulatedPlatform) =>
-        import p.given
-        import p.*
-        forAll(minSuccessful(10)) {
-          (link:Map[Hardware,Set[Hardware]]) =>
-            applyAll(link, link=true)
-            forAll(minSuccessful(10)) {
-              (use:Map[Initiator,Set[Service]]) =>
-                for {
-                  (i,ss) <- use
-                } yield {
-                  i read ss
-                  i write ss
-                  for {
-                    s <- ss
-                  }
-                  i.targetService should contain (s)
-                }
+    forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
+      import p.given
+      import p.*
+      forAll(minSuccessful(10)) { (link: Map[Hardware, Set[Hardware]]) =>
+        applyAll(link, link = true)
+        forAll(minSuccessful(10)) { (use: Map[Initiator, Set[Service]]) =>
+          for {
+            (i, ss) <- use
+          } yield {
+            i read ss
+            i write ss
+            for {
+              s <- ss
             }
-            applyAll(link, link=false)
+              i.targetService should contain(s)
+          }
         }
+        applyAll(link, link = false)
+      }
     }
   }
 }

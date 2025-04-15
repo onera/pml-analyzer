@@ -17,17 +17,24 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target,
+  Transporter,
+  Virtualizer
+}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 
 trait All[T] {
-  def apply():Set[T]
+  def apply(): Set[T]
 }
 
 object All {
   trait Instances {
-    self:Platform =>
-    
+    self: Platform =>
+
     given All[Target] with {
       def apply(): Set[Target] = Target.all
     }
@@ -50,4 +57,3 @@ object All {
 
   }
 }
-

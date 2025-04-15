@@ -18,12 +18,12 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNode
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait PMLNodeArbitrary {
 
-  given [T <: PMLNode](using arb: Arbitrary[T], r:ReflexiveInfo): Arbitrary[Set[T]] = Arbitrary(
+  given [T <: PMLNode](using arb: Arbitrary[T]): Arbitrary[Set[T]] = Arbitrary(
     for {
       l <- Gen.nonEmptyListOf(arb.arbitrary)
     } yield l.toSet

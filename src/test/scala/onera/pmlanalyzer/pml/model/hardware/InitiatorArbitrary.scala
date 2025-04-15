@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.service.{
   Store,
   StoreArbitrary
 }
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait InitiatorArbitrary {
@@ -33,12 +33,13 @@ trait InitiatorArbitrary {
   given (using
       genLoad: Arbitrary[Load],
       genStore: Arbitrary[Store],
-      r: ReflexiveInfo
+      r: ReflexiveInfo,
+      conf: ArbitraryConfiguration
   ): Arbitrary[Initiator] = Arbitrary(
     for {
       name <- Gen.identifier
-      loads <- Gen.listOfN(3, genLoad.arbitrary)
-      stores <- Gen.listOfN(3, genStore.arbitrary)
+      loads <- Gen.listOfN(conf.maxInitiatorLoad, genLoad.arbitrary)
+      stores <- Gen.listOfN(conf.maxInitiatorStore, genStore.arbitrary)
     } yield Initiator
       .get(PMLNodeBuilder.formatName(name, currentOwner))
       .getOrElse(Initiator(name, (loads ++ stores).toSet))

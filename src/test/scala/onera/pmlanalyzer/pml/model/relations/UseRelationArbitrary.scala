@@ -29,32 +29,44 @@ trait UseRelationArbitrary {
   self: Platform =>
 
   @targetName("given_KV_Use")
-  given [K,V](using allK:All[K], allV:All[V], r:Use[K,V]) :Arbitrary[Map[K, Set[V]]] = Arbitrary(
-      if(allK().nonEmpty && allV().nonEmpty)
-        for {
-          m <- Gen.mapOf(Gen.zip(
+  given [K, V](using
+      allK: All[K],
+      allV: All[V],
+      r: Use[K, V]
+  ): Arbitrary[Map[K, Set[V]]] = Arbitrary(
+    if (allK().nonEmpty && allV().nonEmpty)
+      for {
+        m <- Gen.mapOf(
+          Gen.zip(
             Gen.oneOf(allK()),
-            Gen.atLeastOne(allV())
+            Gen
+              .atLeastOne(allV())
               .map(_.toSet)
-          ))
-        } yield m
-      else
-        Map.empty
+          )
+        )
+      } yield m
+    else
+      Map.empty
   )
 
-  given [K] (using allI:All[K], allT:All[Target], r:Use[K,Service]): Arbitrary[Map[K, Set[Service]]] = Arbitrary({
+  given [K](using
+      allI: All[K],
+      allT: All[Target],
+      r: Use[K, Service]
+  ): Arbitrary[Map[K, Set[Service]]] = Arbitrary({
     val targetService =
       for {
         t <- allT()
         s <- t.services
       } yield s
 
-    if(targetService.nonEmpty && allI().nonEmpty)
+    if (targetService.nonEmpty && allI().nonEmpty)
       for {
         m <- Gen.mapOf(
           Gen.zip(
             Gen.oneOf(allI()),
-            Gen.atLeastOne(targetService)
+            Gen
+              .atLeastOne(targetService)
               .map(_.toSet)
           )
         )

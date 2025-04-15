@@ -24,24 +24,22 @@ import onera.pmlanalyzer.pml.model.service.{
   Store,
   StoreArbitrary
 }
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait SimpleTransporterArbitrary {
   self: Platform =>
 
-  val maxSimpleTransporterLoad: Int = 3
-  val maxSimpleTransporterStore: Int = 3
-
   given (using
       genLoad: Arbitrary[Load],
       genStore: Arbitrary[Store],
-      r: ReflexiveInfo
+      r: ReflexiveInfo,
+      conf: ArbitraryConfiguration
   ): Arbitrary[SimpleTransporter] = Arbitrary(
     for {
       name <- Gen.identifier
-      loads <- Gen.listOfN(maxSimpleTransporterLoad, genLoad.arbitrary)
-      stores <- Gen.listOfN(maxSimpleTransporterStore, genStore.arbitrary)
+      loads <- Gen.listOfN(conf.maxSimpleTransporterLoad, genLoad.arbitrary)
+      stores <- Gen.listOfN(conf.maxSimpleTransporterStore, genStore.arbitrary)
     } yield SimpleTransporter
       .get(PMLNodeBuilder.formatName(name, currentOwner))
       .getOrElse(SimpleTransporter(name, (loads ++ stores).toSet))

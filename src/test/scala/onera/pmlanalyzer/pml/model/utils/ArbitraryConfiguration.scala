@@ -15,33 +15,22 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{
-  Load,
-  LoadArbitrary,
-  Store,
-  StoreArbitrary
-}
-import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
-import org.scalacheck.{Arbitrary, Gen}
+final case class ArbitraryConfiguration(
+    maxTargetLoad: Int = 3,
+    maxTargetStore: Int = 3,
+    maxVirtualizerLoad: Int = 3,
+    maxVirtualizerStore: Int = 3,
+    maxSimpleTransporterLoad: Int = 3,
+    maxSimpleTransporterStore: Int = 3,
+    maxInitiatorLoad: Int = 3,
+    maxInitiatorStore: Int = 3,
+    maxInitiatorSetLink: Int = 4,
+    maxTransporterSetLink: Int = 8,
+    maxTargetSetLink: Int = 4
+)
 
-trait TargetArbitrary {
-  self: Platform =>
-
-  given (using
-      genLoad: Arbitrary[Load],
-      genStore: Arbitrary[Store],
-      r: ReflexiveInfo,
-      conf: ArbitraryConfiguration
-  ): Arbitrary[Target] = Arbitrary(
-    for {
-      name <- Gen.identifier
-      loads <- Gen.listOfN(conf.maxTargetLoad, genLoad.arbitrary)
-      stores <- Gen.listOfN(conf.maxTargetStore, genStore.arbitrary)
-    } yield Target
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Target(name, (loads ++ stores).toSet))
-  )
+object ArbitraryConfiguration {
+  implicit val default: ArbitraryConfiguration = ArbitraryConfiguration()
 }

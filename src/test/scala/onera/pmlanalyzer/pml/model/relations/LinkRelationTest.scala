@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.service.{
   StoreArbitrary
 }
 import onera.pmlanalyzer.pml.model.software.ApplicationArbitrary
-import onera.pmlanalyzer.pml.model.utils.All
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
@@ -38,12 +38,15 @@ class LinkRelationTest
     with ScalaCheckPropertyChecks
     with should.Matchers {
 
+  implicit val newConf: ArbitraryConfiguration = ArbitraryConfiguration.default
+    .copy(maxVirtualizerLoad = 5)
+
   /**
    * This test first create a platform
    * then it build a random link relation on it and test the link and unlink
    */
   "LinkRelation" should "record properly link and unlink" taggedAs UnitTests in {
-    forAll(minSuccessful(10)) { (p:PopulatedPlatform) =>
+    forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
       {
         import p.given
         import p._
