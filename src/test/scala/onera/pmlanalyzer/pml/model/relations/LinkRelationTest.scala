@@ -54,7 +54,7 @@ class LinkRelationTest
           {
             applyAll(m, link = true)
             PLLinkableToPL.edges should equal(m)
-            ServiceLinkableToService.edges should equal(getServiceMap(m))
+            ServiceLinkableToService.edges should equal(toServiceMap(m))
             applyAll(m, link = false)
             PLLinkableToPL.edges should be(empty)
             ServiceLinkableToService.edges should be(empty)

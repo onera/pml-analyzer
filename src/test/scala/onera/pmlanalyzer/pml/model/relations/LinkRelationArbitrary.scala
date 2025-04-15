@@ -26,7 +26,7 @@ import onera.pmlanalyzer.pml.operators.*
 trait LinkRelationArbitrary {
   self: Platform =>
 
-  def getServiceMap(
+  def toServiceMap(
       m: Map[Hardware, Set[Hardware]]
   ): Map[Service, Set[Service]] = {
     val r = for {
@@ -76,6 +76,12 @@ trait LinkRelationArbitrary {
               case _ =>
         case _ =>
     }
+
+  def removeNonReachableLinkFromInitiator(m:Map[Hardware, Set[Hardware]]): Map[Hardware,Set[Hardware]] =
+    ???
+
+  def isReachable(from:Hardware,to:Hardware, in:Map[Hardware,Set[Hardware]]): Boolean =
+    ???
 
   given (using
       allI: All[Initiator],
