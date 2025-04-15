@@ -55,3 +55,5 @@ package object operators
     with Restrict.Ops
     with Route.Ops
     with AsTransaction.Ops
+    with Demand.Ops
+    with Capacity.Ops
