@@ -27,19 +27,15 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 import scala.collection.mutable
 
-final class CapacityRelation private (
-                                            iniValues: Map[Service, Int]
-                                          ) {
-  val values: MMap[Service, Int] = mutable.Map(iniValues.toSeq:_*)
-}
+final class CapacityRelation[L,R] private (iniValues: Map[L,R])
+  extends Function[L,R](iniValues)
 
 object CapacityRelation {
   trait Instances {
 
     /** Relation gathering user defined capacity for each service (default 1)
      */
-    final implicit val capacityOfService: CapacityRelation = CapacityRelation(
-      Map.empty
-    )
+    final implicit val capacityOfService: CapacityRelation[Service, Int] =
+      CapacityRelation(Map.empty)
   }
 }

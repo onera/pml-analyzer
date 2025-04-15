@@ -24,9 +24,8 @@ import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 import scala.collection.mutable
-import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
 
-/** Relation between two finite sets Warning each one of the set contains the
+/** Function between two finite sets Warning each one of the set contains the
   * empty set value thus R(a) = \emptyset not imply that a \notin R
   *
   * @param iniValues
@@ -36,18 +35,20 @@ import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
   * @tparam R
   *   type of the right set
   */
-abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
+abstract class Function[L, R](iniValues: Map[L, R])(using n: Name) {
 
-  private val modifications: mutable.ArrayBuffer[Change[L, R]] =
+  protected val modifications: mutable.ArrayBuffer[Change[L, R]] =
     mutable.ArrayBuffer.empty
 
   val name: String = n.value
 
-  val _values: MHashMap[L, MSet[R]] = MHashMap(
-    iniValues.map(p => p._1 -> MSet(p._2.toSeq: _*)).toSeq: _*
+  val _values: mutable.HashMap[L, R] = mutable.HashMap(
+    iniValues.toSeq: _*
   )
-  val _inverse: MHashMap[R, MSet[L]] =
-    _values.flatMap(p => p._2.map(b => b -> MSet(p._1)))
+  val _inverse: mutable.HashMap[R, mutable.Set[L]] =
+    mutable.HashMap(
+      _values.groupMapReduce(_._2)((k, _) => mutable.Set(k))(_ ++ _).toSeq: _*
+    )
 
   /**
    * Get all modifications linked to a given edge
@@ -64,9 +65,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @return
     *   the map of edges
     */
-  def edges: Map[L, Set[R]] = (_values.view mapValues {
-    _.toSet
-  }).toMap
+  def edges: Map[L, R] = _values.toMap
 
   /** Add the element b to a
     *
@@ -76,48 +75,10 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     *   the new element
     */
   def add(a: L, b: R)(using line: Line, file: File): Unit = {
-    _values.getOrElseUpdate(a, MSet.empty[R]) += b
-    _inverse.getOrElseUpdate(b, MSet.empty[L]) += a
+    _values(a) = b
+    _inverse.getOrElseUpdate(b, mutable.Set.empty[L]) += a
     modifications += Change(a, b, isAdd = true, line, file)
   }
-
-  /** Add a collection of b elements to a Warning if the b is empty then all the
-    * element linked to a are removed (STRANGE)
-    *
-    * @param a
-    *   the input element
-    * @param b
-    *   the collection of new elements
-    */
-  def add(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
-    if (b.nonEmpty)
-      b.foreach(add(a, _))
-    else
-      _values.getOrElseUpdate(a, MSet.empty[R]).clear()
-
-  /** Remove the element b from the relation with a
-    *
-    * @param a
-    *   the input element
-    * @param b
-    *   the removed element
-    */
-  def remove(a: L, b: R)(using line: Line, file: File): Unit =
-    for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
-      sb -= b
-      sa -= a
-      modifications += Change(a, b, isAdd = false, line, file)
-    }
-
-  /** Remove the elements of the collection b from the relation with a
-    *
-    * @param a
-    *   the input element
-    * @param b
-    *   the removed elements
-    */
-  def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
-    b.foreach(remove(a, _))
 
   /** Remove a from the relation WARNING: this is different from removing all
     * elements in relation with a
@@ -125,8 +86,16 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @param a
     *   the input element
     */
-  def remove(a: L)(using line: Line, file: File): Unit =
-    apply(a).foreach(remove(a, _))
+  def remove(a: L)(using line: Line, file: File): Unit = {
+    for {
+      sa <- _inverse.values
+      if sa.contains(a)
+    } {
+      sa -= a
+    }
+    modifications += Change(a, _values(a), isAdd = false, line, file)
+    _values.remove(a)
+  }
 
   /** Provide the elements in relation with a WARNING the function returns an
     * empty set either if a is not in the relation or if no elements are
@@ -137,7 +106,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @return
     *   the set of related elements
     */
-  def apply(a: L): Set[R] = _values.getOrElse(a, Set.empty).toSet
+  def apply(a: L): R = _values(a)
 
   /** Provide the elements in relation with a id a is in the relation
     *
@@ -146,7 +115,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @return
     *   the optional set of related elements
     */
-  def get(a: L): Option[Set[R]] = for { b <- _values.get(a) } yield b.toSet
+  def get(a: L): Option[R] = for { b <- _values.get(a) } yield b
 
   /** Provide the elements a in relation with b
     *
@@ -162,7 +131,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     * @return
     *   the set of output elements
     */
-  def targetSet: Set[R] = _values.values.flatten.toSet
+  def targetSet: Set[R] = _values.values.toSet
 
   /** Provide the set of all input elements
     *
@@ -171,42 +140,4 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     */
   def domain: Set[L] = _values.keys.toSet
 
-}
-
-object Relation {
-
-  final case class Change[L, R](
-      l: L,
-      r: R,
-      isAdd: Boolean,
-      line: Line,
-      file: File
-  )(using name: Name) {
-
-    /**
-     * Line in source code where node has been instantiated
-     */
-    val lineInFile: Int = line.value
-
-    /**
-     * Source file in which node has been instantiated
-     */
-    val sourceFile: String =
-      file.value.split('.').init.mkString(java.io.File.separator)
-
-    override def toString: String = s"$sourceFile:$lineInFile ${
-        if (isAdd) "adding" else "removing"
-      } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
-  }
-
-  /** Trait gathering all relation instances
-    */
-  trait Instances
-      extends LinkRelation.Instances
-      with UseRelation.Instances
-      with ProvideRelation.Instances
-      with AuthorizeRelation.Instances
-      with RoutingRelation.Instances
-      with CapacityRelation.Instances
-      with DemandRelation.Instances
 }

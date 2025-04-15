@@ -25,18 +25,14 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 import scala.collection.mutable
 
-final class DemandRelation private (
-    iniValues: Map[PhysicalTransactionId, Int]
-) {
-  val values: MMap[PhysicalTransactionId, Int] = mutable.Map(iniValues.toSeq:_*)
-}
+final class DemandRelation[L,R] private (iniValues: Map[L, R]) 
+  extends Function[L,R](iniValues)
 
 object DemandRelation {
   trait Instances {
     /** Relation gathering user defined capacity for each service (default 1)
      */
-    final implicit val demandOfTransaction: DemandRelation = DemandRelation(
-      Map.empty
-    )
+    final implicit val demandOfTransaction: DemandRelation[PhysicalTransactionId,Int] =
+      DemandRelation(Map.empty)
   }
 }
