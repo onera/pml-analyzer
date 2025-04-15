@@ -18,25 +18,24 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import scala.collection.mutable.{Map as MMap}
+import scala.collection.mutable.Map as MMap
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
-import onera.pmlanalyzer.pml.model.relations.{
-  AntiReflexiveSymmetricEndomorphism,
-  Endomorphism
-}
+import onera.pmlanalyzer.pml.model.relations.{AntiReflexiveSymmetricEndomorphism, Endomorphism}
 import onera.pmlanalyzer.pml.model.service.Service
 import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-final case class CapacityRelation private (iniValues: MMap[Service, Int])
+import scala.collection.mutable
+
+final class CapacityRelation[L,R] private (iniValues: Map[L,R])
+  extends Function[L,R](iniValues)
 
 object CapacityRelation {
   trait Instances {
 
     /** Relation gathering user defined capacity for each service (default 1)
      */
-    final implicit val capacityOfService: CapacityRelation = CapacityRelation(
-      MMap.empty
-    )
+    final implicit val capacityOfService: CapacityRelation[Service, Int] =
+      CapacityRelation(Map.empty)
   }
 }
