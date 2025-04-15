@@ -19,20 +19,24 @@
 package onera.pmlanalyzer.pml.model.relations
 
 import sourcecode.Name
-import scala.collection.mutable.{Map as MMap}
+
+import scala.collection.mutable.Map as MMap
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-final case class DemandRelation private (
-    iniValues: MMap[PhysicalTransactionId, Int]
-)
+import scala.collection.mutable
+
+final class DemandRelation private (
+    iniValues: Map[PhysicalTransactionId, Int]
+) {
+  val values: MMap[PhysicalTransactionId, Int] = mutable.Map(iniValues.toSeq:_*)
+}
 
 object DemandRelation {
   trait Instances {
-
     /** Relation gathering user defined capacity for each service (default 1)
      */
     final implicit val demandOfTransaction: DemandRelation = DemandRelation(
-      MMap.empty
+      Map.empty
     )
   }
 }

@@ -16,7 +16,7 @@
   * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
   */
 
-package onera.pmlanalyzer.pml.model.operators
+package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
@@ -36,14 +36,13 @@ object Capacity {
 
     extension (t: PhysicalTransactionId) {
       def hasDemand(d: Int)(using dr: DemandRelation): Unit =
-        // dr.hasDemand(t, d)
-        dr.demandOfTransaction += (t -> d)
+        dr.values(t) = d
     }
 
     extension (s: Service) {
       def hasCapacity(c: Int)(using cr: CapacityRelation): Unit =
         // cr.hasCapacity(s, c)
-        cr.capacityOfService += (s -> c)
+        cr.values(s) = c
     }
 
   }
