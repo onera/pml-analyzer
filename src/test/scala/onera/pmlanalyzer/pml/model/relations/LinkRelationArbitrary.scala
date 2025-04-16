@@ -17,18 +17,17 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary.removeNonReachableFrom
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.operators.*
+import org.scalacheck.{Arbitrary, Gen}
 
 trait LinkRelationArbitrary {
   self: Platform =>
 
-  def toServiceMap(
+  def linkToServiceMap(
       m: Map[Hardware, Set[Hardware]]
   ): Map[Service, Set[Service]] = {
     val r = for {
@@ -43,7 +42,7 @@ trait LinkRelationArbitrary {
     r.groupMap(_._1)(_._2).view.mapValues(_.toSet).toMap
   }
 
-  def applyAll(m: Map[Hardware, Set[Hardware]], link: Boolean): Unit =
+  def applyAllLinks(m: Map[Hardware, Set[Hardware]], link: Boolean): Unit =
     for {
       (l, v) <- m
     } {
@@ -132,21 +131,11 @@ trait LinkRelationArbitrary {
 
 object LinkRelationArbitrary {
 
-  def closure[A](a: A, m: Map[A, Set[A]]): Set[A] = {
-    lazy val rec: ((A, Set[A])) => Set[A] = immutableHashMapMemo { s =>
-      if (s._2.contains(s._1))
-        Set(s._1)
-      else
-        m.getOrElse(s._1, Set.empty).flatMap(rec(_, s._2 + s._1)) + s._1
-    }
-    rec(a, Set.empty)
-  }
-
   def removeNonReachableFrom[A](from: Set[A], in: Map[A, Set[A]]): Map[A, Set[A]] = {
     val reachableFrom: Set[A] =
       for {
         f <- from
-        r <- closure(f, in)
+        r <- Endomorphism.closure(f, in)
       } yield
         r
 

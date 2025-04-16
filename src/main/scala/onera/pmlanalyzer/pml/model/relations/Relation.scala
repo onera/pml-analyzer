@@ -164,6 +164,15 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     */
   def get(a: L): Option[Set[R]] = for { b <- _values.get(a) } yield b.toSet
 
+  /** Provide the inverse relation as a map of edges
+   *
+   * @return
+   * the map o inverse edges
+   */
+  def inverseEdges: Map[R, Set[L]] = (_inverse.view mapValues {
+    _.toSet
+  }).toMap
+  
   /** Provide the elements a in relation with b
     *
     * @param b

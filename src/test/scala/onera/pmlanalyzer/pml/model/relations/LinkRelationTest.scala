@@ -35,49 +35,43 @@ class LinkRelationTest
     with ScalaCheckPropertyChecks
     with should.Matchers {
 
-  private def checkLinkRelation[T](from:Set[T], found:LinkRelation[T], expected: Map[T, Set[T]])(using conf:ArbitraryConfiguration) = {
-    val reducedExpected =
-      if(conf.removeUnreachableLink)
-        removeNonReachableFrom(from,expected)
-      else
-        expected
+  private def checkLinkRelation[T](found:LinkRelation[T], expected: Map[T, Set[T]]): Unit = {
     for {
       (k, v) <- found.edges
     } {
-      if (reducedExpected.contains(k))
-        v should equal(reducedExpected(k))
+      if (expected.contains(k))
+        v should equal(expected(k))
       else
         v should be(empty)
     }
   }
+
+  private def checkLinkRelations(p:PopulatedPlatform, m: Map[Hardware, Set[Hardware]]): Unit = {
+    import p.*
+    applyAllLinks(m, link = true)
+    checkLinkRelation(PLLinkableToPL, m)
+    checkLinkRelation(ServiceLinkableToService, linkToServiceMap(m))
+    applyAllLinks(m, link = false)
+    checkLinkRelation(PLLinkableToPL, Map.empty)
+    checkLinkRelation(ServiceLinkableToService, Map.empty)
+  }
+  
   /**
    * This test first create a platform
    * then it build a random link relation on it and test the link and unlink
    */
-  "LinkRelation" should "record properly link and unlink" taggedAs UnitTests in {
+  "LinkRelation" should "record properly link and unlink when restricted to reachable links" taggedAs UnitTests in {
     implicit val newConf: ArbitraryConfiguration = ArbitraryConfiguration.default
       .copy(removeUnreachableLink = true)
     forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
       {
         import p.given
-        import p._
-        forAll(minSuccessful(10)) { (m: Map[Hardware, Set[Hardware]]) =>
-          {
-            val allInitiator = Initiator.all.toSet[Hardware]
-            val allServices =
-              for{
-                i <- allInitiator
-                s <- i.services
-              } yield s
-            applyAll(m, link = true)
-            checkLinkRelation(allInitiator, PLLinkableToPL, m)
-            checkLinkRelation(allServices, ServiceLinkableToService, toServiceMap(m))
-            applyAll(m, link = false)
-            checkLinkRelation(allInitiator, PLLinkableToPL, Map.empty)
-            checkLinkRelation(allServices, ServiceLinkableToService, Map.empty)
-          }
+        forAll(minSuccessful(20)) { (m: Map[Hardware, Set[Hardware]]) =>
+          checkLinkRelations(p,m)
         }
       }
     }
   }
+
+
 }

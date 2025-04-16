@@ -36,20 +36,17 @@ class UseRelationTest
       import p.given
       import p.*
       forAll(minSuccessful(10)) { (link: Map[Hardware, Set[Hardware]]) =>
-        applyAll(link, link = true)
+        applyAllLinks(link, link = true)
         forAll(minSuccessful(10)) { (use: Map[Initiator, Set[Service]]) =>
+          applyAllUses(use)
           for {
             (i, ss) <- use
+            s <- ss
           } yield {
-            i read ss
-            i write ss
-            for {
-              s <- ss
-            }
-              i.targetService should contain(s)
+            i.targetService should contain(s)
           }
         }
-        applyAll(link, link = false)
+        applyAllLinks(link, link = false)
       }
     }
   }

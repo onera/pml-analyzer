@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.{Platform, Target}
+import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.All
 import onera.pmlanalyzer.pml.operators.*
@@ -27,6 +27,15 @@ import scala.annotation.targetName
 
 trait UseRelationArbitrary {
   self: Platform =>
+
+  def applyAllUses[K,V](use: Map[K, Set[V]])(using u: Use[K,V]) : Unit = {
+    for {
+      (i, ss) <- use
+      s <- ss
+    } {
+      u(i,s)
+    }
+  }
 
   @targetName("given_KV_Use")
   given [K, V](using
