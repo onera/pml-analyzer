@@ -17,7 +17,9 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
+import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary.removeNonReachableFrom
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
@@ -77,12 +79,6 @@ trait LinkRelationArbitrary {
         case _ =>
     }
 
-  def removeNonReachableLinkFromInitiator(m:Map[Hardware, Set[Hardware]]): Map[Hardware,Set[Hardware]] =
-    ???
-
-  def isReachable(from:Hardware,to:Hardware, in:Map[Hardware,Set[Hardware]]): Boolean =
-    ???
-
   given (using
       allI: All[Initiator],
       allTr: All[Transporter],
@@ -120,10 +116,44 @@ trait LinkRelationArbitrary {
               .map(_.toSet)
           )
         )
-      } yield map
-        .transform((k, v) => v - k)
-        .filter(_._2.nonEmpty)
+      } yield {
+        val r = map
+          .transform((k, v) => v - k)
+          .filter(_._2.nonEmpty)
+        if(conf.removeUnreachableLink) {
+          removeNonReachableFrom(allI().toSet[Hardware],r)
+        } else
+          r
+      }
     else
       Map.empty
   )
+}
+
+object LinkRelationArbitrary {
+
+  def closure[A](a: A, m: Map[A, Set[A]]): Set[A] = {
+    lazy val rec: ((A, Set[A])) => Set[A] = immutableHashMapMemo { s =>
+      if (s._2.contains(s._1))
+        Set(s._1)
+      else
+        m.getOrElse(s._1, Set.empty).flatMap(rec(_, s._2 + s._1)) + s._1
+    }
+    rec(a, Set.empty)
+  }
+
+  def removeNonReachableFrom[A](from: Set[A], in: Map[A, Set[A]]): Map[A, Set[A]] = {
+    val reachableFrom: Set[A] =
+      for {
+        f <- from
+        r <- closure(f, in)
+      } yield
+        r
+
+    for {
+      (k, v) <- in
+      if reachableFrom.contains(k)
+    } yield
+      k -> v
+  }
 }

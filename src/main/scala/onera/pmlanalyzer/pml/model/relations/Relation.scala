@@ -104,16 +104,16 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     *   the input element
     * @param b
     *   the removed element
+    * @note an element a can be in relation to emptySet, that is a bit different
+   *       from not being in the relation
     */
   def remove(a: L, b: R)(using line: Line, file: File): Unit =
-    for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
-      sb -= b
-      if (sb.isEmpty)
-        _values.remove(a)
-      sa -= a
-      if (sa.isEmpty)
-        _inverse.remove(b)
-      modifications += Change(a, Some(b), isAdd = false, line, file)
+    for {
+      sb <- _values.get(a)
+      sa <- _inverse.get(b)} {
+        sb -= b
+        sa -= a
+        modifications += Change(a, Some(b), isAdd = false, line, file)
     }
 
   /** Remove the elements of the collection b from the relation with a
@@ -126,14 +126,23 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
     b.foreach(remove(a, _))
 
-  /** Remove a from the relation WARNING: this is different from removing all
-    * elements in relation with a
+  /** Remove a from the relation
     *
     * @param a
     *   the input element
+    * @note This is different from removing all
+    *  elements in relation with a
     */
-  def remove(a: L)(using line: Line, file: File): Unit =
-    apply(a).foreach(remove(a, _))
+  def remove(a: L)(using line: Line, file: File): Unit = {
+    _values.remove(a)
+    for {
+      sb <- _inverse.values
+      if sb.contains(a)
+    } {
+      sb -= a
+    }
+    modifications += Change(a, None, isAdd = false, line, file)
+  }
 
   /** Provide the elements in relation with a WARNING the function returns an
     * empty set either if a is not in the relation or if no elements are
