@@ -28,12 +28,15 @@ import scala.annotation.targetName
 trait UseRelationArbitrary {
   self: Platform =>
 
-  def applyAllUses[K,V](use: Map[K, Set[V]])(using u: Use[K,V]) : Unit = {
+  def applyAllUses[K,V](use: Map[K, Set[V]], undo:Boolean)(using u: Use[K,V]) : Unit = {
     for {
       (i, ss) <- use
       s <- ss
     } {
-      u(i,s)
+      if(!undo)
+        u(i,s)
+      else 
+        ???
     }
   }
 

@@ -29,7 +29,8 @@ final case class ArbitraryConfiguration(
     maxInitiatorSetLink: Int = 4,
     maxTransporterSetLink: Int = 8,
     maxTargetSetLink: Int = 4,
-    removeUnreachableLink:Boolean = false
+    removeUnreachableLink:Boolean = false,
+    maxRoutingConstraint: Int = 50
 )
 
 object ArbitraryConfiguration {

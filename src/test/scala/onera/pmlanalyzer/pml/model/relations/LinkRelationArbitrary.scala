@@ -42,7 +42,7 @@ trait LinkRelationArbitrary {
     r.groupMap(_._1)(_._2).view.mapValues(_.toSet).toMap
   }
 
-  def applyAllLinks(m: Map[Hardware, Set[Hardware]], link: Boolean): Unit =
+  def applyAllLinks(m: Map[Hardware, Set[Hardware]], undo: Boolean): Unit =
     for {
       (l, v) <- m
     } {
@@ -51,12 +51,12 @@ trait LinkRelationArbitrary {
           for { r <- v }
             r match
               case tr: Transporter =>
-                if (link)
+                if (!undo)
                   i link tr
                 else
                   i unlink tr
               case tg: Target =>
-                if (link)
+                if (!undo)
                   i link tg
                 else
                   i unlink tg
@@ -65,18 +65,32 @@ trait LinkRelationArbitrary {
           for { r <- v }
             r match
               case rTr: Transporter =>
-                if (link)
+                if (!undo)
                   tr link rTr
                 else
                   tr unlink rTr
               case tg: Target =>
-                if (link)
+                if (!undo)
                   tr link tg
                 else
                   tr unlink tg
               case _ =>
         case _ =>
     }
+
+  given [S](using arb:Arbitrary[Map[Hardware,Set[Hardware]]], p: Provided[Hardware,S]): Arbitrary[Map[S,Set[S]]] =
+    Arbitrary(
+      for {
+        link <- arb.arbitrary
+      } yield {
+        for{
+          (k,v) <- link
+          newK <- k.provided
+          newV = v.flatMap(_.provided)
+        } yield
+          newK -> newV
+      }
+    )
 
   given (using
       allI: All[Initiator],

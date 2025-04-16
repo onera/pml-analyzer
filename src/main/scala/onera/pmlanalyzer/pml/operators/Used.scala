@@ -83,7 +83,7 @@ object Used {
         * @return
         *   the set of used elements
         */
-      def used[B]()(using ev: Used[L, B]): Set[B] = ev(self)
+      def used[B](using ev: Used[L, B]): Set[B] = ev(self)
     }
 
     /** Extension method class

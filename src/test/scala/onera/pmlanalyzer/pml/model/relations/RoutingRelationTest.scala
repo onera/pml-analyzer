@@ -17,32 +17,31 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{*, given}
 import onera.pmlanalyzer.pml.model.service.*
+import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
+import onera.pmlanalyzer.pml.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class UseRelationTest
+class RoutingRelationTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
   
-  
-  "UseRelation" should "encode properly use" in {
+  "RoutingRelation" should "encode properly route constraints" in {
+    ArbitraryConfiguration.default
+      .copy(removeUnreachableLink = true)
     forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
-      import p.given
-      import p.*
-      forAll(minSuccessful(10)) { (link: Map[Hardware, Set[Hardware]], use: Map[Initiator, Set[Service]]) =>
+      import p.{*, given}
+      forAll(minSuccessful(5)) { (link: Map[Hardware, Set[Hardware]], use: Map[Initiator, Set[Service]]) =>
         applyAllLinks(link, undo = false)
         applyAllUses(use, undo = false)
-        for {
-          (i, ss) <- use
-          s <- ss
-        } yield {
-          i.targetService should contain(s)
+        forAll(minSuccessful(5)){
+          (routing:Map[(Initiator,Target,Hardware), Hardware]) =>
+            applyAllRoute(routing, undo = false)
         }
         applyAllLinks(link, undo = true)
       }

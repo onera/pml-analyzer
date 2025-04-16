@@ -55,7 +55,7 @@ trait Restrict[L, R] {
   ): (Set[(U, U)], Set[String]) = {
     val reachableEdges = mutable.Set.empty[(U, U)]
     val warnings = mutable.Set.empty[String]
-    for { tgt <- ini.used() } {
+    for { tgt <- ini.used } {
       val (reachableFromOn, warningsFromOn) =
         reachableLinksByIniForTgt(ini, tgt)
       reachableEdges ++= reachableFromOn
@@ -449,7 +449,7 @@ object Restrict {
 
       for {
         ini <- b.hostingInitiators
-        target <- b.used[Service]()
+        target <- b.used[Service]
       } {
         val (reachableEdgesIni, warningsIni) =
           reachableLinksByIniForTgt(ini, target)
