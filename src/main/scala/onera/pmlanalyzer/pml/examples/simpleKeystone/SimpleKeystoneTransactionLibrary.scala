@@ -19,6 +19,7 @@ package onera.pmlanalyzer.pml.examples.simpleKeystone
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.model.configuration.*
 
 import scala.language.postfixOps
 

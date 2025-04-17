@@ -108,8 +108,10 @@ object Used {
         * @return
         *   the set of hosted applications
         */
-      def applications: Set[Application] =
+      def applications: Set[Application] = {
+        import self.*
         Application.allDirect(self.currentOwner)
+      }
 
       /** PML keyword to access to physical transactions used by self
         *

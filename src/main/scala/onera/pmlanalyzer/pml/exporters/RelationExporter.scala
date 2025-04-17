@@ -17,10 +17,14 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.{
+  Scenario,
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.software._
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.operators.*
 
 import java.io.FileWriter
 

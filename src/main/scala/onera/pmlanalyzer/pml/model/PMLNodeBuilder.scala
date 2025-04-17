@@ -29,13 +29,11 @@ import scala.collection.mutable.HashMap as MHashMap
   */
 trait PMLNodeBuilder[T <: PMLNode] {
 
-  private val _memo: MHashMap[Symbol, T] = MHashMap.empty
+  def get(name: Symbol)(using _memo: PMLNodeMap[T]): Option[T] =
+    _memo.map.get(name)
 
-  def get(name: Symbol): Option[T] =
-    _memo.get(name)
-
-  def add(v: T): Unit = {
-    for { l <- _memo.get(v.name) } {
+  def add(v: T)(using _memo: PMLNodeMap[T]): Unit = {
+    for { l <- _memo.map.get(v.name) } {
       println(
         Message.errorMultipleInstantiation(
           s"$l in ${l.sourceFile} at line ${l.lineInFile}",
@@ -43,11 +41,11 @@ trait PMLNodeBuilder[T <: PMLNode] {
         )
       )
     }
-    _memo.addOne((v.name, v))
+    _memo.map.addOne((v.name, v))
   }
 
-  def getOrElseUpdate(name: Symbol, v: => T): T = {
-    for { l <- _memo.get(name) } {
+  def getOrElseUpdate(name: Symbol, v: => T)(using _memo: PMLNodeMap[T]): T = {
+    for { l <- _memo.map.get(name) } {
       println(
         Message.errorMultipleInstantiation(
           s"$l in ${l.sourceFile} at line ${l.lineInFile}",
@@ -55,7 +53,7 @@ trait PMLNodeBuilder[T <: PMLNode] {
         )
       )
     }
-    _memo.getOrElseUpdate(name, v)
+    _memo.map.getOrElseUpdate(name, v)
   }
 
   /** Provide all the object of the current type created for the platform,
@@ -66,7 +64,11 @@ trait PMLNodeBuilder[T <: PMLNode] {
     * @return
     *   set of created objects
     */
-  def all(implicit owner: Owner): Set[T] = {
+  def all(implicit
+      owner: Owner,
+      _memo: PMLNodeMap[T],
+      memoC: PMLNodeMap[Composite]
+  ): Set[T] = {
     allDirect ++ Composite.allDirect.flatMap(c => all(c.currentOwner))
   }
 
@@ -78,9 +80,9 @@ trait PMLNodeBuilder[T <: PMLNode] {
     * @return
     *   set of created objects
     */
-  def allDirect(implicit owner: Owner): Set[T] =
+  def allDirect(implicit owner: Owner, _memo: PMLNodeMap[T]): Set[T] =
     for {
-      v <- _memo.values.toSet
+      v <- _memo.map.values.toSet
       if v.owner == owner
     } yield v
 }

@@ -18,18 +18,21 @@
 package onera.pmlanalyzer.pml.model.utils
 
 final case class ArbitraryConfiguration(
-    maxTargetLoad: Int = 3,
-    maxTargetStore: Int = 3,
-    maxVirtualizerLoad: Int = 3,
-    maxVirtualizerStore: Int = 3,
-    maxSimpleTransporterLoad: Int = 3,
-    maxSimpleTransporterStore: Int = 3,
-    maxInitiatorLoad: Int = 3,
-    maxInitiatorStore: Int = 3,
-    maxInitiatorSetLink: Int = 4,
-    maxTransporterSetLink: Int = 8,
-    maxTargetSetLink: Int = 4,
-    removeUnreachableLink: Boolean = false,
+    maxTargetLoad: Int = 2,
+    maxTargetStore: Int = 2,
+    maxVirtualizerLoad: Int = 2,
+    maxVirtualizerStore: Int = 2,
+    maxSimpleTransporterLoad: Int = 2,
+    maxSimpleTransporterStore: Int = 2,
+    maxInitiatorLoad: Int = 2,
+    maxInitiatorStore: Int = 2,
+    maxComposite: Int = 3,
+    maxInitiatorInContainer: Int = 5,
+    maxTargetInContainer: Int = 5,
+    maxTransporterInContainer: Int = 5,
+    maxApplication: Int = 20,
+    maxLinkPerComponent: Int = 3,
+    removeUnreachableLink: Boolean = true,
     maxRoutingConstraint: Int = 50
 )
 

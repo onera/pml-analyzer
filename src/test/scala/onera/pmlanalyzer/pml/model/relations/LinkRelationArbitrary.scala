@@ -102,32 +102,14 @@ trait LinkRelationArbitrary {
   ): Arbitrary[Map[Hardware, Set[Hardware]]] = Arbitrary(
     if (allI().nonEmpty && allTr().nonEmpty && allTg().nonEmpty)
       for {
-        iSet <- Gen
-          .listOfN(
-            List(conf.maxInitiatorSetLink, allI().size).min,
-            Gen.oneOf(allI())
-          )
-          .map(_.toSet)
-          .suchThat(_.nonEmpty)
-        trSet <- Gen
-          .listOfN(
-            List(conf.maxTransporterSetLink, allTr().size).min,
-            Gen.oneOf(allTr())
-          )
-          .map(_.toSet)
-          .suchThat(_.nonEmpty)
-        tgSet <- Gen
-          .listOfN(
-            List(conf.maxTargetSetLink, allTg().size).min,
-            Gen.oneOf(allTg())
-          )
-          .map(_.toSet)
-          .suchThat(_.nonEmpty)
         map <- Gen.mapOf(
           Gen.zip(
-            Gen.oneOf(trSet ++ iSet),
+            Gen.oneOf(allTr() ++ allI()),
             Gen
-              .atLeastOne(trSet ++ tgSet)
+              .listOfN(
+                List(conf.maxLinkPerComponent, (allTr() ++ allTg()).size).min,
+                Gen.oneOf(allTr() ++ allTg())
+              )
               .map(_.toSet)
           )
         )

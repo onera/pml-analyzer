@@ -215,14 +215,14 @@ object Provided {
       Initiator.all ++ Target.all ++ Virtualizer.all ++ SimpleTransporter.all
     }
 
-    def owner(b: Hardware): Set[L] = Platform.all.collect {
-      case p: L
-          if (Initiator.all(p.currentOwner)
-            ++ Target.all(p.currentOwner)
-            ++ Virtualizer.all(p.currentOwner)
-            ++ SimpleTransporter.all(p.currentOwner)).contains(b) =>
-        p
-    }
+    def owner(b: Hardware): Set[L] =
+      for {
+        p <- Platform.all.collect { case p: L => p }
+        if {
+          import p.*
+          p.hardware.contains(b)
+        }
+      } yield p
   }
 
   /** An implementation of the services provided by platforms

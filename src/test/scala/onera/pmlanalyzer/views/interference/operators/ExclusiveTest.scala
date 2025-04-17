@@ -2,6 +2,7 @@ package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
 import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.model.specification.{

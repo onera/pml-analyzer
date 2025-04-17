@@ -46,5 +46,4 @@ object Load extends BaseServiceBuilder[Load] {
       name: Symbol
   )(using givenInfo: ReflexiveInfo): Load =
     new Load(name, givenInfo)
-
 }

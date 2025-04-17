@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.service
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
@@ -63,7 +63,8 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     */
   def apply()(using
       givenName: Name,
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T]
   ): T = apply(Symbol(givenName.value))
 
   /** A service can be defined by its name
@@ -77,7 +78,7 @@ trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(using givenInfo: ReflexiveInfo): T = {
+  )(using givenInfo: ReflexiveInfo, PMLNodeMap: PMLNodeMap[T]): T = {
     getOrElseUpdate(name, builder(name))
   }
 }

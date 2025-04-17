@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
 import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
@@ -112,7 +112,9 @@ object Composite extends PMLNodeBuilder[Composite] {
     * @param owner
     *   its owner
     */
-  private def addComposite(c: Composite, owner: Owner): Unit = {
+  private def addComposite(c: Composite, owner: Owner)(using
+      pmlNodeMap: PMLNodeMap[Composite]
+  ): Unit = {
     add(c)
   }
 }

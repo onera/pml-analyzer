@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.software
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
@@ -41,7 +41,7 @@ import sourcecode.{File, Line, Name}
   *   the concrete type of built object
   * @group builder
   */
-trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
+trait BaseSoftwareNodeBuilder[T <: Software] extends PMLNodeBuilder[T] {
 
   /** The builder that must be implemented by specific builder
     * @param name
@@ -62,7 +62,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(using givenInfo: ReflexiveInfo): T = {
+  )(using givenInfo: ReflexiveInfo, memo: PMLNodeMap[T]): T = {
     val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
     getOrElseUpdate(formattedName, builder(formattedName))
   }
@@ -79,7 +79,8 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     */
   def apply()(using
       givenName: Name,
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      memo: PMLNodeMap[T]
   ): T =
     apply(Symbol(givenName.value))
 }

@@ -1,6 +1,7 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
@@ -63,6 +64,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
   }
 
   import InterfereTestPlatform.*
+  import InterfereTestPlatform.given
 
   "Two services" should "be able to interfere with each other" taggedAs UnitTests in {
     for {

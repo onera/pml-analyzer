@@ -17,11 +17,12 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.RoutingRelation
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.Message.uselessRoutingConstraintWarning
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Context, Owner}
 import sourcecode.{File, Line}
 
 /** Extension methods
@@ -83,6 +84,7 @@ object Route {
         *   the router are specified
         */
       def useLink(router: Hardware)(using
+          context: Context,
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = false)
@@ -95,6 +97,7 @@ object Route {
         *   the router are specified
         */
       def cannotUseLink(router: Hardware)(using
+          context: Context,
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = true)

@@ -63,19 +63,35 @@ object PlatformArbitrary {
         }
         _ <- {
           import p.given
-          summon[Arbitrary[Set[Application]]].arbitrary
+          Gen.listOfN(
+            conf.maxApplication,
+            summon[Arbitrary[Application]].arbitrary
+          )
         }
         _ <- {
           import p.given
-          summon[Arbitrary[Set[Initiator]]].arbitrary
+          Gen.listOfN(
+            conf.maxInitiatorInContainer,
+            summon[Arbitrary[Initiator]].arbitrary
+          )
         }
         _ <- {
           import p.given
-          summon[Arbitrary[Set[Transporter]]].arbitrary
+          Gen.listOfN(
+            conf.maxTransporterInContainer,
+            summon[Arbitrary[Transporter]].arbitrary
+          )
         }
         _ <- {
           import p.given
-          summon[Arbitrary[Set[Target]]].arbitrary
+          Gen.listOfN(
+            conf.maxTargetInContainer,
+            summon[Arbitrary[Target]].arbitrary
+          )
+        }
+        _ <- {
+          import p.given
+          Gen.listOfN(conf.maxComposite, summon[Arbitrary[Composite]].arbitrary)
         }
       } yield p
     )

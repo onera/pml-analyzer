@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   RoutingRelationArbitrary,
@@ -27,20 +28,24 @@ import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.utils.{
   All,
   ArbitraryConfiguration,
+  Context,
+  Owner,
   ReflexiveInfo
 }
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 
 trait CompositeArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
-  given (using
-      r: ReflexiveInfo
-  ): Arbitrary[Composite] =
+  given (using conf: ArbitraryConfiguration): Arbitrary[Composite] =
     Arbitrary(
       for {
-        id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
+        id <- Gen.identifier.suchThat(s =>
+          Composite
+            .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
+            .isEmpty
+        )
         c = new Composite(Symbol(id))
           with LoadArbitrary
           with StoreArbitrary
@@ -49,19 +54,27 @@ trait CompositeArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
-          with PMLNodeArbitrary
-          with All.Instances {}
+          with PMLNodeArbitrary {}
         _ <- {
           import c.given
-          summon[Arbitrary[Set[Initiator]]].arbitrary
+          Gen.listOfN(
+            conf.maxInitiatorInContainer,
+            summon[Arbitrary[Initiator]].arbitrary
+          )
         }
         _ <- {
           import c.given
-          summon[Arbitrary[Set[Transporter]]].arbitrary
+          Gen.listOfN(
+            conf.maxTransporterInContainer,
+            summon[Arbitrary[Transporter]].arbitrary
+          )
         }
         _ <- {
           import c.given
-          summon[Arbitrary[Set[Target]]].arbitrary
+          Gen.listOfN(
+            conf.maxTargetInContainer,
+            summon[Arbitrary[Target]].arbitrary
+          )
         }
       } yield c
     )

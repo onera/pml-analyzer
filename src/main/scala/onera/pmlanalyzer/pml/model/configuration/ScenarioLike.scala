@@ -15,28 +15,21 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.utils
-import onera.pmlanalyzer.pml.model.PMLNodeMap
-import onera.pmlanalyzer.pml.model.relations.*
+package onera.pmlanalyzer.pml.model.configuration
 
-/** Trait gathering all relation instances
+import onera.pmlanalyzer.pml.model.PMLNode
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.service.*
+import onera.pmlanalyzer.pml.model.software.Application
+
+/** Encode node that are either transactions or scenarios
+ *
+ * @group scenario_class
+ * @param name
+ * the name of the transaction or scenario
  */
-abstract class Context
-    extends LinkRelation.Instances
-    with UseRelation.Instances
-    with ProvideRelation.Instances
-    with AuthorizeRelation.Instances
-    with RoutingRelation.Instances
-    with PMLNodeMap.Instances
-
-object Context {
-
-  final class EmptyContext
-      extends Context
-      with LinkRelation.EmptyInstances
-      with UseRelation.EmptyInstances
-      with ProvideRelation.EmptyInstances
-      with AuthorizeRelation.EmptyInstances
-      with RoutingRelation.EmptyInstances
-      with PMLNodeMap.EmptyInstances
+abstract class ScenarioLike(val name: Symbol, info: ReflexiveInfo)
+    extends PMLNode(info) {
+  val iniTgt: () => Set[(Service, Service)]
+  val sw: () => Set[Application]
 }

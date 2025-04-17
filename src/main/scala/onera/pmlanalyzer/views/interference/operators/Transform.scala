@@ -22,6 +22,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.{
   UserScenarioId,
   UserTransactionId
 }
+import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{

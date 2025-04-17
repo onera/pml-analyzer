@@ -19,6 +19,7 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
   PopulatedPlatform,
   given
@@ -57,6 +58,7 @@ class LinkRelationTest
     import p.given
 
     applyAllLinks(expected, undo = false)
+    p.exportHWAndSWGraph()
     checkLinkRelation(expected)
     checkLinkRelation(linkToServiceMap(expected))
     applyAllLinks(expected, undo = true)

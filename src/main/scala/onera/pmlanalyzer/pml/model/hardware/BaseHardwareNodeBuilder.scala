@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
@@ -98,7 +98,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   )(using
       givenName: Name,
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(Symbol(givenName.value), basics, withDefaultServices)
 
@@ -128,7 +131,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       withDefaultServices: Boolean
   )(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T = {
     val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
     val hwOwner = givenInfo.owner.add(name)
@@ -162,7 +168,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T = {
     apply(name, basics, true)
   }
@@ -184,7 +193,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol
   )(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(name, Set.empty, true)
 
@@ -206,7 +218,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }
