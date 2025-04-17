@@ -26,8 +26,6 @@ import onera.pmlanalyzer.pml.model.relations.{
   CapacityRelation,
   ProvideRelation
 }
-//import onera.pmlanalyzer.pml.model.relations.CapacityRelation
-//import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import sourcecode.{File, Line}
 
 private[operators] trait Capacity[L, R] {
