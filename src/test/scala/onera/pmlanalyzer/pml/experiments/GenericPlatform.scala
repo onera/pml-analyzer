@@ -1,7 +1,13 @@
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Initiator, Platform, SimpleTransporter, Target}
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target
+}
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.*
@@ -79,7 +85,12 @@ class GenericPlatform private (
   val groupCore: Seq[GroupCore] = for {
     i <- 0 until nbGroupCore
   } yield {
-    GroupCore(i + nbGroupDSP, nbClusterCorePerGroup, nbClusterGroupCore, nbCorePerCluster)
+    GroupCore(
+      i + nbGroupDSP,
+      nbClusterCorePerGroup,
+      nbClusterGroupCore,
+      nbCorePerCluster
+    )
   }
 
   object cfg_bus extends Composite("cfg_bus") {
@@ -129,7 +140,8 @@ class GenericPlatform private (
     }
   }
 
-  val ddrs: Seq[DDR] = for { i <- 0 until nbDDRController } yield DDR(i,nbDDRBank)
+  val ddrs: Seq[DDR] =
+    for { i <- 0 until nbDDRController } yield DDR(i, nbDDRBank)
 
   val dma: Initiator = Initiator()
 

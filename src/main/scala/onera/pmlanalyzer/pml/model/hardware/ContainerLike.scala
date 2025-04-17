@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.relations.Relation
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.Owner
 
 import scala.language.implicitConversions
@@ -28,6 +28,6 @@ trait ContainerLike {
   implicit def toSymbol(s: String): Symbol = Symbol(s)
 
   implicit val context: Context
-  
+
   implicit val currentOwner: Owner
 }

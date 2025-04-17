@@ -17,10 +17,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.relations.{LinkRelationArbitrary, RoutingRelationArbitrary, UseRelationArbitrary}
+import onera.pmlanalyzer.pml.model.relations.{
+  LinkRelationArbitrary,
+  RoutingRelationArbitrary,
+  UseRelationArbitrary
+}
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.utils.{
+  All,
+  ArbitraryConfiguration,
+  ReflexiveInfo
+}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 
@@ -28,12 +36,12 @@ trait CompositeArbitrary {
   self: Platform =>
 
   given (using
-         r:ReflexiveInfo
+      r: ReflexiveInfo
   ): Arbitrary[Composite] =
     Arbitrary(
       for {
         id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
-        c = new Composite(Symbol(id))  
+        c = new Composite(Symbol(id))
           with LoadArbitrary
           with StoreArbitrary
           with TargetArbitrary

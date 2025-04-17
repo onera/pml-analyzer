@@ -18,17 +18,17 @@
 package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.hardware.{Composite, SimpleTransporter}
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 
 sealed abstract class Group[+T <: Cluster](
-                                            id: Int,
-                                            nbCluster: Int,
-                                            nbClusterGroup: Int,
-                                            groupInfo: ReflexiveInfo,
-                                            groupContext: Context
-                                          ) extends Composite(Symbol(s"cg$id"), groupInfo, groupContext) {
+    id: Int,
+    nbCluster: Int,
+    nbClusterGroup: Int,
+    groupInfo: ReflexiveInfo,
+    groupContext: Context
+) extends Composite(Symbol(s"cg$id"), groupInfo, groupContext) {
   val clusters: Seq[Seq[T]]
 
   val bus: GroupCrossBar = GroupCrossBar(id, nbCluster, nbClusterGroup)
@@ -52,25 +52,38 @@ sealed abstract class Group[+T <: Cluster](
 }
 
 final class GroupDSP private (
-                               val id: Int,
-                               nbClusterDSPPerGroup: Int,
-                               nbClusterGroupDSP: Int,
-                               nbDSPPerCluster: Int,
-                               groupDSPInfo: ReflexiveInfo,
-                               groupDSPContext: Context
-                             ) extends Group[ClusterDSP](
-  id,
-  nbClusterDSPPerGroup,
-  nbClusterGroupDSP,
-  groupDSPInfo,
-  groupDSPContext
-) {
+    val id: Int,
+    nbClusterDSPPerGroup: Int,
+    nbClusterGroupDSP: Int,
+    nbDSPPerCluster: Int,
+    groupDSPInfo: ReflexiveInfo,
+    groupDSPContext: Context
+) extends Group[ClusterDSP](
+      id,
+      nbClusterDSPPerGroup,
+      nbClusterGroupDSP,
+      groupDSPInfo,
+      groupDSPContext
+    ) {
 
-  def this(ident: Int, nbClusterDSPPerGr:Int, nbClusterGrDSP:Int, nbDSPPerCl:Int, dummy: Int = 0)(using
-                                       givenInfo: ReflexiveInfo,
-                                       givenContext:Context
+  def this(
+      ident: Int,
+      nbClusterDSPPerGr: Int,
+      nbClusterGrDSP: Int,
+      nbDSPPerCl: Int,
+      dummy: Int = 0
+  )(using
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
-    this(ident, nbClusterDSPPerGr, nbClusterGrDSP, nbDSPPerCl, givenInfo, givenContext)
+    this(
+      ident,
+      nbClusterDSPPerGr,
+      nbClusterGrDSP,
+      nbDSPPerCl,
+      givenInfo,
+      givenContext
+    )
   }
 
   val clusters: Seq[Seq[ClusterDSP]] =
@@ -86,25 +99,38 @@ final class GroupDSP private (
 }
 
 final class GroupCore private (
-                                val id: Int,
-                                nbClusterCorePerGroup: Int,
-                                nbClusterGroupCore: Int,
-                                nbCorePerCluster:Int,
-                                groupCoreInfo: ReflexiveInfo,
-                                groupCoreContext: Context
-                              ) extends Group[ClusterCore](
-  id,
-  nbClusterCorePerGroup,
-  nbClusterGroupCore,
-  groupCoreInfo,
-  groupCoreContext
-) {
+    val id: Int,
+    nbClusterCorePerGroup: Int,
+    nbClusterGroupCore: Int,
+    nbCorePerCluster: Int,
+    groupCoreInfo: ReflexiveInfo,
+    groupCoreContext: Context
+) extends Group[ClusterCore](
+      id,
+      nbClusterCorePerGroup,
+      nbClusterGroupCore,
+      groupCoreInfo,
+      groupCoreContext
+    ) {
 
-  def this(ident: Int, nbClusterCorePerGr: Int, nbClusterGrCore:Int, nbCorePerCl:Int,  dummy: Int = 0)(using
-                                       givenInfo: ReflexiveInfo,
-                                       givenContext: Context
+  def this(
+      ident: Int,
+      nbClusterCorePerGr: Int,
+      nbClusterGrCore: Int,
+      nbCorePerCl: Int,
+      dummy: Int = 0
+  )(using
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
-    this(ident, nbClusterCorePerGr, nbClusterGrCore, nbCorePerCl, givenInfo, givenContext)
+    this(
+      ident,
+      nbClusterCorePerGr,
+      nbClusterGrCore,
+      nbCorePerCl,
+      givenInfo,
+      givenContext
+    )
   }
 
   val clusters: Seq[Seq[ClusterCore]] =

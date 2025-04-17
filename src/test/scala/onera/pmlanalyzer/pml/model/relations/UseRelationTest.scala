@@ -32,12 +32,14 @@ class UseRelationTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
-  
-  private def checkUseRelation[K,V](expected:Map[K,Set[V]])(using allK:All[K], used:Used[K,V]): Unit = {
+
+  private def checkUseRelation[K, V](
+      expected: Map[K, Set[V]]
+  )(using allK: All[K], used: Used[K, V]): Unit = {
     for {
       k <- allK()
     } {
-      if(expected.contains(k))
+      if (expected.contains(k))
         used(k) should be(expected(k))
       else
         used(k) should be(empty)
@@ -52,7 +54,7 @@ class UseRelationTest
         applyAllUses(use, undo = false)
         checkUseRelation(use)
         applyAllUses(use, undo = true)
-        checkUseRelation[Initiator,Service](Map.empty)
+        checkUseRelation[Initiator, Service](Map.empty)
       }
     }
   }
@@ -61,11 +63,11 @@ class UseRelationTest
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
       import p.given
       import p.*
-      forAll(minSuccessful(20)) { ( use: Map[Application, Set[Service]]) =>
+      forAll(minSuccessful(20)) { (use: Map[Application, Set[Service]]) =>
         applyAllUses(use, undo = false)
         checkUseRelation(use)
         applyAllUses(use, undo = true)
-        checkUseRelation[Application,Service](Map.empty)
+        checkUseRelation[Application, Service](Map.empty)
       }
     }
   }
@@ -78,7 +80,7 @@ class UseRelationTest
         applyAllUses(use, undo = false)
         checkUseRelation(use)
         applyAllUses(use, undo = true)
-        checkUseRelation[Application,Initiator](Map.empty)
+        checkUseRelation[Application, Initiator](Map.empty)
       }
     }
   }

@@ -47,7 +47,7 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
     * @return
     *   the set of all elements indirectly related to a
     */
-  def closure(a: A): Set[A] = Endomorphism.closure(a,edges)
+  def closure(a: A): Set[A] = Endomorphism.closure(a, edges)
 
   /** Provide the reflexive and transitive inverse closure of a by the
     * endomorphism
@@ -57,13 +57,13 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
     * @return
     *   the set of all elements that indirectly relate to a
     */
-  def inverseClosure(a: A): Set[A] = Endomorphism.closure(a,inverseEdges)
+  def inverseClosure(a: A): Set[A] = Endomorphism.closure(a, inverseEdges)
 }
 
 object Endomorphism {
 
-  def closure[A](from:A, in:Map[A,Set[A]]):Set[A] = {
-    def rec(current:A, visited:Set[A]):Set[A] = in.get(current) match
+  def closure[A](from: A, in: Map[A, Set[A]]): Set[A] = {
+    def rec(current: A, visited: Set[A]): Set[A] = in.get(current) match
       case Some(value) if value.nonEmpty =>
         for {
           next <- value
@@ -71,7 +71,7 @@ object Endomorphism {
           v <- rec(next, visited + current)
         } yield v
       case _ => visited
-    rec(from,Set.empty)
+    rec(from, Set.empty)
   }
 
 }

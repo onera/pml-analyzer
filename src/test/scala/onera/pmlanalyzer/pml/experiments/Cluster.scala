@@ -17,14 +17,20 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, Hardware, Initiator, SimpleTransporter, Target}
-import onera.pmlanalyzer.pml.model.relations.{Context, ProvideRelation}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  Hardware,
+  Initiator,
+  SimpleTransporter,
+  Target
+}
+import onera.pmlanalyzer.pml.model.relations.{ProvideRelation}
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*
 
-sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo, c:Context)
-  extends Composite(n, clusterInfo, c) {
+sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo, c: Context)
+    extends Composite(n, clusterInfo, c) {
   val cores: Seq[Initiator]
   val input_port: SimpleTransporter = SimpleTransporter()
   val output_port: SimpleTransporter = SimpleTransporter()
@@ -42,19 +48,19 @@ sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo, c:Context)
 }
 
 final class ClusterCore private (
-                                  val id: String,
-                                  nbCorePerCluster:Int,
-                                  clusterCoreInfo: ReflexiveInfo,
-                                  clusterContext: Context
-                                ) extends Cluster(Symbol(s"ClC$id"), clusterCoreInfo,clusterContext) {
+    val id: String,
+    nbCorePerCluster: Int,
+    clusterCoreInfo: ReflexiveInfo,
+    clusterContext: Context
+) extends Cluster(Symbol(s"ClC$id"), clusterCoreInfo, clusterContext) {
 
-  def this(ident: String, nbCorePerCl:Int, dummy: Int = 0)(using
-                                                           givenInfo: ReflexiveInfo,
-                                                           givenContext:Context
+  def this(ident: String, nbCorePerCl: Int, dummy: Int = 0)(using
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(ident, nbCorePerCl, givenInfo, givenContext)
   }
-  
+
   val cores: Seq[Initiator] =
     for { i <- 0 until nbCorePerCluster } yield Initiator(s"C$i")
 
@@ -72,15 +78,15 @@ final class ClusterCore private (
 }
 
 final class ClusterDSP private (
-                                 val id: String,
-                                 nbDSPPerCluster: Int,
-                                 clusterDSPInfo: ReflexiveInfo,
-                                 clusterDSPContext: Context
-                               ) extends Cluster(Symbol(s"ClD$id"), clusterDSPInfo, clusterDSPContext) {
+    val id: String,
+    nbDSPPerCluster: Int,
+    clusterDSPInfo: ReflexiveInfo,
+    clusterDSPContext: Context
+) extends Cluster(Symbol(s"ClD$id"), clusterDSPInfo, clusterDSPContext) {
 
   def this(ident: String, nbDSPPerCl: Int, dummy: Int = 0)(using
-                                          givenInfo: ReflexiveInfo,
-                                          givenContext:Context
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(ident, nbDSPPerCl, givenInfo, givenContext)
   }

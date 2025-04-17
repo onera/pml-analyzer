@@ -17,17 +17,25 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, SimpleTransporter, Target}
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.hardware.{
+  Composite,
+  SimpleTransporter,
+  Target
+}
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 
-final class DDR private (val id: Int, nbDDRBank:Int, ddrInfo: ReflexiveInfo, ddrContext:Context)
-  extends Composite(Symbol(s"ddr$id"), ddrInfo, ddrContext) {
+final class DDR private (
+    val id: Int,
+    nbDDRBank: Int,
+    ddrInfo: ReflexiveInfo,
+    ddrContext: Context
+) extends Composite(Symbol(s"ddr$id"), ddrInfo, ddrContext) {
 
-  def this(ident: Int, nbDDRB:Int, dummy: Int = 0)(using
-                                       givenInfo: ReflexiveInfo,
-                                       givenContext: Context
+  def this(ident: Int, nbDDRB: Int, dummy: Int = 0)(using
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(ident, nbDDRB, givenInfo, givenContext)
   }

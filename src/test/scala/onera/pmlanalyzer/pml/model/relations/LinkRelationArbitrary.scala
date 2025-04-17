@@ -78,17 +78,19 @@ trait LinkRelationArbitrary {
         case _ =>
     }
 
-  given [S](using arb:Arbitrary[Map[Hardware,Set[Hardware]]], p: Provided[Hardware,S]): Arbitrary[Map[S,Set[S]]] =
+  given [S](using
+      arb: Arbitrary[Map[Hardware, Set[Hardware]]],
+      p: Provided[Hardware, S]
+  ): Arbitrary[Map[S, Set[S]]] =
     Arbitrary(
       for {
         link <- arb.arbitrary
       } yield {
-        for{
-          (k,v) <- link
+        for {
+          (k, v) <- link
           newK <- k.provided
           newV = v.flatMap(_.provided)
-        } yield
-          newK -> newV
+        } yield newK -> newV
       }
     )
 
@@ -133,8 +135,8 @@ trait LinkRelationArbitrary {
         val r = map
           .transform((k, v) => v - k)
           .filter(_._2.nonEmpty)
-        if(conf.removeUnreachableLink) {
-          removeNonReachableFrom(allI().toSet[Hardware],r)
+        if (conf.removeUnreachableLink) {
+          removeNonReachableFrom(allI().toSet[Hardware], r)
         } else
           r
       }
@@ -145,18 +147,19 @@ trait LinkRelationArbitrary {
 
 object LinkRelationArbitrary {
 
-  def removeNonReachableFrom[A](from: Set[A], in: Map[A, Set[A]]): Map[A, Set[A]] = {
+  def removeNonReachableFrom[A](
+      from: Set[A],
+      in: Map[A, Set[A]]
+  ): Map[A, Set[A]] = {
     val reachableFrom: Set[A] =
       for {
         f <- from
         r <- Endomorphism.closure(f, in)
-      } yield
-        r
+      } yield r
 
     for {
       (k, v) <- in
       if reachableFrom.contains(k)
-    } yield
-      k -> v
+    } yield k -> v
   }
 }

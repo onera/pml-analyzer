@@ -36,8 +36,9 @@ final case class ProvideRelation[L, R] private (iniValues: Map[L, Set[R]])(using
 
 object ProvideRelation {
 
-  given (using c:Instances): ProvideRelation[Hardware, Service] = c.PLProvideService
-  
+  given (using c: Instances): ProvideRelation[Hardware, Service] =
+    c.PLProvideService
+
   trait Instances {
 
     /** [[pml.model.service.Service]] provided by
@@ -48,6 +49,7 @@ object ProvideRelation {
     val PLProvideService: ProvideRelation[Hardware, Service]
 
   }
+
   /** The instances for the provide relations
     */
   trait EmptyInstances extends Instances {

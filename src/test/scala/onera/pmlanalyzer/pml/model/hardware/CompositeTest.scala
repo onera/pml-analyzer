@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
   SimpleTransporter,
   Target
 }
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
@@ -43,12 +43,12 @@ class CompositeTest
     final class Core private (
         val id: Symbol,
         info: ReflexiveInfo,
-        context: Context 
+        context: Context
     ) extends Composite(id, info, context) {
       def this()(using
           givenName: Name,
           givenInfo: ReflexiveInfo,
-                 givenContext:Context
+          givenContext: Context
       ) = {
         this(Symbol(givenName.value), givenInfo, givenContext)
       }
@@ -66,7 +66,7 @@ class CompositeTest
       def this()(using
           givenName: Name,
           givenInfo: ReflexiveInfo,
-                 givenContext:Context
+          givenContext: Context
       ) = {
         this(Symbol(givenName.value), givenInfo, givenContext)
       }
@@ -96,7 +96,7 @@ class CompositeTest
      */
     final class IncorrectCluster private (info: ReflexiveInfo)(using
         givenName: Name,
-                                                               givenContext:Context
+        givenContext: Context
     ) extends Composite(Symbol(givenName.value), info, givenContext) {
 
       def this()(using

@@ -32,9 +32,9 @@ class RoutingRelationTest
     with should.Matchers {
 
   private def checkRoutingRelation(
-                                    p: PopulatedPlatform,
-                                    expected: Map[(Initiator,Target,Hardware), Hardware]
-                                  ): Unit = {
+      p: PopulatedPlatform,
+      expected: Map[(Initiator, Target, Hardware), Hardware]
+  ): Unit = {
     import p.*
     val expectedService = p.toServiceRouting(expected)
     for {
@@ -46,24 +46,28 @@ class RoutingRelationTest
         v should be(empty)
     }
   }
-  
+
   "RoutingRelation" should "encode properly route constraints" in {
     ArbitraryConfiguration.default
       .copy(removeUnreachableLink = true)
     forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
       import p.{*, given}
-      forAll(minSuccessful(5)) { (link: Map[Hardware, Set[Hardware]], use: Map[Initiator, Set[Service]]) =>
-        applyAllLinks(link, undo = false)
-        applyAllUses(use, undo = false)
-        forAll(minSuccessful(5)){
-          (routing:Map[(Initiator,Target,Hardware), Hardware]) =>
-            applyAllRoute(routing, undo = false)
-            checkRoutingRelation(p,routing)
-            applyAllRoute(routing, undo =true)
-            checkRoutingRelation(p,routing)
-        }
-        applyAllUses(use, undo = true)
-        applyAllLinks(link, undo = true)
+      forAll(minSuccessful(5)) {
+        (
+            link: Map[Hardware, Set[Hardware]],
+            use: Map[Initiator, Set[Service]]
+        ) =>
+          applyAllLinks(link, undo = false)
+          applyAllUses(use, undo = false)
+          forAll(minSuccessful(5)) {
+            (routing: Map[(Initiator, Target, Hardware), Hardware]) =>
+              applyAllRoute(routing, undo = false)
+              checkRoutingRelation(p, routing)
+              applyAllRoute(routing, undo = true)
+              checkRoutingRelation(p, routing)
+          }
+          applyAllUses(use, undo = true)
+          applyAllLinks(link, undo = true)
       }
     }
   }

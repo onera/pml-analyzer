@@ -321,9 +321,9 @@ object Restrict {
               )
               .toMap
           case _ =>
-            self.context.ServiceLinkableToService.edges.groupMapReduce(p => Set(p._1))(
-              p => p._2.map(s => Set(s))
-            )(_ ++ _)
+            self.context.ServiceLinkableToService.edges.groupMapReduce(p =>
+              Set(p._1)
+            )(p => p._2.map(s => Set(s)))(_ ++ _)
         }
 
       /** PML keyword to access to the hardware graph of the considered element

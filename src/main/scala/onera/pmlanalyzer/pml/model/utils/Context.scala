@@ -15,23 +15,25 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.relations
+package onera.pmlanalyzer.pml.model.utils
+import onera.pmlanalyzer.pml.model.relations.*
 
 /** Trait gathering all relation instances
  */
 abstract class Context
-  extends LinkRelation.Instances
+    extends LinkRelation.Instances
     with UseRelation.Instances
     with ProvideRelation.Instances
     with AuthorizeRelation.Instances
     with RoutingRelation.Instances
 
 object Context {
-  
-  final class EmptyContext extends Context
-    with LinkRelation.EmptyInstances
-    with UseRelation.EmptyInstances
-    with ProvideRelation.EmptyInstances
-    with AuthorizeRelation.EmptyInstances
-    with RoutingRelation.EmptyInstances
+
+  final class EmptyContext
+      extends Context
+      with LinkRelation.EmptyInstances
+      with UseRelation.EmptyInstances
+      with ProvideRelation.EmptyInstances
+      with AuthorizeRelation.EmptyInstances
+      with RoutingRelation.EmptyInstances
 }

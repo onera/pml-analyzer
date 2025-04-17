@@ -110,10 +110,11 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def remove(a: L, b: R)(using line: Line, file: File): Unit =
     for {
       sb <- _values.get(a)
-      sa <- _inverse.get(b)} {
-        sb -= b
-        sa -= a
-        modifications += Change(a, Some(b), isAdd = false, line, file)
+      sa <- _inverse.get(b)
+    } {
+      sb -= b
+      sa -= a
+      modifications += Change(a, Some(b), isAdd = false, line, file)
     }
 
   /** Remove the elements of the collection b from the relation with a
@@ -172,7 +173,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def inverseEdges: Map[R, Set[L]] = (_inverse.view mapValues {
     _.toSet
   }).toMap
-  
+
   /** Provide the elements a in relation with b
     *
     * @param b

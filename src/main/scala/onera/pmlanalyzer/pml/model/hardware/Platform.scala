@@ -18,13 +18,23 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.*
-import onera.pmlanalyzer.pml.model.relations.{Context, Relation}
+import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.utils.{
+  Context,
+  Message,
+  Owner,
+  ReflexiveInfo
+}
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalScenario,
+  PhysicalScenarioId,
+  PhysicalTransaction,
+  PhysicalTransactionId
+}
 import sourcecode.{Enclosing, File, Line}
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalScenario, PhysicalScenarioId, PhysicalTransaction, PhysicalTransactionId}
 
 import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
@@ -42,13 +52,13 @@ import scala.language.implicitConversions
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
     extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
-      with ContainerLike {
+    with ContainerLike {
 
   implicit val context: Context = Context.EmptyContext()
 
   def this(n: Symbol, dummy: Int = 0)(using
-                                      givenLine: Line,
-                                      givenFile: File
+      givenLine: Line,
+      givenFile: File
   ) = {
     this(n, givenLine, givenFile)
   }

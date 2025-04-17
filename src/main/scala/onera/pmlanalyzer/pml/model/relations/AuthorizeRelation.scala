@@ -34,8 +34,9 @@ final case class AuthorizeRelation[L, R] private (iniValues: Map[L, Set[R]])
 
 object AuthorizeRelation {
 
-  given (using c:Instances): AuthorizeRelation[Application, Service] = c.SWAuthorizeService
-  
+  given (using c: Instances): AuthorizeRelation[Application, Service] =
+    c.SWAuthorizeService
+
   trait Instances {
 
     /** [[pml.model.service.Service]] that can be used by a
@@ -43,10 +44,10 @@ object AuthorizeRelation {
      *
      * @group auth_relation
      */
-    val SWAuthorizeService
-    : AuthorizeRelation[Application, Service]
+    val SWAuthorizeService: AuthorizeRelation[Application, Service]
 
   }
+
   /** The instances for the authorize relation
     */
   trait EmptyInstances extends Instances {
@@ -55,8 +56,8 @@ object AuthorizeRelation {
       * [[pml.model.software.Application]]
       * @group auth_relation
       */
-    final val SWAuthorizeService
-        : AuthorizeRelation[Application, Service] = AuthorizeRelation(Map.empty)
+    final val SWAuthorizeService: AuthorizeRelation[Application, Service] =
+      AuthorizeRelation(Map.empty)
 
   }
 }

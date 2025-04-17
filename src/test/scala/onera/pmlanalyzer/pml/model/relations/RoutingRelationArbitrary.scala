@@ -27,7 +27,9 @@ import org.scalacheck.{Arbitrary, Gen}
 trait RoutingRelationArbitrary {
   self: Platform =>
 
-  def toServiceRouting(m:Map[(Initiator,Target, Hardware), Hardware]): Map[(Initiator, Service, Service), Set[Service]] =
+  def toServiceRouting(
+      m: Map[(Initiator, Target, Hardware), Hardware]
+  ): Map[(Initiator, Service, Service), Set[Service]] =
     (for {
       ((ini, to, on), next) <- m.toSeq
       toL <- to.loads
@@ -41,27 +43,30 @@ trait RoutingRelationArbitrary {
       (ini, newTo, newOn) -> newNext.toSet[Service]
     }).toMap
 
-  def applyAllRoute(m:Map[(Initiator,Target,Hardware),Hardware], undo:Boolean): Unit = {
+  def applyAllRoute(
+      m: Map[(Initiator, Target, Hardware), Hardware],
+      undo: Boolean
+  ): Unit = {
     for {
       ((ini, tgt, on), next) <- m
     } {
-      if(!undo)
+      if (!undo)
         ini targeting tgt useLink on to next
       else {
         for {
           sTgt <- tgt.services
           sOn <- on.services
         }
-          context.InitiatorRouting.remove((ini,sTgt,sOn))
+          context.InitiatorRouting.remove((ini, sTgt, sOn))
       }
     }
   }
 
   given (using
       allI: All[Initiator],
-      used: Used[Initiator,Service],
-      pT: Provided[Target,Service],
-         conf:ArbitraryConfiguration
+      used: Used[Initiator, Service],
+      pT: Provided[Target, Service],
+      conf: ArbitraryConfiguration
   ): Arbitrary[Map[(Initiator, Target, Hardware), Hardware]] =
     Arbitrary(
       {
@@ -72,14 +77,18 @@ trait RoutingRelationArbitrary {
               if context.PLLinkableToPL.edges.contains(i)
               tS <- used(i)
               tH <- tS.targetOwner
-              if context.PLLinkableToPL.edges.contains(tH) || context.PLLinkableToPL.inverseEdges.contains(tH)
+              if context.PLLinkableToPL.edges.contains(
+                tH
+              ) || context.PLLinkableToPL.inverseEdges.contains(tH)
               lH <- Endomorphism.closure(i, context.PLLinkableToPL.edges)
               rH <- context.PLLinkableToPL(lH)
             } yield (i, tH, lH) -> rH
           )
         } yield {
           if (electedValues.size > conf.maxRoutingConstraint)
-            electedValues.drop(electedValues.size - conf.maxRoutingConstraint).toMap
+            electedValues
+              .drop(electedValues.size - conf.maxRoutingConstraint)
+              .toMap
           else
             electedValues.toMap
         }

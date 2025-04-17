@@ -19,7 +19,10 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{PopulatedPlatform, given}
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
+  PopulatedPlatform,
+  given
+}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.pml.operators.Linked
@@ -35,7 +38,7 @@ class LinkRelationTest
 
   private def checkLinkRelation[T](
       expected: Map[T, Set[T]]
-  )(using allT:All[T], l:Linked[T,T]): Unit = {
+  )(using allT: All[T], l: Linked[T, T]): Unit = {
     for {
       t <- allT()
     } {
@@ -47,12 +50,12 @@ class LinkRelationTest
   }
 
   private def checkLinkRelations(
-                                  p: PopulatedPlatform,
-                                  expected: Map[Hardware, Set[Hardware]]
+      p: PopulatedPlatform,
+      expected: Map[Hardware, Set[Hardware]]
   ): Unit = {
     import p.*
     import p.given
-    
+
     applyAllLinks(expected, undo = false)
     checkLinkRelation(expected)
     checkLinkRelation(linkToServiceMap(expected))

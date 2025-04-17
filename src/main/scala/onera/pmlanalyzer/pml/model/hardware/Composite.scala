@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
@@ -33,9 +33,9 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, info: ReflexiveInfo, c:Context)
+abstract class Composite(n: Symbol, info: ReflexiveInfo, c: Context)
     extends Hardware(info)
-      with ContainerLike {
+    with ContainerLike {
 
   implicit val context: Context = c
 
@@ -83,7 +83,7 @@ abstract class Composite(n: Symbol, info: ReflexiveInfo, c:Context)
     */
   def this(compositeName: Symbol, dummy: Int = 0)(using
       givenInfo: ReflexiveInfo,
-                                                  givenC: Context
+      givenC: Context
   ) = {
     this(compositeName, givenInfo, givenC)
   }

@@ -34,13 +34,14 @@ final case class LinkRelation[A] private (iniValues: Map[A, Set[A]])(using
 
 object LinkRelation {
 
-  given (using c:Instances): LinkRelation[Service] = c.ServiceLinkableToService
-  
-  given (using c:Instances): LinkRelation[Hardware] = c.PLLinkableToPL
+  given (using c: Instances): LinkRelation[Service] = c.ServiceLinkableToService
+
+  given (using c: Instances): LinkRelation[Hardware] = c.PLLinkableToPL
 
   /** The instances for the links
     */
   trait Instances {
+
     /** [[pml.model.service.Service]] linked to [[pml.model.service.Service]]
       * @group link_relation
       */
@@ -54,6 +55,7 @@ object LinkRelation {
   }
 
   trait EmptyInstances extends Instances {
+
     /** [[pml.model.service.Service]] linked to [[pml.model.service.Service]]
      *
      * @group link_relation

@@ -36,17 +36,21 @@ final case class RoutingRelation[L, R] private (iniValues: Map[L, Set[R]])(using
 
 object RoutingRelation {
 
-  given (using c:Instances): RoutingRelation[(Initiator, Service, Service), Service] = c.InitiatorRouting
-  
+  given (using
+      c: Instances
+  ): RoutingRelation[(Initiator, Service, Service), Service] =
+    c.InitiatorRouting
+
   trait Instances {
-    
+
     /** Relation gathering routing constraints
      *
      * @group route_relation
      */
     implicit val InitiatorRouting
-    : RoutingRelation[(Initiator, Service, Service), Service]
+        : RoutingRelation[(Initiator, Service, Service), Service]
   }
+
   /** Instances of routing relations
     */
   trait EmptyInstances extends Instances {

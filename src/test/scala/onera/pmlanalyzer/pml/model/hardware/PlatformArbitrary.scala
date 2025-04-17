@@ -19,7 +19,11 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.service.*
-import onera.pmlanalyzer.pml.model.relations.{LinkRelationArbitrary, RoutingRelationArbitrary, UseRelationArbitrary}
+import onera.pmlanalyzer.pml.model.relations.{
+  LinkRelationArbitrary,
+  RoutingRelationArbitrary,
+  UseRelationArbitrary
+}
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}

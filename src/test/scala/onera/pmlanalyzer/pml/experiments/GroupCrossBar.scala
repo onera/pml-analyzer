@@ -18,21 +18,25 @@
 package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.hardware.{Composite, SimpleTransporter}
-import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 
 final class GroupCrossBar private (
-                                    val id: Int,
-                                    nbCluster: Int,
-                                    nbGroup: Int,
-                                    groupCrossBarInfo: ReflexiveInfo,
-                                    groupCrossBarContext:Context
-                                  ) extends Composite(Symbol(s"group_bus$id"), groupCrossBarInfo, groupCrossBarContext) {
+    val id: Int,
+    nbCluster: Int,
+    nbGroup: Int,
+    groupCrossBarInfo: ReflexiveInfo,
+    groupCrossBarContext: Context
+) extends Composite(
+      Symbol(s"group_bus$id"),
+      groupCrossBarInfo,
+      groupCrossBarContext
+    ) {
 
   def this(ident: Int, nbCl: Int, nbGr: Int, dummy: Int = 0)(using
-                                                             givenInfo: ReflexiveInfo,
-                                                             givenContext:Context
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(ident, nbCl, nbGr, givenInfo, givenContext)
   }
