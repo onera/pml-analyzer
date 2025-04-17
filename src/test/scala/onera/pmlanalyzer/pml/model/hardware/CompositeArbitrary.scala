@@ -15,20 +15,31 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.software
+package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.relations.{LinkRelationArbitrary, RoutingRelationArbitrary, UseRelationArbitrary}
+import onera.pmlanalyzer.pml.model.service.*
+import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Platform}
+import sourcecode.{File, Line}
 
-trait ApplicationArbitrary {
-  self: ContainerLike =>
+trait CompositeArbitrary {
+  self: Platform =>
 
-  given Arbitrary[Application] = Arbitrary(
-    for {
-      name <- Gen.identifier.map(x => Symbol(x))
-    } yield Application
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Application(name))
-  )
+  given (using
+         r:ReflexiveInfo
+  ): Arbitrary[Composite] =
+    Arbitrary(
+      for {
+        id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
+        c = new Composite(Symbol(id)) with LoadArbitrary {
+          for {
+            _ <- summon[Arbitrary[Load]].arbitrary
+          }yield {
+
+          }
+        }
+      } yield c
+    )
 }

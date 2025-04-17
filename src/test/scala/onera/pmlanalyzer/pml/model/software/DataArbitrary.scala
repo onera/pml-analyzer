@@ -19,14 +19,14 @@ package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Platform}
 
 trait DataArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
   given Arbitrary[Data] = Arbitrary(
     for {
-      name <- Gen.identifier
+      name <- Gen.identifier.map(x => Symbol(x))
     } yield Data
       .get(PMLNodeBuilder.formatName(name, currentOwner))
       .getOrElse(Data(name))

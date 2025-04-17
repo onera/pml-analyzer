@@ -18,14 +18,14 @@
 package onera.pmlanalyzer.pml.model.service
 
 import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.hardware.{Composite, ContainerLike, Platform}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 trait StoreArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
   given (using r: ReflexiveInfo): Arbitrary[Store] = Arbitrary(
     for {
-      name <- Gen.identifier
+      name <- Gen.identifier.map(x => Symbol(x))
     } yield Store
       .get(name)
       .getOrElse(Store(name))

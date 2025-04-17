@@ -15,20 +15,10 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.software
+package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Platform}
+import onera.pmlanalyzer.pml.model.utils.Owner
 
-trait ApplicationArbitrary {
-  self: ContainerLike =>
-
-  given Arbitrary[Application] = Arbitrary(
-    for {
-      name <- Gen.identifier.map(x => Symbol(x))
-    } yield Application
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Application(name))
-  )
+trait ContainerLike {
+  implicit val currentOwner: Owner
 }

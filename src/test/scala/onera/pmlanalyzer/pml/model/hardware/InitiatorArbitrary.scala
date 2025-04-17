@@ -37,7 +37,7 @@ trait InitiatorArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Initiator] = Arbitrary(
     for {
-      name <- Gen.identifier
+      name <- Gen.identifier.map(x => Symbol(x))
       loads <- Gen.listOfN(conf.maxInitiatorLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxInitiatorStore, genStore.arbitrary)
     } yield Initiator

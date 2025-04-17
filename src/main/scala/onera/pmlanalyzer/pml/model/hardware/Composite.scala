@@ -33,7 +33,7 @@ import sourcecode.{File, Line, Name}
   * @group hierarchical_class
   */
 abstract class Composite(n: Symbol, info: ReflexiveInfo)
-    extends Hardware(info) {
+    extends Hardware(info) with ContainerLike {
 
   val name: Symbol = formatName(n, owner)
 

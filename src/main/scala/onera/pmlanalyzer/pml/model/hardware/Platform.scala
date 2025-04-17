@@ -47,7 +47,8 @@ import scala.language.implicitConversions
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
     extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
-    with Relation.Instances {
+      with ContainerLike
+      with Relation.Instances {
 
   def this(n: Symbol, dummy: Int = 0)(using
       givenLine: Line,

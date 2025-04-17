@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
+import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Hardware, Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 
@@ -27,7 +27,7 @@ trait All[T] {
 
 object All {
   trait Instances {
-    self: Platform =>
+    self: ContainerLike =>
 
     given (using allT:All[Transporter]): All[Hardware] with {
       def apply(): Set[Hardware] =
