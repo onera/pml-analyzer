@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, utils}
 import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   RoutingRelationArbitrary,
@@ -35,47 +35,73 @@ import onera.pmlanalyzer.pml.model.utils.{
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 
-trait CompositeArbitrary {
-  self: ContainerLike =>
+object CompositeArbitrary {
 
-  given (using conf: ArbitraryConfiguration): Arbitrary[Composite] =
+  def generateArb(
+      conf: ArbitraryConfiguration,
+      r: ReflexiveInfo,
+      ctx: Context
+  ): Arbitrary[Composite] =
     Arbitrary(
-      for {
-        id <- Gen.identifier.suchThat(s =>
-          Composite
-            .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
-            .isEmpty
-        )
-        c = new Composite(Symbol(id))
-          with LoadArbitrary
-          with StoreArbitrary
-          with TargetArbitrary
-          with SimpleTransporterArbitrary
-          with InitiatorArbitrary
-          with VirtualizerArbitrary
-          with TransporterArbitrary
-          with PMLNodeArbitrary {}
-        _ <- {
-          import c.given
-          Gen.listOfN(
-            conf.maxInitiatorInContainer,
-            summon[Arbitrary[Initiator]].arbitrary
-          )
+      {
+        implicit val myC: Context = ctx
+        for {
+          id <- Gen.identifier
+            .suchThat(s =>
+              Composite
+                .get(PMLNodeBuilder.formatName(Symbol(s), r.owner))
+                .isEmpty
+            )
+          c = new Composite(Symbol(id), r, ctx)
+            with LoadArbitrary
+            with StoreArbitrary
+            with TargetArbitrary
+            with SimpleTransporterArbitrary
+            with InitiatorArbitrary
+            with VirtualizerArbitrary
+            with TransporterArbitrary
+            with PMLNodeArbitrary {}
+          _ <- {
+            import c.given
+            Gen.listOfN(
+              conf.maxInitiatorInContainer,
+              summon[Arbitrary[Initiator]].arbitrary
+            )
+          }
+          _ <- {
+            import c.given
+            Gen.listOfN(
+              conf.maxTransporterInContainer,
+              summon[Arbitrary[Transporter]].arbitrary
+            )
+          }
+          _ <- {
+            import c.given
+            Gen.listOfN(
+              conf.maxTargetInContainer,
+              summon[Arbitrary[Target]].arbitrary
+            )
+          }
+          _ <- {
+            import c.given
+            if (c.currentOwner.path.size <= conf.maxCompositeLayers)
+              Gen.listOfN(
+                conf.maxCompositePerContainer,
+                generateArb(conf, summon[ReflexiveInfo], ctx).arbitrary
+              )
+            else
+              Gen.someOf(Set.empty)
+          }
+        } yield {
+          c
         }
-        _ <- {
-          import c.given
-          Gen.listOfN(
-            conf.maxTransporterInContainer,
-            summon[Arbitrary[Transporter]].arbitrary
-          )
-        }
-        _ <- {
-          import c.given
-          Gen.listOfN(
-            conf.maxTargetInContainer,
-            summon[Arbitrary[Target]].arbitrary
-          )
-        }
-      } yield c
+      }
     )
+
+  given (using
+      conf: ArbitraryConfiguration,
+      r: ReflexiveInfo,
+      ctx: Context
+  ): Arbitrary[Composite] =
+    generateArb(conf, r, ctx)
 }

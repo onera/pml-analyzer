@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.utils
 
 import sourcecode.{Line, File}
 
-class ReflexiveInfo private (val line: Line, val file: File, val owner: Owner)
+final case class ReflexiveInfo private (line: Line, file: File, owner: Owner)
 
 object ReflexiveInfo {
 

@@ -27,6 +27,7 @@ import onera.pmlanalyzer.pml.model.relations.{
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
+import CompositeArbitrary.given
 
 object PlatformArbitrary {
 
@@ -51,7 +52,6 @@ object PlatformArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
-          with CompositeArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary
@@ -91,7 +91,10 @@ object PlatformArbitrary {
         }
         _ <- {
           import p.given
-          Gen.listOfN(conf.maxComposite, summon[Arbitrary[Composite]].arbitrary)
+          Gen.listOfN(
+            conf.maxCompositePerContainer,
+            summon[Arbitrary[Composite]].arbitrary
+          )
         }
       } yield p
     )
