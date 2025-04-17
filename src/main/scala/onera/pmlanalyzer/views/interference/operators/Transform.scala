@@ -30,7 +30,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransactionId
 }
 
-private[operators] trait Transform[L, R] {
+trait Transform[L, R] {
   def apply(l: L): R
 }
 
