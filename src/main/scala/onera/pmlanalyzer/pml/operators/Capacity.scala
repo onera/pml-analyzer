@@ -17,15 +17,19 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.Hardware
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
-import onera.pmlanalyzer.pml.model.relations.DemandRelation
-import onera.pmlanalyzer.pml.model.relations.CapacityRelation
+import onera.pmlanalyzer.pml.model.relations.{
+  DemandRelation,
+  CapacityRelation,
+  ProvideRelation
+}
 import sourcecode.{File, Line}
 
 private[operators] trait Capacity[L, R] {
-  def apply(l: L, r: R)(using line:Line, file:File): Unit
+  def apply(l: L, r: R)(using line: Line, file: File): Unit
 }
 
 object Capacity {
@@ -35,13 +39,21 @@ object Capacity {
    */
   trait Ops {
     extension [L](l: L) {
-      def hasCapacity[R](r: R)(using d: Capacity[L, R], line:Line, file:File): Unit =
+      def hasCapacity[R](
+          r: R
+      )(using d: Capacity[L, R], line: Line, file: File): Unit =
         d(l, r)
     }
   }
 
-  given[LH <:Hardware, R](using c:Capacity[Service,R]): Capacity[LH,R] with {
-    def apply(l: LH, r: R)(using line:Line, file:File): Unit = ???
+  given [LH <: Hardware, R](using
+      c: Capacity[Service, R],
+      pr: ProvideRelation[LH, Service]
+  ): Capacity[LH, R] with {
+    def apply(l: LH, r: R)(using line: Line, file: File): Unit =
+      for {
+        s <- pr(l)
+      } yield s hasCapacity r
   }
 
   /**
@@ -51,6 +63,6 @@ object Capacity {
   given [CL, CR, L <: CL, R <: CR](using
       dr: CapacityRelation[CL, CR]
   ): Capacity[L, R] with {
-    def apply(l: L, r: R)(using line:Line, file:File): Unit = dr.add(l, r)
+    def apply(l: L, r: R)(using line: Line, file: File): Unit = dr.add(l, r)
   }
 }
