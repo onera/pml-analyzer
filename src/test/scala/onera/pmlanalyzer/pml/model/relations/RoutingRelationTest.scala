@@ -30,6 +30,22 @@ class RoutingRelationTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
+
+  private def checkRoutingRelation(
+                                    p: PopulatedPlatform,
+                                    expected: Map[(Initiator,Target,Hardware), Hardware]
+                                  ): Unit = {
+    import p.*
+    val expectedService = p.toServiceRouting(expected)
+    for {
+      (k, v) <- InitiatorRouting.edges
+    } {
+      if (expectedService.contains(k))
+        v should equal(expectedService(k))
+      else
+        v should be(empty)
+    }
+  }
   
   "RoutingRelation" should "encode properly route constraints" in {
     ArbitraryConfiguration.default
@@ -42,7 +58,11 @@ class RoutingRelationTest
         forAll(minSuccessful(5)){
           (routing:Map[(Initiator,Target,Hardware), Hardware]) =>
             applyAllRoute(routing, undo = false)
+            checkRoutingRelation(p,routing)
+            applyAllRoute(routing, undo =true)
+            checkRoutingRelation(p,routing)
         }
+        applyAllUses(use, undo = true)
         applyAllLinks(link, undo = true)
       }
     }

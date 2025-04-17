@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.pml.operators.Used
 import org.scalacheck.{Arbitrary, Gen}
@@ -27,21 +27,40 @@ import org.scalacheck.{Arbitrary, Gen}
 trait RoutingRelationArbitrary {
   self: Platform =>
 
+  def toServiceRouting(m:Map[(Initiator,Target, Hardware), Hardware]): Map[(Initiator, Service, Service), Set[Service]] =
+    (for {
+      ((ini, to, on), next) <- m.toSeq
+      toL <- to.loads
+      onL <- on.loads
+      nextL = next.loads
+      toS <- to.stores
+      onS <- on.stores
+      nextS = next.stores
+      (newTo, newOn, newNext) <- List((toL, onL, nextL), (toS, onS, nextS))
+    } yield {
+      (ini, newTo, newOn) -> newNext.toSet[Service]
+    }).toMap
+
   def applyAllRoute(m:Map[(Initiator,Target,Hardware),Hardware], undo:Boolean): Unit = {
     for {
       ((ini, tgt, on), next) <- m
     } {
       if(!undo)
         ini targeting tgt useLink on to next
-      else 
-        ???
+      else {
+        for {
+          sTgt <- tgt.services
+          sOn <- on.services
+        }
+          InitiatorRouting.remove((ini,sTgt,sOn))
+      }
     }
   }
 
   given (using
       allI: All[Initiator],
       used: Used[Initiator,Service],
-      pT:Provided[Target,Service],
+      pT: Provided[Target,Service],
          conf:ArbitraryConfiguration
   ): Arbitrary[Map[(Initiator, Target, Hardware), Hardware]] =
     Arbitrary(

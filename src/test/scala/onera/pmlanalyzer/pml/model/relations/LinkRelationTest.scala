@@ -17,12 +17,12 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
-  PopulatedPlatform,
-  given
-}
-import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{PopulatedPlatform, given}
+import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
+import onera.pmlanalyzer.pml.operators.Linked
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -34,30 +34,31 @@ class LinkRelationTest
     with should.Matchers {
 
   private def checkLinkRelation[T](
-      found: LinkRelation[T],
       expected: Map[T, Set[T]]
-  ): Unit = {
+  )(using allT:All[T], l:Linked[T,T]): Unit = {
     for {
-      (k, v) <- found.edges
+      t <- allT()
     } {
-      if (expected.contains(k))
-        v should equal(expected(k))
+      if (expected.contains(t))
+        t.linked should equal(expected(t))
       else
-        v should be(empty)
+        t.linked should be(empty)
     }
   }
 
   private def checkLinkRelations(
-      p: PopulatedPlatform,
-      m: Map[Hardware, Set[Hardware]]
+                                  p: PopulatedPlatform,
+                                  expected: Map[Hardware, Set[Hardware]]
   ): Unit = {
     import p.*
-    applyAllLinks(m, undo = false)
-    checkLinkRelation(PLLinkableToPL, m)
-    checkLinkRelation(ServiceLinkableToService, linkToServiceMap(m))
-    applyAllLinks(m, undo = true)
-    checkLinkRelation(PLLinkableToPL, Map.empty)
-    checkLinkRelation(ServiceLinkableToService, Map.empty)
+    import p.given
+    
+    applyAllLinks(expected, undo = false)
+    checkLinkRelation(expected)
+    checkLinkRelation(linkToServiceMap(expected))
+    applyAllLinks(expected, undo = true)
+    checkLinkRelation[Hardware](Map.empty)
+    checkLinkRelation[Service](Map.empty)
   }
 
   /**

@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.All
 import onera.pmlanalyzer.pml.operators.*
@@ -28,7 +28,7 @@ import scala.annotation.targetName
 trait UseRelationArbitrary {
   self: Platform =>
 
-  def applyAllUses[K,V](use: Map[K, Set[V]], undo:Boolean)(using u: Use[K,V]) : Unit = {
+  def applyAllUses[K,V](use: Map[K, Set[V]], undo:Boolean)(using u: Use[K,V], r:UseRelation[K,V]) : Unit = {
     for {
       (i, ss) <- use
       s <- ss
@@ -36,15 +36,15 @@ trait UseRelationArbitrary {
       if(!undo)
         u(i,s)
       else 
-        ???
+        r.remove(i,s)
     }
   }
 
-  @targetName("given_KV_Use")
-  given [K, V](using
-      allK: All[K],
-      allV: All[V],
-      r: Use[K, V]
+  @targetName("given_direct_use")
+  given [K, V<:Hardware](using
+                         allK: All[K],
+                         allV: All[V],
+                         r: Use[K, V]
   ): Arbitrary[Map[K, Set[V]]] = Arbitrary(
     if (allK().nonEmpty && allV().nonEmpty)
       for {
