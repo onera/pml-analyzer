@@ -25,6 +25,7 @@ import onera.pmlanalyzer.pml.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class RoutingRelationTest
     extends AnyFlatSpec
@@ -47,7 +48,7 @@ class RoutingRelationTest
     }
   }
 
-  "RoutingRelation" should "encode properly route constraints" in {
+  "RoutingRelation" should "encode properly route constraints" taggedAs UnitTests in {
     ArbitraryConfiguration.default
       .copy(removeUnreachableLink = true)
     forAll(minSuccessful(10)) { (p: PopulatedPlatform) =>
