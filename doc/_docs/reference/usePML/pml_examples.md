@@ -38,7 +38,7 @@ To compile and run the SimplePlatform example please enter the following command
  sbt runMain pml.examples.simple.SimpleExport
 ```
 
-Documentation is available [here](example/simpleKeystone/index.md)
+Documentation is available [here](../../example/simpleKeystone/index.md)
 
 #### Analysis
 

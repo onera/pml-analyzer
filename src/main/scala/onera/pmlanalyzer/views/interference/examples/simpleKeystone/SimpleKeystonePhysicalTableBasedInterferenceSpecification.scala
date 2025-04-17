@@ -27,12 +27,12 @@ import onera.pmlanalyzer.views.interference.operators._
   * and r interfere with each other if
   *
   *   - they are provided by the same owner except for
-  * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.TeraNet.periph_bus]],
-  * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.axi_bus]],
-  * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.MemorySubsystem.msmc]]
+  * [[onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform.TeraNet.periph_bus]],
+  * [[onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform.axi_bus]],
+  * [[onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform.MemorySubsystem.msmc]]
   *   - they are provided by the
-  *     [[pml.examples.simpleKeystone.SimpleKeystonePlatform.dma]] and
-  *     [[pml.examples.simpleKeystone.SimpleKeystonePlatform.dma_reg]]
+  *     [[onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform.dma]] and
+  *     [[onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform.dma_reg]]
   *     {{{
   *  for {
   *   l <- services

@@ -15,19 +15,6 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
-import org.scalacheck.{Arbitrary, Gen}
-
-trait SmartTest {
-  self: Platform with LoadTest with StoreTest =>
-
-  implicit val genSmart: Arbitrary[Initiator] = Arbitrary(
-    for {
-      name <- Gen.identifier
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Initiator(name, (loads ++ stores).toSet)
-  )
-}
+abstract class BaseEnumeration(val id: Int, val name: String)

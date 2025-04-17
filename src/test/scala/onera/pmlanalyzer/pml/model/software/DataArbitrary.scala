@@ -15,15 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.service
+package onera.pmlanalyzer.pml.model.software
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 
-trait ArtificialServiceTest {
+trait DataArbitrary {
   self: Platform =>
 
-  val genArtificialService: Arbitrary[ArtificialService] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield ArtificialService(name))
+  given Arbitrary[Data] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield Data
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Data(name))
+  )
 }

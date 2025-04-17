@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
@@ -30,7 +31,7 @@ import scala.language.postfixOps
 
 class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
-  MySys.fullName should "contain the expected semantics distribution" in {
+  MySys.fullName should "contain the expected semantics distribution" taggedAs FastTests in {
     val semanticsDistribution =
       MySys.getSemanticsSize(ignoreExistingFile = true)
     semanticsDistribution(2) should be(40)
@@ -41,6 +42,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
   private val expectedResultsDirectoryPath = "mySys"
 
   it should "provide the verified interference and free" in {
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
     val diff =
       Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
     if (diff.exists(_.nonEmpty)) {
@@ -48,7 +53,11 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     }
   }
 
-  it should "provide a consistent graph and semantics reduction" in {
+  it should "provide a consistent graph and semantics reduction" taggedAs FastTests in {
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
     MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(
       BigDecimal(37) / 17
     )

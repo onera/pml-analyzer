@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability
 
 package object operators
-    extends IsFiniteOps
+    extends IsFinite.Ops
     with IsMergeableOps
     with IsShadowOrderingOps
-    with IsCriticityOrderingOps
+    with IsCriticityOrdering.Ops

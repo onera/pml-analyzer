@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.pml.model.service
 
 import onera.pmlanalyzer.pml.model.PMLNode
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.{Enclosing, File, Line}
 
 /** Base class for the load and store services provided by all physical
@@ -28,6 +29,6 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group service_class
   */
-abstract class Service private[service] (line: Line, file: File)(using
+abstract class Service private[service] (info: ReflexiveInfo)(using
     enclosing: Enclosing
-) extends PMLNode(line, file)
+) extends PMLNode(info)

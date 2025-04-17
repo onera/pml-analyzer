@@ -17,16 +17,18 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.operators._
-import org.scalacheck.Gen
+import onera.pmlanalyzer.pml.operators.*
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import scala.reflect.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class PlatformTest
     extends AnyFlatSpec
@@ -36,16 +38,17 @@ class PlatformTest
   override implicit val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = 200)
 
-  object PlatformFixture
-      extends Platform(Symbol("fixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with SmartTest
+  object PlatformTestFixture
+      extends Platform(Symbol("PlatformTestFixture"))
+      with ApplicationArbitrary
+      with LoadArbitrary
+      with StoreArbitrary
+      with TargetArbitrary
+      with SimpleTransporterArbitrary
+      with InitiatorArbitrary
 
-  import PlatformFixture.*
+  import PlatformTestFixture.*
+  import PlatformTestFixture.given
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,
@@ -55,22 +58,24 @@ class PlatformTest
     if (loads.nonEmpty)
       x.loads should be(loads.toSet)
     else
-      x.loads should be(Set(Load(Symbol(s"${x}_load"))))
+      x.loads.map(_.name) should be(Set(Symbol(s"${x}_load")))
     if (stores.nonEmpty)
       x.stores should be(stores.toSet)
     else
-      x.stores should be(Set(Store(Symbol(s"${x}_store"))))
+      x.stores.map(_.name) should be(Set(Symbol(s"${x}_store")))
   }
 
-  "A platform" should "contains all applications" in {
+  "A platform" should "contains all applications" taggedAs UnitTests in {
     forAll { (x: Application) =>
       Application.all should contain(x)
     }
   }
 
-  it should "retrieve composite properly" in {
+  it should "retrieve composite properly" taggedAs UnitTests in {
     forAll("name") { (name: Symbol) =>
-      whenever(Composite.all.forall(_.name != name)) {
+      whenever(
+        Composite.get(Composite.formatName(name, currentOwner)).isEmpty
+      ) {
         val CompositeTest = new Composite(name) {}
         // redundant ownership test but enforce object initialization
         CompositeTest.owner should be(currentOwner)
@@ -79,14 +84,14 @@ class PlatformTest
     }
   }
 
-  it should "retrieve smart services properly" in {
+  it should "retrieve smart services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Initiator.all.forall(
-              _.name != Initiator.formatName(name, currentOwner)
-            )
+            Initiator.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val smart = Initiator(name, (loads ++ stores).toSet)
             testBasics(smart, loads, stores)
@@ -96,12 +101,14 @@ class PlatformTest
     }
   }
 
-  it should "retrieve target services properly" in {
+  it should "retrieve target services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Target.all.forall(_.name != Target.formatName(name, currentOwner))
+            Target.get(PMLNodeBuilder.formatName(name, currentOwner)).isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val target = Target(name, (loads ++ stores).toSet)
             testBasics(target, loads, stores)
@@ -111,14 +118,16 @@ class PlatformTest
     }
   }
 
-  it should "retrieve simple transporter services properly" in {
+  it should "retrieve simple transporter services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            SimpleTransporter.all.forall(
-              _.name != SimpleTransporter.formatName(name, currentOwner)
-            )
+            SimpleTransporter
+              .get(PMLNodeBuilder.formatName(name, currentOwner))
+              .isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val transporter = SimpleTransporter(name, (loads ++ stores).toSet)
             testBasics(transporter, loads, stores)
@@ -128,14 +137,16 @@ class PlatformTest
     }
   }
 
-  it should "retrieve virtualizer services properly" in {
+  it should "retrieve virtualizer services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
           whenever(
-            Virtualizer.all.forall(
-              _.name != Virtualizer.formatName(name, currentOwner)
-            )
+            Virtualizer
+              .get(PMLNodeBuilder.formatName(name, currentOwner))
+              .isEmpty
+              && stores.nonEmpty
+              && loads.nonEmpty
           ) {
             val virtualizer = Virtualizer(name, (loads ++ stores).toSet)
             testBasics(virtualizer, loads, stores)
@@ -145,7 +156,7 @@ class PlatformTest
     }
   }
 
-  it should "encode links and unlink properly" in {
+  it should "encode links and unlink properly" taggedAs UnitTests in {
     forAll(
       (Gen.oneOf(Initiator.all), "smart"),
       (Gen.oneOf(Target.all), "target"),
@@ -154,14 +165,26 @@ class PlatformTest
       {
         smart link transporter
         transporter link target
-        for (ss <- smart.stores)
-          assert(transporter.stores.subsetOf(ss.linked))
-        for (ss <- smart.loads)
-          assert(transporter.loads.subsetOf(ss.linked))
-        for (ss <- transporter.stores)
-          assert(target.stores.subsetOf(ss.linked))
-        for (ss <- transporter.loads)
-          assert(target.loads.subsetOf(ss.linked))
+        for {
+          ss <- smart.stores
+          ts <- transporter.stores
+        }
+          ss.linked should contain(ts)
+        for {
+          sl <- smart.loads
+          tl <- transporter.loads
+        }
+          sl.linked should contain(tl)
+        for {
+          trs <- transporter.stores
+          ts <- target.stores
+        }
+          trs.linked should contain(ts)
+        for {
+          trl <- transporter.loads
+          tl <- target.loads
+        }
+          trl.linked should contain(tl)
         smart unlink transporter
         for (ss <- smart.stores)
           ss.linked.intersect(transporter.stores) should be(empty)
@@ -176,7 +199,7 @@ class PlatformTest
     }
   }
 
-  it should "encode deactivation properly" in {
+  it should "encode deactivation properly" taggedAs UnitTests in {
     forAll(
       (Gen.oneOf(Initiator.all), "smart"),
       (Gen.oneOf(Target.all), "target"),

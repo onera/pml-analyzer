@@ -25,10 +25,10 @@ import scala.language.postfixOps
 /** Definition and allocation of software and data to hardware for simple
   * Keystone. Declaring the application app1
   * {{{val app1: Application = Application()}}} Allocating app1 on
-  * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.ARM0]]
+  * [[MyProcPlatform.ARM0]]
   * {{{app1 hostedBy ARM0.core}}} Declaring the data input_d
   * {{{val input_d: Data = Data()}}} Allocating app1 on
-  * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.MemorySubsystem.sram]]
+  * [[MyProcPlatform.MemorySubsystem.sram]]
   * {{{input_d hostedBy MemorySubsystem.sram}}}
   * @see
   *   [[pml.operators.Use.Ops]] for hostedBy operator definition
@@ -47,36 +47,36 @@ trait MySysSoftwareAllocation {
   val app1: Application = Application()
 
   /** At each period [[app21]] reads the last Ethernet message from
-    * [[SimpleKeystonePlatform.MemorySubsystem.sram]], makes some input
+    * [[MyProcPlatform.MemorySubsystem.sram]], makes some input
     * treatments on the message, and makes it available for [[app1]] in
-    * [[SimpleKeystonePlatform.ddr]].
+    * [[MyProcPlatform.ddr]].
     * @group application
     */
   val app21: Application = Application()
 
   /** At each period [[app22]] reads output data of [[app1]] from
-    * [[SimpleKeystonePlatform.ddr]]. It transforms them into
-    * [[SimpleKeystonePlatform.spi]] frames. The frames are then store in
-    * [[SimpleKeystonePlatform.MemorySubsystem.sram]]. And finally [[app22]]
+    * [[MyProcPlatform.ddr]]. It transforms them into
+    * [[MyProcPlatform.spi]] frames. The frames are then store in
+    * [[MyProcPlatform.MemorySubsystem.sram]]. And finally [[app22]]
     * wakes up [[app3]] by writing the address of the
-    * [[SimpleKeystonePlatform.spi]] frames into
-    * [[SimpleKeystonePlatform.dma_reg]].
+    * [[MyProcPlatform.spi]] frames into
+    * [[MyProcPlatform.dma_reg]].
     * @group application
     */
   val app22: Application = Application()
 
-  /** [[app3]] is a microcode running on [[SimpleKeystonePlatform.dma]]. When
-    * woke up, [[app3]] reads the [[SimpleKeystonePlatform.spi]] frame from
-    * [[SimpleKeystonePlatform.MemorySubsystem.sram]] and transfers it to
-    * [[SimpleKeystonePlatform.spi]]
+  /** [[app3]] is a microcode running on [[MyProcPlatform.dma]]. When
+    * woke up, [[app3]] reads the [[MyProcPlatform.spi]] frame from
+    * [[MyProcPlatform.MemorySubsystem.sram]] and transfers it to
+    * [[MyProcPlatform.spi]]
     * @group application
     */
   val app3: Application = Application()
 
   /** [[app4]] is an asynchronous microcode running on the
-    * [[SimpleKeystonePlatform.eth]] component. Each time an
-    * [[SimpleKeystonePlatform.eth]] frame arrives, it transfers the payload of
-    * the frame to [[SimpleKeystonePlatform.MemorySubsystem.sram]].
+    * [[MyProcPlatform.eth]] component. Each time an
+    * [[MyProcPlatform.eth]] frame arrives, it transfers the payload of
+    * the frame to [[MyProcPlatform.MemorySubsystem.sram]].
     * @group application
     */
   val app4: Application = Application()
@@ -85,13 +85,13 @@ trait MySysSoftwareAllocation {
    * Data declaration
    * ----------------------------------------------------------- */
 
-  /** Data written by [[SimpleKeystonePlatform.eth]] in
-    * [[SimpleKeystonePlatform.MemorySubsystem.sram]] and read by [[app21]]
+  /** Data written by [[MyProcPlatform.eth]] in
+    * [[MyProcPlatform.MemorySubsystem.sram]] and read by [[app21]]
     * @group data
     */
   val ethernet_frame: Data = Data()
 
-  /** Data written by [[app21]] in [[SimpleKeystonePlatform.ddr]] and read by
+  /** Data written by [[app21]] in [[MyProcPlatform.ddr]] and read by
     * [[app1]]
     * @group data
     */
@@ -102,26 +102,26 @@ trait MySysSoftwareAllocation {
     */
   val interrupt_code: Data = Data()
 
-  /** Data written by [[app1]] in [[SimpleKeystonePlatform.ddr]] and read by
+  /** Data written by [[app1]] in [[MyProcPlatform.ddr]] and read by
     * [[app22]]
     * @group data
     */
   val output_app1: Data = Data()
 
   /** Data written by [[app22]] in
-    * [[SimpleKeystonePlatform.MemorySubsystem.sram]] and read by
-    * [[SimpleKeystonePlatform.dma]]
+    * [[MyProcPlatform.MemorySubsystem.sram]] and read by
+    * [[MyProcPlatform.dma]]
     * @group data
     */
   val spi_frame: Data = Data()
 
-  /** Register value written by [[app21]] in [[SimpleKeystonePlatform.dma_reg]]
+  /** Register value written by [[app21]] in [[MyProcPlatform.dma_reg]]
     * @group data
     */
   val dma_reg_value: Data = Data()
 
-  /** [[SimpleKeystonePlatform.spi]] frame put by [[SimpleKeystonePlatform.dma]]
-    * on the [[SimpleKeystonePlatform.spi]] port
+  /** [[MyProcPlatform.spi]] frame put by [[MyProcPlatform.dma]]
+    * on the [[MyProcPlatform.spi]] port
     * @group data
     */
   val output_spi_frame: Data = Data()

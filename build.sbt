@@ -1,3 +1,5 @@
+import sbt.Tests
+
 //Definition of the managed dependencies
 val sourceCode = "com.lihaoyi" %% "sourcecode" % "0.3.0"
 val scalaz = "org.scalaz" %% "scalaz-core" % "7.3.7"
@@ -92,7 +94,7 @@ lazy val docSetting =
     "doc",
     "-doc-root-content",
     "doc/_assets/text/rootContent.txt",
-    "-skip-by-regex:pml.expertises,views.dependability.*,pml.examples,views.interference.examples,pml.model.relations,views.interference.model.relations",
+    "-skip-by-regex:onera.pmlanalyzer.views.dependability.*",
     "-project-logo",
     "doc/_assets/images/phylog_logo.gif"
   )
@@ -105,6 +107,10 @@ lazy val assemblySettings = Seq(
     case x =>
       (ThisBuild / assemblyMergeStrategy).value(x)
   }
+)
+
+lazy val testSettings = Seq(
+  Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-n", "UnitTests", "-n", "FastTests")
 )
 
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
@@ -158,7 +164,7 @@ lazy val commonSettings = Seq(
     parallel
   ),
   docSetting
-) ++ dockerSettings ++ assemblySettings
+) ++ dockerSettings ++ assemblySettings ++ testSettings
 
 // The service project is the main project containing all the sources for
 // PML modelling and analysis
@@ -166,6 +172,9 @@ lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(commonSettings: _*)
   .settings(name := "pml_analyzer")
+  .settings(
+    addCommandAlias("testPerf", "; set Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, \"-n\", \"PerfTests\", \"-l\", \"UnitTests\", \"-l\", \"FastTests\") ; test")
+  )
 
 // Fork a new JVM on every sbt run task
 // Fixes an issue with the classloader complaining that the Monosat library is

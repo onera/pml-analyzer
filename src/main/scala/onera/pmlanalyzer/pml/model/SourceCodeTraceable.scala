@@ -17,9 +17,12 @@
 
 package onera.pmlanalyzer.pml.model
 
+import onera.pmlanalyzer.pml.model.utils.Owner
 import sourcecode.{File, Line}
 
 trait SourceCodeTraceable {
+
+  val owner: Owner
 
   /**
    * Line in source code where node has been instantiated

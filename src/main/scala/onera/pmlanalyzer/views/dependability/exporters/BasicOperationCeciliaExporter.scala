@@ -435,10 +435,10 @@ trait BasicOperationCeciliaExporter {
 
   final case class WorstSchedulerTopHelper(size: Int) {
     val sonDirection: List[Flow] = (1 to size)
-      .map(i => Flow(Symbol(s"sonDirection$i"), typeModel[Direction.Value], In))
+      .map(i => Flow(Symbol(s"sonDirection$i"), typeModel[Direction], In))
       .toList
     val fireOrders: List[Flow] = (1 to size)
-      .map(i => Flow(Symbol(s"sonFire$i"), typeModel[Fire.Value], Out))
+      .map(i => Flow(Symbol(s"sonFire$i"), typeModel[Fire], Out))
       .toList
     private val fireOrdersAssertions = fireOrders
       .zip(sonDirection)
@@ -455,7 +455,7 @@ trait BasicOperationCeciliaExporter {
     val model: ComponentModel = ComponentModel(
       Symbol(s"worstScheduler$size"),
       SubFamilyFolder(
-        typeModel[Fire.Value].name,
+        typeModel[Fire].name,
         PhylogFolder.phylogComponentFolder
       ),
       GenericImage.maxBlue,

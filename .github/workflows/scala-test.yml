@@ -53,7 +53,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: 'monosat'
-          args: '-DJAVA=ON'
+          args: '-DJAVA=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5'
 
       # If cache miss compile monosat
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
@@ -75,5 +75,5 @@ jobs:
       - name: Run tests
         run: sbt test
 
-      - name: Perform an interference analysis
+      - name: Perform an interference analysis on Simple Keystone
         run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"

@@ -15,19 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
-import org.scalacheck.{Arbitrary, Gen}
+import sourcecode.{Line, File}
 
-trait SimpleTransporterTest {
-  self: Platform with LoadTest with StoreTest =>
+class ReflexiveInfo private (val line: Line, val file: File, val owner: Owner)
 
-  implicit val genSimpleTransporter: Arbitrary[SimpleTransporter] = Arbitrary(
-    for {
-      name <- Gen.identifier
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield SimpleTransporter(name, (loads ++ stores).toSet)
-  )
+object ReflexiveInfo {
+
+  def apply(l: Line, f: File, o: Owner) = new ReflexiveInfo(l, f, o)
+
+  given (using
+      givenLine: Line,
+      givenFile: File,
+      givenOwner: Owner
+  ): ReflexiveInfo =
+    ReflexiveInfo(givenLine, givenFile, givenOwner)
 }

@@ -18,16 +18,18 @@
 package onera.pmlanalyzer.views.interference.model.specification
 
 import onera.pmlanalyzer.pml.model.instances.DbusC2D2B8.DbusC2D2B8
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import InterferenceTestExtension.FastTests
 
 class DbusC2D2B8InterferenceSpecificationTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
 
-  DbusC2D2B8.fullName should "contain the expected numbers of transactions considered for the interference calculus" in {
+  DbusC2D2B8.fullName should "contain the expected numbers of transactions considered for the interference calculus" taggedAs FastTests in {
     DbusC2D2B8.purifiedTransactions.size should be(36)
     DbusC2D2B8.purifiedScenarios.size should be(34)
   }

@@ -20,8 +20,9 @@ package onera.pmlanalyzer.pml.model.configuration
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.operators._
-import onera.pmlanalyzer.pml.exporters._
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.exporters.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -37,12 +38,12 @@ class ConfigurationTest
     */
   object ConfigurationFixture
       extends Platform(Symbol("fixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with SmartTest {
+      with ApplicationArbitrary
+      with LoadArbitrary
+      with StoreArbitrary
+      with TargetArbitrary
+      with SimpleTransporterArbitrary
+      with InitiatorArbitrary {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()
@@ -120,7 +121,7 @@ class ConfigurationTest
   ConfigurationFixture.exportRestrictedHWAndSWGraph()
   ConfigurationFixture.exportHWAndSWGraph()
 
-  "A configured platform" should "encode the used relation properly" in {
+  "A configured platform" should "encode the used relation properly" taggedAs UnitTests in {
 
     appSmart1.targetLoads should be(mem1.loads)
     appSmart1.targetStores should be(empty)
@@ -141,7 +142,7 @@ class ConfigurationTest
     )
   }
 
-  it should "encode the routing relation properly" in {
+  it should "encode the routing relation properly" taggedAs UnitTests in {
     for (st <- smart1.cache.stores; on <- pamu.stores) {
       InitiatorRouting.get((dma1, st, on)) should be(defined)
       InitiatorRouting((dma1, st, on)) should be(bus.stores)
@@ -152,7 +153,7 @@ class ConfigurationTest
     }
   }
 
-  it should "derive the used transaction properly" in {
+  it should "derive the used transaction properly" taggedAs UnitTests in {
     transactionsBySW(appSmart1).size should be(1)
     mem1.loads should contain(
       transactionsByName(transactionsBySW(appSmart1).head).last
@@ -163,9 +164,9 @@ class ConfigurationTest
     transactionsBySW(dmaDescriptor).size should be(3)
   }
 
-  it should "detect cyclic service paths" in {}
+  it should "detect cyclic service paths" taggedAs UnitTests in {}
 
-  it should "detect multiple routes" in {
+  it should "detect multiple routes" taggedAs UnitTests in {
     for {
       a <- ConfigurationFixture.applications
       transactions <- transactionsBySW.get(a)

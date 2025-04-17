@@ -1,19 +1,20 @@
-/*******************************************************************************
- * Copyright (c)  2023. ONERA
- * This file is part of PML Analyzer
- *
- * PML Analyzer is free software ;
- * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation ;
- * either version 2 of  the License, or (at your option) any later version.
- *
- * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with this program ;
- *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
- ******************************************************************************/
+/** *****************************************************************************
+  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
+  *
+  * PML Analyzer is free software ; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as published by the
+  * Free Software Foundation ; either version 2 of the License, or (at your
+  * option) any later version.
+  *
+  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
+  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
+  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+  * for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program ; if not, write to the Free Software Foundation,
+  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
 
 package onera.pmlanalyzer.pml.exporters
 
@@ -261,7 +262,7 @@ object PMLNodeGraphExporter {
       3 -> "\"#D4A0EB\"",
       4 -> "\"#769296\"",
       5 -> "\"#606B42\""
-    )
+    ).withDefaultValue("white")
 
     final case class DOTElement(name: String, color: String) extends Element {
       override def toString: String =
@@ -270,10 +271,9 @@ object PMLNodeGraphExporter {
 
     final case class DOTCluster(
         name: String,
+        level: Int,
         subElements: Set[DOTCluster | DOTElement]
     ) extends Element {
-
-      private val depth: Int = name.count(_ == '_')
 
       def contains(element: DOTCluster | DOTElement): Boolean =
         subElements.contains(element) || subElements.exists {
@@ -288,7 +288,7 @@ object PMLNodeGraphExporter {
            |\tlabel = "$name"
            |\tlabeljust=l
            |\tstyle = filled
-           |\tcolor = ${colorMap(depth % colorMap.size)}
+           |\tcolor = ${colorMap(level % colorMap.size)}
            |${subElements
             .filter(filter)
             .toSeq
@@ -561,7 +561,7 @@ object PMLNodeGraphExporter {
                   h <- c.hardware
                   e <- getElement(h)
                 } yield e
-              DOTCluster(x.name.name, elements)
+              DOTCluster(x.name.name, c.owner.path.size, elements)
           }
         }
       )
@@ -740,19 +740,26 @@ object PMLNodeGraphExporter {
           if elements.exists(e => getContainers(e).contains(c))
         } yield c
 
+      val containerMap =
+        (for {
+          e <- elements
+        } yield e -> getContainers(e)).toMap
+
+      val allContainers =
+        containerMap.values.flatten.toSet[DOTCluster | DOTElement]
+
       val primaryElements =
         for {
-          e <- elements
-          if getContainers(e).isEmpty
+          (e, c) <- containerMap
+          if c.isEmpty
         } yield e
 
       for {
         c <- clusters.toSeq.distinct.sortBy(_.name)
       }
-        writer.write(
-          s" ${c.printOnlySubComponents(elements.contains)}"
-            .replace(s"${platform.fullName}_", "")
-        )
+        writer.write(s" ${c.printOnlySubComponents(e =>
+            elements.contains(e) || allContainers.contains(e)
+          )}".replace(s"${platform.fullName}_", ""))
 
       for {
         e <- primaryElements.toSeq.distinct.sortBy(_.name)

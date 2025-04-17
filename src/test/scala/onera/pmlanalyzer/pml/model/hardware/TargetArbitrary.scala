@@ -17,17 +17,33 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.service.{LoadTest, StoreTest}
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.service.{
+  Load,
+  LoadArbitrary,
+  Store,
+  StoreArbitrary
+}
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import org.scalacheck.{Arbitrary, Gen}
 
-trait VirtualizerTest {
-  self: Platform with LoadTest with StoreTest =>
+trait TargetArbitrary {
+  self: Platform =>
 
-  implicit val genVirtualizer: Arbitrary[Virtualizer] = Arbitrary(
+  val maxTargetLoad: Int = 3
+  val maxTargetStore: Int = 3
+
+  given (using
+      genLoad: Arbitrary[Load],
+      genStore: Arbitrary[Store],
+      r: ReflexiveInfo
+  ): Arbitrary[Target] = Arbitrary(
     for {
       name <- Gen.identifier
-      loads <- Gen.listOfN(3, genLoad.arbitrary).suchThat(_.nonEmpty)
-      stores <- Gen.listOfN(3, genStore.arbitrary).suchThat(_.nonEmpty)
-    } yield Virtualizer(name, (loads ++ stores).toSet)
+      loads <- Gen.listOfN(maxTargetLoad, genLoad.arbitrary)
+      stores <- Gen.listOfN(maxTargetStore, genStore.arbitrary)
+    } yield Target
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Target(name, (loads ++ stores).toSet))
   )
 }

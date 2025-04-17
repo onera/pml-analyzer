@@ -106,7 +106,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       val writeBanks: Seq[Transaction] =
         for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
           Transaction(
-            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}st",
             application write bank
           )
         }

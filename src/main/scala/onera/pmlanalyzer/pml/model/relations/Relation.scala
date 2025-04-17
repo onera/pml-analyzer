@@ -19,6 +19,7 @@ package onera.pmlanalyzer.pml.model.relations
 
 import onera.pmlanalyzer.pml.model.SourceCodeTraceable
 import onera.pmlanalyzer.pml.model.relations.Relation.Change
+import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
 import scala.collection.mutable
@@ -107,7 +108,11 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def remove(a: L, b: R)(using line: Line, file: File): Unit =
     for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
       sb -= b
+      if (sb.isEmpty)
+        _values.remove(a)
       sa -= a
+      if (sa.isEmpty)
+        _inverse.remove(b)
       modifications += Change(a, Some(b), isAdd = false, line, file)
     }
 
@@ -183,8 +188,7 @@ object Relation {
       isAdd: Boolean,
       line: Line,
       file: File
-  )(using name: Name)
-      extends SourceCodeTraceable {
+  )(using name: Name) {
 
     /**
      * Line in source code where node has been instantiated

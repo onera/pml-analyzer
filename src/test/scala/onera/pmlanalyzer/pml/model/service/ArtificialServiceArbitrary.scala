@@ -19,12 +19,16 @@ package onera.pmlanalyzer.pml.model.service
 
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 
-trait LoadTest {
+trait ArtificialServiceArbitrary {
   self: Platform =>
 
-  implicit val genLoad: Arbitrary[Load] = Arbitrary(for {
-    name <- Gen.identifier
-  } yield Load(name))
-
+  given (using r: ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield ArtificialService
+      .get(name)
+      .getOrElse(ArtificialService(name))
+  )
 }

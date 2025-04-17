@@ -15,21 +15,32 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.dependability.model
+package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.views.dependability.operators.IsFinite
-
-enum Fire(i: Int, name: String) extends BaseEnumeration(i, name) {
-  case Apply extends Fire(3, "apply")
-  case Wait extends Fire(2, "wait")
-  case No extends Fire(1, "no")
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.service.{
+  Load,
+  LoadArbitrary,
+  Store,
+  StoreArbitrary
 }
-object Fire {
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import org.scalacheck.{Arbitrary, Gen}
 
-  implicit val isFinite: IsFinite[Fire] = new IsFinite[Fire] {
-    val none: Fire = No
-    def allWithNone: Seq[Fire] = Fire.values.toSeq
-    def name(x: Fire): Symbol = Symbol(x.toString)
-  }
+trait InitiatorArbitrary {
+  self: Platform =>
 
+  given (using
+      genLoad: Arbitrary[Load],
+      genStore: Arbitrary[Store],
+      r: ReflexiveInfo
+  ): Arbitrary[Initiator] = Arbitrary(
+    for {
+      name <- Gen.identifier
+      loads <- Gen.listOfN(3, genLoad.arbitrary)
+      stores <- Gen.listOfN(3, genStore.arbitrary)
+    } yield Initiator
+      .get(PMLNodeBuilder.formatName(name, currentOwner))
+      .getOrElse(Initiator(name, (loads ++ stores).toSet))
+  )
 }

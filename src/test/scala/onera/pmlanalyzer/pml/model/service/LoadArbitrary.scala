@@ -15,17 +15,21 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.software
+package onera.pmlanalyzer.pml.model.service
 
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 
-trait DataTest {
+trait LoadArbitrary {
   self: Platform =>
 
-  implicit val genData: Arbitrary[Data] = Arbitrary(
+  given (using r: ReflexiveInfo): Arbitrary[Load] = Arbitrary(
     for {
       name <- Gen.identifier
-    } yield Data(name)
+    } yield Load
+      .get(name)
+      .getOrElse(Load(name))
   )
+
 }

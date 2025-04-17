@@ -15,23 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package onera.pmlanalyzer.pml.model.service
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+trait StoreArbitrary {
+  self: Platform =>
 
-class TransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  "A transaction library" should "detect physical transaction with multiple names" in {}
-
-  it should "detect the physical transaction without names" in {}
-
-  it should "detect impossible user transaction" in {}
-
-  it should "encode properly the relation between user and physical transactions" in {}
+  given (using r: ReflexiveInfo): Arbitrary[Store] = Arbitrary(
+    for {
+      name <- Gen.identifier
+    } yield Store
+      .get(name)
+      .getOrElse(Store(name))
+  )
 
 }

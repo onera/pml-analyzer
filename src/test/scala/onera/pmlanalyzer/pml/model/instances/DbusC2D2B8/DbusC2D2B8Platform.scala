@@ -27,11 +27,11 @@ class DbusC2D2B8Platform(name: Symbol) extends Platform(name) {
     this(Symbol(implicitName.value))
   }
 
-  object rosace extends Composite {
+  object rosace extends Composite("rosace") {
 
-    object cg0 extends Composite {
+    object cg0 extends Composite("cg0") {
 
-      object cl0 extends Composite {
+      object cl0 extends Composite("cl0") {
 
         val C0: Initiator = Initiator()
 
@@ -73,9 +73,9 @@ class DbusC2D2B8Platform(name: Symbol) extends Platform(name) {
       cl0.output_port link output_port
     }
 
-    object dg0 extends Composite {
+    object dg0 extends Composite("dg0") {
 
-      object cl0 extends Composite {
+      object cl0 extends Composite("cl0") {
 
         val C0: Initiator = Initiator()
 
@@ -113,7 +113,7 @@ class DbusC2D2B8Platform(name: Symbol) extends Platform(name) {
       cl0.output_port link output_port
     }
 
-    object ddr extends Composite {
+    object ddr extends Composite("ddr") {
 
       val BK0: Target = Target()
 
@@ -154,7 +154,7 @@ class DbusC2D2B8Platform(name: Symbol) extends Platform(name) {
       input_port link ddr_ctrl
     }
 
-    object cfg_bus extends Composite {
+    object cfg_bus extends Composite("cfg_bus") {
 
       val bus: SimpleTransporter = SimpleTransporter()
 

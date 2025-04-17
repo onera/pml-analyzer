@@ -67,7 +67,7 @@ class SimpleKeystonePlatform(name: Symbol) extends Platform(name) {
   /** Composite modelling the Teranet
     * @group composite
     */
-  object TeraNet extends Composite {
+  object TeraNet extends Composite("TeraNet") {
 
     /** Transporter modelling the peripheral interconnect
       * @group transporter
@@ -85,7 +85,7 @@ class SimpleKeystonePlatform(name: Symbol) extends Platform(name) {
   /** Composite modelling memory subsystem
     * @group composite
     */
-  object MemorySubsystem extends Composite {
+  object MemorySubsystem extends Composite("MemorySubsystem") {
 
     /** Transporter modelling the MSMC controller
       * @group transporter

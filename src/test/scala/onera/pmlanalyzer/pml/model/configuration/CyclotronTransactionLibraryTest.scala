@@ -18,26 +18,17 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.instances.Cyclotron.CyclotronInstances
-import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
-import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  InterferenceSpecification,
-  TableBasedInterferenceSpecification
-}
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 
-import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
-  "Cyclotron instances" should "contain exactly one transaction" in {
+  "Cyclotron instances" should "contain exactly one transaction" taggedAs FastTests in {
     for { p <- CyclotronInstances.all } {
       p.transactionByUserName.size should be(1)
       p.scenarioByUserName.size should be(1)
@@ -47,7 +38,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.transactionByUserName
-        trPhysicalPath <- p.tr.used.toPhysical
+        trPhysicalPath <- p.usedTr.toPhysical
       } {
         name should be(p.tr.userName)
         path should be(trPhysicalPath)
@@ -55,7 +46,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.scenarioByUserName
-        trPhysicalPath <- p.tr.used.toPhysical
+        trPhysicalPath <- p.usedTr.toPhysical
       } {
         name should not be (p.tr.userName)
         path should be(Set(trPhysicalPath))
