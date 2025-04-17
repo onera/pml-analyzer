@@ -193,7 +193,7 @@ object IDPExporter {
       writer.write("/* Provider of used services */\n")
       writer.write(
         (services.flatMap { s =>
-          PLProvideService.inverse(s) map { owner =>
+          context.PLProvideService.inverse(s) map { owner =>
             s"${s.name.name} -> ${owner.name.name}"
           }
         } ++

@@ -92,9 +92,9 @@ object RelationExporter {
           "Initiator, TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          ((ini, target, router), next) <- platform.InitiatorRouting.edges
+          ((ini, target, router), next) <- context.InitiatorRouting.edges
           n <- next
-          c <- platform.InitiatorRouting.getModificationsFor(
+          c <- context.InitiatorRouting.getModificationsFor(
             (ini, target, router),
             n
           )
@@ -115,9 +115,9 @@ object RelationExporter {
         writer.write("Software, Initiator(s), SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
-            (sw, initiators) <- platform.SWUseInitiator.edges
+            (sw, initiators) <- context.SWUseInitiator.edges
             ini <- initiators
-            c <- platform.SWUseInitiator.getModificationsFor(sw, ini)
+            c <- context.SWUseInitiator.getModificationsFor(sw, ini)
           } yield {
             s"$sw, $ini, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -137,7 +137,7 @@ object RelationExporter {
           for {
             d <- Data.all
             t <- d.hostingTargets
-            c <- platform.DataUseTarget.getModificationsFor(d, t)
+            c <- context.DataUseTarget.getModificationsFor(d, t)
           } yield {
             s"$d, $t, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -157,9 +157,9 @@ object RelationExporter {
         )
         val toWrite =
           for {
-            (sw, services) <- platform.SWUseService.edges
+            (sw, services) <- context.SWUseService.edges
             s <- services
-            c <- platform.SWUseService.getModificationsFor(sw, s)
+            c <- context.SWUseService.getModificationsFor(sw, s)
           } yield {
             s"$sw, $s, ${c.sourceFile}, ${c.lineInFile}\n"
           }

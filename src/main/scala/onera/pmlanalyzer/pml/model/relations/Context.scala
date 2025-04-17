@@ -15,33 +15,23 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{
-  Load,
-  LoadArbitrary,
-  Store,
-  StoreArbitrary
-}
-import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
-import org.scalacheck.{Arbitrary, Gen}
+/** Trait gathering all relation instances
+ */
+abstract class Context
+  extends LinkRelation.Instances
+    with UseRelation.Instances
+    with ProvideRelation.Instances
+    with AuthorizeRelation.Instances
+    with RoutingRelation.Instances
 
-trait SimpleTransporterArbitrary {
-  self: ContainerLike =>
-
-  given (using
-      genLoad: Arbitrary[Load],
-      genStore: Arbitrary[Store],
-      r: ReflexiveInfo,
-      conf: ArbitraryConfiguration
-  ): Arbitrary[SimpleTransporter] = Arbitrary(
-    for {
-      name <- Gen.identifier.map(x => Symbol(x))
-      loads <- Gen.listOfN(conf.maxSimpleTransporterLoad, genLoad.arbitrary)
-      stores <- Gen.listOfN(conf.maxSimpleTransporterStore, genStore.arbitrary)
-    } yield SimpleTransporter
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(SimpleTransporter(name, (loads ++ stores).toSet))
-  )
+object Context {
+  
+  final class EmptyContext extends Context
+    with LinkRelation.EmptyInstances
+    with UseRelation.EmptyInstances
+    with ProvideRelation.EmptyInstances
+    with AuthorizeRelation.EmptyInstances
+    with RoutingRelation.EmptyInstances
 }

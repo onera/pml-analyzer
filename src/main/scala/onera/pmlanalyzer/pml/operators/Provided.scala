@@ -228,10 +228,10 @@ object Provided {
   /** An implementation of the services provided by platforms
     */
   given [T <: Platform: Typeable]: Provided[T, Service] with {
-    def apply(a: T): Set[Service] = a.PLProvideService.targetSet
+    def apply(a: T): Set[Service] = a.context.PLProvideService.targetSet
 
     def owner(b: Service): Set[T] = Platform.all.collect {
-      case p: T if p.PLProvideService.targetSet.contains(b) => p
+      case p: T if p.context.PLProvideService.targetSet.contains(b) => p
     }
   }
 

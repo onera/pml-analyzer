@@ -144,12 +144,12 @@ class ConfigurationTest
 
   it should "encode the routing relation properly" taggedAs UnitTests in {
     for (st <- smart1.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) should be(defined)
-      InitiatorRouting((dma1, st, on)) should be(bus.stores)
+      context.InitiatorRouting.get((dma1, st, on)) should be(defined)
+      context.InitiatorRouting((dma1, st, on)) should be(bus.stores)
     }
     for (st <- smart2.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) should be(defined)
-      InitiatorRouting((dma1, st, on)) should be(smart2.cache.stores)
+      context.InitiatorRouting.get((dma1, st, on)) should be(defined)
+      context.InitiatorRouting((dma1, st, on)) should be(smart2.cache.stores)
     }
   }
 

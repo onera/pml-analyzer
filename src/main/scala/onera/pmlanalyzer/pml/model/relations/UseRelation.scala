@@ -37,9 +37,45 @@ final case class UseRelation[L, R] private (iniValues: Map[L, Set[R]])(using
 
 object UseRelation {
 
+  given (using c:Instances): UseRelation[Initiator, Service] = c.InitiatorUseService
+
+  given (using c:Instances): UseRelation[Application, Initiator] = c.SWUseInitiator
+
+  given (using c:Instances): UseRelation[Application, Service] = c.SWUseService
+
+  given (using c:Instances): UseRelation[Data, Target] = c.DataUseTarget
+  
+  trait Instances {
+
+    /** [[pml.model.service.Service]] directly used by
+     * [[pml.model.hardware.Initiator]]
+     *
+     * @group use_relation
+     */
+    implicit val InitiatorUseService: UseRelation[Initiator, Service]
+
+    /** [[pml.model.software.Application]] hosted on
+     * [[pml.model.hardware.Initiator]]
+     *
+     * @group use_relation
+     */
+    implicit val SWUseInitiator: UseRelation[Application, Initiator]
+
+    /** [[pml.model.service.Service]] used by [[pml.model.software.Application]]
+     *
+     * @group use_relation
+     */
+    implicit val SWUseService: UseRelation[Application, Service] 
+    /** [[pml.model.software.Data]] hosted on [[pml.model.hardware.Target]]
+     *
+     * @group use_relation
+     */
+    implicit val DataUseTarget: UseRelation[Data, Target]
+  }
+  
   /** The instances for the use relations
     */
-  trait Instances {
+  trait EmptyInstances extends Instances {
 
     /** [[pml.model.service.Service]] directly used by
       * [[pml.model.hardware.Initiator]]

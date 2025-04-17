@@ -47,6 +47,7 @@ object PlatformArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
+          with CompositeArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary

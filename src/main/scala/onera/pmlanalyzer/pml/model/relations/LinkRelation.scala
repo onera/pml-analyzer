@@ -34,23 +34,40 @@ final case class LinkRelation[A] private (iniValues: Map[A, Set[A]])(using
 
 object LinkRelation {
 
+  given (using c:Instances): LinkRelation[Service] = c.ServiceLinkableToService
+  
+  given (using c:Instances): LinkRelation[Hardware] = c.PLLinkableToPL
+
   /** The instances for the links
     */
   trait Instances {
-
     /** [[pml.model.service.Service]] linked to [[pml.model.service.Service]]
       * @group link_relation
       */
-    final implicit val ServiceLinkableToService: LinkRelation[Service] =
-      LinkRelation(Map.empty)
+    val ServiceLinkableToService: LinkRelation[Service]
 
     /** [[pml.model.hardware.Hardware]] linked to
       * [[pml.model.hardware.Hardware]]
       * @group link_relation
       */
-    final implicit val PLLinkableToPL: LinkRelation[Hardware] = LinkRelation(
+    val PLLinkableToPL: LinkRelation[Hardware]
+  }
+
+  trait EmptyInstances extends Instances {
+    /** [[pml.model.service.Service]] linked to [[pml.model.service.Service]]
+     *
+     * @group link_relation
+     */
+    final val ServiceLinkableToService: LinkRelation[Service] =
+      LinkRelation(Map.empty)
+
+    /** [[pml.model.hardware.Hardware]] linked to
+     * [[pml.model.hardware.Hardware]]
+     *
+     * @group link_relation
+     */
+    final val PLLinkableToPL: LinkRelation[Hardware] = LinkRelation(
       Map.empty
     )
-
   }
 }

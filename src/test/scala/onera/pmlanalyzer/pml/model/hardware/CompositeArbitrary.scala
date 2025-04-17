@@ -33,12 +33,27 @@ trait CompositeArbitrary {
     Arbitrary(
       for {
         id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
-        c = new Composite(Symbol(id)) with LoadArbitrary {
-          for {
-            _ <- summon[Arbitrary[Load]].arbitrary
-          }yield {
-
-          }
+        c = new Composite(Symbol(id))  
+          with LoadArbitrary
+          with StoreArbitrary
+          with TargetArbitrary
+          with SimpleTransporterArbitrary
+          with InitiatorArbitrary
+          with VirtualizerArbitrary
+          with TransporterArbitrary
+          with PMLNodeArbitrary
+          with All.Instances {}
+        _ <- {
+          import c.given
+          summon[Arbitrary[Set[Initiator]]].arbitrary
+        }
+        _ <- {
+          import c.given
+          summon[Arbitrary[Set[Transporter]]].arbitrary
+        }
+        _ <- {
+          import c.given
+          summon[Arbitrary[Set[Target]]].arbitrary
         }
       } yield c
     )

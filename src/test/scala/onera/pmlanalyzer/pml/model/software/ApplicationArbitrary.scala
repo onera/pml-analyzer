@@ -22,7 +22,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Platform}
 
 trait ApplicationArbitrary {
-  self: ContainerLike =>
+  self: Platform =>
 
   given Arbitrary[Application] = Arbitrary(
     for {

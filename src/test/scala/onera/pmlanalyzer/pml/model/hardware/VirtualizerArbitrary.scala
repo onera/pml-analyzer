@@ -28,7 +28,7 @@ import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait VirtualizerArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
   given (using
       genLoad: Arbitrary[Load],
@@ -37,7 +37,7 @@ trait VirtualizerArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Virtualizer] = Arbitrary(
     for {
-      name <- Gen.identifier
+      name <- Gen.identifier.map(x => Symbol(x))
       loads <- Gen.listOfN(conf.maxVirtualizerLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxVirtualizerStore, genStore.arbitrary)
     } yield Virtualizer

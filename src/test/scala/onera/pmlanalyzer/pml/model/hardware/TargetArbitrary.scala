@@ -28,7 +28,7 @@ import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait TargetArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
   given (using
       genLoad: Arbitrary[Load],
@@ -37,7 +37,7 @@ trait TargetArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Target] = Arbitrary(
     for {
-      name <- Gen.identifier
+      name <- Gen.identifier.map(x => Symbol(x))
       loads <- Gen.listOfN(conf.maxTargetLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxTargetStore, genStore.arbitrary)
     } yield Target

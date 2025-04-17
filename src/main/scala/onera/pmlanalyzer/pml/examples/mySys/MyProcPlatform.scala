@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.relations.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
@@ -132,16 +133,16 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
    * @param armName the name of the ARMCore instance of this class
    * @param armInfo structure containing source code traceability information
    */
-  final class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
-      extends Composite(armName, armInfo) {
+  final class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo, context:Context)
+      extends Composite(armName, armInfo, context) {
 
     /** Enable to provide the name implicitly
      *
      * @param givenName the name of the composite derived by sourcecode package
      * @param givenInfo structure containing source code traceability information derived by sourcecode package
      */
-    def this()(implicit givenName: Name, givenInfo: ReflexiveInfo) = {
-      this(givenName.value, givenInfo)
+    def this()(implicit givenName: Name, givenInfo: ReflexiveInfo, givenContext:Context) = {
+      this(givenName.value, givenInfo, givenContext)
     }
 
     /** Initiator modelling an ARM Core

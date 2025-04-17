@@ -15,33 +15,32 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.service.{
-  Load,
-  LoadArbitrary,
-  Store,
-  StoreArbitrary
-}
-import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
-import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.hardware.{Composite, SimpleTransporter, Target}
+import onera.pmlanalyzer.pml.model.relations.Context
+import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.operators.*
 
-trait SimpleTransporterArbitrary {
-  self: ContainerLike =>
+final class DDR private (val id: Int, nbDDRBank:Int, ddrInfo: ReflexiveInfo, ddrContext:Context)
+  extends Composite(Symbol(s"ddr$id"), ddrInfo, ddrContext) {
 
-  given (using
-      genLoad: Arbitrary[Load],
-      genStore: Arbitrary[Store],
-      r: ReflexiveInfo,
-      conf: ArbitraryConfiguration
-  ): Arbitrary[SimpleTransporter] = Arbitrary(
-    for {
-      name <- Gen.identifier.map(x => Symbol(x))
-      loads <- Gen.listOfN(conf.maxSimpleTransporterLoad, genLoad.arbitrary)
-      stores <- Gen.listOfN(conf.maxSimpleTransporterStore, genStore.arbitrary)
-    } yield SimpleTransporter
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(SimpleTransporter(name, (loads ++ stores).toSet))
-  )
+  def this(ident: Int, nbDDRB:Int, dummy: Int = 0)(using
+                                       givenInfo: ReflexiveInfo,
+                                       givenContext: Context
+  ) = {
+    this(ident, nbDDRB, givenInfo, givenContext)
+  }
+
+  val banks: Seq[Target] =
+    for { i <- 0 until nbDDRBank } yield Target(s"BK$i")
+
+  val ddr_ctrl: SimpleTransporter = SimpleTransporter()
+
+  val input_port: SimpleTransporter = SimpleTransporter()
+
+  for { bank <- banks }
+    ddr_ctrl link bank
+
+  input_port link ddr_ctrl
 }

@@ -819,7 +819,7 @@ object PMLNodeGraphExporter {
 
       val hwLinkAssociations =
         for {
-          (k, v) <- platform.PLLinkableToPL.edges
+          (k, v) <- context.PLLinkableToPL.edges
           x <- v
           as <- getAssociation(k, x, "")
         } yield as
@@ -832,7 +832,7 @@ object PMLNodeGraphExporter {
 
       val serviceAssociations =
         for {
-          (k, v) <- platform.ServiceLinkableToService.edges
+          (k, v) <- context.ServiceLinkableToService.edges
           x <- v
           as <- getAssociation(k, x, "")
         } yield as

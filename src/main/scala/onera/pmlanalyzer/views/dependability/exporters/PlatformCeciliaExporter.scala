@@ -153,13 +153,13 @@ trait PlatformCeciliaExporter {
           val ini = x.initiators.filter { _.name == i.name }
           val s =
             x.applications.filter(_.hostingInitiators.intersect(ini).nonEmpty)
-          val tgt = PLProvideService.domain.collect {
+          val tgt = x.context.PLProvideService.domain.collect {
             case t2: PMLTarget if t.name == t2.name => t2
           }
           s.exists(pmlS =>
             tgt.exists(t =>
               t.services.exists(b => {
-                SWAuthorizeService(pmlS).contains(b)
+                x.context.SWAuthorizeService(pmlS).contains(b)
               })
             )
           )
@@ -256,7 +256,7 @@ trait PlatformCeciliaExporter {
             }.toList
           case _ => println("should not be reachable...")
         }
-        x.SWUseInitiator._inverse.foreach { p =>
+        x.context.SWUseInitiator._inverse.foreach { p =>
           {
             val t = initiators(p._1)
             val sw: List[Software[FM]] = p._2.map(software).toList

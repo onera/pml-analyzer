@@ -295,7 +295,7 @@ object Restrict {
         self match {
           case spec: InterferenceSpecification =>
             val services = self.services
-            val initialGraph = self.ServiceLinkableToService.edges
+            val initialGraph = self.context.ServiceLinkableToService.edges
             val exclusiveServices = services
               .map(s =>
                 s -> services.filter(s2 => spec.finalInterfereWith(s, s2))
@@ -321,7 +321,7 @@ object Restrict {
               )
               .toMap
           case _ =>
-            self.ServiceLinkableToService.edges.groupMapReduce(p => Set(p._1))(
+            self.context.ServiceLinkableToService.edges.groupMapReduce(p => Set(p._1))(
               p => p._2.map(s => Set(s))
             )(_ ++ _)
         }

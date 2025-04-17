@@ -28,7 +28,7 @@ import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait InitiatorArbitrary {
-  self: Platform =>
+  self: ContainerLike =>
 
   given (using
       genLoad: Arbitrary[Load],

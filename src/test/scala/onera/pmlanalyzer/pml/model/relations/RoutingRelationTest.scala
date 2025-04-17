@@ -38,7 +38,7 @@ class RoutingRelationTest
     import p.*
     val expectedService = p.toServiceRouting(expected)
     for {
-      (k, v) <- InitiatorRouting.edges
+      (k, v) <- context.InitiatorRouting.edges
     } {
       if (expectedService.contains(k))
         v should equal(expectedService(k))

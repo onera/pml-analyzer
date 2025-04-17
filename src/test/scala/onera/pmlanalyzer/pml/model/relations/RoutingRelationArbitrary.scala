@@ -52,7 +52,7 @@ trait RoutingRelationArbitrary {
           sTgt <- tgt.services
           sOn <- on.services
         }
-          InitiatorRouting.remove((ini,sTgt,sOn))
+          context.InitiatorRouting.remove((ini,sTgt,sOn))
       }
     }
   }
@@ -69,12 +69,12 @@ trait RoutingRelationArbitrary {
           electedValues <- Gen.someOf(
             for {
               i <- allI()
-              if PLLinkableToPL.edges.contains(i)
+              if context.PLLinkableToPL.edges.contains(i)
               tS <- used(i)
               tH <- tS.targetOwner
-              if PLLinkableToPL.edges.contains(tH) || PLLinkableToPL.inverseEdges.contains(tH)
-              lH <- Endomorphism.closure(i, PLLinkableToPL.edges)
-              rH <- PLLinkableToPL(lH)
+              if context.PLLinkableToPL.edges.contains(tH) || context.PLLinkableToPL.inverseEdges.contains(tH)
+              lH <- Endomorphism.closure(i, context.PLLinkableToPL.edges)
+              rH <- context.PLLinkableToPL(lH)
             } yield (i, tH, lH) -> rH
           )
         } yield {

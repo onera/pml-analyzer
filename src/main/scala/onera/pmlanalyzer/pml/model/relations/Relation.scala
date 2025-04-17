@@ -227,13 +227,4 @@ object Relation {
         if (isAdd) "adding" else "removing"
       } $changeString ${if (isAdd) "to" else "from"} ${name.value}"
   }
-
-  /** Trait gathering all relation instances
-    */
-  trait Instances
-      extends LinkRelation.Instances
-      with UseRelation.Instances
-      with ProvideRelation.Instances
-      with AuthorizeRelation.Instances
-      with RoutingRelation.Instances
 }
