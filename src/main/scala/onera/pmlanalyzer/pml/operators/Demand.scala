@@ -30,6 +30,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 import onera.pmlanalyzer.pml.model.relations.DemandRelation
 import onera.pmlanalyzer.pml.model.relations.CapacityRelation
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
+import onera.pmlanalyzer.views.interference.operators.Transform
 import sourcecode.{File, Line}
 
 private[operators] trait Demand[L, R] {
@@ -52,22 +53,30 @@ object Demand {
   }
 
   given [LUT <: UserTransactionId, R](using
-      c: Capacity[PhysicalTransactionId, R]
-  ): Capacity[LUT, R] with {
-    def apply(l: LUT, r: R)(using line: Line, file: File): Unit = ???
+      d: Demand[PhysicalTransactionId, R],
+      transform: Transform[UserTransactionId, Option[PhysicalTransactionId]]
+  ): Demand[LUT, R] with {
+    def apply(l: LUT, r: R)(using line: Line, file: File): Unit =
+      transform(l) match {
+        case Some(x) => x hasDemand r
+        case None    =>
+      }
   }
 
   given [LUS <: UserScenarioId, R](using
-      c: Capacity[PhysicalTransactionId, R]
-  ): Capacity[LUS, R] with {
-    def apply(l: LUS, r: R)(using line: Line, file: File): Unit = ???
+      d: Demand[PhysicalTransactionId, R],
+      transform: Transform[UserScenarioId, Set[PhysicalTransactionId]]
+  ): Demand[LUS, R] with {
+    def apply(l: LUS, r: R)(using line: Line, file: File): Unit =
+      for {
+        x <- transform(l)
+      } yield x hasDemand r
   }
 
   given [LPS <: PhysicalScenarioId, R](using
-      c: Capacity[PhysicalTransactionId, R],
       ps: Map[PhysicalScenarioId, Set[PhysicalTransactionId]],
-      dr: DemandRelation[PhysicalTransactionId, R]
-  ): Capacity[LPS, R] with {
+      d: Demand[PhysicalTransactionId, R]
+  ): Demand[LPS, R] with {
     def apply(l: LPS, r: R)(using line: Line, file: File): Unit =
       for {
         t <- ps(l)
