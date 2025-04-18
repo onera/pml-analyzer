@@ -61,32 +61,36 @@ object CompositeArbitrary {
             with VirtualizerArbitrary
             with TransporterArbitrary
             with PMLNodeArbitrary {}
+          maxInitiatorInContainer <- Gen.choose(1, conf.maxInitiatorInContainer)
           _ <- {
             import c.given
             Gen.listOfN(
-              conf.maxInitiatorInContainer,
+              maxInitiatorInContainer,
               summon[Arbitrary[Initiator]].arbitrary
             )
           }
+          maxTransporterInContainer <- Gen.choose(1, conf.maxTransporterInContainer)
           _ <- {
             import c.given
             Gen.listOfN(
-              conf.maxTransporterInContainer,
+              maxTransporterInContainer,
               summon[Arbitrary[Transporter]].arbitrary
             )
           }
+          maxTargetInContainer <- Gen.choose(1, conf.maxTargetInContainer)
           _ <- {
             import c.given
             Gen.listOfN(
-              conf.maxTargetInContainer,
+              maxTargetInContainer,
               summon[Arbitrary[Target]].arbitrary
             )
           }
+          maxCompositePerContainer <- Gen.choose(1, conf.maxCompositePerContainer)
           _ <- {
             import c.given
             if (c.currentOwner.path.size <= conf.maxCompositeLayers)
               Gen.listOfN(
-                conf.maxCompositePerContainer,
+                maxCompositePerContainer,
                 generateArb(conf, summon[ReflexiveInfo], ctx).arbitrary
               )
             else

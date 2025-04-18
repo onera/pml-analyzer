@@ -57,42 +57,51 @@ object PlatformArbitrary {
           with RoutingRelationArbitrary
           with PMLNodeArbitrary
           with All.Instances
-        _ <- {
-          import p.given
-          summon[Arbitrary[Set[Data]]].arbitrary
-        }
+        maxData <- Gen.choose(1, conf.maxData)
         _ <- {
           import p.given
           Gen.listOfN(
-            conf.maxApplication,
+            maxData,
+            summon[Arbitrary[Data]].arbitrary
+          )
+        }
+        maxApp <- Gen.choose(1, conf.maxApplication)
+        _ <- {
+          import p.given
+          Gen.listOfN(
+            maxApp,
             summon[Arbitrary[Application]].arbitrary
           )
         }
+        maxInitiatorInContainer <- Gen.choose(1, conf.maxInitiatorInContainer)
         _ <- {
           import p.given
           Gen.listOfN(
-            conf.maxInitiatorInContainer,
+            maxInitiatorInContainer,
             summon[Arbitrary[Initiator]].arbitrary
           )
         }
+        maxTransporterInContainer <- Gen.choose(1, conf.maxTransporterInContainer)
         _ <- {
           import p.given
           Gen.listOfN(
-            conf.maxTransporterInContainer,
+            maxTransporterInContainer,
             summon[Arbitrary[Transporter]].arbitrary
           )
         }
+        maxTargetInContainer <- Gen.choose(1, conf.maxTargetInContainer)
         _ <- {
           import p.given
           Gen.listOfN(
-            conf.maxTargetInContainer,
+            maxTargetInContainer,
             summon[Arbitrary[Target]].arbitrary
           )
         }
+        maxCompositePerContainer <- Gen.choose(1, conf.maxCompositePerContainer)
         _ <- {
           import p.given
           Gen.listOfN(
-            conf.maxCompositePerContainer,
+            maxCompositePerContainer,
             summon[Arbitrary[Composite]].arbitrary
           )
         }
