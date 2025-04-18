@@ -26,6 +26,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import org.scalacheck.Shrink
 
 class RoutingRelationTest
     extends AnyFlatSpec
@@ -34,19 +35,22 @@ class RoutingRelationTest
 
   private def checkRoutingRelation(
       p: PopulatedPlatform,
-      expected: Map[(Initiator, Target, Hardware), Hardware]
+      expected: Map[(Initiator, Target, Hardware), Set[Hardware]]
   ): Unit = {
     import p.*
     val expectedService = p.toServiceRouting(expected)
+    val found = context.InitiatorRouting.edges
+
+    found.keySet should equal(expectedService.keySet)
+
     for {
       (k, v) <- context.InitiatorRouting.edges
     } {
-      if (expectedService.contains(k))
-        v should equal(expectedService(k))
-      else
-        v should be(empty)
+      v should equal(expectedService(k))
     }
   }
+
+  given [T]: Shrink[T] = Shrink.shrinkAny
 
   "RoutingRelation" should "encode properly route constraints" taggedAs UnitTests in {
     ArbitraryConfiguration.default
@@ -61,11 +65,11 @@ class RoutingRelationTest
           applyAllLinks(link, undo = false)
           applyAllUses(use, undo = false)
           forAll(minSuccessful(5)) {
-            (routing: Map[(Initiator, Target, Hardware), Hardware]) =>
+            (routing: Map[(Initiator, Target, Hardware), Set[Hardware]]) =>
               applyAllRoute(routing, undo = false)
               checkRoutingRelation(p, routing)
               applyAllRoute(routing, undo = true)
-              checkRoutingRelation(p, routing)
+              checkRoutingRelation(p, Map.empty)
           }
           applyAllUses(use, undo = true)
           applyAllLinks(link, undo = true)

@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.service
 
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.{Composite, ContainerLike, Platform}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
@@ -26,9 +27,13 @@ trait ArtificialServiceArbitrary {
 
   given (using r: ReflexiveInfo): Arbitrary[ArtificialService] = Arbitrary(
     for {
-      name <- Gen.identifier.map(x => Symbol(x))
-    } yield ArtificialService
-      .get(name)
-      .getOrElse(ArtificialService(name))
+      name <- Gen.identifier
+        .map(x => Symbol(x))
+        .suchThat(s =>
+          ArtificialService
+            .get(PMLNodeBuilder.formatName(s, currentOwner))
+            .isEmpty
+        )
+    } yield ArtificialService(PMLNodeBuilder.formatName(name, currentOwner))
   )
 }

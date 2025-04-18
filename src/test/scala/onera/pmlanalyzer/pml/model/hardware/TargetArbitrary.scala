@@ -37,11 +37,13 @@ trait TargetArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Target] = Arbitrary(
     for {
-      name <- Gen.identifier.map(x => Symbol(x))
+      name <- Gen.identifier
+        .map(x => Symbol(x))
+        .suchThat(s =>
+          Target.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+        )
       loads <- Gen.listOfN(conf.maxTargetLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxTargetStore, genStore.arbitrary)
-    } yield Target
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Target(name, (loads ++ stores).toSet))
+    } yield Target(name, (loads ++ stores).toSet)
   )
 }

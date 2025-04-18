@@ -37,11 +37,13 @@ trait InitiatorArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Initiator] = Arbitrary(
     for {
-      name <- Gen.identifier.map(x => Symbol(x))
+      name <- Gen.identifier
+        .map(x => Symbol(x))
+        .suchThat(s =>
+          Initiator.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+        )
       loads <- Gen.listOfN(conf.maxInitiatorLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxInitiatorStore, genStore.arbitrary)
-    } yield Initiator
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Initiator(name, (loads ++ stores).toSet))
+    } yield Initiator(name, (loads ++ stores).toSet)
   )
 }

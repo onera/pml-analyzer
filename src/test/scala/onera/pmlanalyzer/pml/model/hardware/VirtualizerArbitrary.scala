@@ -37,11 +37,13 @@ trait VirtualizerArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[Virtualizer] = Arbitrary(
     for {
-      name <- Gen.identifier.map(x => Symbol(x))
+      name <- Gen.identifier
+        .map(x => Symbol(x))
+        .suchThat(s =>
+          Virtualizer.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+        )
       loads <- Gen.listOfN(conf.maxVirtualizerLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxVirtualizerStore, genStore.arbitrary)
-    } yield Virtualizer
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Virtualizer(name, (loads ++ stores).toSet))
+    } yield Virtualizer(name, (loads ++ stores).toSet)
   )
 }

@@ -81,7 +81,10 @@ object PlatformArbitrary {
             summon[Arbitrary[Initiator]].arbitrary
           )
         }
-        maxTransporterInContainer <- Gen.choose(1, conf.maxTransporterInContainer)
+        maxTransporterInContainer <- Gen.choose(
+          1,
+          conf.maxTransporterInContainer
+        )
         _ <- {
           import p.given
           Gen.listOfN(

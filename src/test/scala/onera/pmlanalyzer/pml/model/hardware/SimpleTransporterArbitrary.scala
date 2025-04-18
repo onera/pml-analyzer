@@ -37,11 +37,15 @@ trait SimpleTransporterArbitrary {
       conf: ArbitraryConfiguration
   ): Arbitrary[SimpleTransporter] = Arbitrary(
     for {
-      name <- Gen.identifier.map(x => Symbol(x))
+      name <- Gen.identifier
+        .map(x => Symbol(x))
+        .suchThat(s =>
+          SimpleTransporter
+            .get(PMLNodeBuilder.formatName(s, currentOwner))
+            .isEmpty
+        )
       loads <- Gen.listOfN(conf.maxSimpleTransporterLoad, genLoad.arbitrary)
       stores <- Gen.listOfN(conf.maxSimpleTransporterStore, genStore.arbitrary)
-    } yield SimpleTransporter
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(SimpleTransporter(name, (loads ++ stores).toSet))
+    } yield SimpleTransporter(name, (loads ++ stores).toSet)
   )
 }

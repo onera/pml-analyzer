@@ -27,8 +27,20 @@ import org.scalacheck.{Arbitrary, Gen}
 trait RoutingRelationArbitrary {
   self: Platform =>
 
+  def toHardwareRouting(
+      m: Map[(Initiator, Service, Service), Set[Service]]
+  ): Map[(Initiator, Target, Hardware), Set[Hardware]] = {
+    (
+      for {
+        ((ini, tgt, on), next) <- m.toSeq
+        tgtH <- tgt.targetOwner
+        onH <- on.hardwareOwner
+        nextH = next.flatMap(_.hardwareOwner)
+      } yield (ini, tgtH, onH) -> nextH
+    ).groupMapReduce(_._1)(_._2)(_ ++ _)
+  }
   def toServiceRouting(
-      m: Map[(Initiator, Target, Hardware), Hardware]
+      m: Map[(Initiator, Target, Hardware), Set[Hardware]]
   ): Map[(Initiator, Service, Service), Set[Service]] =
     (for {
       ((ini, to, on), next) <- m.toSeq
@@ -41,23 +53,34 @@ trait RoutingRelationArbitrary {
       (newTo, newOn, newNext) <- List((toL, onL, nextL), (toS, onS, nextS))
     } yield {
       (ini, newTo, newOn) -> newNext.toSet[Service]
-    }).toMap
+    }).groupMapReduce(_._1)(_._2)(_ ++ _)
 
+  /**
+   * @note useLink override previous routing constraints, consider adding a warning if a routing constraint is overriden?
+   * @param m the specification of the routing
+   * @param undo add constraints if true, remove them if false
+   */
   def applyAllRoute(
-      m: Map[(Initiator, Target, Hardware), Hardware],
+      m: Map[(Initiator, Target, Hardware), Set[Hardware]],
       undo: Boolean
   ): Unit = {
-    for {
-      ((ini, tgt, on), next) <- m
-    } {
-      if (!undo)
-        ini targeting tgt useLink on to next
-      else {
-        for {
-          sTgt <- tgt.services
-          sOn <- on.services
+    if (undo) {
+      val s = toServiceRouting(m)
+      for { k <- s.keySet }
+        context.InitiatorRouting.remove(k)
+    } else {
+      for {
+        ((ini, tgt, on), next) <- m
+      } {
+        if (next.isEmpty)
+          ini targeting tgt blockedBy on
+        else if (next.size == 1)
+          ini targeting tgt useLink on to next.head
+        else {
+          val doNotUse = on.linked -- next
+          for { n <- doNotUse }
+            ini targeting tgt cannotUseLink on to n
         }
-          context.InitiatorRouting.remove((ini, sTgt, sOn))
       }
     }
   }
@@ -67,7 +90,7 @@ trait RoutingRelationArbitrary {
       used: Used[Initiator, Service],
       pT: Provided[Target, Service],
       conf: ArbitraryConfiguration
-  ): Arbitrary[Map[(Initiator, Target, Hardware), Hardware]] =
+  ): Arbitrary[Map[(Initiator, Target, Hardware), Set[Hardware]]] =
     Arbitrary(
       {
         for {
@@ -80,17 +103,28 @@ trait RoutingRelationArbitrary {
               if context.PLLinkableToPL.edges.contains(
                 tH
               ) || context.PLLinkableToPL.inverseEdges.contains(tH)
-              lH <- Endomorphism.closure(i, context.PLLinkableToPL.edges)
-              rH <- context.PLLinkableToPL(lH)
+              lH <- Endomorphism.closure(
+                i,
+                context.PLLinkableToPL.edges
+              ) - i - tH
+              rH <- lH.linked.map(x => Some(x)) + None
             } yield (i, tH, lH) -> rH
           )
         } yield {
-          if (electedValues.size > conf.maxRoutingConstraint)
+          val map =
             electedValues
+              .groupMapReduce(_._1)((_, v) =>
+                v match {
+                  case Some(x) => Set(x)
+                  case None    => Set.empty
+                }
+              )(_ ++ _)
+              .filter((k, v) => k._3.linked.size > v.size)
+          if (map.size > conf.maxRoutingConstraint)
+            map
               .drop(electedValues.size - conf.maxRoutingConstraint)
-              .toMap
           else
-            electedValues.toMap
+            map
         }
       }
     )

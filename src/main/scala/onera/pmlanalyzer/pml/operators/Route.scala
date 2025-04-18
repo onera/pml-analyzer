@@ -152,7 +152,7 @@ object Route {
           tL <- t.loads
           rL <- router.loads
         } yield {
-          update(tL, rL, l(rL))
+          remove(tL, rL, l(rL))
         }
 
         for {
@@ -160,11 +160,11 @@ object Route {
           tS <- t.stores
           rS <- router.stores
         } yield {
-          update(tS, rS, l(rS))
+          remove(tS, rS, l(rS))
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(using
+      private def remove[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
           r: RoutingRelation[(Initiator, Service, Service), Service],
           line: Line,

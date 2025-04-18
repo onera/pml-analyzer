@@ -69,7 +69,10 @@ object CompositeArbitrary {
               summon[Arbitrary[Initiator]].arbitrary
             )
           }
-          maxTransporterInContainer <- Gen.choose(1, conf.maxTransporterInContainer)
+          maxTransporterInContainer <- Gen.choose(
+            1,
+            conf.maxTransporterInContainer
+          )
           _ <- {
             import c.given
             Gen.listOfN(
@@ -85,7 +88,10 @@ object CompositeArbitrary {
               summon[Arbitrary[Target]].arbitrary
             )
           }
-          maxCompositePerContainer <- Gen.choose(1, conf.maxCompositePerContainer)
+          maxCompositePerContainer <- Gen.choose(
+            1,
+            conf.maxCompositePerContainer
+          )
           _ <- {
             import c.given
             if (c.currentOwner.path.size <= conf.maxCompositeLayers)
