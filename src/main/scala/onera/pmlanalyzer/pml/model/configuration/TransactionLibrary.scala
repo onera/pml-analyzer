@@ -145,9 +145,8 @@ trait TransactionLibrary {
     * @param x
     *   id of the user transaction
     */
-  final implicit class UserTransactionOps(x: UserTransactionId)
-      extends TransactionLikeOps {
-    def paths: Set[PhysicalTransaction] =
+  given ToServicePath[UserTransactionId] with {
+    def apply(x: UserTransactionId): Set[PhysicalTransaction] =
       (for {
         id <- transactionByUserName.get(x)
       } yield Set(transactionsByName(id))) getOrElse Set.empty
@@ -158,9 +157,8 @@ trait TransactionLibrary {
     * @param x
     *   id of the user scenario
     */
-  final implicit class ScenarioOps(x: UserScenarioId)
-      extends TransactionLikeOps {
-    def paths: Set[PhysicalTransaction] =
+  given ToServicePath[UserScenarioId] with {
+    def apply(x: UserScenarioId): Set[PhysicalTransaction] =
       scenarioByUserName(x).flatMap(_.paths)
   }
 }

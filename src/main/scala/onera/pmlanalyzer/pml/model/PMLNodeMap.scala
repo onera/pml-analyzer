@@ -28,6 +28,8 @@ final case class PMLNodeMap[T <: PMLNode] private (map: mutable.Map[Symbol, T])
 
 object PMLNodeMap {
 
+  def empty[T <: PMLNode]: PMLNodeMap[T] = PMLNodeMap(mutable.Map.empty)
+
   given (using i: Instances): PMLNodeMap[Application] = i.memoApplication
 
   given (using i: Instances): PMLNodeMap[Data] = i.memoData
@@ -74,28 +76,20 @@ object PMLNodeMap {
   }
 
   trait EmptyInstances extends Instances {
-    val memoApplication: PMLNodeMap[Application] = PMLNodeMap(mutable.Map.empty)
-    val memoData: PMLNodeMap[Data] = PMLNodeMap(mutable.Map.empty)
-    val memoLoad: PMLNodeMap[Load] = PMLNodeMap(mutable.Map.empty)
-    val memoStore: PMLNodeMap[Store] = PMLNodeMap(mutable.Map.empty)
-    val memoArtificialService: PMLNodeMap[ArtificialService] = PMLNodeMap(
-      mutable.Map.empty
-    )
-    val memoTarget: PMLNodeMap[Target] = PMLNodeMap(mutable.Map.empty)
-    val memoInitiator: PMLNodeMap[Initiator] = PMLNodeMap(mutable.Map.empty)
-    val memoSimpleTransporter: PMLNodeMap[SimpleTransporter] = PMLNodeMap(
-      mutable.Map.empty
-    )
-    val memoVirtualizer: PMLNodeMap[Virtualizer] = PMLNodeMap(mutable.Map.empty)
-    val memoComposite: PMLNodeMap[Composite] = PMLNodeMap(mutable.Map.empty)
-    val memoTransaction: PMLNodeMap[Transaction] = PMLNodeMap(mutable.Map.empty)
-    val memoUsedTransaction: PMLNodeMap[UsedTransaction] = PMLNodeMap(
-      mutable.Map.empty
-    )
-    val memoScenario: PMLNodeMap[Scenario] = PMLNodeMap(mutable.Map.empty)
-    val memoUsedScenario: PMLNodeMap[UsedScenario] = PMLNodeMap(
-      mutable.Map.empty
-    )
+    val memoApplication: PMLNodeMap[Application] = PMLNodeMap.empty
+    val memoData: PMLNodeMap[Data] = PMLNodeMap.empty
+    val memoLoad: PMLNodeMap[Load] = PMLNodeMap.empty
+    val memoStore: PMLNodeMap[Store] = PMLNodeMap.empty
+    val memoArtificialService: PMLNodeMap[ArtificialService] = PMLNodeMap.empty
+    val memoTarget: PMLNodeMap[Target] = PMLNodeMap.empty
+    val memoInitiator: PMLNodeMap[Initiator] = PMLNodeMap.empty
+    val memoSimpleTransporter: PMLNodeMap[SimpleTransporter] = PMLNodeMap.empty
+    val memoVirtualizer: PMLNodeMap[Virtualizer] = PMLNodeMap.empty
+    val memoComposite: PMLNodeMap[Composite] = PMLNodeMap.empty
+    val memoTransaction: PMLNodeMap[Transaction] = PMLNodeMap.empty
+    val memoUsedTransaction: PMLNodeMap[UsedTransaction] = PMLNodeMap.empty
+    val memoScenario: PMLNodeMap[Scenario] = PMLNodeMap.empty
+    val memoUsedScenario: PMLNodeMap[UsedScenario] = PMLNodeMap.empty
   }
 
 }

@@ -20,20 +20,20 @@ package onera.pmlanalyzer.pml.operators
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.software.Application
-import AsTransaction.TransactionParam
+import ToTransaction.TransactionParam
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 
-trait AsTransaction[A] {
+trait ToTransaction[A] {
   def apply(a: => A): TransactionParam
 }
 
-object AsTransaction {
+object ToTransaction {
   type TransactionParam =
     (() => Set[(Service, Service)], () => Set[Application])
 
   trait Ops {
     def TransactionParam[A](a: => A)(using
-        ev: AsTransaction[A]
+        ev: ToTransaction[A]
     ): TransactionParam = ev(a)
   }
 
@@ -46,7 +46,7 @@ object AsTransaction {
   given applicationUsed[T <: Load | Store](using
       u: Used[Application, Initiator],
       p: Provided[Initiator, T]
-  ): AsTransaction[Set[(Application, T)]] with {
+  ): ToTransaction[Set[(Application, T)]] with {
     def apply(
         a: => Set[(Application, T)]
     ): (() => Set[(Service, Service)], () => Set[Application]) = (
@@ -61,7 +61,7 @@ object AsTransaction {
 
   given initiatorUsed[T <: Load | Store](using
       p: Provided[Initiator, T]
-  ): AsTransaction[Set[(Initiator, T)]] with {
+  ): ToTransaction[Set[(Initiator, T)]] with {
     def apply(
         a: => Set[(Initiator, T)]
     ): (() => Set[(Service, Service)], () => Set[Application]) =

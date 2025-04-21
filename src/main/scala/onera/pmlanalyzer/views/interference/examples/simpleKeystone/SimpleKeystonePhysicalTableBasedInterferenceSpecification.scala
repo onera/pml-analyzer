@@ -18,9 +18,10 @@
 package onera.pmlanalyzer.views.interference.examples.simpleKeystone
 
 import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators._
+import onera.pmlanalyzer.views.interference.operators.*
 
 /** The interference calculus assumptions for the hardware components of the
   * SimpleKeystone are gathered here. For instance to specify that two service l
@@ -68,7 +69,7 @@ trait SimpleKeystonePhysicalTableBasedInterferenceSpecification
     l <- transactions
     r <- transactions
     if l != r
-    if l.initiator == r.initiator
+    if l.pathInitiators == r.pathInitiators
   } yield {
     l exclusiveWith r
   }

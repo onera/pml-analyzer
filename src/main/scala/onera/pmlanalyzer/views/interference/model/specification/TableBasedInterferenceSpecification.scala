@@ -138,7 +138,7 @@ trait TableBasedInterferenceSpecification
       .get(l)
       .getOrElse(Set.empty[PhysicalTransactionId])
       .contains(r)
-    val samePLUsed = l.initiator.intersect(r.initiator).nonEmpty
+    val samePLUsed = l.pathInitiators.intersect(r.pathInitiators).nonEmpty
     val differentAppUsed = Application.all
       .subsets(2)
       .filter(s => {

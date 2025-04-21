@@ -479,6 +479,6 @@ object InterferenceSpecification {
         l: PhysicalTransactionId,
         r: PhysicalTransactionId
     ): Boolean =
-      l.initiator == r.initiator
+      l.pathInitiators == r.pathInitiators
   }
 }

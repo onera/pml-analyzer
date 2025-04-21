@@ -49,7 +49,7 @@ trait SimpleT1042PhysicalTableBasedInterferenceSpecification
     l <- transactions
     r <- transactions
     if l != r
-    if l.initiator == r.initiator
+    if l.pathInitiators == r.pathInitiators
   } yield {
     l exclusiveWith r
   }

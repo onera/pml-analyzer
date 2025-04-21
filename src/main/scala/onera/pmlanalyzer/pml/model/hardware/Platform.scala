@@ -162,74 +162,10 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
       }
     )
 
-  /** Extension methods for transactions
-    */
-  protected trait TransactionLikeOps {
-
-    /** Check if the transaction contains only one service
-      * @return
-      *   true if only one service
-      */
-    def noSingletonPaths: Boolean = paths.forall(_.size > 1)
-
-    /** Method that should be provided by sub-classes to access to the path
-      * @return
-      *   the set of service paths
-      */
-    def paths: Set[PhysicalTransaction]
-
-    /** Check if the target is in the possible targets of the transaction
-      * @param x
-      *   target to find
-      * @return
-      *   true if the target is contained
-      */
-    def targetIs(x: Target): Boolean = target.contains(x)
-
-    /** Provide the targets of the transaction
-      * @return
-      *   the set of targets
-      */
-    def target: Set[Target] =
-      paths.filter(_.size >= 2).flatMap(t => t.last.targetOwner)
-
-    /** Provide the initiators fo a transaction
-      * @return
-      *   the set of initiators
-      */
-    def initiator: Set[Initiator] =
-      paths.filter(_.nonEmpty).flatMap(t => t.head.initiatorOwner)
-
-    /** Check is the initiator is in the possible initiators of the transaction
-      * @param x
-      *   initiator to find
-      * @return
-      *   true if the initiator is contained
-      */
-    def initiatorIs(x: Initiator): Boolean = initiator.contains(x)
-
-    /** Check if the transaction is a load transaction
-      * @return
-      *   true if target services are loads
-      */
-    def isLoad: Boolean =
-      paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Load])
-
-    /** Check if the transaction is a store transaction
-      * @return
-      *   true if target services are stores
-      */
-    def isStore: Boolean =
-      paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Store])
-  }
-
-  /** Extension methods for physical transaction identifiers
-    * @param x
-    *   the name of the physical transaction
-    */
-  final implicit class PhysicalTransactionOps(x: PhysicalTransactionId)
-      extends TransactionLikeOps {
-    def paths: Set[PhysicalTransaction] = Set(transactionsByName(x))
+  given ToServicePath[PhysicalTransactionId] with {
+    def apply(x: PhysicalTransactionId): Set[PhysicalTransaction] = Set(
+      transactionsByName(x)
+    )
   }
 }
 

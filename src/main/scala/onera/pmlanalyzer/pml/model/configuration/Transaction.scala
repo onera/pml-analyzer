@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
-import onera.pmlanalyzer.pml.operators.{AsTransaction, TransactionParam}
+import onera.pmlanalyzer.pml.operators.{ToTransaction, TransactionParam}
 import sourcecode.Name
 
 /** Class encoding the used defined transactions (not already used)
@@ -75,7 +75,7 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       * @return
       *   the transaction (not used for now)
       */
-  def apply[A: AsTransaction](
+  def apply[A: ToTransaction](
       iniTgt: => A
   )(using
       name: Name,
@@ -127,7 +127,7 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       * @return
       *   the transaction (not used for now)
       */
-  def apply[A: AsTransaction](name: String, iniTgt: => A)(using
+  def apply[A: ToTransaction](name: String, iniTgt: => A)(using
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Transaction]
   ): Transaction = {

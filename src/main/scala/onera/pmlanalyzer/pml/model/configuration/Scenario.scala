@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenario
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
-import onera.pmlanalyzer.pml.operators.{AsTransaction, TransactionParam}
+import onera.pmlanalyzer.pml.operators.{ToTransaction, TransactionParam}
 import sourcecode.Name
 
 /** Class encoding the defined transactions (not already used)
@@ -60,8 +60,8 @@ final class Scenario private (
     */
 object Scenario extends PMLNodeBuilder[Scenario] {
   def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-      ta: AsTransaction[Set[A]],
-      tb: AsTransaction[Set[B]],
+      ta: ToTransaction[Set[A]],
+      tb: ToTransaction[Set[B]],
       info: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
   ): Scenario = {
@@ -95,8 +95,8 @@ object Scenario extends PMLNodeBuilder[Scenario] {
      */
   def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
       name: Name,
-      ta: AsTransaction[Set[A]],
-      tb: AsTransaction[Set[B]],
+      ta: ToTransaction[Set[A]],
+      tb: ToTransaction[Set[B]],
       info: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
   ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
