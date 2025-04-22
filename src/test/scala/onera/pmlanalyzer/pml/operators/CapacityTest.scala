@@ -118,7 +118,7 @@ class CapacityTest extends AnyFlatSpecLike with should.Matchers {
   "A Hardware component" should "admit a capacity" in {
     t2 hasCapacity 2
     for { s <- t2.services } {
-      capacityOfService(s) shouldBe (2)
+      capacityOfService(s) shouldBe(2)
     }
   }
 }
