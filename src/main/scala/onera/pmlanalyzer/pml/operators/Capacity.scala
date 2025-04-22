@@ -52,7 +52,7 @@ object Capacity {
   ): Capacity[LH, R] with {
     def apply(l: LH, r: R)(using line: Line, file: File): Unit =
       for {
-        s <- pr(l)
+        s <- PLProvideService(l)
       } yield s hasCapacity r
   }
 
