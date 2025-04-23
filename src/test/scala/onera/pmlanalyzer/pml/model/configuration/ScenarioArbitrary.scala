@@ -19,23 +19,24 @@ package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{Context, Owner, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 
-trait ScenarioArbitrary {
-  self: Platform with TransactionLibrary =>
+object ScenarioArbitrary {
 
   @targetName("given_Option_Scenario")
   given (using
+      currentOwner: Owner,
+      context: Context,
       arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[Scenario]] = Arbitrary(
     for {
       tT <- Gen.nonEmptyListOf(arbTr.arbitrary)
       name <- Gen.identifier.suchThat(s =>
-        Scenario.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+        Scenario.get(PMLNodeBuilder.formatName(Symbol(s), currentOwner)).isEmpty
       )
       tSeq = tT.flatten
     } yield
@@ -47,6 +48,7 @@ trait ScenarioArbitrary {
 
   @targetName("given_Option_UserScenario")
   given (using
+      context: Context,
       arbSc: Arbitrary[Option[Scenario]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedScenario]] = Arbitrary(

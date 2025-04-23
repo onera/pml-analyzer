@@ -86,7 +86,6 @@ trait RoutingRelationArbitrary {
   }
 
   given (using
-      allI: All[Initiator],
       used: Used[Initiator, Service],
       pT: Provided[Target, Service],
       conf: ArbitraryConfiguration
@@ -96,7 +95,7 @@ trait RoutingRelationArbitrary {
         for {
           electedValues <- Gen.someOf(
             for {
-              i <- allI()
+              i <- All[Initiator]
               if context.PLLinkableToPL.edges.contains(i)
               tS <- used(i)
               tH <- tS.targetOwner

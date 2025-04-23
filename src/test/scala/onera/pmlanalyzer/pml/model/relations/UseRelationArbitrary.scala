@@ -71,12 +71,11 @@ trait UseRelationArbitrary {
 
   given [K](using
       allI: All[K],
-      allT: All[Target],
       r: Use[K, Service]
   ): Arbitrary[Map[K, Set[Service]]] = Arbitrary({
     val targetService =
       for {
-        t <- allT()
+        t <- All[Target]
         s <- t.services
       } yield s
 

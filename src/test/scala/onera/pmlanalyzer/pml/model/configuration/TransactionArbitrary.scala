@@ -23,6 +23,8 @@ import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.{
   All,
   ArbitraryConfiguration,
+  Context,
+  Owner,
   ReflexiveInfo
 }
 import onera.pmlanalyzer.pml.operators.*
@@ -30,13 +32,12 @@ import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 
-trait TransactionArbitrary {
-  self: Platform with TransactionLibrary =>
+object TransactionArbitrary {
 
   @targetName("given_Option_Transaction")
   given (using
-      allA: All[Application],
-      allD: All[Data],
+      context: Context,
+      currentOwner: Owner,
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
   ): Arbitrary[Option[Transaction]] = Arbitrary(
@@ -44,7 +45,7 @@ trait TransactionArbitrary {
       val validAD =
         if (c.discardImpossibleTransactions)
           for {
-            app <- allA()
+            app <- All[Application]
             i <- app.hostingInitiators
             t <- Endomorphism
               .closure(i, context.PLLinkableToPL.edges)
@@ -53,8 +54,8 @@ trait TransactionArbitrary {
           } yield app -> d
         else
           for {
-            app <- allA()
-            d <- allD()
+            app <- All[Application]
+            d <- All[Data]
           } yield app -> d
 
       if (validAD.isEmpty)
@@ -63,7 +64,9 @@ trait TransactionArbitrary {
         for {
           (app, data) <- Gen.oneOf(validAD)
           name <- Gen.identifier.suchThat(s =>
-            Transaction.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+            Transaction
+              .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
+              .isEmpty
           )
           isRead <- Gen.prob(0.5)
         } yield
@@ -76,6 +79,7 @@ trait TransactionArbitrary {
 
   @targetName("given_Option_UsedTransaction")
   given (using
+      context: Context,
       arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedTransaction]] = Arbitrary(

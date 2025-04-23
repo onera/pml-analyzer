@@ -40,7 +40,7 @@ class LinkRelationTest
       expected: Map[T, Set[T]]
   )(using allT: All[T], l: Linked[T, T]): Unit = {
     for {
-      t <- allT()
+      t <- All[T]
     } {
       if (expected.contains(t))
         t.linked should equal(expected(t))

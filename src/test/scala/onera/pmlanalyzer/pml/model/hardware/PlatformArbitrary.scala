@@ -39,8 +39,7 @@ import onera.pmlanalyzer.pml.model.configuration.{
 object PlatformArbitrary {
 
   type PopulatedPlatform = Platform & TransactionLibrary &
-    LinkRelationArbitrary & UseRelationArbitrary & RoutingRelationArbitrary &
-    All.Instances
+    LinkRelationArbitrary & UseRelationArbitrary & RoutingRelationArbitrary 
 
   given (using
       conf: ArbitraryConfiguration,
@@ -64,9 +63,6 @@ object PlatformArbitrary {
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary
-          with TransactionArbitrary
-          with ScenarioArbitrary
-          with All.Instances
         maxData <- Gen.choose(1, conf.maxData)
         _ <- {
           import p.given
@@ -116,22 +112,6 @@ object PlatformArbitrary {
           Gen.listOfN(
             maxCompositePerContainer,
             summon[Arbitrary[Composite]].arbitrary
-          )
-        }
-        maxTransaction <- Gen.choose(1, conf.maxTransaction)
-        _ <- {
-          import p.given
-          Gen.listOfN(
-            maxTransaction,
-            summon[Arbitrary[Option[Transaction]]].arbitrary
-          )
-        }
-        maxScenario <- Gen.choose(1, conf.maxScenario)
-        _ <- {
-          import p.given
-          Gen.listOfN(
-            maxScenario,
-            summon[Arbitrary[Option[Scenario]]].arbitrary
           )
         }
       } yield p

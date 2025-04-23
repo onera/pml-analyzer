@@ -95,20 +95,17 @@ trait LinkRelationArbitrary {
     )
 
   given (using
-      allI: All[Initiator],
-      allTr: All[Transporter],
-      allTg: All[Target],
       conf: ArbitraryConfiguration
   ): Arbitrary[Map[Hardware, Set[Hardware]]] = Arbitrary(
-    if (allI().nonEmpty && allTr().nonEmpty && allTg().nonEmpty)
+    if (All[Initiator].nonEmpty && All[Transporter].nonEmpty && All[Target].nonEmpty)
       for {
         map <- Gen.mapOf(
           Gen.zip(
-            Gen.oneOf(allTr() ++ allI()),
+            Gen.oneOf(All[Transporter] ++ All[Initiator]),
             Gen
               .listOfN(
-                List(conf.maxLinkPerComponent, (allTr() ++ allTg()).size).min,
-                Gen.oneOf(allTr() ++ allTg())
+                List(conf.maxLinkPerComponent, (All[Transporter] ++ All[Target]).size).min,
+                Gen.oneOf(All[Transporter] ++ All[Target])
               )
               .map(_.toSet)
           )
@@ -118,7 +115,7 @@ trait LinkRelationArbitrary {
           .transform((k, v) => v - k)
           .filter(_._2.nonEmpty)
         if (conf.removeUnreachableLink) {
-          removeNonReachableFrom(allI().toSet[Hardware], r)
+          removeNonReachableFrom(All[Initiator].toSet[Hardware], r)
         } else
           r
       }

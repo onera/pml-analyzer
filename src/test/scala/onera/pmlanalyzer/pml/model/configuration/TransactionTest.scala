@@ -17,11 +17,36 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator}
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.PopulatedPlatform
+import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.given
+import onera.pmlanalyzer.pml.model.service.Service
 
 class TransactionTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
-    with should.Matchers {}
+    with should.Matchers {
+
+
+  "Transactions" can "be defined" in {
+    implicit val newConf: ArbitraryConfiguration =
+      ArbitraryConfiguration.default
+        .copy(removeUnreachableLink = true)
+    forAll(minSuccessful(10)) { (p: PopulatedPlatform) => {
+      import p.{*, given}
+      forAll(minSuccessful(5)) {
+        (
+          link: Map[Hardware, Set[Hardware]],
+          use: Map[Initiator, Set[Service]]
+        ) => {
+          ???
+        }
+      }
+      }
+    }
+  }
+}
