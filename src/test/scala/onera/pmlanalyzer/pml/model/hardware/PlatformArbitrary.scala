@@ -28,11 +28,19 @@ import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 import CompositeArbitrary.given
+import onera.pmlanalyzer.pml.model.configuration.{
+  Scenario,
+  ScenarioArbitrary,
+  Transaction,
+  TransactionArbitrary,
+  TransactionLibrary
+}
 
 object PlatformArbitrary {
 
-  type PopulatedPlatform = Platform & LinkRelationArbitrary &
-    UseRelationArbitrary & RoutingRelationArbitrary & All.Instances
+  type PopulatedPlatform = Platform & TransactionLibrary &
+    LinkRelationArbitrary & UseRelationArbitrary & RoutingRelationArbitrary &
+    All.Instances
 
   given (using
       conf: ArbitraryConfiguration,
@@ -43,6 +51,7 @@ object PlatformArbitrary {
       for {
         id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
         p = new Platform(Symbol(id), line, file)
+          with TransactionLibrary
           with ApplicationArbitrary
           with DataArbitrary
           with LoadArbitrary
@@ -55,7 +64,8 @@ object PlatformArbitrary {
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary
-          with PMLNodeArbitrary
+          with TransactionArbitrary
+          with ScenarioArbitrary
           with All.Instances
         maxData <- Gen.choose(1, conf.maxData)
         _ <- {
@@ -106,6 +116,22 @@ object PlatformArbitrary {
           Gen.listOfN(
             maxCompositePerContainer,
             summon[Arbitrary[Composite]].arbitrary
+          )
+        }
+        maxTransaction <- Gen.choose(1, conf.maxTransaction)
+        _ <- {
+          import p.given
+          Gen.listOfN(
+            maxTransaction,
+            summon[Arbitrary[Option[Transaction]]].arbitrary
+          )
+        }
+        maxScenario <- Gen.choose(1, conf.maxScenario)
+        _ <- {
+          import p.given
+          Gen.listOfN(
+            maxScenario,
+            summon[Arbitrary[Option[Scenario]]].arbitrary
           )
         }
       } yield p

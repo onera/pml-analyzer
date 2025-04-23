@@ -15,17 +15,13 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.hardware
+package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.PMLNode
-import onera.pmlanalyzer.pml.model.utils.{ArbitraryConfiguration, ReflexiveInfo}
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-trait PMLNodeArbitrary {
-
-  given [T <: PMLNode](using arb: Arbitrary[T]): Arbitrary[Set[T]] = Arbitrary(
-    for {
-      l <- Gen.nonEmptyListOf(arb.arbitrary)
-    } yield l.toSet
-  )
-}
+class TransactionTest
+    extends AnyFlatSpec
+    with ScalaCheckPropertyChecks
+    with should.Matchers {}

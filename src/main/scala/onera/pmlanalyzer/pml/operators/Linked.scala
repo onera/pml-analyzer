@@ -17,9 +17,15 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.relations.LinkRelation
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Target}
+import onera.pmlanalyzer.pml.model.relations.{
+  Endomorphism,
+  LinkRelation,
+  RoutingRelation
+}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import scala.reflect._
+
+import scala.reflect.*
 
 /** Base trait for linked operation
   * @tparam L
@@ -75,6 +81,19 @@ object Linked {
         *   the set of pointing elements
         */
       def inverse[R](using linked: Linked[R, L]): Set[R] = linked.inverse(self)
+
+      /**
+       * PML keyword to retrieve the transitive closure of element linked to self
+       * @param linked the proof that it exists an endomorphism over R
+       * @tparam R the type of the endomorphism that should be supertype of L
+       * @return the closure
+       * @note this does not consider the routing relation
+       */
+      def canReach[R >: L](using linked: Linked[R, R]): Set[R] =
+        Endomorphism.closure(
+          self,
+          (x: R) => Some(linked(x))
+        )
     }
   }
 

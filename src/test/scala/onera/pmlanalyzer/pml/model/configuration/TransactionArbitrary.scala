@@ -17,62 +17,71 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
+import onera.pmlanalyzer.pml.model.relations.Endomorphism
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{
+  All,
+  ArbitraryConfiguration,
+  ReflexiveInfo
+}
 import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.{Arbitrary, Gen}
+
+import scala.annotation.targetName
 
 trait TransactionArbitrary {
   self: Platform with TransactionLibrary =>
 
+  @targetName("given_Option_Transaction")
   given (using
-      arbApp: Arbitrary[Application],
-      arbData: Arbitrary[Data],
+      allA: All[Application],
+      allD: All[Data],
+      c: ArbitraryConfiguration,
       r: ReflexiveInfo
-  ): Arbitrary[Transaction] = Arbitrary(
-    for {
-      app <- arbApp.arbitrary
-      data <- arbData.arbitrary
-      name <- Gen.identifier
-      isRead <- Gen.prob(0.5)
-    } yield Transaction
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(
-        if (isRead)
-          Transaction(name, app read data)
+  ): Arbitrary[Option[Transaction]] = Arbitrary(
+    {
+      val validAD =
+        if (c.discardImpossibleTransactions)
+          for {
+            app <- allA()
+            i <- app.hostingInitiators
+            t <- Endomorphism
+              .closure(i, context.PLLinkableToPL.edges)
+              .collect({ case x: Target => x })
+            d <- t.hostedData
+          } yield app -> d
         else
-          Transaction(name, app write data)
-      )
+          for {
+            app <- allA()
+            d <- allD()
+          } yield app -> d
+
+      if (validAD.isEmpty)
+        None
+      else
+        for {
+          (app, data) <- Gen.oneOf(validAD)
+          name <- Gen.identifier.suchThat(s =>
+            Transaction.get(PMLNodeBuilder.formatName(s, currentOwner)).isEmpty
+          )
+          isRead <- Gen.prob(0.5)
+        } yield
+          if (isRead)
+            Some(Transaction(name, app read data))
+          else
+            Some(Transaction(name, app write data))
+    }
   )
 
+  @targetName("given_Option_UsedTransaction")
   given (using
-      arbTr: Arbitrary[Transaction],
+      arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
-  ): Arbitrary[Scenario] = Arbitrary(
+  ): Arbitrary[Option[UsedTransaction]] = Arbitrary(
     for {
-      tSeq <- Gen.nonEmptyListOf(arbTr.arbitrary)
-      name <- Gen.identifier
-    } yield Scenario
-      .get(PMLNodeBuilder.formatName(name, currentOwner))
-      .getOrElse(Scenario(name, tSeq: _*))
-  )
-
-  given (using
-      arbTr: Arbitrary[Transaction],
-      r: ReflexiveInfo
-  ): Arbitrary[UsedTransaction] = Arbitrary(
-    for {
-      t <- arbTr.arbitrary
+      oT <- arbTr.arbitrary
+      t <- oT
     } yield t.used
-  )
-
-  given (using
-      arbSc: Arbitrary[Scenario],
-      r: ReflexiveInfo
-  ): Arbitrary[UsedScenario] = Arbitrary(
-    for {
-      s <- arbSc.arbitrary
-    } yield s.used
   )
 }

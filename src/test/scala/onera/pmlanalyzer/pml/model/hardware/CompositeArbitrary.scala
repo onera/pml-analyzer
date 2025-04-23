@@ -60,7 +60,6 @@ object CompositeArbitrary {
             with InitiatorArbitrary
             with VirtualizerArbitrary
             with TransporterArbitrary
-            with PMLNodeArbitrary {}
           maxInitiatorInContainer <- Gen.choose(1, conf.maxInitiatorInContainer)
           _ <- {
             import c.given

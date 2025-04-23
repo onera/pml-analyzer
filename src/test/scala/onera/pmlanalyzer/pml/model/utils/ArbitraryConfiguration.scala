@@ -33,6 +33,10 @@ final case class ArbitraryConfiguration(
     maxTransporterInContainer: Int = 5,
     maxApplication: Int = 20,
     maxData: Int = 20,
+    maxTransaction: Int = 100,
+    maxScenario: Int = 20,
+    discardImpossibleTransactions: Boolean = true,
+    discardMultiPathTransactions: Boolean = true,
     maxLinkPerComponent: Int = 3,
     removeUnreachableLink: Boolean = true,
     maxRoutingConstraint: Int = 50
