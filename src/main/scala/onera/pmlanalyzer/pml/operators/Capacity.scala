@@ -61,8 +61,8 @@ object Capacity {
    * If we can find a relation containing syper types of L and R
    */
   given [CL, CR, L <: CL, R <: CR](using
-      dr: CapacityRelation[CL, CR]
+      cr: CapacityRelation[CL, CR]
   ): Capacity[L, R] with {
-    def apply(l: L, r: R)(using line: Line, file: File): Unit = dr.add(l, r)
+    def apply(l: L, r: R)(using line: Line, file: File): Unit = cr.add(l, r)
   }
 }
