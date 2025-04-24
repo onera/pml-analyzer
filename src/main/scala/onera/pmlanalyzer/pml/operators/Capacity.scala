@@ -48,11 +48,11 @@ object Capacity {
 
   given [LH <: Hardware, R](using
       c: Capacity[Service, R],
-      pr: ProvideRelation[LH, Service]
+      pr: Provided[LH, Service]
   ): Capacity[LH, R] with {
     def apply(l: LH, r: R)(using line: Line, file: File): Unit =
       for {
-        s <- PLProvideService(l)
+        s <- l.services
       } yield s hasCapacity r
   }
 

@@ -74,18 +74,18 @@ object Demand {
   }
 
   given [LPS <: PhysicalScenarioId, R](using
-      ps: Map[PhysicalScenarioId, Set[PhysicalTransactionId]],
+      transform: Transform[PhysicalScenarioId, Set[PhysicalTransactionId]],
       d: Demand[PhysicalTransactionId, R]
   ): Demand[LPS, R] with {
     def apply(l: LPS, r: R)(using line: Line, file: File): Unit =
       for {
-        t <- ps(l)
+        t <- transform(l)
       } yield t hasDemand r
   }
 
   /**
    * We can generate a proof that a demand of type R is assignable to a type L
-   * If we can find a relation containing syper types of L and R
+   * If we can find a relation containing super types of L and R
    */
   given [CL, CR, L <: CL, R <: CR](using dr: DemandRelation[CL, CR]): Demand[
     L,
