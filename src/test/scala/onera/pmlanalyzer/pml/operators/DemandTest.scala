@@ -109,9 +109,8 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
     sc1 used
     
     sc2 used
-
-//    val ps: PhysicalScenario = Set(tr1Id, tr2Id)
-//    val psid : PhysicalScenarioId = scenarioId(ps)
+    
+    val psIdSc1 : PhysicalScenarioId = scenarioId(scenarioByUserName(sc1.userName))
   }
 
   import DemandTestPlatform.{*, given}
@@ -129,9 +128,9 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
   }
 
   "A PhysicalScenarioId" should "be associated to a capacity" in {
-    psid hasDemand 4
+    psIdSc1 hasDemand 4
     for {
-      tr <- purifiedScenarios(psid)
+      tr <- purifiedScenarios(psIdSc1)
     } yield demandOfTransaction(tr) shouldBe 4
   }
 }
