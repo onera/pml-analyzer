@@ -72,7 +72,13 @@ trait UseRelationArbitrary {
                 .map(_.toSet)
             )
           )
-        } yield m
+        } yield {
+          if (conf.showArbitraryInfo)
+            println(
+              s"[INFO] generated use relation with ${m.values.map(_.size).sum} values"
+            )
+          m
+        }
     else
       Map.empty
   )
@@ -104,7 +110,13 @@ trait UseRelationArbitrary {
                 .map(_.toSet)
             )
           )
-        } yield m
+        } yield {
+          if (conf.showArbitraryInfo)
+            println(
+              s"[INFO] generated use relation with ${m.values.map(_.size).sum} values"
+            )
+          m
+        }
     else
       Map.empty
   })

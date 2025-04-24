@@ -68,7 +68,7 @@ class LinkRelationTest
    * This test first create a platform
    * then it build a random link relation on it and test the link and unlink
    */
-  "LinkRelation" should "record properly link and unlink when restricted to reachable links" taggedAs UnitTests in {
+  "LinkRelation" should "record properly link and unlink when restricted to reachable values" taggedAs UnitTests in {
     implicit val newConf: ArbitraryConfiguration =
       ArbitraryConfiguration.default
         .copy(removeUnreachableLink = true)
@@ -78,6 +78,7 @@ class LinkRelationTest
         forAll(minSuccessful(20)) { (m: Map[Hardware, Set[Hardware]]) =>
           checkLinkRelations(p, m)
         }
+        Platform.clear()
       }
     }
   }
@@ -92,6 +93,7 @@ class LinkRelationTest
         forAll(minSuccessful(20)) { (m: Map[Hardware, Set[Hardware]]) =>
           checkLinkRelations(p, m)
         }
+        Platform.clear()
       }
     }
   }

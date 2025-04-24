@@ -58,6 +58,7 @@ class UseRelationTest
         applyAllUses(use, undo = true)
         checkUseRelation[Initiator, Service](Map.empty)
       }
+      Platform.clear()
     }
   }
 
@@ -71,6 +72,7 @@ class UseRelationTest
         applyAllUses(use, undo = true)
         checkUseRelation[Application, Service](Map.empty)
       }
+      Platform.clear()
     }
   }
 
@@ -84,6 +86,7 @@ class UseRelationTest
         applyAllUses(use, undo = true)
         checkUseRelation[Application, Initiator](Map.empty)
       }
+      Platform.clear()
     }
   }
 
@@ -97,6 +100,7 @@ class UseRelationTest
         applyAllUses(use, undo = true)
         checkUseRelation[Data, Target](Map.empty)
       }
+      Platform.clear()
     }
   }
 }

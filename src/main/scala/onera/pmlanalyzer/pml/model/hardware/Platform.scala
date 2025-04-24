@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml
 import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
@@ -175,6 +176,12 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
+
+  /**
+   * Clear the map of platforms
+   * @note should not be used except for tests
+   */
+  private[model] def clear(): Unit = _memo.clear()
 
   def get(id: Symbol): Option[Platform] = _memo.get(id)
 

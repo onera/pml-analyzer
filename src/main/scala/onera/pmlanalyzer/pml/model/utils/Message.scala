@@ -52,8 +52,8 @@ object Message {
       list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
   ): String =
     s"""[WARNING] The transaction $userName addresses multiple physical transactions:
-       |${list.map(_._1).mkString("\n")}
-       |so $userName will be considered as a scenario""".stripMargin
+       |${list.map(_._1).mkString("[WARNING]", "\n", "\n")}
+       |[WARNING] so $userName will be considered as a scenario""".stripMargin
 
   inline def multiPathRouteWarning(
       from: Service,

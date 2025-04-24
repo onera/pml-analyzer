@@ -73,6 +73,7 @@ class RoutingRelationTest
           }
           applyAllUses(use, undo = true)
           applyAllLinks(link, undo = true)
+          Platform.clear()
       }
     }
   }

@@ -120,7 +120,7 @@ trait LinkRelationArbitrary {
           .filter(_._2.nonEmpty)
         if (conf.showArbitraryInfo)
           println(
-            s"[INFO] generated link relation with ${r.values.map(_.size).sum} links"
+            s"[INFO] generated link relation with ${r.values.map(_.size).sum} values"
           )
         if (conf.removeUnreachableLink) {
           removeNonReachableFrom(All[Initiator].toSet[Hardware], r)

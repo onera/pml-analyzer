@@ -119,6 +119,10 @@ trait RoutingRelationArbitrary {
                 }
               )(_ ++ _)
               .filter((k, v) => k._3.linked.size > v.size)
+          if (conf.showArbitraryInfo)
+            println(
+              s"[INFO] generated routing relation with ${map.values.map(_.size).sum} values"
+            )
           if (map.size > conf.maxRoutingConstraint)
             map
               .drop(electedValues.size - conf.maxRoutingConstraint)
