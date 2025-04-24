@@ -36,7 +36,9 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalTransaction,
-  PhysicalTransactionId
+  PhysicalTransactionId,
+  PhysicalScenario,
+  PhysicalScenarioId
 }
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.views.interference.operators.Transform.{
@@ -56,6 +58,7 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
       extends Platform(Symbol("DemandTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
       with TransactionLibraryInstances
+        with InterferenceSpecificationInstances
       with Relation.Instances
       with TransactionLibrary {
     val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
@@ -101,8 +104,14 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
 //    tr4 used
 
     val sc1: Scenario = Scenario(tr3, tr4)
+    val sc2: Scenario = Scenario (tr1, tr2)
 
     sc1 used
+    
+    sc2 used
+
+//    val ps: PhysicalScenario = Set(tr1Id, tr2Id)
+//    val psid : PhysicalScenarioId = scenarioId(ps)
   }
 
   import DemandTestPlatform.{*, given}
@@ -117,5 +126,12 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
     for {
       pt <- scenarioByUserName(sc1.userName)
     } yield demandOfTransaction(pt) shouldBe 5
+  }
+
+  "A PhysicalScenarioId" should "be associated to a capacity" in {
+    psid hasDemand 4
+    for {
+      tr <- purifiedScenarios(psid)
+    } yield demandOfTransaction(tr) shouldBe 4
   }
 }
