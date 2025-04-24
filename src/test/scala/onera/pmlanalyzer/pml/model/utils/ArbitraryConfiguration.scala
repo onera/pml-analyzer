@@ -41,7 +41,7 @@ final case class ArbitraryConfiguration(
     forceTotalHosting: Boolean = false,
     removeUnreachableLink: Boolean = true,
     maxRoutingConstraint: Int = 50,
-    showArbitraryInfo: Boolean = true
+    showArbitraryInfo: Boolean = false
 )
 
 object ArbitraryConfiguration {
