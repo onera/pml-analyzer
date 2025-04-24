@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.utils
 
@@ -53,8 +52,8 @@ object Message {
       list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
   ): String =
     s"""[WARNING] The transaction $userName addresses multiple physical transactions:
-       |${list.map(_._1).mkString("\n")}
-       |so $userName will be considered as a scenario""".stripMargin
+       |${list.map(_._1).mkString("[WARNING]", "\n", "\n")}
+       |[WARNING] so $userName will be considered as a scenario""".stripMargin
 
   inline def multiPathRouteWarning(
       from: Service,
@@ -74,7 +73,10 @@ object Message {
       name: PhysicalTransactionId,
       names: Iterable[UserTransactionId]
   ): String =
-    s"[WARNING] The physical transaction $name has ${names.size} distinct names ${names.map(_.id.name).mkString(", ")}"
+    s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
+       |${names
+        .map(_.id.name)
+        .mkString("[WARNING] ", "\n[WARNING] ", "")}""".stripMargin
 
   inline def impossibleScenarioWarning(userName: UserScenarioId): String =
     s"[WARNING] The physical scenario $userName is not possible, check your link and route constraints"
@@ -119,8 +121,12 @@ object Message {
   inline def successfulExportInfo(name: Any, time: Any): String =
     s"[INFO] $name exported successfully in $time s"
 
-  inline def analysisResultFoundInfo(folder: Any, platform: Any): String =
-    s"[INFO] $folder already contains result files for $platform, computation discarded"
+  inline def analysisResultFoundInfo(
+      folder: Any,
+      platform: Any,
+      analysis: Any
+  ): String =
+    s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
     s"[INFO] $platform MonoSat model successfully built in $time s"
@@ -143,23 +149,27 @@ object Message {
   inline def iterationResultsInfo(
       isFree: Boolean,
       computed: mutable.Map[Int, Int],
-      over: Map[Int, BigInt]
+      over: Option[Map[Int, BigInt]]
   ): String =
     s"""[INFO] Interference ${if (isFree) "free " else ""}computed so far
          |${printScenarioNumber(computed, over)}""".stripMargin
 
   inline def printScenarioNumber(
       computed: mutable.Map[Int, Int],
-      over: Map[Int, BigInt]
+      over: Option[Map[Int, BigInt]]
   ): String = {
     s"""${computed.toSeq
         .sortBy(_._1)
         .map(p =>
-          s"[INFO] size ${p._1}: ${p._2} over ${over(p._1)} (${
-              if (over(p._1) == 0) "0"
-              else if (p._2 * 100 / over(p._1) == 0) "< 1"
-              else math.round(p._2 * 100 / over(p._1).toDouble).toInt
-            }%)"
+          over match
+            case Some(value) =>
+              s"[INFO] size ${p._1}: ${p._2} over ${value(p._1)} (${
+                  if (value(p._1) == 0) "0"
+                  else if (p._2 * 100 / value(p._1) == 0) "< 1"
+                  else math.round(p._2 * 100 / value(p._1).toDouble).toInt
+                }%)"
+            case None =>
+              s"[INFO] size ${p._1}: ${p._2}"
         )
         .mkString("\n")}
        |""".stripMargin
@@ -184,4 +194,7 @@ object Message {
 
   inline def errorMultipleInstantiation(l: Any, r: Any): String =
     s"[WARNING] $l has already be instantiated in $r"
+
+  val monosatLibraryNotLoaded: String =
+    "[WARNING] monosat dynamic library cannot be found"
 }

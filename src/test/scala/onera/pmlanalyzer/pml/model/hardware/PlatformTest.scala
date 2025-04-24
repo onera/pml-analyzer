@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.hardware
 
@@ -23,12 +22,13 @@ import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
-import org.scalacheck.Gen
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import scala.reflect.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class PlatformTest
     extends AnyFlatSpec
@@ -40,14 +40,15 @@ class PlatformTest
 
   object PlatformTestFixture
       extends Platform(Symbol("PlatformTestFixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with InitiatorTest
+      with ApplicationArbitrary
+      with LoadArbitrary
+      with StoreArbitrary
+      with TargetArbitrary
+      with SimpleTransporterArbitrary
+      with InitiatorArbitrary
 
   import PlatformTestFixture.*
+  import PlatformTestFixture.given
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,
@@ -64,13 +65,13 @@ class PlatformTest
       x.stores.map(_.name) should be(Set(Symbol(s"${x}_store")))
   }
 
-  "A platform" should "contains all applications" in {
+  "A platform" should "contains all applications" taggedAs UnitTests in {
     forAll { (x: Application) =>
       Application.all should contain(x)
     }
   }
 
-  it should "retrieve composite properly" in {
+  it should "retrieve composite properly" taggedAs UnitTests in {
     forAll("name") { (name: Symbol) =>
       whenever(
         Composite.get(Composite.formatName(name, currentOwner)).isEmpty
@@ -83,7 +84,7 @@ class PlatformTest
     }
   }
 
-  it should "retrieve smart services properly" in {
+  it should "retrieve smart services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
@@ -100,7 +101,7 @@ class PlatformTest
     }
   }
 
-  it should "retrieve target services properly" in {
+  it should "retrieve target services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
@@ -117,7 +118,7 @@ class PlatformTest
     }
   }
 
-  it should "retrieve simple transporter services properly" in {
+  it should "retrieve simple transporter services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
@@ -136,7 +137,7 @@ class PlatformTest
     }
   }
 
-  it should "retrieve virtualizer services properly" in {
+  it should "retrieve virtualizer services properly" taggedAs UnitTests in {
     forAll("name", "stores", "loads") {
       (name: Symbol, stores: List[Store], loads: List[Load]) =>
         {
@@ -155,7 +156,7 @@ class PlatformTest
     }
   }
 
-  it should "encode links and unlink properly" in {
+  it should "encode links and unlink properly" taggedAs UnitTests in {
     forAll(
       (Gen.oneOf(Initiator.all), "smart"),
       (Gen.oneOf(Target.all), "target"),
@@ -198,7 +199,7 @@ class PlatformTest
     }
   }
 
-  it should "encode deactivation properly" in {
+  it should "encode deactivation properly" taggedAs UnitTests in {
     forAll(
       (Gen.oneOf(Initiator.all), "smart"),
       (Gen.oneOf(Target.all), "target"),

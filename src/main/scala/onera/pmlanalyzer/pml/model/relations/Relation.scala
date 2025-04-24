@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.relations
 
@@ -78,7 +77,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def add(a: L, b: R)(using line: Line, file: File): Unit = {
     _values.getOrElseUpdate(a, MSet.empty[R]) += b
     _inverse.getOrElseUpdate(b, MSet.empty[L]) += a
-    modifications += Change(a, b, isAdd = true, line, file)
+    modifications += Change(a, Some(b), isAdd = true, line, file)
   }
 
   /** Add a collection of b elements to a Warning if the b is empty then all the
@@ -92,8 +91,12 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def add(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
     if (b.nonEmpty)
       b.foreach(add(a, _))
-    else
+    else {
+      _values.get(a) match
+        case Some(value) if value.isEmpty =>
+        case _ => modifications += Change(a, None, isAdd = false, line, file)
       _values.getOrElseUpdate(a, MSet.empty[R]).clear()
+    }
 
   /** Remove the element b from the relation with a
     *
@@ -101,12 +104,17 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     *   the input element
     * @param b
     *   the removed element
+    * @note an element a can be in relation to emptySet, that is a bit different
+   *       from not being in the relation
     */
   def remove(a: L, b: R)(using line: Line, file: File): Unit =
-    for (sb <- _values.get(a); sa <- _inverse.get(b)) yield {
+    for {
+      sb <- _values.get(a)
+      sa <- _inverse.get(b)
+    } {
       sb -= b
       sa -= a
-      modifications += Change(a, b, isAdd = false, line, file)
+      modifications += Change(a, Some(b), isAdd = false, line, file)
     }
 
   /** Remove the elements of the collection b from the relation with a
@@ -119,14 +127,23 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
   def remove(a: L, b: Iterable[R])(using line: Line, file: File): Unit =
     b.foreach(remove(a, _))
 
-  /** Remove a from the relation WARNING: this is different from removing all
-    * elements in relation with a
+  /** Remove a from the relation
     *
     * @param a
     *   the input element
+    * @note This is different from removing all
+    *  elements in relation with a
     */
-  def remove(a: L)(using line: Line, file: File): Unit =
-    apply(a).foreach(remove(a, _))
+  def remove(a: L)(using line: Line, file: File): Unit = {
+    _values.remove(a)
+    for {
+      sb <- _inverse.values
+      if sb.contains(a)
+    } {
+      sb -= a
+    }
+    modifications += Change(a, None, isAdd = false, line, file)
+  }
 
   /** Provide the elements in relation with a WARNING the function returns an
     * empty set either if a is not in the relation or if no elements are
@@ -147,6 +164,15 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
     *   the optional set of related elements
     */
   def get(a: L): Option[Set[R]] = for { b <- _values.get(a) } yield b.toSet
+
+  /** Provide the inverse relation as a map of edges
+   *
+   * @return
+   * the map o inverse edges
+   */
+  def inverseEdges: Map[R, Set[L]] = (_inverse.view mapValues {
+    _.toSet
+  }).toMap
 
   /** Provide the elements a in relation with b
     *
@@ -177,7 +203,7 @@ object Relation {
 
   final case class Change[L, R](
       l: L,
-      r: R,
+      r: Option[R],
       isAdd: Boolean,
       line: Line,
       file: File
@@ -194,17 +220,12 @@ object Relation {
     val sourceFile: String =
       file.value.split('.').init.mkString(java.io.File.separator)
 
+    private val changeString: String = r match
+      case Some(value) => s"$l -> $value"
+      case None        => s"all edges from $l"
+
     override def toString: String = s"$sourceFile:$lineInFile ${
         if (isAdd) "adding" else "removing"
-      } $l -> $r ${if (isAdd) "to" else "from"} ${name.value}"
+      } $changeString ${if (isAdd) "to" else "from"} ${name.value}"
   }
-
-  /** Trait gathering all relation instances
-    */
-  trait Instances
-      extends LinkRelation.Instances
-      with UseRelation.Instances
-      with ProvideRelation.Instances
-      with AuthorizeRelation.Instances
-      with RoutingRelation.Instances
 }

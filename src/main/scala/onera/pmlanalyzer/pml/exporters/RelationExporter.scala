@@ -1,27 +1,30 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.{
+  Scenario,
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.software._
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.operators.*
 
 import java.io.FileWriter
 
@@ -93,9 +96,9 @@ object RelationExporter {
           "Initiator, TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          ((ini, target, router), next) <- platform.InitiatorRouting.edges
+          ((ini, target, router), next) <- context.InitiatorRouting.edges
           n <- next
-          c <- platform.InitiatorRouting.getModificationsFor(
+          c <- context.InitiatorRouting.getModificationsFor(
             (ini, target, router),
             n
           )
@@ -116,9 +119,9 @@ object RelationExporter {
         writer.write("Software, Initiator(s), SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
-            (sw, initiators) <- platform.SWUseInitiator.edges
+            (sw, initiators) <- context.SWUseInitiator.edges
             ini <- initiators
-            c <- platform.SWUseInitiator.getModificationsFor(sw, ini)
+            c <- context.SWUseInitiator.getModificationsFor(sw, ini)
           } yield {
             s"$sw, $ini, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -138,7 +141,7 @@ object RelationExporter {
           for {
             d <- Data.all
             t <- d.hostingTargets
-            c <- platform.DataUseTarget.getModificationsFor(d, t)
+            c <- context.DataUseTarget.getModificationsFor(d, t)
           } yield {
             s"$d, $t, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -158,9 +161,9 @@ object RelationExporter {
         )
         val toWrite =
           for {
-            (sw, services) <- platform.SWUseService.edges
+            (sw, services) <- context.SWUseService.edges
             s <- services
-            c <- platform.SWUseService.getModificationsFor(sw, s)
+            c <- context.SWUseService.getModificationsFor(sw, s)
           } yield {
             s"$sw, $s, ${c.sourceFile}, ${c.lineInFile}\n"
           }

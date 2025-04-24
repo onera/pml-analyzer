@@ -1,3 +1,5 @@
+import sbt.Tests
+
 //Definition of the managed dependencies
 val sourceCode = "com.lihaoyi" %% "sourcecode" % "0.3.0"
 val scalaz = "org.scalaz" %% "scalaz-core" % "7.3.7"
@@ -6,6 +8,8 @@ val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
 val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
+val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
+
 lazy val modelCode =
   taskKey[Seq[(String, File)]]("files to be embedded in docker")
 
@@ -105,6 +109,10 @@ lazy val assemblySettings = Seq(
   }
 )
 
+lazy val testSettings = Seq(
+  Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-n", "UnitTests", "-n", "FastTests")
+)
+
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
 lazy val commonSettings = Seq(
   organization := "io.github.onera",
@@ -136,7 +144,7 @@ lazy val commonSettings = Seq(
   ),
   publishMavenStyle := true,
   version := "1.1.1",
-  scalaVersion := "3.2.2",
+  scalaVersion := "3.3.5",
   sbtVersion := "1.8.2",
   scalafixOnCompile := true,
   semanticdbEnabled := true,
@@ -152,10 +160,11 @@ lazy val commonSettings = Seq(
     sourceCode,
     scalatest,
     scalactic,
-    scalaplus
+    scalaplus,
+    parallel
   ),
   docSetting
-) ++ dockerSettings ++ assemblySettings
+) ++ dockerSettings ++ assemblySettings ++ testSettings
 
 // The service project is the main project containing all the sources for
 // PML modelling and analysis
@@ -163,6 +172,9 @@ lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(commonSettings: _*)
   .settings(name := "pml_analyzer")
+  .settings(
+    addCommandAlias("testPerf", "; set Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, \"-n\", \"PerfTests\", \"-l\", \"UnitTests\", \"-l\", \"FastTests\") ; test")
+  )
 
 // Fork a new JVM on every sbt run task
 // Fixes an issue with the classloader complaining that the Monosat library is

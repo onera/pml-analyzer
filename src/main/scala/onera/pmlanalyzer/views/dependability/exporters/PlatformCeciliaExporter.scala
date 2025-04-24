@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.views.dependability.exporters
 
@@ -154,13 +153,13 @@ trait PlatformCeciliaExporter {
           val ini = x.initiators.filter { _.name == i.name }
           val s =
             x.applications.filter(_.hostingInitiators.intersect(ini).nonEmpty)
-          val tgt = PLProvideService.domain.collect {
+          val tgt = x.context.PLProvideService.domain.collect {
             case t2: PMLTarget if t.name == t2.name => t2
           }
           s.exists(pmlS =>
             tgt.exists(t =>
               t.services.exists(b => {
-                SWAuthorizeService(pmlS).contains(b)
+                x.context.SWAuthorizeService(pmlS).contains(b)
               })
             )
           )
@@ -257,7 +256,7 @@ trait PlatformCeciliaExporter {
             }.toList
           case _ => println("should not be reachable...")
         }
-        x.SWUseInitiator._inverse.foreach { p =>
+        x.context.SWUseInitiator._inverse.foreach { p =>
           {
             val t = initiators(p._1)
             val sw: List[Software[FM]] = p._2.map(software).toList

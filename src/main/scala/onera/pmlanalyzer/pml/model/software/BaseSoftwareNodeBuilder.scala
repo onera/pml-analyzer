@@ -1,24 +1,23 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.software
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
@@ -42,7 +41,7 @@ import sourcecode.{File, Line, Name}
   *   the concrete type of built object
   * @group builder
   */
-trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
+trait BaseSoftwareNodeBuilder[T <: Software] extends PMLNodeBuilder[T] {
 
   /** The builder that must be implemented by specific builder
     * @param name
@@ -63,7 +62,7 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     */
   def apply(
       name: Symbol
-  )(using givenInfo: ReflexiveInfo): T = {
+  )(using givenInfo: ReflexiveInfo, memo: PMLNodeMap[T]): T = {
     val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
     getOrElseUpdate(formattedName, builder(formattedName))
   }
@@ -80,7 +79,8 @@ trait BaseSoftwareNodeBuilder[T <: Application] extends PMLNodeBuilder[T] {
     */
   def apply()(using
       givenName: Name,
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      memo: PMLNodeMap[T]
   ): T =
     apply(Symbol(givenName.value))
 }

@@ -1,25 +1,25 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
 import sourcecode.{File, Line, Name}
 
@@ -33,8 +33,11 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, info: ReflexiveInfo)
-    extends Hardware(info) {
+abstract class Composite(n: Symbol, info: ReflexiveInfo, c: Context)
+    extends Hardware(info)
+    with ContainerLike {
+
+  implicit val context: Context = c
 
   val name: Symbol = formatName(n, owner)
 
@@ -79,9 +82,10 @@ abstract class Composite(n: Symbol, info: ReflexiveInfo)
     *   the implicit info of the composite
     */
   def this(compositeName: Symbol, dummy: Int = 0)(using
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      givenC: Context
   ) = {
-    this(compositeName, givenInfo)
+    this(compositeName, givenInfo, givenC)
   }
 }
 
@@ -108,7 +112,9 @@ object Composite extends PMLNodeBuilder[Composite] {
     * @param owner
     *   its owner
     */
-  private def addComposite(c: Composite, owner: Owner): Unit = {
+  private def addComposite(c: Composite, owner: Owner)(using
+      pmlNodeMap: PMLNodeMap[Composite]
+  ): Unit = {
     add(c)
   }
 }

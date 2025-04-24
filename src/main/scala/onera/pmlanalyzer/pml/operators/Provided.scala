@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.operators
 
@@ -216,23 +215,23 @@ object Provided {
       Initiator.all ++ Target.all ++ Virtualizer.all ++ SimpleTransporter.all
     }
 
-    def owner(b: Hardware): Set[L] = Platform.all.collect {
-      case p: L
-          if (Initiator.all(p.currentOwner)
-            ++ Target.all(p.currentOwner)
-            ++ Virtualizer.all(p.currentOwner)
-            ++ SimpleTransporter.all(p.currentOwner)).contains(b) =>
-        p
-    }
+    def owner(b: Hardware): Set[L] =
+      for {
+        p <- Platform.all.collect { case p: L => p }
+        if {
+          import p.*
+          p.hardware.contains(b)
+        }
+      } yield p
   }
 
   /** An implementation of the services provided by platforms
     */
   given [T <: Platform: Typeable]: Provided[T, Service] with {
-    def apply(a: T): Set[Service] = a.PLProvideService.targetSet
+    def apply(a: T): Set[Service] = a.context.PLProvideService.targetSet
 
     def owner(b: Service): Set[T] = Platform.all.collect {
-      case p: T if p.PLProvideService.targetSet.contains(b) => p
+      case p: T if p.context.PLProvideService.targetSet.contains(b) => p
     }
   }
 

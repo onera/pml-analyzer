@@ -24,8 +24,9 @@ import onera.pmlanalyzer.pml.model.hardware.{
   SimpleTransporter,
   Target
 }
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -41,29 +42,33 @@ class CompositeTest
 
     final class Core private (
         val id: Symbol,
-        info: ReflexiveInfo
-    ) extends Composite(id, info) {
+        info: ReflexiveInfo,
+        context: Context
+    ) extends Composite(id, info, context) {
       def this()(using
           givenName: Name,
-          givenInfo: ReflexiveInfo
+          givenInfo: ReflexiveInfo,
+          givenContext: Context
       ) = {
-        this(Symbol(givenName.value), givenInfo)
+        this(Symbol(givenName.value), givenInfo, givenContext)
       }
     }
   }
 
   import CompositeTestPlatform.*
 
-  "Hardware in different instances of a nested composite" should "have different names" in {
+  "Hardware in different instances of a nested composite" should "have different names" taggedAs UnitTests in {
     final class Cluster private (
         val id: Symbol,
-        info: ReflexiveInfo
-    ) extends Composite(id, info) {
+        info: ReflexiveInfo,
+        context: Context
+    ) extends Composite(id, info, context) {
       def this()(using
           givenName: Name,
-          givenInfo: ReflexiveInfo
+          givenInfo: ReflexiveInfo,
+          givenContext: Context
       ) = {
-        this(Symbol(givenName.value), givenInfo)
+        this(Symbol(givenName.value), givenInfo, givenContext)
       }
 
       val c0 = Core()
@@ -78,7 +83,7 @@ class CompositeTest
     cl0.c1.name should not equal (cl1.c1.name)
   }
 
-  it should "raise a warning when using multiple implementation with the same name" in {
+  it should "raise a warning when using multiple implementation with the same name" taggedAs UnitTests in {
 
     /**
      * Such a pattern MUST NEVER be used since the
@@ -90,8 +95,9 @@ class CompositeTest
      * @param info code traceability information at instantiation
      */
     final class IncorrectCluster private (info: ReflexiveInfo)(using
-        givenName: Name
-    ) extends Composite(Symbol(givenName.value), info) {
+        givenName: Name,
+        givenContext: Context
+    ) extends Composite(Symbol(givenName.value), info, givenContext) {
 
       def this()(using
           otherGivenName: Name,

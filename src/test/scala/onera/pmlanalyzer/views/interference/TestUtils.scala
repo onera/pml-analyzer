@@ -1,21 +1,19 @@
 /** *****************************************************************************
-  * Copyright (c) 2021. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  * ****************************************************************************
-  */
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ * **************************************************************************** */
 
 package onera.pmlanalyzer.views.interference
 
@@ -28,8 +26,20 @@ import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.Future
 import scala.io.Source
 import scala.language.postfixOps
+import org.scalatest.Tag
 
 object InterferenceTestExtension {
+
+  object PerfTests extends Tag("PerfTests")
+  object UnitTests extends Tag("UnitTests")
+  object FastTests extends Tag("FastTests")
+
+  var monosatLibraryLoaded: Boolean = true
+  try {
+    System.loadLibrary("monosat")
+  } catch {
+    case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
+  }
 
   extension (x: ConfiguredPlatform) {
 
@@ -40,22 +50,24 @@ object InterferenceTestExtension {
       x.computeKInterference(
         List(max, x.initiators.size).min,
         ignoreExistingAnalysisFiles = true,
-        verboseResultFile = false
+        computeSemantics = false,
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         {
           for {
             i <- 2 to List(max, x.initiators.size).min
             fileITF <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${x.fullName}_itf_$i.txt"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x, i)}"
             )
             fileFree <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${x.fullName}_free_$i.txt"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i)}"
             )
             rITFFile <- resultFiles.find(
-              _.getName == s"${x.fullName}_itf_$i.txt"
+              _.getName == FileManager.getInterferenceAnalysisITFFileName(x, i)
             )
             rFreeFile <- resultFiles.find(
-              _.getName == s"${x.fullName}_free_$i.txt"
+              _.getName == FileManager.getInterferenceAnalysisFreeFileName(x, i)
             )
           } yield {
             List(fileITF, fileFree)

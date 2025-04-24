@@ -1,29 +1,28 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  * ****************************************************************************
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.operators._
-import onera.pmlanalyzer.pml.exporters._
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.exporters.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -37,14 +36,7 @@ class ConfigurationTest
   /** Architecture of the graph formulation of
     * https://www.overleaf.com/project/5efb44712eb0ec00010737b3
     */
-  object ConfigurationFixture
-      extends Platform(Symbol("fixture"))
-      with ApplicationTest
-      with LoadTest
-      with StoreTest
-      with TargetTest
-      with SimpleTransporterTest
-      with InitiatorTest {
+  object ConfigurationFixture extends Platform(Symbol("fixture")) {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()
@@ -122,7 +114,7 @@ class ConfigurationTest
   ConfigurationFixture.exportRestrictedHWAndSWGraph()
   ConfigurationFixture.exportHWAndSWGraph()
 
-  "A configured platform" should "encode the used relation properly" in {
+  "A configured platform" should "encode the used relation properly" taggedAs UnitTests in {
 
     appSmart1.targetLoads should be(mem1.loads)
     appSmart1.targetStores should be(empty)
@@ -137,24 +129,24 @@ class ConfigurationTest
     appSmart22.hostingInitiators should be(Set(smart2.core))
 
     dmaDescriptor.hostingInitiators should be(Set(dma1))
-    dmaDescriptor.targetLoads should be(dataMem1.loads and dataMem2.loads)
+    dmaDescriptor.targetLoads should be(dataMem1.loads ++ dataMem2.loads)
     dmaDescriptor.targetStores should be(
-      smart1.cache.stores and smart2.cache.stores
+      smart1.cache.stores ++ smart2.cache.stores
     )
   }
 
-  it should "encode the routing relation properly" in {
+  it should "encode the routing relation properly" taggedAs UnitTests in {
     for (st <- smart1.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) should be(defined)
-      InitiatorRouting((dma1, st, on)) should be(bus.stores)
+      context.InitiatorRouting.get((dma1, st, on)) should be(defined)
+      context.InitiatorRouting((dma1, st, on)) should be(bus.stores)
     }
     for (st <- smart2.cache.stores; on <- pamu.stores) {
-      InitiatorRouting.get((dma1, st, on)) should be(defined)
-      InitiatorRouting((dma1, st, on)) should be(smart2.cache.stores)
+      context.InitiatorRouting.get((dma1, st, on)) should be(defined)
+      context.InitiatorRouting((dma1, st, on)) should be(smart2.cache.stores)
     }
   }
 
-  it should "derive the used transaction properly" in {
+  it should "derive the used transaction properly" taggedAs UnitTests in {
     transactionsBySW(appSmart1).size should be(1)
     mem1.loads should contain(
       transactionsByName(transactionsBySW(appSmart1).head).last
@@ -165,9 +157,9 @@ class ConfigurationTest
     transactionsBySW(dmaDescriptor).size should be(3)
   }
 
-  it should "detect cyclic service paths" in {}
+  it should "detect cyclic service paths" taggedAs UnitTests in {}
 
-  it should "detect multiple routes" in {
+  it should "detect multiple routes" taggedAs UnitTests in {
     for {
       a <- ConfigurationFixture.applications
       transactions <- transactionsBySW.get(a)

@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.views.interference.operators
 
@@ -176,10 +175,10 @@ object PostProcess {
       for {
         size <- 2 to Math.min(x.initiators.size, that.initiators.size)
         thisITFFile <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_itf_$size.txt"
+          FileManager.getInterferenceAnalysisITFFileName(x, size)
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
-          s"${that.fullName}_itf_$size.txt"
+          FileManager.getInterferenceAnalysisITFFileName(that, size)
         )
       } yield {
         val file = FileManager.analysisDirectory.getFile(
@@ -236,7 +235,7 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_itf_$n.txt"
+          FileManager.getInterferenceAnalysisITFFileName(x, n)
         )
       } yield {
         val s = Source.fromFile(file)
@@ -258,7 +257,7 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          s"${x.fullName}_free_$n.txt"
+          FileManager.getInterferenceAnalysisFreeFileName(x, n)
         )
       } yield {
         val s = Source.fromFile(file)
@@ -275,7 +274,9 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
-        verboseResultFile = false
+        computeSemantics = false,
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         resultFiles
           .filter(_.getName.contains("channel"))
@@ -344,7 +345,9 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
-        verboseResultFile = false
+        computeSemantics = false,
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         {
           val multiPathsTransactions = x match {
@@ -399,7 +402,9 @@ object PostProcess {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
-        verboseResultFile = false
+        computeSemantics = false,
+        verboseResultFile = false,
+        onlySummary = false
       ) map { resultFiles =>
         {
           val file = FileManager.analysisDirectory.getFile(
@@ -443,6 +448,67 @@ object PostProcess {
     }
   }
 
+  private def extractSize(in: Iterable[String]): Map[Int, BigInt] =
+    in.filter(_.startsWith("[INFO] size "))
+      .map(_.split("over").head)
+      .map(s => {
+        val data = s.split(':')
+        data.head.filter(_.isDigit).toInt -> BigInt(data.last.filter(_.isDigit))
+      })
+      .toMap
+
+  def parseSummaryFile(
+      platform: Platform
+  ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
+    for {
+      file <- FileManager.analysisDirectory.locate(
+        FileManager.getInterferenceAnalysisSummaryFileName(platform)
+      )
+    } yield {
+      val source = Source.fromFile(file)
+      val lines = source
+        .getLines()
+        .toSeq
+
+      val indexBeginItf =
+        lines.indexWhere(_.contains("Computed ITF"))
+      val indexBeginFree =
+        lines.indexWhere(_.contains("Computed ITF-free"))
+      val analysisTime: Double =
+        (for {
+          s <- lines.find(_.startsWith("Computation time"))
+        } yield {
+          s.replaceAll("[^\\d.]", "").toDouble
+        }).getOrElse(-1.0)
+      val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree))
+      val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length))
+      source.close()
+      (itfSizes, freeSizes, analysisTime)
+    }
+
+  def parseSemanticsSizeFile(platform: Platform): Option[Map[Int, BigInt]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getSemanticSizeFileName(platform)
+      )
+    } yield {
+      val source = Source.fromFile(file)
+      val res = source
+        .getLines()
+        .toSeq
+        .drop(1)
+        .map(_.split(","))
+        .map(s =>
+          s.head.filter(_.isDigit).toInt -> BigInt(
+            s.last.filter(_.isDigit)
+          )
+        )
+        .toMap
+      source.close()
+      res
+    }
+  }
+
   def parseScenarioFile(source: BufferedSource): Array[Seq[String]] = {
     val res = source
       .getLines()
@@ -453,5 +519,21 @@ object PostProcess {
       .sortBy(_.mkString("||"))
     source.close()
     res
+  }
+
+  def parseGraphReductionFile(platform: Platform): Option[BigDecimal] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getGraphReductionFileName(platform)
+      )
+    } yield {
+      val source = Source.fromFile(file)
+      val res = source
+        .getLines()
+        .toSeq(1)
+        .toDouble
+      source.close()
+      BigDecimal(res)
+    }
   }
 }

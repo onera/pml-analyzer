@@ -1,24 +1,23 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
@@ -99,7 +98,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
   )(using
       givenName: Name,
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(Symbol(givenName.value), basics, withDefaultServices)
 
@@ -129,7 +131,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       withDefaultServices: Boolean
   )(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T = {
     val formattedName = PMLNodeBuilder.formatName(name, givenInfo.owner)
     val hwOwner = givenInfo.owner.add(name)
@@ -163,7 +168,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, basics: Set[Service])(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T = {
     apply(name, basics, true)
   }
@@ -185,7 +193,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
       name: Symbol
   )(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(name, Set.empty, true)
 
@@ -207,7 +218,10 @@ trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
     */
   def apply(name: Symbol, withDefaultServices: Boolean)(using
       p: ProvideRelation[Hardware, Service],
-      givenInfo: ReflexiveInfo
+      givenInfo: ReflexiveInfo,
+      PMLNodeMap: PMLNodeMap[T],
+      lMap: PMLNodeMap[Load],
+      sMap: PMLNodeMap[Store]
   ): T =
     apply(name, Set.empty, withDefaultServices)
 }

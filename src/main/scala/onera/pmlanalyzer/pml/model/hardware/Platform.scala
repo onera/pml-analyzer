@@ -1,36 +1,41 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.pml
 import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.utils.{
+  Context,
+  Message,
+  Owner,
+  ReflexiveInfo
+}
 import onera.pmlanalyzer.pml.operators.*
-import sourcecode.{Enclosing, File, Line}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalScenario,
   PhysicalScenarioId,
   PhysicalTransaction,
   PhysicalTransactionId
 }
+import sourcecode.{Enclosing, File, Line}
 
 import scala.collection.mutable.HashMap as MHashMap
 import scala.language.implicitConversions
@@ -48,7 +53,9 @@ import scala.language.implicitConversions
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
     extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
-    with Relation.Instances {
+    with ContainerLike {
+
+  implicit val context: Context = Context.EmptyContext()
 
   def this(n: Symbol, dummy: Int = 0)(using
       givenLine: Line,
@@ -57,16 +64,14 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     this(n, givenLine, givenFile)
   }
 
-  implicit def toSymbol(s: String): Symbol = Symbol(s)
-
   /** the current owner id becomes the id of the current node
     * @group identifier
     */
   implicit val currentOwner: Owner = Owner(name)
 
-  /** notify the initialisation of a new composite to the companion object
+  /** notify the initialisation of a new platform to the companion object
     */
-  Platform._memo(name) = this
+  Platform.add(this)
 
   /** The full name of a platform is its base name concatenated with the
     * configuration if available
@@ -158,74 +163,10 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
       }
     )
 
-  /** Extension methods for transactions
-    */
-  protected trait TransactionLikeOps {
-
-    /** Check if the transaction contains only one service
-      * @return
-      *   true if only one service
-      */
-    def noSingletonPaths: Boolean = paths.forall(_.size > 1)
-
-    /** Method that should be provided by sub-classes to access to the path
-      * @return
-      *   the set of service paths
-      */
-    def paths: Set[PhysicalTransaction]
-
-    /** Check if the target is in the possible targets of the transaction
-      * @param x
-      *   target to find
-      * @return
-      *   true if the target is contained
-      */
-    def targetIs(x: Target): Boolean = target.contains(x)
-
-    /** Provide the targets of the transaction
-      * @return
-      *   the set of targets
-      */
-    def target: Set[Target] =
-      paths.filter(_.size >= 2).flatMap(t => t.last.targetOwner)
-
-    /** Provide the initiators fo a transaction
-      * @return
-      *   the set of initiators
-      */
-    def initiator: Set[Initiator] =
-      paths.filter(_.nonEmpty).flatMap(t => t.head.initiatorOwner)
-
-    /** Check is the initiator is in the possible initiators of the transaction
-      * @param x
-      *   initiator to find
-      * @return
-      *   true if the initiator is contained
-      */
-    def initiatorIs(x: Initiator): Boolean = initiator.contains(x)
-
-    /** Check if the transaction is a load transaction
-      * @return
-      *   true if target services are loads
-      */
-    def isLoad: Boolean =
-      paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Load])
-
-    /** Check if the transaction is a store transaction
-      * @return
-      *   true if target services are stores
-      */
-    def isStore: Boolean =
-      paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Store])
-  }
-
-  /** Extension methods for physical transaction identifiers
-    * @param x
-    *   the name of the physical transaction
-    */
-  final implicit class PhysicalTransactionOps(x: PhysicalTransactionId)
-      extends TransactionLikeOps {
-    def paths: Set[PhysicalTransaction] = Set(transactionsByName(x))
+  given ToServicePath[PhysicalTransactionId] with {
+    def apply(x: PhysicalTransactionId): Set[PhysicalTransaction] = Set(
+      transactionsByName(x)
+    )
   }
 }
 
@@ -235,6 +176,38 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
+
+  /**
+   * Clear the map of platforms
+   * @note should not be used except for tests
+   */
+  private[model] def clear(): Unit = _memo.clear()
+
+  def get(id: Symbol): Option[Platform] = _memo.get(id)
+
+  def add(v: Platform): Unit = {
+    for { l <- _memo.get(v.name) } {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
+    }
+    _memo.addOne((v.name, v))
+  }
+
+  def getOrElseUpdate(name: Symbol, v: => Platform): Platform = {
+    for { l <- _memo.get(name) } {
+      println(
+        Message.errorMultipleInstantiation(
+          s"$l in ${l.sourceFile} at line ${l.lineInFile}",
+          s"${v.sourceFile} at line ${v.lineInFile}"
+        )
+      )
+    }
+    _memo.getOrElseUpdate(name, v)
+  }
 
   /** Provide all the platforms defined in the project
     * @return

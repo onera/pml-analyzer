@@ -1,19 +1,12 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
-import org.scalatest.flatspec.{AnyFlatSpec, AnyFlatSpecLike}
+import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
-import sourcecode.Name
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
-}
 
 import scala.language.postfixOps
 
@@ -28,7 +21,7 @@ class TransparentTest extends AnyFlatSpecLike with should.Matchers {
 
   import TransparentTestPlatform.*
 
-  "A transaction" should "be able to be transparent" in {
+  "A transaction" should "be able to be transparent" taggedAs UnitTests in {
     tr1Id.isTransparent
     tr2Id.isTransparent
     transactionIsTransparent.value contains (tr1Id)

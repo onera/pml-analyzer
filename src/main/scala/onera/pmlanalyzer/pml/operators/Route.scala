@@ -1,28 +1,28 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.operators
 
+import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.RoutingRelation
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.Message.uselessRoutingConstraintWarning
-import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.utils.{Context, Owner}
 import sourcecode.{File, Line}
 
 /** Extension methods
@@ -84,6 +84,7 @@ object Route {
         *   the router are specified
         */
       def useLink(router: Hardware)(using
+          context: Context,
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = false)
@@ -96,6 +97,7 @@ object Route {
         *   the router are specified
         */
       def cannotUseLink(router: Hardware)(using
+          context: Context,
           owner: Owner
       ): SimpleRouterIdentifyNext =
         SimpleRouterIdentifyNext(self, Target.all, router, forbid = true)
@@ -150,7 +152,7 @@ object Route {
           tL <- t.loads
           rL <- router.loads
         } yield {
-          update(tL, rL, l(rL))
+          remove(tL, rL, l(rL))
         }
 
         for {
@@ -158,11 +160,11 @@ object Route {
           tS <- t.stores
           rS <- router.stores
         } yield {
-          update(tS, rS, l(rS))
+          remove(tS, rS, l(rS))
         }
       }
 
-      private def update[T <: Service](t: T, on: T, next: Set[T])(using
+      private def remove[T <: Service](t: T, on: T, next: Set[T])(using
           l: Linked[T, T],
           r: RoutingRelation[(Initiator, Service, Service), Service],
           line: Line,

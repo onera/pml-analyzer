@@ -1,20 +1,19 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.operators
 
@@ -84,7 +83,7 @@ object Used {
         * @return
         *   the set of used elements
         */
-      def used[B]()(using ev: Used[L, B]): Set[B] = ev(self)
+      def used[B](using ev: Used[L, B]): Set[B] = ev(self)
     }
 
     /** Extension method class
@@ -109,8 +108,10 @@ object Used {
         * @return
         *   the set of hosted applications
         */
-      def applications: Set[Application] =
+      def applications: Set[Application] = {
+        import self.*
         Application.allDirect(self.currentOwner)
+      }
 
       /** PML keyword to access to physical transactions used by self
         *
@@ -192,6 +193,18 @@ object Used {
       def hostingInitiators(using ev: Used[L, Initiator]): Set[Initiator] = ev(
         self
       )
+
+      /** PML keyword to access to the applications hosted by self
+       *
+       * @param ev
+       * the proof that self can be hosted by initiators
+       * @return
+       * the hosted applications
+       */
+      def hostedApplications(using ev: Used[L, Application]): Set[Application] =
+        ev(
+          self
+        )
     }
   }
 
@@ -214,58 +227,59 @@ object Used {
     def apply(a: P): Set[PhysicalTransaction] = {
       import a._
 
-      def usedTransactionsBy[U <: Initiator | Application](x: U)(using
-          u: Used[U, Service],
-          r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
-          typeable: Typeable[U & Initiator]
-      ): (Set[Path[Service]], Set[String]) = {
-
-        // get all target services for x
-        val allTargets = x.targetService
-
-        val warningRestrict = mutable.Set.empty[String]
-        // get the service graph from x services to reach each target service.
-        val serviceGraph =
-          allTargets.groupMapReduce(s => s)(s => {
-            val (graph, warnings) = r((x, s))
-            warningRestrict ++= warnings
-            graph
-          })((l, r) => l ++ r)
-
-        // compute the services of x
-        val fromServices = x match {
-          case app: Application => app.hostingInitiators.flatMap(_.services)
-          case ini: Initiator   => ini.services
-        }
-
-        // compute the paths within each graph from the services of x
-        val (paths, warningPaths) = (for {
-          iniS <- fromServices
-          graph <- serviceGraph.values if graph.contains(iniS)
-        } yield {
-          pathsIn(iniS, graph)
-        }).unzip
-
-        val result = paths.flatten
-
-        x match {
-          case sw: Application =>
-            checkTransactions(result, allTargets, Some(sw)).toSeq.sorted
-              .foreach(println)
-            checkApplicationAllocation(sw)
-          case _: Initiator =>
-            checkTransactions(result, allTargets, None).toSeq.sorted
-              .foreach(println)
-        }
-        (result, warningPaths.flatten ++ warningRestrict)
-      }
-
       val (appPaths, appWarnings) = a.applications.map(usedTransactionsBy).unzip
       val (iniPaths, iniWarnings) = a.initiators.map(usedTransactionsBy).unzip
 
       (appWarnings.flatten ++ iniWarnings.flatten).toSeq.sorted.foreach(println)
 
       appPaths.flatten ++ iniPaths.flatten
+    }
+
+    def usedTransactionsBy[U <: Initiator | Application](x: U)(using
+        uA: Used[Application, Initiator],
+        uAI: Used[Application, Service],
+        uS: Used[U, Service],
+        uI: Used[U, Initiator],
+        p: Provided[Initiator, Service],
+        r: Restrict[(Map[Service, Set[Service]], Set[String]), (U, Service)],
+        typeable: Typeable[U & Initiator]
+    ): (Set[Path[Service]], Set[String]) = {
+
+      // get all target services for x
+      val allTargets = x.targetService
+
+      val warningRestrict = mutable.Set.empty[String]
+      // get the service graph from x services to reach each target service.
+      val serviceGraph =
+        allTargets.groupMapReduce(s => s)(s => {
+          val (graph, warnings) = r((x, s))
+          warningRestrict ++= warnings
+          graph
+        })((l, r) => l ++ r)
+
+      // compute the services of x
+      val fromServices = x.hostingInitiators.flatMap(_.services)
+
+      // compute the paths within each graph from the services of x
+      val (paths, warningPaths) = (for {
+        iniS <- fromServices
+        graph <- serviceGraph.values if graph.contains(iniS)
+      } yield {
+        pathsIn(iniS, graph)
+      }).unzip
+
+      val result = paths.flatten
+
+      x match {
+        case sw: Application =>
+          checkTransactions(result, allTargets, Some(sw)).toSeq.sorted
+            .foreach(println)
+          checkApplicationAllocation(sw)
+        case _: Initiator =>
+          checkTransactions(result, allTargets, None).toSeq.sorted
+            .foreach(println)
+      }
+      (result, warningPaths.flatten ++ warningRestrict)
     }
   }
 
@@ -279,6 +293,16 @@ object Used {
       l: Used[Application, Initiator]
   ): Used[A, I] with {
     def apply(a: A): Set[I] = l(a) collect { case s: I => s }
+  }
+
+  given [AI <: Application | Initiator, I <: Initiator: Typeable](using
+      l: Used[Application, Initiator]
+  ): Used[AI, I] with {
+    def apply(a: AI): Set[I] =
+      a match
+        case i: I           => Set(i)
+        case a: Application => l(a) collect { case s: I => s }
+        case _              => Set.empty
   }
 
   /** ------------------------------------------------------------------------------------------------------------------

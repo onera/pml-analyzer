@@ -1,40 +1,39 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.software.Application
-import AsTransaction.TransactionParam
+import ToTransaction.TransactionParam
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 
-trait AsTransaction[A] {
+trait ToTransaction[A] {
   def apply(a: => A): TransactionParam
 }
 
-object AsTransaction {
+object ToTransaction {
   type TransactionParam =
     (() => Set[(Service, Service)], () => Set[Application])
 
   trait Ops {
     def TransactionParam[A](a: => A)(using
-        ev: AsTransaction[A]
+        ev: ToTransaction[A]
     ): TransactionParam = ev(a)
   }
 
@@ -47,7 +46,7 @@ object AsTransaction {
   given applicationUsed[T <: Load | Store](using
       u: Used[Application, Initiator],
       p: Provided[Initiator, T]
-  ): AsTransaction[Set[(Application, T)]] with {
+  ): ToTransaction[Set[(Application, T)]] with {
     def apply(
         a: => Set[(Application, T)]
     ): (() => Set[(Service, Service)], () => Set[Application]) = (
@@ -62,7 +61,7 @@ object AsTransaction {
 
   given initiatorUsed[T <: Load | Store](using
       p: Provided[Initiator, T]
-  ): AsTransaction[Set[(Initiator, T)]] with {
+  ): ToTransaction[Set[(Initiator, T)]] with {
     def apply(
         a: => Set[(Initiator, T)]
     ): (() => Set[(Service, Service)], () => Set[Application]) =

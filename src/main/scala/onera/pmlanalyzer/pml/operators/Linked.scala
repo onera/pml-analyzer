@@ -1,26 +1,31 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.relations.LinkRelation
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Target}
+import onera.pmlanalyzer.pml.model.relations.{
+  Endomorphism,
+  LinkRelation,
+  RoutingRelation
+}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import scala.reflect._
+
+import scala.reflect.*
 
 /** Base trait for linked operation
   * @tparam L
@@ -76,6 +81,19 @@ object Linked {
         *   the set of pointing elements
         */
       def inverse[R](using linked: Linked[R, L]): Set[R] = linked.inverse(self)
+
+      /**
+       * PML keyword to retrieve the transitive closure of element linked to self
+       * @param linked the proof that it exists an endomorphism over R
+       * @tparam R the type of the endomorphism that should be supertype of L
+       * @return the closure
+       * @note this does not consider the routing relation
+       */
+      def canReach[R >: L](using linked: Linked[R, R]): Set[R] =
+        Endomorphism.closure(
+          self,
+          (x: R) => Some(linked(x))
+        )
     }
   }
 

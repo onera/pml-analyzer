@@ -1,24 +1,24 @@
-/** *****************************************************************************
-  * Copyright (c) 2023. ONERA This file is part of PML Analyzer
-  *
-  * PML Analyzer is free software ; you can redistribute it and/or modify it
-  * under the terms of the GNU Lesser General Public License as published by the
-  * Free Software Foundation ; either version 2 of the License, or (at your
-  * option) any later version.
-  *
-  * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT
-  * ANY WARRANTY ; without even the implied warranty of MERCHANTABILITY or
-  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
-  * for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program ; if not, write to the Free Software Foundation,
-  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-  */
+/*******************************************************************************
+ * Copyright (c)  2023. ONERA
+ * This file is part of PML Analyzer
+ *
+ * PML Analyzer is free software ;
+ * you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation ;
+ * either version 2 of  the License, or (at your option) any later version.
+ *
+ * PML Analyzer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY ;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with this program ;
+ *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ ******************************************************************************/
 
 package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.utils.Context
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
@@ -133,16 +133,23 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
    * @param armName the name of the ARMCore instance of this class
    * @param armInfo structure containing source code traceability information
    */
-  final class ARMCore private (armName: Symbol, armInfo: ReflexiveInfo)
-      extends Composite(armName, armInfo) {
+  final class ARMCore private (
+      armName: Symbol,
+      armInfo: ReflexiveInfo,
+      context: Context
+  ) extends Composite(armName, armInfo, context) {
 
     /** Enable to provide the name implicitly
      *
      * @param givenName the name of the composite derived by sourcecode package
      * @param givenInfo structure containing source code traceability information derived by sourcecode package
      */
-    def this()(implicit givenName: Name, givenInfo: ReflexiveInfo) = {
-      this(givenName.value, givenInfo)
+    def this()(implicit
+        givenName: Name,
+        givenInfo: ReflexiveInfo,
+        givenContext: Context
+    ) = {
+      this(givenName.value, givenInfo, givenContext)
     }
 
     /** Initiator modelling an ARM Core
