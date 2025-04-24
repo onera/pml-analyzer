@@ -28,6 +28,7 @@ import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 import CompositeArbitrary.given
+import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
 import onera.pmlanalyzer.pml.model.configuration.{
   Scenario,
   ScenarioArbitrary,
@@ -35,11 +36,13 @@ import onera.pmlanalyzer.pml.model.configuration.{
   TransactionArbitrary,
   TransactionLibrary
 }
+import onera.pmlanalyzer.pml.operators.*
 
 object PlatformArbitrary {
 
-  type PopulatedPlatform = Platform & TransactionLibrary &
-    LinkRelationArbitrary & UseRelationArbitrary & RoutingRelationArbitrary 
+  type PopulatedPlatform = Platform & ScenarioArbitrary & TransactionArbitrary &
+    PMLNodeSetArbitrary & TransactionLibrary & LinkRelationArbitrary &
+    UseRelationArbitrary & RoutingRelationArbitrary
 
   given (using
       conf: ArbitraryConfiguration,
@@ -51,6 +54,7 @@ object PlatformArbitrary {
         id <- Gen.identifier.suchThat(s => Platform.get(Symbol(s)).isEmpty)
         p = new Platform(Symbol(id), line, file)
           with TransactionLibrary
+          with PMLNodeSetArbitrary
           with ApplicationArbitrary
           with DataArbitrary
           with LoadArbitrary
@@ -60,60 +64,41 @@ object PlatformArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
+          with TransactionArbitrary
+          with ScenarioArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary
-        maxData <- Gen.choose(1, conf.maxData)
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxData,
-            summon[Arbitrary[Data]].arbitrary
-          )
+          PMLNodeSetArbitrary[Application].arbitrary
         }
-        maxApp <- Gen.choose(1, conf.maxApplication)
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxApp,
-            summon[Arbitrary[Application]].arbitrary
-          )
+          PMLNodeSetArbitrary[Data].arbitrary
         }
-        maxInitiatorInContainer <- Gen.choose(1, conf.maxInitiatorInContainer)
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxInitiatorInContainer,
-            summon[Arbitrary[Initiator]].arbitrary
-          )
+          PMLNodeSetArbitrary[Initiator].arbitrary
         }
-        maxTransporterInContainer <- Gen.choose(
-          1,
-          conf.maxTransporterInContainer
-        )
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxTransporterInContainer,
-            summon[Arbitrary[Transporter]].arbitrary
-          )
+          PMLNodeSetArbitrary[Transporter].arbitrary
         }
-        maxTargetInContainer <- Gen.choose(1, conf.maxTargetInContainer)
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxTargetInContainer,
-            summon[Arbitrary[Target]].arbitrary
-          )
+          PMLNodeSetArbitrary[Target].arbitrary
         }
-        maxCompositePerContainer <- Gen.choose(1, conf.maxCompositePerContainer)
         _ <- {
           import p.given
-          Gen.listOfN(
-            maxCompositePerContainer,
-            summon[Arbitrary[Composite]].arbitrary
-          )
+          PMLNodeSetArbitrary[Composite].arbitrary
         }
-      } yield p
+      } yield {
+        if (conf.showArbitraryInfo)
+          println(
+            s"[INFO] platform generated with ${p.hardware.size} components and ${p.applications.size} applications"
+          )
+        p
+      }
     )
 }

@@ -17,33 +17,28 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-final case class ArbitraryConfiguration(
-    maxTargetLoad: Int = 2,
-    maxTargetStore: Int = 2,
-    maxVirtualizerLoad: Int = 2,
-    maxVirtualizerStore: Int = 2,
-    maxSimpleTransporterLoad: Int = 2,
-    maxSimpleTransporterStore: Int = 2,
-    maxInitiatorLoad: Int = 2,
-    maxInitiatorStore: Int = 2,
-    maxCompositePerContainer: Int = 2,
-    maxCompositeLayers: Int = 3,
-    maxInitiatorInContainer: Int = 3,
-    maxTargetInContainer: Int = 3,
-    maxTransporterInContainer: Int = 6,
-    maxApplication: Int = 20,
-    maxData: Int = 20,
-    maxTransaction: Int = 100,
-    maxScenario: Int = 20,
-    discardImpossibleTransactions: Boolean = true,
-    discardMultiPathTransactions: Boolean = true,
-    maxLinkPerComponent: Int = 3,
-    forceTotalHosting: Boolean = false,
-    removeUnreachableLink: Boolean = true,
-    maxRoutingConstraint: Int = 50,
-    showArbitraryInfo: Boolean = true
-)
+import org.scalacheck.Gen
 
-object ArbitraryConfiguration {
-  implicit val default: ArbitraryConfiguration = ArbitraryConfiguration()
+import scala.collection.immutable.{AbstractSet, SortedSet}
+
+object GenExtension {
+
+  extension (x: Gen.type) {
+    def mapForAllK[K, V](keys: Set[K], gen: => Gen[V]): Gen[Map[K, V]] =
+      if (keys.isEmpty)
+        Map.empty
+      else
+        for {
+          kv <- gen.map(keys.head -> _)
+          m <- mapForAllK(keys - kv._1, gen)
+        } yield m + kv
+
+    def nonEmptySubSetOfN[V](n: Int, s: Set[V]): Gen[Set[V]] = {
+      assert(s.size >= n)
+      for {
+        size <- x.choose(1, n)
+        r <- x.pick(size, s)
+      } yield r.toSet
+    }
+  }
 }

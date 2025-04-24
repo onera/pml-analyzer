@@ -63,14 +63,18 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
 object Endomorphism {
 
   def closure[A, B >: A](from: A, in: B => Option[Set[B]]): Set[B] = {
-    def rec(current: B, visited: Set[B]): Set[B] = in(current) match
-      case Some(value) if value.nonEmpty =>
-        for {
-          next <- value
-          if !visited.contains(next)
-          v <- rec(next, visited + current)
-        } yield v
-      case _ => visited
+    def rec(current: B, visited: Set[B]): Set[B] =
+      if (visited.contains(current))
+        visited
+      else {
+        in(current) match
+          case Some(value) if value.nonEmpty =>
+            for {
+              next <- value
+              v <- rec(next, visited + current)
+            } yield v
+          case _ => visited + current
+      }
     rec(from, Set.empty)
   }
 

@@ -23,6 +23,7 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 
 trait LinkRelationArbitrary {
   self: Platform =>
@@ -97,23 +98,30 @@ trait LinkRelationArbitrary {
   given (using
       conf: ArbitraryConfiguration
   ): Arbitrary[Map[Hardware, Set[Hardware]]] = Arbitrary(
-    if (All[Initiator].nonEmpty && All[Transporter].nonEmpty && All[Target].nonEmpty)
+    if (
+      All[Initiator].nonEmpty && All[Transporter].nonEmpty && All[
+        Target
+      ].nonEmpty
+    )
       for {
-        map <- Gen.mapOf(
-          Gen.zip(
-            Gen.oneOf(All[Transporter] ++ All[Initiator]),
-            Gen
-              .listOfN(
-                List(conf.maxLinkPerComponent, (All[Transporter] ++ All[Target]).size).min,
-                Gen.oneOf(All[Transporter] ++ All[Target])
-              )
-              .map(_.toSet)
+        map <- Gen.mapForAllK(
+          All[Transporter] ++ All[Initiator],
+          Gen.nonEmptySubSetOfN(
+            List(
+              conf.maxLinkPerComponent,
+              (All[Transporter] ++ All[Target]).size
+            ).min,
+            All[Transporter] ++ All[Target]
           )
         )
       } yield {
         val r = map
           .transform((k, v) => v - k)
           .filter(_._2.nonEmpty)
+        if (conf.showArbitraryInfo)
+          println(
+            s"[INFO] generated link relation with ${r.values.map(_.size).sum} links"
+          )
         if (conf.removeUnreachableLink) {
           removeNonReachableFrom(All[Initiator].toSet[Hardware], r)
         } else

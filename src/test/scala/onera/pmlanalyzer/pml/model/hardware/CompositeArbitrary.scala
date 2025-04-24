@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, utils}
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeSetArbitrary, utils}
 import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   RoutingRelationArbitrary,
@@ -53,6 +53,7 @@ object CompositeArbitrary {
                 .isEmpty
             )
           c = new Composite(Symbol(id), r, ctx)
+            with PMLNodeSetArbitrary
             with LoadArbitrary
             with StoreArbitrary
             with TargetArbitrary
@@ -60,44 +61,22 @@ object CompositeArbitrary {
             with InitiatorArbitrary
             with VirtualizerArbitrary
             with TransporterArbitrary
-          maxInitiatorInContainer <- Gen.choose(1, conf.maxInitiatorInContainer)
           _ <- {
             import c.given
-            Gen.listOfN(
-              maxInitiatorInContainer,
-              summon[Arbitrary[Initiator]].arbitrary
-            )
+            PMLNodeSetArbitrary[Initiator].arbitrary
           }
-          maxTransporterInContainer <- Gen.choose(
-            1,
-            conf.maxTransporterInContainer
-          )
           _ <- {
             import c.given
-            Gen.listOfN(
-              maxTransporterInContainer,
-              summon[Arbitrary[Transporter]].arbitrary
-            )
+            PMLNodeSetArbitrary[Transporter].arbitrary
           }
-          maxTargetInContainer <- Gen.choose(1, conf.maxTargetInContainer)
           _ <- {
             import c.given
-            Gen.listOfN(
-              maxTargetInContainer,
-              summon[Arbitrary[Target]].arbitrary
-            )
+            PMLNodeSetArbitrary[Target].arbitrary
           }
-          maxCompositePerContainer <- Gen.choose(
-            1,
-            conf.maxCompositePerContainer
-          )
           _ <- {
             import c.given
             if (c.currentOwner.path.size <= conf.maxCompositeLayers)
-              Gen.listOfN(
-                maxCompositePerContainer,
-                generateArb(conf, summon[ReflexiveInfo], ctx).arbitrary
-              )
+              PMLNodeSetArbitrary[Composite].arbitrary
             else
               Gen.someOf(Set.empty)
           }

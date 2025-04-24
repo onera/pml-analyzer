@@ -193,6 +193,18 @@ object Used {
       def hostingInitiators(using ev: Used[L, Initiator]): Set[Initiator] = ev(
         self
       )
+
+      /** PML keyword to access to the applications hosted by self
+       *
+       * @param ev
+       * the proof that self can be hosted by initiators
+       * @return
+       * the hosted applications
+       */
+      def hostedApplications(using ev: Used[L, Application]): Set[Application] =
+        ev(
+          self
+        )
     }
   }
 

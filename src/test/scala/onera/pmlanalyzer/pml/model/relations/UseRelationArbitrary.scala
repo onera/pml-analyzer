@@ -24,9 +24,10 @@ import onera.pmlanalyzer.pml.model.hardware.{
   Target
 }
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.utils.All
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 
 import scala.annotation.targetName
 
@@ -52,25 +53,33 @@ trait UseRelationArbitrary {
   given [K, V <: Hardware](using
       allK: All[K],
       allV: All[V],
+      conf: ArbitraryConfiguration,
       r: Use[K, V]
   ): Arbitrary[Map[K, Set[V]]] = Arbitrary(
-    if (allK().nonEmpty && allV().nonEmpty)
-      for {
-        m <- Gen.mapOf(
-          Gen.zip(
-            Gen.oneOf(allK()),
-            Gen
-              .atLeastOne(allV())
-              .map(_.toSet)
-          )
+    if (All[K].nonEmpty && All[V].nonEmpty)
+      if (conf.forceTotalHosting) {
+        Gen.mapForAllK(
+          All[K],
+          Gen.oneOf(All[V]).map(x => Set(x))
         )
-      } yield m
+      } else
+        for {
+          m <- Gen.mapOf(
+            Gen.zip(
+              Gen.oneOf(All[K]),
+              Gen
+                .atLeastOne(All[V])
+                .map(_.toSet)
+            )
+          )
+        } yield m
     else
       Map.empty
   )
 
   given [K](using
       allI: All[K],
+      conf: ArbitraryConfiguration,
       r: Use[K, Service]
   ): Arbitrary[Map[K, Set[Service]]] = Arbitrary({
     val targetService =
@@ -79,17 +88,23 @@ trait UseRelationArbitrary {
         s <- t.services
       } yield s
 
-    if (targetService.nonEmpty && allI().nonEmpty)
-      for {
-        m <- Gen.mapOf(
-          Gen.zip(
-            Gen.oneOf(allI()),
-            Gen
-              .atLeastOne(targetService)
-              .map(_.toSet)
-          )
+    if (targetService.nonEmpty && All[K].nonEmpty)
+      if (conf.forceTotalHosting)
+        Gen.mapForAllK(
+          All[K],
+          Gen.oneOf(targetService).map(x => Set(x))
         )
-      } yield m
+      else
+        for {
+          m <- Gen.mapOf(
+            Gen.zip(
+              Gen.oneOf(All[K]),
+              Gen
+                .atLeastOne(targetService)
+                .map(_.toSet)
+            )
+          )
+        } yield m
     else
       Map.empty
   })

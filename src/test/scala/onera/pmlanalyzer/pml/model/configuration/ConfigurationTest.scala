@@ -36,14 +36,7 @@ class ConfigurationTest
   /** Architecture of the graph formulation of
     * https://www.overleaf.com/project/5efb44712eb0ec00010737b3
     */
-  object ConfigurationFixture
-      extends Platform(Symbol("fixture"))
-      with ApplicationArbitrary
-      with LoadArbitrary
-      with StoreArbitrary
-      with TargetArbitrary
-      with SimpleTransporterArbitrary
-      with InitiatorArbitrary {
+  object ConfigurationFixture extends Platform(Symbol("fixture")) {
     val configName: Symbol = "conf"
 
     val dma1: Initiator = Initiator()

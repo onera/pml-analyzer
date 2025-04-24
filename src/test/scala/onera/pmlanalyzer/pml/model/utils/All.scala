@@ -18,7 +18,16 @@
 package onera.pmlanalyzer.pml.model.utils
 
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeMap}
-import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Hardware, Initiator, Platform, SimpleTransporter, Target, Transporter, Virtualizer}
+import onera.pmlanalyzer.pml.model.hardware.{
+  ContainerLike,
+  Hardware,
+  Initiator,
+  Platform,
+  SimpleTransporter,
+  Target,
+  Transporter,
+  Virtualizer
+}
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 
@@ -30,25 +39,33 @@ trait All[T] {
 
 object All {
 
-  given [T<:PMLNode] (using map:PMLNodeMap[T]): All[T] with {
+  given [T <: PMLNode](using map: PMLNodeMap[T]): All[T] with {
     def apply(): Set[T] = map.map.values.toSet
   }
 
-  given (using st:All[SimpleTransporter], v:All[Virtualizer]): All[Transporter] with {
+  given (using st: All[SimpleTransporter], v: All[Virtualizer]): All[
+    Transporter
+  ] with {
     def apply(): Set[Transporter] = All[SimpleTransporter] ++ All[Virtualizer]
   }
 
-  given (using t: All[Transporter], i: All[Initiator], tg: All[Target]): All[Hardware] with {
-    def apply(): Set[Hardware] = All[Transporter] ++ All[Initiator] ++ All[Target]
+  given (using t: All[Transporter], i: All[Initiator], tg: All[Target]): All[
+    Hardware
+  ] with {
+    def apply(): Set[Hardware] =
+      All[Transporter] ++ All[Initiator] ++ All[Target]
   }
 
   given (using st: All[Application], v: All[Data]): All[Software] with {
     def apply(): Set[Software] = All[Application] ++ All[Data]
   }
 
-  given (using st: All[Load], v: All[Store], a:All[ArtificialService]): All[Service] with {
-    def apply(): Set[Service] = All[Load] ++ All[Store] ++ All[ArtificialService]
+  given (using st: All[Load], v: All[Store], a: All[ArtificialService]): All[
+    Service
+  ] with {
+    def apply(): Set[Service] =
+      All[Load] ++ All[Store] ++ All[ArtificialService]
   }
 
-  def apply[T](using ev:All[T]): Set[T] = ev()
+  def apply[T](using ev: All[T]): Set[T] = ev()
 }

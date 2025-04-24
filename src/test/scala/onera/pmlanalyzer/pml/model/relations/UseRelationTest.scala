@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{*, given}
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.model.utils.All
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -50,6 +50,8 @@ class UseRelationTest
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
       import p.given
       import p.*
+      implicit val conf: ArbitraryConfiguration = ArbitraryConfiguration.default
+        .copy(forceTotalHosting = true)
       forAll(minSuccessful(20)) { (use: Map[Initiator, Set[Service]]) =>
         applyAllUses(use, undo = false)
         checkUseRelation(use)

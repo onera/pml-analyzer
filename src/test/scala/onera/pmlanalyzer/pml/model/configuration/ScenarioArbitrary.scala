@@ -24,12 +24,11 @@ import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 
-object ScenarioArbitrary {
+trait ScenarioArbitrary {
+  self: Platform with TransactionLibrary =>
 
   @targetName("given_Option_Scenario")
   given (using
-      currentOwner: Owner,
-      context: Context,
       arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[Scenario]] = Arbitrary(
@@ -48,7 +47,6 @@ object ScenarioArbitrary {
 
   @targetName("given_Option_UserScenario")
   given (using
-      context: Context,
       arbSc: Arbitrary[Option[Scenario]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedScenario]] = Arbitrary(

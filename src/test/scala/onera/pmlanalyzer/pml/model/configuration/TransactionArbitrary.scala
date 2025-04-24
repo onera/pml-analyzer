@@ -32,32 +32,37 @@ import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 
-object TransactionArbitrary {
+trait TransactionArbitrary {
+  self: Platform with TransactionLibrary =>
+
+  private lazy val linkedAppToData: Set[(Application, Data)] =
+    for {
+      i <- All[Initiator]
+      if i.hostedApplications.nonEmpty
+      t <- Endomorphism
+        .closure(i, context.PLLinkableToPL.edges)
+        .collect({ case x: Target => x })
+      app <- i.hostedApplications
+      d <- t.hostedData
+    } yield app -> d
+
+  private lazy val allAppToData: Set[(Application, Data)] =
+    for {
+      app <- All[Application]
+      d <- All[Data]
+    } yield app -> d
 
   @targetName("given_Option_Transaction")
   given (using
-      context: Context,
-      currentOwner: Owner,
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
   ): Arbitrary[Option[Transaction]] = Arbitrary(
     {
       val validAD =
         if (c.discardImpossibleTransactions)
-          for {
-            app <- All[Application]
-            i <- app.hostingInitiators
-            t <- Endomorphism
-              .closure(i, context.PLLinkableToPL.edges)
-              .collect({ case x: Target => x })
-            d <- t.hostedData
-          } yield app -> d
+          linkedAppToData
         else
-          for {
-            app <- All[Application]
-            d <- All[Data]
-          } yield app -> d
-
+          allAppToData
       if (validAD.isEmpty)
         None
       else
@@ -79,7 +84,6 @@ object TransactionArbitrary {
 
   @targetName("given_Option_UsedTransaction")
   given (using
-      context: Context,
       arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedTransaction]] = Arbitrary(
