@@ -74,8 +74,8 @@ object Demand {
   }
 
   given [LPS <: PhysicalScenarioId, R](using
-      transform: Transform[PhysicalScenarioId, Set[PhysicalTransactionId]],
-      d: Demand[PhysicalTransactionId, R]
+     d: Demand[PhysicalTransactionId, R],
+     transform: Transform[PhysicalScenarioId, Set[PhysicalTransactionId]]
   ): Demand[LPS, R] with {
     def apply(l: LPS, r: R)(using line: Line, file: File): Unit =
       for {
