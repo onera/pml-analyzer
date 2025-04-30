@@ -70,13 +70,13 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
 
     val app1: Application = Application()
     val app2: Application = Application()
-    app1 hostedBy (i1)
-    app2 hostedBy (i2)
+    app1 hostedBy i1
+    app2 hostedBy i2
 
     val d1: Data = Data()
     val d2: Data = Data()
-    d1 hostedBy (t1)
-    d2 hostedBy (t2)
+    d1 hostedBy t1
+    d2 hostedBy t2
 
     val tr1: Transaction = Transaction(app1 read d1)
     val tr2: Transaction = Transaction(app2 read d2)
