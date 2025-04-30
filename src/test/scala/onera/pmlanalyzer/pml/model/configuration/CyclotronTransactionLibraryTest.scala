@@ -39,7 +39,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
   "Cyclotron instances" should "contain exactly one transaction" in {
     for { p <- CyclotronInstances.all } {
-      import p.*
+      import p.given
       p.transactionByUserName.size should be(1)
       p.scenarioByUserName.size should be(1)
       p.transactions.size should be(1)
@@ -48,7 +48,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.transactionByUserName
-        trPhysicalPath <- p.usedTr.toPhysical
+        trPhysicalPath <- p.tr.used.toPhysical
       } {
         name should be(p.tr.userName)
         path should be(trPhysicalPath)
@@ -56,7 +56,7 @@ class CyclotronTransactionLibraryTest extends AnyFlatSpec with should.Matchers {
 
       for {
         (name, path) <- p.scenarioByUserName
-        trPhysicalPath <- p.usedTr.toPhysical
+        trPhysicalPath <- p.tr.used.toPhysical
       } {
         name should not be (p.tr.userName)
         path should be(Set(trPhysicalPath))
