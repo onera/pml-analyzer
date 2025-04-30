@@ -58,7 +58,7 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
       extends Platform(Symbol("DemandTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
       with TransactionLibraryInstances
-        with InterferenceSpecificationInstances
+      with InterferenceSpecificationInstances
       with Relation.Instances
       with TransactionLibrary {
     val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
@@ -104,13 +104,15 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
 //    tr4 used
 
     val sc1: Scenario = Scenario(tr3, tr4)
-    val sc2: Scenario = Scenario (tr1, tr2)
+    val sc2: Scenario = Scenario(tr1, tr2)
 
     sc1 used
-    
+
     sc2 used
-    
-    val psIdSc1 : PhysicalScenarioId = scenarioId(scenarioByUserName(sc1.userName))
+
+    val psIdSc1: PhysicalScenarioId = scenarioId(
+      scenarioByUserName(sc1.userName)
+    )
   }
 
   import DemandTestPlatform.{*, given}
