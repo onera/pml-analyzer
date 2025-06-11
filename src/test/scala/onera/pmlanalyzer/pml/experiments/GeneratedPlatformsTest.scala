@@ -160,7 +160,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       coreCount = 4,
       clusterCount = 2,
       dspCount = 0,
-      ddrPartitions = 2,
+      ddrPartitions = 1,
       coresPerBankPerPartition = 1,
       withDMA = false
     )
