@@ -94,20 +94,20 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       /**
        * Cores read from and write to their allocated memory banks.
        */
-      // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_ld",
       val readBanks: Seq[Transaction] =
-        for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+        for (bank <- coreToBanks(core)) yield {
+          val bankName = bank.name.name.replace(s"${fullName}_","").toUpperCase
           Transaction(
-            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}_ld",
+            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_ld",
             application read bank
           )
         }
 
-      // FIXME Name should use the DDR Id and Bank Id s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR${0}_BK${clIdI}_st",
       val writeBanks: Seq[Transaction] =
-        for ((bank, bId) <- coreToBanks(core).zipWithIndex) yield {
+        for (bank <- coreToBanks(core)) yield {
+          val bankName = bank.name.name.replace(s"${fullName}_","").toUpperCase
           Transaction(
-            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_DDR_BK${bId}st",
+            s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_st",
             application write bank
           )
         }

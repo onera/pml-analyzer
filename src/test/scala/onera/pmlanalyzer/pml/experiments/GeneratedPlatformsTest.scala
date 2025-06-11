@@ -164,6 +164,8 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       coresPerBankPerPartition = 1,
       withDMA = false
     )
+    p.exportUserTransactions()
+    p.exportPhysicalTransactions()
     p.computeAllInterference(
       timeout
     )
