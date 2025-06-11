@@ -154,6 +154,21 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
+  "For specific architecture it" should "be possible to compute interference" taggedAs PerfTests in {
+    val timeout = (1 hour)
+    val p = generatePlatformFromConfiguration(
+      coreCount = 4,
+      clusterCount = 2,
+      dspCount = 0,
+      ddrPartitions = 2,
+      coresPerBankPerPartition = 1,
+      withDMA = false
+    )
+    p.computeAllInterference(
+      timeout
+    )
+  }
+
   "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
     val timeout = (1 hour)
     for {
