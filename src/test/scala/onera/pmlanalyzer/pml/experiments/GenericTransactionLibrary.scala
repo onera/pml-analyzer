@@ -27,32 +27,31 @@ import scala.language.postfixOps
 trait GenericTransactionLibrary(withDMA: Boolean = true)
     extends TransactionLibrary {
   self: GenericPlatform with GenericSoftware =>
-
+  
   def partition_resources[A, B](
-      asking: Seq[A],
-      resources: Seq[B]
+    asking: Seq[A],
+    resources: Seq[B]
   ): Map[A, Seq[B]] = {
     if (asking.isEmpty || resources.isEmpty) {
       asking.map((_, Seq.empty)).toMap
     } else if (asking.length <= resources.length) {
       asking.zip(resources.grouped(resources.length / asking.length)).toMap
     } else {
-      resources
-        .zip(asking.grouped(asking.length / resources.length))
-        .flatMap((r, a) => a.map((_, Seq(r))))
-        .toMap
+      partition_resources(resources, asking)
+        .toSeq.flatMap((k,v) => v.map(a => a -> Seq(k)))
+        .groupMapReduce(_._1)(_._2)(_ ++ _)
     }
   }
 
-  val groupToDdr: Map[GroupCore, Seq[DDR]] =
-    partition_resources(groupCore, ddrs)
-
-  val clusterToBanks: Map[ClusterCore, Seq[Target]] = groupToDdr.flatMap(
-    (g, d) => partition_resources(g.clusters.flatten, d.flatMap(_.banks))
-  )
-
-  val coreToBanks: Map[Initiator, Seq[Target]] =
-    clusterToBanks.flatMap((c, d) => partition_resources(c.cores, d))
+  val coreToBanks: Map[Initiator, Seq[Target]] = {
+    val cores = for {
+      gC <- groupCore
+      cl <- gC.clusters
+      cl1 <- cl
+      c <- cl1.cores
+    } yield c
+    partition_resources(cores, ddrs.flatMap(_.banks))
+  }
 
   /**
    * General-purpose Cores transactions
