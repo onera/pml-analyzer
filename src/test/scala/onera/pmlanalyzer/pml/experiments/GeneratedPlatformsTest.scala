@@ -173,7 +173,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
     val timeout = (1 hour)
     for {
-      p <- platforms.par
+      p <- platforms
       c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
     } {
       c match
