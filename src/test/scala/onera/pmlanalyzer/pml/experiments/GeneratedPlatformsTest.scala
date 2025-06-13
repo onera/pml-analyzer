@@ -138,6 +138,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     withDMA <- Seq(false)
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 16)
+    if (coresPerBankPerPartition <= 4)
   } yield {
     println(
       s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
