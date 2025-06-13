@@ -139,7 +139,6 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     if (0 < coreCount + dspCount)
     if (coreCount + dspCount <= 8)
     if (coresPerBankPerPartition <= 8)
-    if (clusterCount <= (coreCount + dspCount)/2)
   } yield {
     println(
       s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
@@ -193,8 +192,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   it should "be possible to export the HW and SW graph" taggedAs PerfTests in {
     for {
       p <- platforms
-    }
+    } {
       p.exportRestrictedHWAndSWGraph()
+      p.exportUserTransactions()
+    }
   }
 
   it should "be possible to compute the interference" taggedAs PerfTests in {
