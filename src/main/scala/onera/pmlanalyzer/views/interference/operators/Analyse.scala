@@ -263,9 +263,11 @@ object Analyse {
       def computeGraphReduction(
           ignoreExistingFile: Boolean = false
       )(using ev: Analyse[T]): BigDecimal = {
-        PostProcess.parseGraphReductionFile(self) match
-          case Some(value) if !ignoreExistingFile => value
-          case _                                  => computeGraphReduction
+        if (ignoreExistingFile)
+          computeGraphReduction
+        else {
+          PostProcess.parseGraphReductionFile(self)
+            .getOrElse(computeGraphReduction) 
       }
 
       def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
