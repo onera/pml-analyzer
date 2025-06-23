@@ -17,8 +17,8 @@ lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docke
 writeMinimalBuildSBT := {
   val fileName = new File("minimalBuildSBT.txt")
   val content =
-    s"""val scalatest = "$scalatest"
-       |val scalaplus = "$scalaplus"
+    s"""val scalatest = ${scalatest.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
+       |val scalaplus = ${scalaplus.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
        |
        |lazy val root = (project in file("."))
        |  .settings(
