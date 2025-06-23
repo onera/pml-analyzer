@@ -14,8 +14,6 @@ val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
-//${scalatest.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
-
 writeMinimalBuildSBT := {
   val fileName = new File("minimalBuildSBT.txt")
   val content =
