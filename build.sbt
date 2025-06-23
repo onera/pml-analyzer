@@ -14,11 +14,13 @@ val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
+//${scalatest.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
+
 writeMinimalBuildSBT := {
   val fileName = new File("minimalBuildSBT.txt")
   val content =
-    s"""val scalatest = ${scalatest.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
-       |val scalaplus = ${scalaplus.toString().split(":").map(s => '"' +: s :+ '"').mkString(" % ")}
+    s"""val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
+       |val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
        |
        |lazy val root = (project in file("."))
        |  .settings(
