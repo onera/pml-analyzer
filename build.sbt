@@ -139,21 +139,22 @@ lazy val commonSettings = Seq(
   credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials"),
   pomIncludeRepository := { _ => false },
   crossPaths := false,
-  publishTo := Some(
-    "releases" at "https://s01.oss.sonatype.org/" + "service/local/staging/deploy/maven2"
-  ),
+  publishTo := {
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
+  },
   publishMavenStyle := true,
   version := "1.1.1",
   scalaVersion := "3.3.5",
-  sbtVersion := "1.8.2",
+  sbtVersion := "1.11.2",
   scalafixOnCompile := true,
   semanticdbEnabled := true,
   scalafmtOnCompile := true,
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
-  resolvers ++= Resolver.sonatypeOssRepos("releases"),
-  resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+  resolvers += Resolver.sonatypeCentralSnapshots,
   libraryDependencies ++= Seq(
     scalaz,
     scala_xml,
