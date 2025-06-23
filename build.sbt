@@ -1,4 +1,6 @@
 import sbt.Tests
+import java.io.FileWriter
+import java.io.PrintWriter
 
 //Definition of the managed dependencies
 val sourceCode = "com.lihaoyi" %% "sourcecode" % "0.3.0"
@@ -9,6 +11,40 @@ val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
+
+lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
+
+writeMinimalBuildSBT := {
+  val fileName = new File("minimalBuildSBT.txt")
+  val content =
+    s"""val scalatest = "$scalatest"
+       |val scalaplus = "$scalaplus"
+       |
+       |lazy val root = (project in file("."))
+       |  .settings(
+       |    name := "myProject",
+       |    version := "1.0.0",
+       |    scalaVersion := "${scalaVersion.value}",
+       |    sbtVersion := "${sbtVersion.value}",
+       |    scalacOptions := Seq("-unchecked", "-deprecation", "-feature"),
+       |    resolvers += Resolver.sonatypeCentralSnapshots,
+       |    libraryDependencies ++= Seq(
+       |        scalatest,
+       |        scalaplus
+       |      )
+       |  )
+       |
+       |// Fork a new JVM on every sbt run task
+       |// Fixes an issue with the classloader complaining that the Monosat library is
+       |// "already loaded in another classloader" on successive runs of the analysis
+       |// in the same sbt instance.
+       |fork := true""".stripMargin
+  val writer = new PrintWriter(new FileWriter(fileName))
+  writer.println(content)
+  writer.close()
+  println(s"[INFO] File $fileName written successfully.")
+  fileName
+}
 
 lazy val modelCode =
   taskKey[Seq[(String, File)]]("files to be embedded in docker")
@@ -42,6 +78,7 @@ lazy val dockerSettings = Seq(
     // The assembly task generates a fat JAR file
     val artifact: File = assembly.value
     val generatedDoc = (Compile / doc).value
+    val minimalBuildSBT = writeMinimalBuildSBT.value
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
     new Dockerfile {
@@ -74,7 +111,7 @@ lazy val dockerSettings = Seq(
       copy((Compile / doc / target).value, "doc")
       copy(artifact, artifactTargetPath)
       copy(Seq(base / "AUTHORS.txt", base / "lesser.txt", base / "minimalBuildSBT.txt", base / "LICENSE", base / "Makefile"), "./")
-      customInstruction("RUN", "mv minimalBuildSBT.txt build.sbt")
+      customInstruction("RUN", s"mv ${minimalBuildSBT.name} build.sbt")
       env("LD_LIBRARY_PATH" -> "/home/user/code/binlib:${LD_LIBRARY_PATH}")
       customInstruction(
         "RUN",
