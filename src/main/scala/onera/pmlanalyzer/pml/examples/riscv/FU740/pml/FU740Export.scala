@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.views.interference.examples.riscv.FU740.{FU740ApplicativeTableBasedInterferenceSpecification, FU740InterferenceSpecification_Inclusive, FU740PhysicalTableBasedInterferenceSpecification}
+import onera.pmlanalyzer.pml.examples.riscv.FU740.views.interference.{FU740ApplicativeTableBasedInterferenceSpecification, FU740InterferenceSpecification_Inclusive, FU740PhysicalTableBasedInterferenceSpecification}
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*

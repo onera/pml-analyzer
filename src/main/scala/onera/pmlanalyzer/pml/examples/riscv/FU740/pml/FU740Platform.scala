@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.examples.generic.io.Uart
-import onera.pmlanalyzer.pml.examples.generic.memory.{CadenceDdrSdramController, DdrSdram}
+import onera.pmlanalyzer.pml.examples.components.io.Uart
+import onera.pmlanalyzer.pml.examples.components.memory.{CadenceDdrSdramController, DdrSdram}
 import onera.pmlanalyzer.pml.examples.riscv.FU740.components.U74CoreComplex
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
@@ -27,10 +27,10 @@ import sourcecode.Name
 
 /** Simple model of the SiFive FU740 SoC. */
 class FU740Platform(
-                     name: Symbol,
-                     u74CoreCnt: Int,
-                     sdramInputPortCnt: Int,
-                     l2Partitioned: Boolean
+    name: Symbol,
+    u74Cnt: Int,
+    sdramInputNb: Int,
+    partitionCache: Boolean
 ) extends Platform(name) {
 
   /**
@@ -39,11 +39,11 @@ class FU740Platform(
     *                     will be the name of platform
     */
   def this(
-            u74CoreCnt: Int,
-            sdramInputNb: Int,
-            l2Partitioned: Boolean
+      u74Cnt: Int,
+      sdramInputNb: Int,
+      partitionCache: Boolean
   )(implicit implicitName: Name) = {
-    this(Symbol(implicitName.value), u74CoreCnt, sdramInputNb, l2Partitioned)
+    this(Symbol(implicitName.value), u74Cnt, sdramInputNb, partitionCache)
   }
 
   /* -----------------------------------------------------------
@@ -55,27 +55,27 @@ class FU740Platform(
   val ddr_banks_nb: Int = 4
   val ddr_gp_banks_nb: Int = 2
 
-  val u74_cluster = new U74CoreComplex(
+  val Cluster_U74_0 = new U74CoreComplex(
     "Cluster0",
-    u74CoreCnt,
+    u74Cnt,
     channels_nb,
     cache_banks,
-    l2Partitioned
+    partitionCache
   )
-  val uart = new Uart()
-  val ddr_ctrl = new CadenceDdrSdramController(sdramInputPortCnt)
-  val ddr = new DdrSdram(bankCnt = ddr_banks_nb, bankGroupCnt = ddr_gp_banks_nb, rankCnt = 1)
+  val UART = new Uart()
+  val DDR_Ctrl = new CadenceDdrSdramController(sdramInputNb)
+  val DDR = new DdrSdram(ddr_banks_nb, ddr_gp_banks_nb, 1)
 
   /* -----------------------------------------------------------
    * Physical connections
   ----------------------------------------------------------- */
 
   // Connections to DDR controller
-  ddr_ctrl.input_ports foreach (u74_cluster.mem_bus link _)
+  DDR_Ctrl.TileLink foreach (Cluster_U74_0.MBus link _)
 
   // Connection between DDR controller and DDR memory device
-  ddr_ctrl.scheduler link ddr.phy
+  DDR_Ctrl.scheduler link DDR.PHY
 
   // Connections to peripherals
-  u74_cluster.peripheral_tl_switch_1 link uart.slave_port
+  Cluster_U74_0.Peripheral_TL_Switch_1 link UART.slave_port
 }

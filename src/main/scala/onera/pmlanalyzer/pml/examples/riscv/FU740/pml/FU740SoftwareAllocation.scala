@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.examples.generic.cores.{SiFiveS7Core, SiFiveU7Core}
+import onera.pmlanalyzer.pml.examples.components.cores.{SiFiveS7Core, SiFiveU7Core}
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
@@ -81,34 +81,36 @@ trait FU740SoftwareAllocation {
 
   final class S7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
-    val S74: SiFiveS7Core = u74_cluster.S74(core)
+    val S74: SiFiveS7Core = Cluster_U74_0.S74(core)
 
     val locations: Seq[Target] = Seq(
-      u74_cluster.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
-      u74_cluster.l2_lim,
-      ddr.banks(0)
+      S74.DTIM,
+      Cluster_U74_0.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
+      Cluster_U74_0.L2_LIM,
+      DDR.banks(0)
     )
 
     val instances: Seq[Data] =
       locations.map(t => Data(s"${name}_at_${t.name.name}"))
 
-    val L2Cache: Data = instances.head
-    val L2LIM: Data = instances(1)
-    val Mem: Data = instances(2)
+    val DTIM: Data = instances(0)
+    val L2Cache: Data = instances(1)
+    val L2LIM: Data = instances(2)
+    val Mem: Data = instances(3)
 
     bindInstances()
   }
 
   final class U7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
-    val U74: SiFiveU7Core = u74_cluster.U74(core)
+    val U74: SiFiveU7Core = Cluster_U74_0.U74(core)
 
     val locations: Seq[Target] = Seq(
-      U74.dl1_cache,
-      u74_cluster.CoreToL2Partition
+      U74.L1D_cache,
+      Cluster_U74_0.CoreToL2Partition
         .filter(_._1 == U74.core)
         .map(_._2).head,
-      ddr.banks(0)
+      DDR.banks(0)
     )
 
     val instances: Seq[Data] =
@@ -126,25 +128,21 @@ trait FU740SoftwareAllocation {
    * Allocate one Data per each core. Data is stored in the DDR, and it may be
    * cached anywhere in the core's memory hierarchy.
    */
-  val ds: Data = Data()
   val d0 = S7CacheableData("DataC0", 0)
   val d1 = U7CacheableData("DataC1", 0)
   val di: Data = Data()
   val d2 = U7CacheableData("DataC2", 1)
   val d3 = U7CacheableData("DataC3", 2)
   val d4 = U7CacheableData("DataC4", 3)
-
-  ds hostedBy u74_cluster.C0.dtim
-  di hostedBy u74_cluster.l2_lim
-
-  /* TODO Add data towards UART on C2, transaction transparent on tilelink_switch */
+  
+  di hostedBy Cluster_U74_0.L2_LIM
 
   /* -----------------------------------------------------------
    * Application allocation
    * ----------------------------------------------------------- */
-  app0 hostedBy u74_cluster.C0.core
-  app1 hostedBy u74_cluster.U74(0).core
-  app2 hostedBy u74_cluster.U74(1).core
-  app3 hostedBy u74_cluster.U74(2).core
-  app4 hostedBy u74_cluster.U74(3).core
+  app0 hostedBy Cluster_U74_0.C0.core
+  app1 hostedBy Cluster_U74_0.U74(0).core
+  app2 hostedBy Cluster_U74_0.U74(1).core
+  app3 hostedBy Cluster_U74_0.U74(2).core
+  app4 hostedBy Cluster_U74_0.U74(3).core
 }
