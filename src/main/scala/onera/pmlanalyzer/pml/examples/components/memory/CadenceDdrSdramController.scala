@@ -7,36 +7,33 @@ import onera.pmlanalyzer.pml.operators.*
 import sourcecode.Name
 
 class CadenceDdrSdramController(
-    input_bus_nb: Int,
+    inputPortCnt: Int,
     name: Symbol,
     ctrlInfo: ReflexiveInfo,
     ctrlContext: Context
 ) extends Composite(name, ctrlInfo, ctrlContext) {
 
-  def this(input_bus_nb: Int)(using
+  def this(inputBusCnt: Int)(using
       givenName: Name,
       givenInfo: ReflexiveInfo,
       givenContext: Context
   ) = {
-    this(input_bus_nb, Symbol(givenName.value), givenInfo, givenContext)
+    this(inputBusCnt, Symbol(givenName.value), givenInfo, givenContext)
   }
 
-  // Transporter modelling the single input port
-  val TileLink: IndexedSeq[SimpleTransporter] =
-    (0 until input_bus_nb).map(i => SimpleTransporter(s"S$i"))
+  // Transporter modelling the configurable input ports
+  val input_ports: IndexedSeq[SimpleTransporter] =
+    (0 until inputPortCnt).map(i => SimpleTransporter(s"S$i"))
 
   // Transporter modelling the DDR controller
   val arbiter: SimpleTransporter = SimpleTransporter()
   val scheduler: SimpleTransporter = SimpleTransporter()
-  val CMD_queue: SimpleTransporter = SimpleTransporter()
+  val cmd_queue: SimpleTransporter = SimpleTransporter()
 
-  // Intern connections
-  for (i <- 0 until input_bus_nb) {
-    TileLink(i) link arbiter
-  }
+  // Internal connections from input ports
+  input_ports.foreach(_ link arbiter)
 
   // Memory controller sub-units
-  arbiter link CMD_queue
-  CMD_queue link scheduler
-
+  arbiter link cmd_queue
+  cmd_queue link scheduler
 }

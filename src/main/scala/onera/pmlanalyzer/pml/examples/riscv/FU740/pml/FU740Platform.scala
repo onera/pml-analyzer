@@ -71,11 +71,11 @@ class FU740Platform(
   ----------------------------------------------------------- */
 
   // Connections to DDR controller
-  DDR_Ctrl.TileLink foreach (Cluster_U74_0.MBus link _)
+  DDR_Ctrl.input_ports foreach (Cluster_U74_0.mem_bus link _)
 
   // Connection between DDR controller and DDR memory device
-  DDR_Ctrl.scheduler link DDR.PHY
+  DDR_Ctrl.scheduler link DDR.phy
 
   // Connections to peripherals
-  Cluster_U74_0.Peripheral_TL_Switch_1 link UART.slave_port
+  Cluster_U74_0.peripheral_tl_switch_1 link UART.slave_port
 }

@@ -49,12 +49,12 @@ class SiFiveU7Core(
   val core: Initiator = Initiator()
 
   // Target modelling the L1 caches of the core
-  val L1I_cache: Target = Target()
-  val L1D_cache: Target = Target()
+  val il1_cache: Target = Target()
+  val dl1_cache: Target = Target()
 
   // Transporter modelling the L1 cache memory controllers
-  val L1I_mem_ctrl: SimpleTransporter = SimpleTransporter()
-  val L1D_mem_ctrl: SimpleTransporter = SimpleTransporter()
+  val il1_mem_ctrl: SimpleTransporter = SimpleTransporter()
+  val dl1_mem_ctrl: SimpleTransporter = SimpleTransporter()
 
   // Target modelling the L1 and L2 TLBs of the core
 //  val L1D_tlb: Target = Target()
@@ -81,9 +81,8 @@ class SiFiveU7Core(
 //  L2_tlb_ctrl link L1D_mem_ctrl
 
   // SiFive core access to its private L1 and shared L2 cache
-  core link L1D_mem_ctrl
-  core link L1I_mem_ctrl
-  L1I_mem_ctrl link L1I_cache
-  L1D_mem_ctrl link L1D_cache
-
+  core link dl1_mem_ctrl
+  core link il1_mem_ctrl
+  il1_mem_ctrl link il1_cache
+  dl1_mem_ctrl link dl1_cache
 }
