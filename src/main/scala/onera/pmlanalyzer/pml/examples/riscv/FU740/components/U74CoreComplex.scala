@@ -17,7 +17,10 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.components
 
-import onera.pmlanalyzer.pml.examples.components.cores.{SiFiveS7Core, SiFiveU7Core}
+import onera.pmlanalyzer.pml.examples.components.cores.{
+  SiFiveS7Core,
+  SiFiveU7Core
+}
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.*
 import onera.pmlanalyzer.pml.model.utils.*
@@ -27,20 +30,20 @@ import sourcecode.Name
 /** Simple model of the SiFive U74 Core Complex. */
 class U74CoreComplex(
     name: String,
-    u74_nb: Int,
-    channels_nb: Int,
-    bank_nb: Int,
-    partitionLlc: Boolean,
+    u74CoreCnt: Int,
+    dmaChannelCnt: Int,
+    l2BankCnt: Int,
+    l2Partitioned: Boolean,
     complexInfo: ReflexiveInfo,
     complexContext: Context
 ) extends Composite(Symbol(name), complexInfo, complexContext) {
 
   def this(
       name: String,
-      u74_nb: Int,
-      channels_nb: Int,
-      bank_nb: Int,
-      partitionLlc: Boolean,
+      u74CoreCnt: Int,
+      dmaChannelCnt: Int,
+      l2BankCnt: Int,
+      l2Partitioned: Boolean,
       dummy: Int = 0
   )(using
       givenInfo: ReflexiveInfo,
@@ -48,27 +51,31 @@ class U74CoreComplex(
   ) = {
     this(
       name,
-      u74_nb,
-      channels_nb,
-      bank_nb,
-      partitionLlc,
+      u74CoreCnt,
+      dmaChannelCnt,
+      l2BankCnt,
+      l2Partitioned,
       givenInfo,
       givenContext
     )
   }
 
-  def this(u74_nb: Int, channels_nb: Int, bank_nb: Int, partitionLlc: Boolean)(
-      using
+  def this(
+      u74CoreNb: Int,
+      dmaChannelCnt: Int,
+      l2BankCnt: Int,
+      l2Partitioned: Boolean
+  )(using
       givenName: Name,
       givenInfo: ReflexiveInfo,
       givenContext: Context
   ) = {
     this(
       givenName.value,
-      u74_nb,
-      channels_nb,
-      bank_nb,
-      partitionLlc,
+      u74CoreNb,
+      dmaChannelCnt,
+      l2BankCnt,
+      l2Partitioned,
       givenInfo,
       givenContext
     )
@@ -79,7 +86,7 @@ class U74CoreComplex(
    * @group composite_def
    */
   class Direct_memory_access(
-      channels_nb: Int,
+      channelCnt: Int,
       name: String,
       dmaInfo: ReflexiveInfo,
       dmaContext: Context
@@ -95,19 +102,19 @@ class U74CoreComplex(
      * @param implicitName the name of the object/class inheriting from this class
      *                     will be the name of composite
      */
-    def this(channels_nb: Int)(using
+    def this(channelCnt: Int)(using
         implicitName: Name,
         givenInfo: ReflexiveInfo,
         givenContext: Context
     ) = {
-      this(channels_nb, implicitName.value, givenInfo, givenContext)
+      this(channelCnt, implicitName.value, givenInfo, givenContext)
     }
 
     /** Initiator modelling the DMAs
      *
      * @group initiator */
     val channel: IndexedSeq[Initiator] =
-      (0 until channels_nb).map(i => Initiator(s"Channel$i"))
+      (0 until channelCnt).map(i => Initiator(s"Channel$i"))
 
     /** Transporter modelling the master and slave ports that go to the Tilelink Switch
      *
@@ -127,7 +134,7 @@ class U74CoreComplex(
     val ctrl_reg: Target = Target()
 
     // DMA channels to arbiter connections
-    for (i <- 0 until channels_nb) {
+    for (i <- 0 until channelCnt) {
       channel(i) link arbiter
     }
 
@@ -143,33 +150,33 @@ class U74CoreComplex(
   val S74: IndexedSeq[SiFiveS7Core] = IndexedSeq(C0)
 
   val U74: IndexedSeq[SiFiveU7Core] =
-    (0 until u74_nb).map(i => SiFiveU7Core(s"C${i + 1}"))
-  val dma = new Direct_memory_access(channels_nb)
+    (0 until u74CoreCnt).map(i => SiFiveU7Core(s"C${i + 1}"))
+  val dma = new Direct_memory_access(dmaChannelCnt)
 
   val cores: Seq[Initiator] = Seq(C0.core) ++ (for (c <- U74) yield {
     c.core
   })
 
   // Transporter modelling the interconnection switches
-  val TileLinkSwitch: SimpleTransporter = SimpleTransporter()
-  val Peripheral_TL_Switch_0: SimpleTransporter = SimpleTransporter()
-  val Peripheral_TL_Switch_1: SimpleTransporter = SimpleTransporter()
+  val tilelink_switch: SimpleTransporter = SimpleTransporter()
+  val peripheral_tl_switch_0: SimpleTransporter = SimpleTransporter()
+  val peripheral_tl_switch_1: SimpleTransporter = SimpleTransporter()
 
   // Transporter modelling the two possible paths to L2$ Controller (slow for the LIM and fast for the cacheable)
   val slow_path: SimpleTransporter = SimpleTransporter()
   val fast_path: SimpleTransporter = SimpleTransporter()
 
   // Transporter modelling the L2 Snoop Controller
-  val L2_Ctrl: SimpleTransporter = SimpleTransporter()
+  val l2_ctrl: SimpleTransporter = SimpleTransporter()
 
   // Transport and Targets modelling the unified L2 memory of the core.
   // Note that the memory can be of type LIM or Cache.
   // Here we differentiate between both for implementation easiness of them. However, this is not exact.
-  val L2_memory_port: SimpleTransporter = SimpleTransporter()
-  val L2_Bank: IndexedSeq[SimpleTransporter] =
-    (0 until bank_nb).map(i => SimpleTransporter(s"Bank$i"))
-  val L2_cache_prt: IndexedSeq[Target] =
-    if (partitionLlc) {
+  val l2_memory_port: SimpleTransporter = SimpleTransporter()
+  val l2_banks: IndexedSeq[SimpleTransporter] =
+    (0 until l2BankCnt).map(i => SimpleTransporter(s"Bank$i"))
+  val l2_cache_prts: IndexedSeq[Target] =
+    if (l2Partitioned) {
       for { i <- 0 until cores.length } yield {
         Target(s"L2CachePrt$i")
       }
@@ -177,19 +184,19 @@ class U74CoreComplex(
       IndexedSeq(Target("L2Cache"))
     }
 
-  val CoreToL2Partition = cores.zipAll(L2_cache_prt, null, L2_cache_prt.last)
+  val CoreToL2Partition = cores.zipAll(l2_cache_prts, null, l2_cache_prts.last)
 
-  val L2_LIM: Target = Target()
+  val l2_lim: Target = Target()
 
   // Target modelling the directory for coherency manager
   val directory: Target = Target()
 
   // Target modelling the partitioned unified L2 cache of the core
-  val MSHR: Target = Target()
-  val WB_Buffer: Target = Target()
+  val mshr: Target = Target()
+  val wb_buffer: Target = Target()
 
   // Transporter modelling the Memory Bus (path to DDR SDRAM)
-  val MBus: SimpleTransporter = SimpleTransporter()
+  val mem_bus: SimpleTransporter = SimpleTransporter()
 
   // SiFive cores access to the unified L2 memory controller and resources, directly if it goes to the LIM or
   // via de cache controllers in the rest of the case
@@ -201,41 +208,41 @@ class U74CoreComplex(
 //    U74(i).L1D_mem_ctrl link TileLinkSwitch
 //    U74(i).L1I_mem_ctrl link TileLinkSwitch
 //  }
-  cores foreach (_ link TileLinkSwitch)
+  cores foreach (_ link tilelink_switch)
 
-  dma.master_port link TileLinkSwitch
+  dma.master_port link tilelink_switch
 
-  TileLinkSwitch link dma.slave_port
-  TileLinkSwitch link slow_path
-  TileLinkSwitch link fast_path
-  TileLinkSwitch link Peripheral_TL_Switch_0
-  TileLinkSwitch link Peripheral_TL_Switch_1
-  slow_path link L2_Ctrl
-  fast_path link L2_Ctrl
+  tilelink_switch link dma.slave_port
+  tilelink_switch link slow_path
+  tilelink_switch link fast_path
+  tilelink_switch link peripheral_tl_switch_0
+  tilelink_switch link peripheral_tl_switch_1
+  slow_path link l2_ctrl
+  fast_path link l2_ctrl
 
 // Controller to different buffers and memory
-  L2_Ctrl link directory
-  L2_Ctrl link L2_memory_port
+  l2_ctrl link directory
+  l2_ctrl link l2_memory_port
 
 // L2 cache memory port to Bank connections
-  for (j <- 0 until bank_nb) {
-    L2_memory_port link L2_Bank(j)
+  for (j <- 0 until l2BankCnt) {
+    l2_memory_port link l2_banks(j)
   }
 // Banks to LIM connection
-  for (j <- 0 until bank_nb) {
-    L2_Bank(j) link L2_LIM
+  for (j <- 0 until l2BankCnt) {
+    l2_banks(j) link l2_lim
   }
 // Banks to cache partitions connections
   for {
-    partition <- L2_cache_prt
-    bank <- L2_Bank
+    partition <- l2_cache_prts
+    bank <- l2_banks
   } {
     bank link partition
   }
 
-  L2_Ctrl link MSHR
-  L2_Ctrl link WB_Buffer
+  l2_ctrl link mshr
+  l2_ctrl link wb_buffer
 
 // Output
-  L2_Ctrl link MBus
+  l2_ctrl link mem_bus
 }

@@ -44,17 +44,17 @@ trait RoutingConfiguration {
   /* Accesses to local caches do not leave the U7 complex. */
   for {
     c <- Cluster_U74_0.U74
-    cache <- Seq(c.L1D_cache, c.L1I_cache) //, c.L2_tlb, c.L1D_tlb, c.L1I_tlb)
+    cache <- Seq(c.dl1_cache, c.il1_cache) //, c.L2_tlb, c.L1D_tlb, c.L1I_tlb)
   } {
-    c.core targeting cache blockedBy Cluster_U74_0.TileLinkSwitch
+    c.core targeting cache blockedBy Cluster_U74_0.tilelink_switch
   }
 
   /* Routing restrictions regarding fast and slow paths to L2 memory. */
   for {
     c <- Cluster_U74_0.cores
   } {
-    c targeting Cluster_U74_0.L2_cache_prt blockedBy Cluster_U74_0.slow_path
-    c targeting Cluster_U74_0.L2_LIM blockedBy Cluster_U74_0.fast_path
+    c targeting Cluster_U74_0.l2_cache_prts blockedBy Cluster_U74_0.slow_path
+    c targeting Cluster_U74_0.l2_lim blockedBy Cluster_U74_0.fast_path
     c targeting DDR.banks blockedBy Cluster_U74_0.slow_path
   }
 
@@ -67,7 +67,7 @@ trait RoutingConfiguration {
   for {
     core <- Cluster_U74_0.U74.map(_.core)
   } {
-    core targeting Cluster_U74_0.L2_cache_prt useLink core to Cluster_U74_0.TileLinkSwitch
-    core targeting DDR.banks useLink core to Cluster_U74_0.TileLinkSwitch
+    core targeting Cluster_U74_0.l2_cache_prts useLink core to Cluster_U74_0.tilelink_switch
+    core targeting DDR.banks useLink core to Cluster_U74_0.tilelink_switch
   }
 }

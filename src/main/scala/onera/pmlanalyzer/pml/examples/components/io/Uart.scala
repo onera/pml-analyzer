@@ -35,18 +35,22 @@ class Uart(name: String, uartInfo: ReflexiveInfo, uartContext: Context)
   /** Targets modelling the FIFOs for TX and RX
    *
    * @group transporter */
-  val FIFO_tx: Target = Target()
-  val FIFO_rx: Target = Target()
-  val ctrl_interrupt_regs: Target = Target()
+  val tx_fifo: Target = Target()
+  val rx_fifo: Target = Target()
 
   /** Transporter modelling the slave port
    *
    * @group transporter */
   val slave_port: SimpleTransporter = SimpleTransporter()
 
+  /** Controller interrupt registers
+   *
+   * @group target */
+  val ctrl_interrupt_regs: Target = Target()
+
   // SPI connections
   slave_port link ctrl
-  ctrl link FIFO_tx
-  ctrl link FIFO_rx
+  ctrl link tx_fifo
+  ctrl link rx_fifo
   ctrl link ctrl_interrupt_regs
 }
