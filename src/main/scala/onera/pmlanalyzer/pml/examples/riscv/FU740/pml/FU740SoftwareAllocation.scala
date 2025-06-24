@@ -84,7 +84,6 @@ trait FU740SoftwareAllocation {
     val S74: SiFiveS7Core = Cluster_U74_0.S74(core)
 
     val locations: Seq[Target] = Seq(
-      S74.dtim,
       Cluster_U74_0.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
       Cluster_U74_0.l2_lim,
       DDR.banks(0)
@@ -93,7 +92,6 @@ trait FU740SoftwareAllocation {
     val instances: Seq[Data] =
       locations.map(t => Data(s"${name}_at_${t.name.name}"))
 
-    val DTIM: Data = instances(0)
     val L2Cache: Data = instances(1)
     val L2LIM: Data = instances(2)
     val Mem: Data = instances(3)
@@ -128,14 +126,18 @@ trait FU740SoftwareAllocation {
    * Allocate one Data per each core. Data is stored in the DDR, and it may be
    * cached anywhere in the core's memory hierarchy.
    */
+  val ds: Data = Data()
   val d0 = S7CacheableData("DataC0", 0)
   val d1 = U7CacheableData("DataC1", 0)
   val di: Data = Data()
   val d2 = U7CacheableData("DataC2", 1)
   val d3 = U7CacheableData("DataC3", 2)
   val d4 = U7CacheableData("DataC4", 3)
-  
+
+  ds hostedBy Cluster_U74_0.C0.dtim
   di hostedBy Cluster_U74_0.l2_lim
+
+  /* TODO Add data towards UART on C2, transaction transparent on tilelink_switch */
 
   /* -----------------------------------------------------------
    * Application allocation
