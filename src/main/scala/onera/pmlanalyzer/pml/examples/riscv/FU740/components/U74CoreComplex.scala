@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.components
 
-import onera.pmlanalyzer.pml.examples.components.cores.{
+import onera.pmlanalyzer.pml.examples.generic.cores.{
   SiFiveS7Core,
   SiFiveU7Core
 }
