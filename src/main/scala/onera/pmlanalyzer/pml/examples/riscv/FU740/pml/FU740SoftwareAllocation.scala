@@ -84,9 +84,9 @@ trait FU740SoftwareAllocation {
     val S74: SiFiveS7Core = Cluster_U74_0.S74(core)
 
     val locations: Seq[Target] = Seq(
-      S74.DTIM,
+      S74.dtim,
       Cluster_U74_0.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
-      Cluster_U74_0.L2_LIM,
+      Cluster_U74_0.l2_lim,
       DDR.banks(0)
     )
 
@@ -106,7 +106,7 @@ trait FU740SoftwareAllocation {
     val U74: SiFiveU7Core = Cluster_U74_0.U74(core)
 
     val locations: Seq[Target] = Seq(
-      U74.L1D_cache,
+      U74.dl1_cache,
       Cluster_U74_0.CoreToL2Partition
         .filter(_._1 == U74.core)
         .map(_._2).head,
@@ -135,7 +135,7 @@ trait FU740SoftwareAllocation {
   val d3 = U7CacheableData("DataC3", 2)
   val d4 = U7CacheableData("DataC4", 3)
   
-  di hostedBy Cluster_U74_0.L2_LIM
+  di hostedBy Cluster_U74_0.l2_lim
 
   /* -----------------------------------------------------------
    * Application allocation
