@@ -75,8 +75,8 @@ trait FU740TransactionLibrary extends TransactionLibrary {
   private val t0_wr_mem: Transaction = Transaction(app0 write d0.Mem)
   private val t0_l2_refill: Transaction = Transaction(app0 write d0.L2Cache)
 
-  val t0_0: Transaction = Transaction(app0 read d0.DTIM)
-  val t0_1: Transaction = Transaction(app0 write d0.DTIM)
+  val t0_0: Transaction = Transaction(app0 read ds)
+  val t0_1: Transaction = Transaction(app0 write ds)
 //  val t0_2: Transaction = Transaction(app0 read d0.L2Cache)
 //  val t0_3: Transaction = Transaction(app0 write d0.L2Cache)
 //  val t0_4: Scenario = Scenario(t0_rd_mem, t0_l2_refill)
