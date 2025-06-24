@@ -1,4 +1,4 @@
-package onera.pmlanalyzer.pml.examples.components.memory
+package onera.pmlanalyzer.pml.examples.generic.memory
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.*
