@@ -26,10 +26,10 @@ import sourcecode.Name
 /** Simple model of the SiFive S7 Core. */
 class SiFiveS7Core(name: String, coreInfo: ReflexiveInfo, coreContext: Context)
     extends Composite(Symbol(name), coreInfo, coreContext) {
-  
+
   def this(name: String, dummy: Int = 0)(using
-                                         givenInfo: ReflexiveInfo,
-                                         givenContext: Context
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(name, givenInfo, givenContext)
   }
@@ -46,15 +46,15 @@ class SiFiveS7Core(name: String, coreInfo: ReflexiveInfo, coreContext: Context)
   val core: Initiator = Initiator()
 
   // Target modelling the L1 cache and memories of the core
-  val L1I_cache: Target = Target()
-  val DTIM: Target = Target()
+  val il1_cache: Target = Target()
+  val dtim: Target = Target()
 
   // Transporter modelling the L1 cache memory controllers
-  val L1I_mem_ctrl: SimpleTransporter = SimpleTransporter()
+  val il1_mem_ctrl: SimpleTransporter = SimpleTransporter()
 
   // Internal connections
-  core link DTIM
-  core link L1I_mem_ctrl
-  L1I_mem_ctrl link L1I_cache
+  core link dtim
+  core link il1_mem_ctrl
+  il1_mem_ctrl link il1_cache
 
 }
