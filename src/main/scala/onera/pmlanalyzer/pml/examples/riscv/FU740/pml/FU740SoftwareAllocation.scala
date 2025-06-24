@@ -92,9 +92,9 @@ trait FU740SoftwareAllocation {
     val instances: Seq[Data] =
       locations.map(t => Data(s"${name}_at_${t.name.name}"))
 
-    val L2Cache: Data = instances(1)
-    val L2LIM: Data = instances(2)
-    val Mem: Data = instances(3)
+    val L2Cache: Data = instances.head
+    val L2LIM: Data = instances(1)
+    val Mem: Data = instances(2)
 
     bindInstances()
   }

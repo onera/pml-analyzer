@@ -53,7 +53,6 @@ trait FU740InterferenceSpecification_Inclusive extends PhysicalTableBasedInterfe
     t <- c.dl1_cache.services
   } {
     s interfereWith t
-    println(s"${s} beats up ${t}")
   }
 
 
