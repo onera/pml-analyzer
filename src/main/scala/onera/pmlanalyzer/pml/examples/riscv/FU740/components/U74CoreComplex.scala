@@ -17,10 +17,7 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.components
 
-import onera.pmlanalyzer.pml.examples.generic.cores.{
-  SiFiveS7Core,
-  SiFiveU7Core
-}
+import onera.pmlanalyzer.pml.examples.generic.cores.{SiFiveS7Core, SiFiveU7Core}
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.*
 import onera.pmlanalyzer.pml.model.utils.*
@@ -39,12 +36,12 @@ class U74CoreComplex(
 ) extends Composite(Symbol(name), complexInfo, complexContext) {
 
   def this(
-            _name: String,
-            _u74CoreCnt: Int,
-            _dmaChannelCnt: Int,
-            _l2BankCnt: Int,
-            _l2Partitioned: Boolean,
-            dummy: Int = 0
+      _name: String,
+      _u74CoreCnt: Int,
+      _dmaChannelCnt: Int,
+      _l2BankCnt: Int,
+      _l2Partitioned: Boolean,
+      dummy: Int = 0
   )(using
       givenInfo: ReflexiveInfo,
       givenContext: Context
@@ -61,10 +58,10 @@ class U74CoreComplex(
   }
 
   def this(
-            _u74CoreNb: Int,
-            _dmaChannelCnt: Int,
-            _l2BankCnt: Int,
-            _l2Partitioned: Boolean
+      _u74CoreNb: Int,
+      _dmaChannelCnt: Int,
+      _l2BankCnt: Int,
+      _l2Partitioned: Boolean
   )(using
       givenName: Name,
       givenInfo: ReflexiveInfo,
@@ -85,13 +82,13 @@ class U74CoreComplex(
    *
    * @group composite_def
    */
-  class Direct_memory_access(
+  final class DirectMemoryAccess(
       channelCnt: Int,
-      name: String,
+      dmaName: String,
       dmaInfo: ReflexiveInfo,
       dmaContext: Context
   ) extends Composite(
-        Symbol(name),
+        Symbol(dmaName),
         dmaInfo: ReflexiveInfo,
         dmaContext: Context
       ) {
@@ -102,12 +99,12 @@ class U74CoreComplex(
      * @param implicitName the name of the object/class inheriting from this class
      *                     will be the name of composite
      */
-    def this(channelCnt: Int)(using
+    def this(_channelCnt: Int)(using
         implicitName: Name,
         givenInfo: ReflexiveInfo,
         givenContext: Context
     ) = {
-      this(channelCnt, implicitName.value, givenInfo, givenContext)
+      this(_channelCnt, implicitName.value, givenInfo, givenContext)
     }
 
     /** Initiator modelling the DMAs
@@ -151,7 +148,7 @@ class U74CoreComplex(
 
   val U74: IndexedSeq[SiFiveU7Core] =
     (1 to u74CoreCnt).map(i => SiFiveU7Core(s"C$i"))
-  val dma = new Direct_memory_access(dmaChannelCnt)
+  val dma = new DirectMemoryAccess(dmaChannelCnt)
 
   // Gather all S7 and U7 cores
   val cores: Seq[Initiator] = C0.core +: U74.map(_.core)
@@ -176,7 +173,7 @@ class U74CoreComplex(
     (0 until l2BankCnt).map(i => SimpleTransporter(s"Bank$i"))
   val l2_cache_prts: IndexedSeq[Target] =
     if (l2Partitioned) {
-      for { i <- cores.indices} yield {
+      for { i <- cores.indices } yield {
         Target(s"L2CachePrt$i")
       }
     } else {
@@ -186,9 +183,10 @@ class U74CoreComplex(
   val CoreToL2Partition: IndexedSeq[(Initiator, Target)] =
     for {
       i <- cores.indices
-    } yield
-      (cores(i), if(i < l2_cache_prts.size) l2_cache_prts(i) else l2_cache_prts.last)
-
+    } yield (
+      cores(i),
+      if (i < l2_cache_prts.size) l2_cache_prts(i) else l2_cache_prts.last
+    )
 
   val l2_lim: Target = Target()
 

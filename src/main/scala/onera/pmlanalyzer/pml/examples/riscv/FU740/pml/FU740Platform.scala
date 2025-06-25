@@ -18,7 +18,10 @@
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
 import onera.pmlanalyzer.pml.examples.generic.io.Uart
-import onera.pmlanalyzer.pml.examples.generic.memory.{CadenceDdrSdramController, DdrSdram}
+import onera.pmlanalyzer.pml.examples.generic.memory.{
+  CadenceDdrSdramController,
+  DdrSdram
+}
 import onera.pmlanalyzer.pml.examples.riscv.FU740.components.U74CoreComplex
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
@@ -27,10 +30,10 @@ import sourcecode.Name
 
 /** Simple model of the SiFive FU740 SoC. */
 class FU740Platform(
-                     name: Symbol,
-                     u74CoreCnt: Int,
-                     sdramInputPortCnt: Int,
-                     l2Partitioned: Boolean
+    name: Symbol,
+    u74CoreCnt: Int,
+    sdramInputPortCnt: Int,
+    l2Partitioned: Boolean
 ) extends Platform(name) {
 
   /**
@@ -39,9 +42,9 @@ class FU740Platform(
     *                     will be the name of platform
     */
   def this(
-            _u74CoreCnt: Int,
-            _sdramInputNb: Int,
-            _l2Partitioned: Boolean
+      _u74CoreCnt: Int,
+      _sdramInputNb: Int,
+      _l2Partitioned: Boolean
   )(implicit implicitName: Name) = {
     this(Symbol(implicitName.value), _u74CoreCnt, _sdramInputNb, _l2Partitioned)
   }
@@ -64,7 +67,11 @@ class FU740Platform(
   )
   val uart = new Uart()
   val ddr_ctrl = new CadenceDdrSdramController(sdramInputPortCnt)
-  val ddr = new DdrSdram(bankCnt = ddr_banks_nb, bankGroupCnt = ddr_gp_banks_nb, rankCnt = 1)
+  val ddr = new DdrSdram(
+    _bankCnt = ddr_banks_nb,
+    _bankGroupCnt = ddr_gp_banks_nb,
+    _rankCnt = 1
+  )
 
   /* -----------------------------------------------------------
    * Physical connections

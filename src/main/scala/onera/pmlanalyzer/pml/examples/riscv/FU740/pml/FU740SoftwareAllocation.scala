@@ -107,7 +107,8 @@ trait FU740SoftwareAllocation {
       U74.dl1_cache,
       u74_cluster.CoreToL2Partition
         .filter(_._1 == U74.core)
-        .map(_._2).head,
+        .map(_._2)
+        .head,
       ddr.banks(0)
     )
 

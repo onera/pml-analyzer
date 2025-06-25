@@ -14,9 +14,9 @@ class CadenceDdrSdramController(
 ) extends Composite(name, ctrlInfo, ctrlContext) {
 
   def this(_inputPortCnt: Int)(using
-                               givenName: Name,
-                               givenInfo: ReflexiveInfo,
-                               givenContext: Context
+      givenName: Name,
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(_inputPortCnt, Symbol(givenName.value), givenInfo, givenContext)
   }

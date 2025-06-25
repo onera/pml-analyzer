@@ -25,9 +25,11 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
  *
   * @see [[pml.operators.Use.Ops]] for operator definition
   */
-trait FU740LibraryConfiguration extends FU740TransactionLibrary with FU740SoftwareAllocation {
+trait FU740LibraryConfiguration
+    extends FU740TransactionLibrary
+    with FU740SoftwareAllocation {
   self: FU740Platform =>
 
- /* t11_app1_rd_interrupt1.used*/
-  
+  /* t11_app1_rd_interrupt1.used*/
+
 }

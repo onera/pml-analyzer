@@ -65,8 +65,8 @@ trait FU740BenchmarkLibrary extends FU740TransactionLibrary {
    */
 
   // TODO Alfonso, Check if this is what L1D$ means for C0
-  val c0_ld_l1: Transaction = Issue47( "Hart_0_Load_L1D$", t0_0)
-  val c0_wr_l1: Transaction = Issue47( "Hart_0_Store_L1D$", t0_1)
+  val c0_ld_l1: Transaction = Issue47("Hart_0_Load_L1D$", t0_0)
+  val c0_wr_l1: Transaction = Issue47("Hart_0_Store_L1D$", t0_1)
 //  val c0_ld_l1: Scenario = Issue47( "Hart_0_Load_L1D$", t0_0)
 //  val c0_wr_l1: Scenario = Issue47( "Hart_0_Store_L1D$", t0_1)
 //  val c0_ld_l2: Scenario = Issue47("Hart_0_Load_L2$", t0_2)
@@ -140,7 +140,7 @@ trait FU740BenchmarkLibrary extends FU740TransactionLibrary {
 //    c3_ld_m,
 //    c3_wr_m,
 //    c4_ld_l1,
-    c4_wr_l1,
+    c4_wr_l1
 //    c4_ld_l2,
 //    c4_wr_l2,
 //    c4_ld_m,

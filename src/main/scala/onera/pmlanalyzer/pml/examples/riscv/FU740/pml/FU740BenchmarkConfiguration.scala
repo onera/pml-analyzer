@@ -17,7 +17,9 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-trait FU740BenchmarkConfiguration extends FU740LibraryConfiguration with FU740BenchmarkLibrary {
+trait FU740BenchmarkConfiguration
+    extends FU740LibraryConfiguration
+    with FU740BenchmarkLibrary {
   self: FU740Platform =>
 
   for {

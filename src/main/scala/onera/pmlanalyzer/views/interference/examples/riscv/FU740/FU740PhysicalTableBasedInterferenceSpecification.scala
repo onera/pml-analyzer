@@ -44,7 +44,8 @@ import onera.pmlanalyzer.views.interference.operators.*
   *  }
   * }}}
   */
-trait FU740PhysicalTableBasedInterferenceSpecification extends PhysicalTableBasedInterferenceSpecification {
+trait FU740PhysicalTableBasedInterferenceSpecification
+    extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
 
   for {

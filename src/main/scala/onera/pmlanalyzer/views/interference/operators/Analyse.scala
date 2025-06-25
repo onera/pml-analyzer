@@ -262,11 +262,12 @@ object Analyse {
 
       def computeGraphReduction(
           ignoreExistingFile: Boolean = false
-      )(using ev: Analyse[T]): BigDecimal = 
+      )(using ev: Analyse[T]): BigDecimal =
         if (ignoreExistingFile)
           computeGraphReduction
         else {
-          PostProcess.parseGraphReductionFile(self)
+          PostProcess
+            .parseGraphReductionFile(self)
             .getOrElse(computeGraphReduction)
         }
 
@@ -288,8 +289,8 @@ object Analyse {
         computeProblemConstraints(platform, platform.initiators.size)
       val dummySolver = new Solver()
       val graph = problem.serviceGraph.toGraph(dummySolver)
-      //Undirected graph but MONOSAT always considers oriented so need to divide by two
-      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges())/2)
+      // Undirected graph but MONOSAT always considers oriented so need to divide by two
+      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()) / 2)
       dummySolver.close()
       result
     }
@@ -770,26 +771,27 @@ object Analyse {
           reducedNodePath(kv._1).map(_.toSet.flatten)
         )((l, _) => l)
 
-      val addUndirectedEdgeI: ((MNode, MNode)) => MEdge = immutableHashMapMemo { x =>
-        MEdge(x._1, x._2, undirectedEdgeId(x._1, x._2))
+      val addUndirectedEdgeI: ((MNode, MNode)) => MEdge = immutableHashMapMemo {
+        x =>
+          MEdge(x._1, x._2, undirectedEdgeId(x._1, x._2))
       }
 
       val addUndirectedEdge = (lr: Set[Service]) => {
-        if(lr.size == 1) {
-          for {ns <- serviceToNodes(lr.head).subsets(2).toSet}
-            yield addUndirectedEdgeI((ns.head, ns.last))
-        }else {
+        if (lr.size == 1) {
+          for {
+            ns <- serviceToNodes(lr.head).subsets(2).toSet
+          } yield addUndirectedEdgeI((ns.head, ns.last))
+        } else {
           serviceToNodes(lr.head).flatMap(n1 =>
             serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI((n1, n2)))
           )
         }
       }
-        
 
       // an edge is added to service graph iff one of transaction use it:
       // * the transaction must not be transparent
       // * the edge must not contain a service considered as non impacted
-        // FIXME * an edge is added between all nodes sharing a common service
+      // FIXME * an edge is added between all nodes sharing a common service
       val edgesToScenarios: Map[MEdge, Set[PhysicalScenarioId]] = pathT.keySet
         .flatMap(s =>
           val pathEdges = for {
@@ -798,7 +800,7 @@ object Analyse {
             edge <- addUndirectedEdge(servCouple.toSet)
           } yield edge -> s
           val serviceEdges = {
-            for { 
+            for {
               t <- pathT(s)
               service <- t
               e <- addUndirectedEdge(Set(service))

@@ -22,7 +22,8 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
-trait FU740InterferenceSpecification_Inclusive extends PhysicalTableBasedInterferenceSpecification {
+trait FU740InterferenceSpecification_Inclusive
+    extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
 
 //  for {
@@ -54,6 +55,5 @@ trait FU740InterferenceSpecification_Inclusive extends PhysicalTableBasedInterfe
   } {
     s interfereWith t
   }
-
 
 }
