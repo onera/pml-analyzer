@@ -40,7 +40,7 @@ object GraphExporter {
         )
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")
-        writer.write(self.computeGraphReduction().toString())
+        writer.write(self.computeGraphReduction(ignoreExistingFile = true).toString())
         writer.close()
         file
       }

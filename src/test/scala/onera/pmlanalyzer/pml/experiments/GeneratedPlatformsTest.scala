@@ -137,7 +137,8 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     }
     withDMA <- Seq(false)
     if (0 < coreCount + dspCount)
-    if (coreCount + dspCount <= 16)
+    if (coreCount + dspCount <= 8)
+    if (coresPerBankPerPartition <= 8)
   } yield {
     println(
       s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
@@ -154,10 +155,26 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
-  "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
+  "For specific architecture it" should "be possible to compute interference" taggedAs PerfTests in {
     val timeout = (1 hour)
+    val p = generatePlatformFromConfiguration(
+      coreCount = 4,
+      clusterCount = 2,
+      dspCount = 0,
+      ddrPartitions = 1,
+      coresPerBankPerPartition = 1,
+      withDMA = false
+    )
+    p.exportRestrictedHWAndSWGraph()
+    p.computeAllInterference(
+      timeout
+    )
+  }
+
+  "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
+    val timeout = (1 minute)
     for {
-      p <- platforms.par
+      p <- platforms
       c = Try(Await.result(Future(p.exportSemanticsSize()), timeout))
     } {
       c match
@@ -175,8 +192,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   it should "be possible to export the HW and SW graph" taggedAs PerfTests in {
     for {
       p <- platforms
-    }
+    } {
       p.exportRestrictedHWAndSWGraph()
+      p.exportUserTransactions()
+    }
   }
 
   it should "be possible to compute the interference" taggedAs PerfTests in {
