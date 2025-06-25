@@ -249,10 +249,12 @@ object Analyse {
             .flatMap(p => p._2 map { x => Set(p._1, x) })
             .toSet
             .size
+        println(s"serviceGraphSize: $systemGraphSize")
         val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
         val graphSize = BigDecimal(nodeSize + edgeSize)
+        println(s"interferenceChannelGraphSize: $systemGraphSize")
         if (graphSize != 0) {
-          BigDecimal(systemGraphSize) / BigDecimal(nodeSize + edgeSize)
+          BigDecimal(systemGraphSize) / graphSize
         } else if (BigDecimal(systemGraphSize) != 0)
           BigDecimal(-1)
         else
