@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.examples.components.io.Uart
-import onera.pmlanalyzer.pml.examples.components.memory.{CadenceDdrSdramController, DdrSdram}
+import onera.pmlanalyzer.pml.examples.generic.io.Uart
+import onera.pmlanalyzer.pml.examples.generic.memory.{CadenceDdrSdramController, DdrSdram}
 import onera.pmlanalyzer.pml.examples.riscv.FU740.components.U74CoreComplex
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{Load, Store}

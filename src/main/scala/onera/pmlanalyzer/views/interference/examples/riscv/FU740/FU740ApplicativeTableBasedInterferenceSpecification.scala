@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2025. ONERA
+ * Copyright (c)  2023. ONERA
  * This file is part of PML Analyzer
  *
  * PML Analyzer is free software ;
@@ -15,10 +15,15 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.examples.riscv.FU740.views.interference
+package onera.pmlanalyzer.views.interference.examples.riscv.FU740
 
-import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.{FU740LibraryConfiguration, FU740Platform, FU740SoftwareAllocation, FU740TransactionLibrary}
 import onera.pmlanalyzer.pml.examples.riscv.FU740
+import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.{
+  FU740LibraryConfiguration,
+  FU740Platform,
+  FU740SoftwareAllocation,
+  FU740TransactionLibrary
+}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*

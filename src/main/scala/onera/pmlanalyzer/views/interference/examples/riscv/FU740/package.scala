@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2025. ONERA
+ * Copyright (c)  2023. ONERA
  * This file is part of PML Analyzer
  *
  * PML Analyzer is free software ;
@@ -15,28 +15,16 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.examples.riscv.FU740.views.interference
+package onera.pmlanalyzer.views.interference.examples.riscv
 
-import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Export.*
-
-import scala.concurrent.duration.*
-import scala.language.postfixOps
+import onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
 /**
-  * Compute the interference of the SimpleZynqUltraScale defined in [[pml.examples.simpleZynqUltraScale.SimpleZynqUltraScaleExport]]
+  *  Package containing an example on a simplification of a TI Keystone platform
+ *
+  *  @see [[SimpleJetsonOrinPhysicalTableBasedInterferenceSpecification]] provides an example of hardware interference assumption modelling
+  *  @see [[SimpleJetsonOrinApplicativeTableBasedInterferenceSpecification]] provides an example of application interference assumption modelling
+  *  @see [[SimpleJetsonOrinInterferenceGeneration]] provides an example of interference analysis for the simplified
+  *       Keystone platform
   */
-object FU740InterferenceGeneration extends App {
-
-  for (p <- Seq(
-    FU740ConfiguredFull,
-//    FU740_partitionedConfiguredFull,
-//    FU740BenchmarkConfiguredFull,
-    FU740BenchmarkConfiguredFull_Inclusive,
-  )) {
-    p.computeKInterference(2, 1 hour, ignoreExistingAnalysisFiles = true)
-    // Compute all ite and itf for benchmarks
-//    p.computeAllInterference(5 hours, ignoreExistingAnalysisFiles = true)
-  }
-}
+package object FU740
