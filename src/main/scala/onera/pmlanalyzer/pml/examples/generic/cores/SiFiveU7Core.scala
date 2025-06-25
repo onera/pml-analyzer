@@ -30,11 +30,11 @@ class SiFiveU7Core(
     coreContext: Context
 ) extends Composite(Symbol(name), coreInfo, coreContext) {
 
-  def this(name: String, dummy: Int = 0)(using
+  def this(_name: String, dummy: Int = 0)(using
       givenInfo: ReflexiveInfo,
       givenContext: Context
   ) = {
-    this(name, givenInfo, givenContext)
+    this(_name, givenInfo, givenContext)
   }
 
   def this()(using

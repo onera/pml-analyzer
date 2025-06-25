@@ -28,8 +28,8 @@ class SiFiveS7Core(name: String, coreInfo: ReflexiveInfo, coreContext: Context)
     extends Composite(Symbol(name), coreInfo, coreContext) {
 
   def this(_name: String, dummy: Int = 0)(using
-                                          givenInfo: ReflexiveInfo,
-                                          givenContext: Context
+      givenInfo: ReflexiveInfo,
+      givenContext: Context
   ) = {
     this(_name, givenInfo, givenContext)
   }

@@ -17,7 +17,11 @@
 
 package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.views.interference.examples.riscv.FU740.{FU740ApplicativeTableBasedInterferenceSpecification, FU740InterferenceSpecification_Inclusive, FU740PhysicalTableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.examples.riscv.FU740.{
+  FU740ApplicativeTableBasedInterferenceSpecification,
+  FU740InterferenceSpecification_Inclusive,
+  FU740PhysicalTableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
@@ -36,36 +40,38 @@ object FU740Export extends App {
       with FU740LibraryConfigurationFull
       with RoutingConfiguration
 //      with FU740PhysicalTableBasedInterferenceSpecification
-        with FU740InterferenceSpecification_Inclusive
+      with FU740InterferenceSpecification_Inclusive
       with FU740ApplicativeTableBasedInterferenceSpecification
 
   object FU740_partitionedConfiguredFull
-    extends FU740Platform(4, 1, true)
+      extends FU740Platform(4, 1, true)
       with FU740LibraryConfigurationFull
       with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
   object FU740BenchmarkConfiguredFull
-    extends FU740Platform(4, 1, false)
+      extends FU740Platform(4, 1, false)
       with FU740BenchmarkConfiguration
       with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
   object FU740BenchmarkConfiguredFull_Inclusive
-    extends FU740Platform(4, 1, false)
+      extends FU740Platform(4, 1, false)
       with FU740BenchmarkConfiguration
       with RoutingConfiguration
       with FU740InterferenceSpecification_Inclusive
       with FU740ApplicativeTableBasedInterferenceSpecification
 
-  for (p <- Seq(
-    FU740ConfiguredFull,
+  for (
+    p <- Seq(
+      FU740ConfiguredFull,
 //    FU740_partitionedConfiguredFull,
 //    FU740BenchmarkConfiguredFull,
-    FU740BenchmarkConfiguredFull_Inclusive,
-  )) {
+      FU740BenchmarkConfiguredFull_Inclusive
+    )
+  ) {
     // Export only HW used by SW (explicit)
     p.exportRestrictedHWAndSWGraph()
 

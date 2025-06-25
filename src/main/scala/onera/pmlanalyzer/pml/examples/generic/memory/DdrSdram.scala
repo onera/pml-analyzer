@@ -16,22 +16,22 @@ final class DdrSdram(
 ) extends Composite(Symbol(name), ddrInfo, ddrContext) {
 
   def this(
-      name: String,
-      bankCnt: Int,
-      bankGroupCnt: Int,
-      rankCnt: Int,
+      _name: String,
+      _bankCnt: Int,
+      _bankGroupCnt: Int,
+      _rankCnt: Int,
       dummy: Int = 0
   )(using
       givenInfo: ReflexiveInfo,
       givenContext: Context
   ) = {
-    this(name, bankCnt, bankGroupCnt, rankCnt, givenInfo, givenContext)
+    this(_name, _bankCnt, _bankGroupCnt, _rankCnt, givenInfo, givenContext)
   }
 
   def this(
-      bankCnt: Int,
-      bankGroupCnt: Int,
-      rankCnt: Int
+      _bankCnt: Int,
+      _bankGroupCnt: Int,
+      _rankCnt: Int
   )(using
       implicitName: Name,
       givenInfo: ReflexiveInfo,
@@ -39,9 +39,9 @@ final class DdrSdram(
   ) = {
     this(
       implicitName.value,
-      bankCnt,
-      bankGroupCnt,
-      rankCnt,
+      _bankCnt,
+      _bankGroupCnt,
+      _rankCnt,
       givenInfo,
       givenContext
     )

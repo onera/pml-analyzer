@@ -60,7 +60,6 @@ trait FU740TransactionLibrary extends TransactionLibrary {
   def Issue47(name: String, from: Transaction): Transaction =
     Transaction(UserTransactionId(Symbol(name)), from.iniTgt, from.sw)
 
-
   /*
    * We model cached memory accesses using explicit scenarios, capturing the
    * accesses to the updated caches. This could be:

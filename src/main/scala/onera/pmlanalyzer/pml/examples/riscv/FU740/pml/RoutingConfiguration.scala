@@ -44,7 +44,7 @@ trait RoutingConfiguration {
   /* Accesses to local caches do not leave the U7 complex. */
   for {
     c <- u74_cluster.U74
-    cache <- Seq(c.dl1_cache, c.il1_cache) //, c.L2_tlb, c.L1D_tlb, c.L1I_tlb)
+    cache <- Seq(c.dl1_cache, c.il1_cache) // , c.L2_tlb, c.L1D_tlb, c.L1I_tlb)
   } {
     c.core targeting cache blockedBy u74_cluster.tilelink_switch
   }

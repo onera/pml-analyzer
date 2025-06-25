@@ -36,8 +36,12 @@ import onera.pmlanalyzer.views.interference.operators.*
   * {{{app3_transfer notInterfereWith TeraNet.periph_bus.loads}}}
   * @see [[views.interference.operators.Exclusive.Ops]] for interfere operator definition
   */
-trait FU740ApplicativeTableBasedInterferenceSpecification extends ApplicativeTableBasedInterferenceSpecification {
-  self: FU740Platform with FU740TransactionLibrary with FU740LibraryConfiguration with FU740SoftwareAllocation   =>
+trait FU740ApplicativeTableBasedInterferenceSpecification
+    extends ApplicativeTableBasedInterferenceSpecification {
+  self: FU740Platform
+    with FU740TransactionLibrary
+    with FU740LibraryConfiguration
+    with FU740SoftwareAllocation =>
 
   // Sequential execution
 //  app31 exclusiveWith app32
