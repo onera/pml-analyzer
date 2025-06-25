@@ -769,14 +769,21 @@ object Analyse {
           reducedNodePath(kv._1).map(_.toSet.flatten)
         )((l, _) => l)
 
-      val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo { lr =>
-        MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
+      val addUndirectedEdgeI: ((MNode, MNode)) => MEdge = immutableHashMapMemo { x =>
+        MEdge(x._1, x._2, undirectedEdgeId(x._1, x._2))
       }
 
-      val addUndirectedEdge = (lr: Set[Service]) =>
-        serviceToNodes(lr.head).flatMap(n1 =>
-          serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI(Set(n1, n2)))
-        )
+      val addUndirectedEdge = (lr: Set[Service]) => {
+        if(lr.size == 1) {
+          for {ns <- serviceToNodes(lr.head).subsets(2).toSet}
+            yield addUndirectedEdgeI((ns.head, ns.last))
+        }else {
+          serviceToNodes(lr.head).flatMap(n1 =>
+            serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI((n1, n2)))
+          )
+        }
+      }
+        
 
       // an edge is added to service graph iff one of transaction use it:
       // * the transaction must not be transparent
@@ -784,12 +791,19 @@ object Analyse {
         // FIXME * an edge is added between all nodes sharing a common service
       val edgesToScenarios: Map[MEdge, Set[PhysicalScenarioId]] = pathT.keySet
         .flatMap(s =>
-          pathT(s)
-            .filter(_.size > 1)
-            .flatMap(t =>
-              t.sliding(2)
-                .flatMap(slice => addUndirectedEdge(slice.toSet).map(_ -> s))
-            )
+          val pathEdges = for {
+            t <- pathT(s) if t.size > 1
+            servCouple <- t.sliding(2)
+            edge <- addUndirectedEdge(servCouple.toSet)
+          } yield edge -> s
+          val serviceEdges = {
+            for { 
+              t <- pathT(s)
+              service <- t
+              e <- addUndirectedEdge(Set(service))
+            } yield e -> s
+          }
+          pathEdges ++ serviceEdges
         )
         .groupMap(_._1)(_._2)
 
