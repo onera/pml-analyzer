@@ -13,12 +13,12 @@ class CadenceDdrSdramController(
     ctrlContext: Context
 ) extends Composite(name, ctrlInfo, ctrlContext) {
 
-  def this(inputBusCnt: Int)(using
-      givenName: Name,
-      givenInfo: ReflexiveInfo,
-      givenContext: Context
+  def this(inputPortCnt: Int)(using
+                              givenName: Name,
+                              givenInfo: ReflexiveInfo,
+                              givenContext: Context
   ) = {
-    this(inputBusCnt, Symbol(givenName.value), givenInfo, givenContext)
+    this(inputPortCnt, Symbol(givenName.value), givenInfo, givenContext)
   }
 
   // Transporter modelling the configurable input ports

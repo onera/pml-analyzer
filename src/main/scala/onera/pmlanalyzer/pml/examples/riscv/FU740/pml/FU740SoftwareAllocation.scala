@@ -81,12 +81,12 @@ trait FU740SoftwareAllocation {
 
   final class S7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
-    val S74: SiFiveS7Core = Cluster_U74_0.S74(core)
+    val S74: SiFiveS7Core = u74_cluster.S74(core)
 
     val locations: Seq[Target] = Seq(
-      Cluster_U74_0.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
-      Cluster_U74_0.l2_lim,
-      DDR.banks(0)
+      u74_cluster.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
+      u74_cluster.l2_lim,
+      ddr.banks(0)
     )
 
     val instances: Seq[Data] =
@@ -101,14 +101,14 @@ trait FU740SoftwareAllocation {
 
   final class U7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
-    val U74: SiFiveU7Core = Cluster_U74_0.U74(core)
+    val U74: SiFiveU7Core = u74_cluster.U74(core)
 
     val locations: Seq[Target] = Seq(
       U74.dl1_cache,
-      Cluster_U74_0.CoreToL2Partition
+      u74_cluster.CoreToL2Partition
         .filter(_._1 == U74.core)
         .map(_._2).head,
-      DDR.banks(0)
+      ddr.banks(0)
     )
 
     val instances: Seq[Data] =
@@ -134,17 +134,17 @@ trait FU740SoftwareAllocation {
   val d3 = U7CacheableData("DataC3", 2)
   val d4 = U7CacheableData("DataC4", 3)
 
-  ds hostedBy Cluster_U74_0.C0.dtim
-  di hostedBy Cluster_U74_0.l2_lim
+  ds hostedBy u74_cluster.C0.dtim
+  di hostedBy u74_cluster.l2_lim
 
   /* TODO Add data towards UART on C2, transaction transparent on tilelink_switch */
 
   /* -----------------------------------------------------------
    * Application allocation
    * ----------------------------------------------------------- */
-  app0 hostedBy Cluster_U74_0.C0.core
-  app1 hostedBy Cluster_U74_0.U74(0).core
-  app2 hostedBy Cluster_U74_0.U74(1).core
-  app3 hostedBy Cluster_U74_0.U74(2).core
-  app4 hostedBy Cluster_U74_0.U74(3).core
+  app0 hostedBy u74_cluster.C0.core
+  app1 hostedBy u74_cluster.U74(0).core
+  app2 hostedBy u74_cluster.U74(1).core
+  app3 hostedBy u74_cluster.U74(2).core
+  app4 hostedBy u74_cluster.U74(3).core
 }

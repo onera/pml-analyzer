@@ -27,35 +27,35 @@ trait RoutingConfiguration {
   self: FU740Platform =>
 
   /* Accesses to the DMA go through the slave port. */
-  for (i <- Initiator.all.filterNot(Cluster_U74_0.dma.channel.contains(_))) {
-    i targeting Target.all blockedBy Cluster_U74_0.dma.master_port
+  for (i <- Initiator.all.filterNot(u74_cluster.dma.channel.contains(_))) {
+    i targeting Target.all blockedBy u74_cluster.dma.master_port
   }
 
   /* Accesses from the DMA go through the master port.
    * Accesses from the DMA cannot use the Fast Path.
    */
   for {
-    channel <- Cluster_U74_0.dma.channel
+    channel <- u74_cluster.dma.channel
   } {
-    channel targeting Target.all blockedBy Cluster_U74_0.dma.slave_port
-    channel targeting Target.all blockedBy Cluster_U74_0.fast_path
+    channel targeting Target.all blockedBy u74_cluster.dma.slave_port
+    channel targeting Target.all blockedBy u74_cluster.fast_path
   }
 
   /* Accesses to local caches do not leave the U7 complex. */
   for {
-    c <- Cluster_U74_0.U74
+    c <- u74_cluster.U74
     cache <- Seq(c.dl1_cache, c.il1_cache) //, c.L2_tlb, c.L1D_tlb, c.L1I_tlb)
   } {
-    c.core targeting cache blockedBy Cluster_U74_0.tilelink_switch
+    c.core targeting cache blockedBy u74_cluster.tilelink_switch
   }
 
   /* Routing restrictions regarding fast and slow paths to L2 memory. */
   for {
-    c <- Cluster_U74_0.cores
+    c <- u74_cluster.cores
   } {
-    c targeting Cluster_U74_0.l2_cache_prts blockedBy Cluster_U74_0.slow_path
-    c targeting Cluster_U74_0.l2_lim blockedBy Cluster_U74_0.fast_path
-    c targeting DDR.banks blockedBy Cluster_U74_0.slow_path
+    c targeting u74_cluster.l2_cache_prts blockedBy u74_cluster.slow_path
+    c targeting u74_cluster.l2_lim blockedBy u74_cluster.fast_path
+    c targeting ddr.banks blockedBy u74_cluster.slow_path
   }
 
   /* Force direct path towards out of core memories
@@ -65,9 +65,9 @@ trait RoutingConfiguration {
    * the local core when it leaves its locality (to the L2 or memory).
    */
   for {
-    core <- Cluster_U74_0.U74.map(_.core)
+    core <- u74_cluster.U74.map(_.core)
   } {
-    core targeting Cluster_U74_0.l2_cache_prts useLink core to Cluster_U74_0.tilelink_switch
-    core targeting DDR.banks useLink core to Cluster_U74_0.tilelink_switch
+    core targeting u74_cluster.l2_cache_prts useLink core to u74_cluster.tilelink_switch
+    core targeting ddr.banks useLink core to u74_cluster.tilelink_switch
   }
 }
