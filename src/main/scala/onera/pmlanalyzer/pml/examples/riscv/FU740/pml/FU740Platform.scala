@@ -64,7 +64,7 @@ class FU740Platform(
   )
   val uart = new Uart()
   val ddr_ctrl = new CadenceDdrSdramController(sdramInputPortCnt)
-  val ddr = new DdrSdram(ddr_banks_nb, ddr_gp_banks_nb, 1)
+  val ddr = new DdrSdram(bankCnt = ddr_banks_nb, bankGroupCnt = ddr_gp_banks_nb, rankCnt = 1)
 
   /* -----------------------------------------------------------
    * Physical connections
