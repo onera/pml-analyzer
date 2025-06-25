@@ -249,10 +249,8 @@ object Analyse {
             .flatMap(p => p._2 map { x => Set(p._1, x) })
             .toSet
             .size
-        println(s"serviceGraphSize: $systemGraphSize")
         val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
         val graphSize = BigDecimal(nodeSize + edgeSize)
-        println(s"interferenceChannelGraphSize: $graphSize")
         if (graphSize != 0) {
           BigDecimal(systemGraphSize) / graphSize
         } else if (BigDecimal(systemGraphSize) != 0)
@@ -290,7 +288,8 @@ object Analyse {
         computeProblemConstraints(platform, platform.initiators.size)
       val dummySolver = new Solver()
       val graph = problem.serviceGraph.toGraph(dummySolver)
-      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()))
+      //Undirected graph but MONOSAT always considers oriented so need to divide by two
+      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges())/2)
       dummySolver.close()
       result
     }
