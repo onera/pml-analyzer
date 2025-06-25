@@ -779,6 +779,7 @@ object Analyse {
       // an edge is added to service graph iff one of transaction use it:
       // * the transaction must not be transparent
       // * the edge must not contain a service considered as non impacted
+        // FIXME * an edge is added between all nodes sharing a common service
       val edgesToScenarios: Map[MEdge, Set[PhysicalScenarioId]] = pathT.keySet
         .flatMap(s =>
           pathT(s)
