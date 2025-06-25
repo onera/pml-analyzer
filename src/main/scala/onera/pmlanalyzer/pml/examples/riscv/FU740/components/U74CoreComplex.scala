@@ -39,32 +39,32 @@ class U74CoreComplex(
 ) extends Composite(Symbol(name), complexInfo, complexContext) {
 
   def this(
-      name: String,
-      u74CoreCnt: Int,
-      dmaChannelCnt: Int,
-      l2BankCnt: Int,
-      l2Partitioned: Boolean,
-      dummy: Int = 0
+            _name: String,
+            _u74CoreCnt: Int,
+            _dmaChannelCnt: Int,
+            _l2BankCnt: Int,
+            _l2Partitioned: Boolean,
+            dummy: Int = 0
   )(using
       givenInfo: ReflexiveInfo,
       givenContext: Context
   ) = {
     this(
-      name,
-      u74CoreCnt,
-      dmaChannelCnt,
-      l2BankCnt,
-      l2Partitioned,
+      _name,
+      _u74CoreCnt,
+      _dmaChannelCnt,
+      _l2BankCnt,
+      _l2Partitioned,
       givenInfo,
       givenContext
     )
   }
 
   def this(
-      u74CoreNb: Int,
-      dmaChannelCnt: Int,
-      l2BankCnt: Int,
-      l2Partitioned: Boolean
+            _u74CoreNb: Int,
+            _dmaChannelCnt: Int,
+            _l2BankCnt: Int,
+            _l2Partitioned: Boolean
   )(using
       givenName: Name,
       givenInfo: ReflexiveInfo,
@@ -72,10 +72,10 @@ class U74CoreComplex(
   ) = {
     this(
       givenName.value,
-      u74CoreNb,
-      dmaChannelCnt,
-      l2BankCnt,
-      l2Partitioned,
+      _u74CoreNb,
+      _dmaChannelCnt,
+      _l2BankCnt,
+      _l2Partitioned,
       givenInfo,
       givenContext
     )
@@ -176,14 +176,19 @@ class U74CoreComplex(
     (0 until l2BankCnt).map(i => SimpleTransporter(s"Bank$i"))
   val l2_cache_prts: IndexedSeq[Target] =
     if (l2Partitioned) {
-      for { i <- 0 until cores.length } yield {
+      for { i <- cores.indices} yield {
         Target(s"L2CachePrt$i")
       }
     } else {
       IndexedSeq(Target("L2Cache"))
     }
 
-  val CoreToL2Partition = cores.zipAll(l2_cache_prts, null, l2_cache_prts.last)
+  val CoreToL2Partition: IndexedSeq[(Initiator, Target)] =
+    for {
+      i <- cores.indices
+    } yield
+      (cores(i), if(i < l2_cache_prts.size) l2_cache_prts(i) else l2_cache_prts.last)
+
 
   val l2_lim: Target = Target()
 

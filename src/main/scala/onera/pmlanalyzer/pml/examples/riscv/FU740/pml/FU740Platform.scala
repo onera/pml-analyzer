@@ -39,11 +39,11 @@ class FU740Platform(
     *                     will be the name of platform
     */
   def this(
-            u74CoreCnt: Int,
-            sdramInputNb: Int,
-            l2Partitioned: Boolean
+            _u74CoreCnt: Int,
+            _sdramInputNb: Int,
+            _l2Partitioned: Boolean
   )(implicit implicitName: Name) = {
-    this(Symbol(implicitName.value), u74CoreCnt, sdramInputNb, l2Partitioned)
+    this(Symbol(implicitName.value), _u74CoreCnt, _sdramInputNb, _l2Partitioned)
   }
 
   /* -----------------------------------------------------------
