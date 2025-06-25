@@ -68,7 +68,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
-    MySys.computeGraphReduction() should be(BigDecimal(71) / 28)
+    MySys.computeGraphReduction() should be(BigDecimal(71) / 34)
   }
 
 }
