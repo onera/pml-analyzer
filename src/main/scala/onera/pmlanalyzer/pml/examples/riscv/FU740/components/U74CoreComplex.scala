@@ -150,12 +150,11 @@ class U74CoreComplex(
   val S74: IndexedSeq[SiFiveS7Core] = IndexedSeq(C0)
 
   val U74: IndexedSeq[SiFiveU7Core] =
-    (0 until u74CoreCnt).map(i => SiFiveU7Core(s"C${i + 1}"))
+    (1 to u74CoreCnt).map(i => SiFiveU7Core(s"C$i"))
   val dma = new Direct_memory_access(dmaChannelCnt)
 
-  val cores: Seq[Initiator] = Seq(C0.core) ++ (for (c <- U74) yield {
-    c.core
-  })
+  // Gather all S7 and U7 cores
+  val cores: Seq[Initiator] = C0.core +: U74.map(_.core)
 
   // Transporter modelling the interconnection switches
   val tilelink_switch: SimpleTransporter = SimpleTransporter()
