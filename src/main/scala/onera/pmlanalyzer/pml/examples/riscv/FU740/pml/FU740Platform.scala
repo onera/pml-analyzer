@@ -27,10 +27,10 @@ import sourcecode.Name
 
 /** Simple model of the SiFive FU740 SoC. */
 class FU740Platform(
-    name: Symbol,
-    u74Cnt: Int,
-    sdramInputNb: Int,
-    partitionCache: Boolean
+                     name: Symbol,
+                     u74CoreCnt: Int,
+                     sdramInputPortCnt: Int,
+                     l2Partitioned: Boolean
 ) extends Platform(name) {
 
   /**
@@ -39,11 +39,11 @@ class FU740Platform(
     *                     will be the name of platform
     */
   def this(
-      u74Cnt: Int,
-      sdramInputNb: Int,
-      partitionCache: Boolean
+            u74CoreCnt: Int,
+            sdramInputNb: Int,
+            l2Partitioned: Boolean
   )(implicit implicitName: Name) = {
-    this(Symbol(implicitName.value), u74Cnt, sdramInputNb, partitionCache)
+    this(Symbol(implicitName.value), u74CoreCnt, sdramInputNb, l2Partitioned)
   }
 
   /* -----------------------------------------------------------
@@ -55,27 +55,27 @@ class FU740Platform(
   val ddr_banks_nb: Int = 4
   val ddr_gp_banks_nb: Int = 2
 
-  val Cluster_U74_0 = new U74CoreComplex(
+  val u74_cluster = new U74CoreComplex(
     "Cluster0",
-    u74Cnt,
+    u74CoreCnt,
     channels_nb,
     cache_banks,
-    partitionCache
+    l2Partitioned
   )
-  val UART = new Uart()
-  val DDR_Ctrl = new CadenceDdrSdramController(sdramInputNb)
-  val DDR = new DdrSdram(ddr_banks_nb, ddr_gp_banks_nb, 1)
+  val uart = new Uart()
+  val ddr_ctrl = new CadenceDdrSdramController(sdramInputPortCnt)
+  val ddr = new DdrSdram(ddr_banks_nb, ddr_gp_banks_nb, 1)
 
   /* -----------------------------------------------------------
    * Physical connections
   ----------------------------------------------------------- */
 
   // Connections to DDR controller
-  DDR_Ctrl.input_ports foreach (Cluster_U74_0.mem_bus link _)
+  ddr_ctrl.input_ports foreach (u74_cluster.mem_bus link _)
 
   // Connection between DDR controller and DDR memory device
-  DDR_Ctrl.scheduler link DDR.phy
+  ddr_ctrl.scheduler link ddr.phy
 
   // Connections to peripherals
-  Cluster_U74_0.peripheral_tl_switch_1 link UART.slave_port
+  u74_cluster.peripheral_tl_switch_1 link uart.slave_port
 }

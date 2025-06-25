@@ -48,8 +48,8 @@ trait FU740InterferenceSpecification_Inclusive extends PhysicalTableBasedInterfe
 //  }
 
   for {
-    c <- Cluster_U74_0.U74
-    s <- Cluster_U74_0.C0.dtim.services
+    c <- u74_cluster.U74
+    s <- u74_cluster.C0.dtim.services
     t <- c.dl1_cache.services
   } {
     s interfereWith t
