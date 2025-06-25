@@ -252,7 +252,7 @@ object Analyse {
         println(s"serviceGraphSize: $systemGraphSize")
         val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
         val graphSize = BigDecimal(nodeSize + edgeSize)
-        println(s"interferenceChannelGraphSize: $systemGraphSize")
+        println(s"interferenceChannelGraphSize: $graphSize")
         if (graphSize != 0) {
           BigDecimal(systemGraphSize) / graphSize
         } else if (BigDecimal(systemGraphSize) != 0)
