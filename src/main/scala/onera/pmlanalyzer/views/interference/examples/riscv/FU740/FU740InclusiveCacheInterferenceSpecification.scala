@@ -22,36 +22,15 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
-trait FU740InterferenceSpecification_Inclusive
-    extends PhysicalTableBasedInterferenceSpecification {
+trait FU740InclusiveCacheInterferenceSpecification extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
 
-//  for {
-//    (core, partition) <- Cluster_U74_0.CoreToL2Partition
-//    core_complex <- Cluster_U74_0.U74.filter(_.core == core)
-//
-//    s <- partition.services
-//    t <- core_complex.L1D_cache.services ++ core_complex.L1I_cache.services
-//  } {
-//    s interfereWith t
-//    println(s"${s} interferes with ${t}")
-//  }
-
-//  for {
-//    p <- Cluster_U74_0.L2_cache_prt
-//    c <- Cluster_U74_0.U74
-//
-//    s <- p.services
-//    t <- c.L1D_cache.services
-//  } {
-//    s interfereWith t
-//    println(s"${s} interferes with ${t}")
-//  }
-
   for {
-    c <- u74_cluster.U74
-    s <- u74_cluster.C0.dtim.services
-    t <- c.dl1_cache.services
+    (core, partition) <- u74_cluster.CoreToL2Partition
+    core_complex <- u74_cluster.U74.filter(_.core == core)
+
+    s <- partition.services
+    t <- core_complex.dl1_cache.services ++ core_complex.il1_cache.services
   } {
     s interfereWith t
   }

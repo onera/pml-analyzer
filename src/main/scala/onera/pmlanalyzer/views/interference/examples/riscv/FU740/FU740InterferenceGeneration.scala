@@ -25,20 +25,19 @@ import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 /**
-  * Compute the interference of the SimpleZynqUltraScale defined in [[pml.examples.simpleZynqUltraScale.SimpleZynqUltraScaleExport]]
+  * Compute the interference of the FU740 defined in [[pml.examples.riscv.FU740.FU740Export]]
   */
 object FU740InterferenceGeneration extends App {
 
   for (
     p <- Seq(
       FU740ConfiguredFull,
-//    FU740_partitionedConfiguredFull,
-//    FU740BenchmarkConfiguredFull,
-      FU740BenchmarkConfiguredFull_Inclusive
+      FU740BenchmarkConfiguredInclusiveFull,
+      FU740BenchmarkConfiguredFull,
+      FU740PartitionedConfiguredFull,
     )
   ) {
-    p.computeKInterference(2, 1 hour, ignoreExistingAnalysisFiles = true)
     // Compute all ite and itf for benchmarks
-//    p.computeAllInterference(5 hours, ignoreExistingAnalysisFiles = true)
+    p.computeAllInterference(5 hours, ignoreExistingAnalysisFiles = true)
   }
 }

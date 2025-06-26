@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
 import onera.pmlanalyzer.views.interference.examples.riscv.FU740.{
   FU740ApplicativeTableBasedInterferenceSpecification,
-  FU740InterferenceSpecification_Inclusive,
+  FU740InclusiveCacheInterferenceSpecification,
   FU740PhysicalTableBasedInterferenceSpecification
 }
 import onera.pmlanalyzer.pml.exporters.*
@@ -39,17 +39,13 @@ object FU740Export extends App {
       extends FU740Platform(4, 1, false)
       with FU740LibraryConfigurationFull
       with RoutingConfiguration
-//      with FU740PhysicalTableBasedInterferenceSpecification
-      with FU740InterferenceSpecification_Inclusive
-      with FU740ApplicativeTableBasedInterferenceSpecification
-
-  object FU740_partitionedConfiguredFull
-      extends FU740Platform(4, 1, true)
-      with FU740LibraryConfigurationFull
-      with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
+  /**
+   * FU740 where all benchmarked transactions are considered
+   * @group platform_def
+   */
   object FU740BenchmarkConfiguredFull
       extends FU740Platform(4, 1, false)
       with FU740BenchmarkConfiguration
@@ -57,19 +53,38 @@ object FU740Export extends App {
       with FU740PhysicalTableBasedInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
-  object FU740BenchmarkConfiguredFull_Inclusive
+  /**
+   * FU740 where all benchmarked transactions are considered
+   * with interference specification for cache inclusion.
+   * @group platform_def
+   */
+  object FU740BenchmarkConfiguredInclusiveFull
       extends FU740Platform(4, 1, false)
       with FU740BenchmarkConfiguration
       with RoutingConfiguration
-      with FU740InterferenceSpecification_Inclusive
+      with FU740PhysicalTableBasedInterferenceSpecification  
+      with FU740InclusiveCacheInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
+  /**
+   * FU740 where all transactions are considered
+   * with cache partitioning.
+   * @group platform_def
+   */
+  object FU740PartitionedConfiguredFull
+      extends FU740Platform(4, 1, true)
+      with FU740LibraryConfigurationFull
+      with RoutingConfiguration
+      with FU740PhysicalTableBasedInterferenceSpecification
+      with FU740ApplicativeTableBasedInterferenceSpecification
+
+  // Generate export for all configured platforms
   for (
     p <- Seq(
       FU740ConfiguredFull,
-//    FU740_partitionedConfiguredFull,
-//    FU740BenchmarkConfiguredFull,
-      FU740BenchmarkConfiguredFull_Inclusive
+      FU740BenchmarkConfiguredFull,
+      FU740BenchmarkConfiguredInclusiveFull,
+      FU740PartitionedConfiguredFull,
     )
   ) {
     // Export only HW used by SW (explicit)
@@ -100,10 +115,11 @@ object FU740Export extends App {
     // Export the transactions defined by the user
     p.exportUserTransactions()
 
+    // Export the scenarios defined by the user
     p.exportUserScenarios()
 
+    // Export the service interference graph used for analysis
     p.exportAnalysisGraph()
-
   }
 
 }
