@@ -30,6 +30,5 @@ trait FU740LibraryConfiguration
     with FU740SoftwareAllocation {
   self: FU740Platform =>
 
-  /* t11_app1_rd_interrupt1.used*/
 
 }

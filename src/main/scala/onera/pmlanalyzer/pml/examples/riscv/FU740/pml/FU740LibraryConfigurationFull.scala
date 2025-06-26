@@ -22,36 +22,36 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
   */
 trait FU740LibraryConfigurationFull extends FU740LibraryConfiguration {
   self: FU740Platform =>
-//  t0_0.used
+  t0_0.used
   t0_1.used
-//  t0_2.used
-//  t0_3.used
-//  t0_4.used
-//  t0_5.used
-//  t1_0.used
+  t0_2.used
+  t0_3.used
+  t0_4.used
+  t0_5.used
+  t1_0.used
   t1_1.used
-//  t1_2.used
-//  t1_3.used
-//  t1_4.used
-//  t1_5.used
-//  t1_6.used
-//  t1_7.used
-//  t2_0.used
+  t1_2.used
+  t1_3.used
+  t1_4.used
+  t1_5.used
+  t1_6.used
+  t1_7.used
+  t2_0.used
   t2_1.used
-//  t2_2.used
-//  t2_3.used
-//  t2_4.used
-//  t2_5.used
-//  t3_0.used
+  t2_2.used
+  t2_3.used
+  t2_4.used
+  t2_5.used
+  t3_0.used
   t3_1.used
-//  t3_2.used
-//  t3_3.used
-//  t3_4.used
-//  t3_5.used
-//  t4_0.used
+  t3_2.used
+  t3_3.used
+  t3_4.used
+  t3_5.used
+  t4_0.used
   t4_1.used
-//  t4_2.used
-//  t4_3.used
-//  t4_4.used
-//  t4_5.used
+  t4_2.used
+  t4_3.used
+  t4_4.used
+  t4_5.used
 }

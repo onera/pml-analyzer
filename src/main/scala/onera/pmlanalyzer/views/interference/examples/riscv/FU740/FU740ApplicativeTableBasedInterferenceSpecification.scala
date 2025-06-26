@@ -43,7 +43,5 @@ trait FU740ApplicativeTableBasedInterferenceSpecification
     with FU740LibraryConfiguration
     with FU740SoftwareAllocation =>
 
-  // Sequential execution
-//  app31 exclusiveWith app32
 
 }

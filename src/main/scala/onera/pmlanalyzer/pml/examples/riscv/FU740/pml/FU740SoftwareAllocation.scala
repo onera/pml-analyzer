@@ -64,7 +64,10 @@ trait FU740SoftwareAllocation {
  *
     * @group data */
 
-  /* Helper class to allocate data in multiple layers of the memory hierarchy. */
+  /* Helper class to allocate data in multiple layers of the memory hierarchy.
+   * A same data may have instances in different locations based on cacheability
+   * and the state of caches.
+   */
   trait CacheableData(name: String) {
     val locations: Seq[Target]
     val instances: Seq[Data]
@@ -79,6 +82,9 @@ trait FU740SoftwareAllocation {
 
   }
 
+  /* Definition of cacheable data locations for S7 cores.
+   * Cacheable data is stored in the DDR, and cached in the L2.
+   */
   final class S7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
     val S74: SiFiveS7Core = u74_cluster.S74(core)
@@ -99,6 +105,9 @@ trait FU740SoftwareAllocation {
     bindInstances()
   }
 
+  /* Definition of cacheable data locations of U7 cores.
+   * Cacheable data is stored in the DDR, cached in the L2, and cache in the local L1.
+   */
   final class U7CacheableData(name: String, core: Int)
       extends CacheableData(name) {
     val U74: SiFiveU7Core = u74_cluster.U74(core)
@@ -115,7 +124,7 @@ trait FU740SoftwareAllocation {
     val instances: Seq[Data] =
       locations.map(t => Data(s"${name}_at_${t.name.name}"))
 
-    val L1DCache: Data = instances(0)
+    val DL1Cache: Data = instances(0)
     val L2Cache: Data = instances(1)
     val Mem: Data = instances(2)
 
@@ -124,21 +133,27 @@ trait FU740SoftwareAllocation {
 
   /* Data allocation
    *
-   * Allocate one Data per each core. Data is stored in the DDR, and it may be
-   * cached anywhere in the core's memory hierarchy.
+   * Each core uses a single cacheable data. Data is stored in the DDR, and it
+   * may be cached anywhere in the coreś memory hierarchy.
+   *
+   * In addition to cacheable data:
+   * - C0 (S74) accesses data in its DTIM.
+   * - C1 (U74) accesses data in the L2 LIM
+   * - C2 (U74) reads data from the UART
    */
-  val ds: Data = Data()
   val d0 = S7CacheableData("DataC0", 0)
   val d1 = U7CacheableData("DataC1", 0)
-  val di: Data = Data()
   val d2 = U7CacheableData("DataC2", 1)
   val d3 = U7CacheableData("DataC3", 2)
   val d4 = U7CacheableData("DataC4", 3)
 
+  val ds: Data = Data()
+  val di: Data = Data()
+  val du: Data = Data()
+
   ds hostedBy u74_cluster.C0.dtim
   di hostedBy u74_cluster.l2_lim
-
-  /* TODO Add data towards UART on C2, transaction transparent on tilelink_switch */
+  du hostedBy uart.rx_fifo
 
   /* -----------------------------------------------------------
    * Application allocation
