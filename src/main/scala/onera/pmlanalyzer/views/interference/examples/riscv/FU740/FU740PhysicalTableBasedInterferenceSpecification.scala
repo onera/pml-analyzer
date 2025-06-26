@@ -18,54 +18,56 @@
 package onera.pmlanalyzer.views.interference.examples.riscv.FU740
 
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
+import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
+import scala.language.postfixOps
+
 /**
-  * The interference calculus assumptions for the hardware components of the ZynqUltraScale are gathered here.
-  * For instance to specify that two services l and r interfere with each other if
-  *
-  *  - they are provided by the same owner except for
-  *    [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.sys_ctrl_fabric.periph_bus]], [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.MemorySubsystem.memory_fabric]],
-  *    [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.MemorySubsystem.memory_fabric]]
-  *  - they are provided by the [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.dma]] and [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.dma_reg]]
-  * {{{
-  *  for {
-  *   l <- services
-  *   r <- services
-  *   if l != r
-  *   if (l.hardwareOwnerIs(dma) && r.hardwareOwnerIs(dma_reg)) ||
-  *    (l.hardwareOwner == r.hardwareOwner && !l.hardwareOwnerIs(TeraNet.periph_bus)
-  *     && !l.hardwareOwnerIs(axi_bus) && !l.hardwareOwnerIs(MemorySubsystem.msmc))
-  *  } yield {
-  *   l interfereWith r
-  *  }
-  * }}}
+  * The interference calculus assumptions for the hardware components of the FU740 are gathered here.
   */
 trait FU740PhysicalTableBasedInterferenceSpecification
     extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
 
+  /* All services from a single component interfere with each other.
+   */
   for {
-    l <- services
-    r <- services
-    if l != r
-    if l.hardwareOwner == r.hardwareOwner
-
-  } yield {
-    l interfereWith r
+    h <- self.hardware /* FIXME Should this be accessible without `self` ? */
+  } {
+    h hasInterferingServices
   }
 
+  /* A single initiator cannot issue multiple transactions at once.
+   * Expressed by tagging transactions from the same initiator as exclusive.
+   */
   for {
     l <- transactions
     r <- transactions
     if l != r
 
     if l.pathInitiators == r.pathInitiators
-  } yield {
+  } {
     l exclusiveWith r
+  }
+
+  /* Transactions to the UART are slow.
+   * Transactions to the UART should not cause interference on the cluster TileLink Switch.
+   * Tagging all transactions from cores to UART targets as not interfering on the TileLink services.
+   */
+  for {
+    t <- transactions
+    c <- u74_cluster.cores
+    u <- uart.hardware.collect({case x: Target => x}) /* FIXME Should has an extension to collect targets ? */
+    if t.pathInitiatorIs(c)
+    if t.pathTargetIs(u)
+
+    s <- u74_cluster.tilelink_switch.services
+  } {
+    t notInterfereWith s
   }
 
 }

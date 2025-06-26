@@ -20,9 +20,7 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 /**
   * Transaction that are always used.
   * A user transaction is considered during the analyses if identified as so.
-  * For instance to indicate that the t11 transaction defined in [[FU740TransactionLibrary]] is used
-  * {{{t11_app1_rd_interrupt1.used}}}
- *
+  *
   * @see [[pml.operators.Use.Ops]] for operator definition
   */
 trait FU740LibraryConfiguration
