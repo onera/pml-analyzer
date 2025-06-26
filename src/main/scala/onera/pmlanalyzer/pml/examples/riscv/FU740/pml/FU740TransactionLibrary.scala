@@ -53,8 +53,6 @@ import scala.language.postfixOps
 trait FU740TransactionLibrary extends TransactionLibrary {
   self: FU740Platform with FU740SoftwareAllocation =>
 
-  /* TODO Add data towards UART on C2, transaction transparent on tilelink_switch */
-
 
   /*
    * We model cached memory accesses using explicit scenarios, capturing the

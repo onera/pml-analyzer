@@ -57,28 +57,28 @@ class SiFiveU7Core(
   val dl1_mem_ctrl: SimpleTransporter = SimpleTransporter()
 
   // Target modelling the L1 and L2 TLBs of the core
-//  val L1D_tlb: Target = Target()
-//  val L1I_tlb: Target = Target()
-//  val L2_tlb: Target = Target()
+  val dl1_tlb: Target = Target()
+  val il1_tlb: Target = Target()
+  val l2_tlb: Target = Target()
 
   // Transporter modelling the L1 and L2 TLB controllers of the core
-//  val L1D_tlb_ctrl: SimpleTransporter = SimpleTransporter()
-//  val L1I_tlb_ctrl: SimpleTransporter = SimpleTransporter()
-//  val L2_tlb_ctrl: SimpleTransporter = SimpleTransporter()
+  val dl1_tlb_ctrl: SimpleTransporter = SimpleTransporter()
+  val il1_tlb_ctrl: SimpleTransporter = SimpleTransporter()
+  val l2_tlb_ctrl: SimpleTransporter = SimpleTransporter()
 
   // Internal connections
 
   // SiFive core access to its private L1 and L2 cache tlb
-//  core link L1D_tlb_ctrl
-//  core link L1I_tlb_ctrl
-//  L1D_tlb_ctrl link L1D_tlb
-//  L1I_tlb_ctrl link L1I_tlb
-//  L1D_tlb_ctrl link L2_tlb_ctrl
-//  L1I_tlb_ctrl link L2_tlb_ctrl
-//  L2_tlb_ctrl link L2_tlb
+  core link dl1_tlb_ctrl
+  core link il1_tlb_ctrl
+  dl1_tlb_ctrl link dl1_tlb
+  il1_tlb_ctrl link il1_tlb
+  dl1_tlb_ctrl link l2_tlb_ctrl
+  il1_tlb_ctrl link l2_tlb_ctrl
+  l2_tlb_ctrl link l2_tlb
 
   // The Last Level TLB is connected to the L1D$
-//  L2_tlb_ctrl link L1D_mem_ctrl
+  l2_tlb_ctrl link dl1_mem_ctrl
 
   // SiFive core access to its private L1 and shared L2 cache
   core link dl1_mem_ctrl
