@@ -36,7 +36,11 @@ object FU740Export extends App {
     * @group platform_def
     */
   object FU740ConfiguredFull
-      extends FU740Platform(4, 1, false)
+      extends FU740Platform(
+        _u74CoreCnt = 4,
+        _sdramInputNb = 1,
+        _l2Partitioned = false
+      )
       with FU740LibraryConfigurationFull
       with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
@@ -47,7 +51,11 @@ object FU740Export extends App {
    * @group platform_def
    */
   object FU740BenchmarkConfiguredFull
-      extends FU740Platform(4, 1, false)
+      extends FU740Platform(
+        _u74CoreCnt = 4,
+        _sdramInputNb = 1,
+        _l2Partitioned = false
+      )
       with FU740BenchmarkConfiguration
       with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
@@ -59,10 +67,14 @@ object FU740Export extends App {
    * @group platform_def
    */
   object FU740BenchmarkConfiguredInclusiveFull
-      extends FU740Platform(4, 1, false)
+      extends FU740Platform(
+        _u74CoreCnt = 4,
+        _sdramInputNb = 1,
+        _l2Partitioned = false
+      )
       with FU740BenchmarkConfiguration
       with RoutingConfiguration
-      with FU740PhysicalTableBasedInterferenceSpecification  
+      with FU740PhysicalTableBasedInterferenceSpecification
       with FU740InclusiveCacheInterferenceSpecification
       with FU740ApplicativeTableBasedInterferenceSpecification
 
@@ -72,7 +84,11 @@ object FU740Export extends App {
    * @group platform_def
    */
   object FU740PartitionedConfiguredFull
-      extends FU740Platform(4, 1, true)
+      extends FU740Platform(
+        _u74CoreCnt = 4,
+        _sdramInputNb = 1,
+        _l2Partitioned = false
+      )
       with FU740LibraryConfigurationFull
       with RoutingConfiguration
       with FU740PhysicalTableBasedInterferenceSpecification
@@ -84,7 +100,7 @@ object FU740Export extends App {
       FU740ConfiguredFull,
       FU740BenchmarkConfiguredFull,
       FU740BenchmarkConfiguredInclusiveFull,
-      FU740PartitionedConfiguredFull,
+      FU740PartitionedConfiguredFull
     )
   ) {
     // Export only HW used by SW (explicit)

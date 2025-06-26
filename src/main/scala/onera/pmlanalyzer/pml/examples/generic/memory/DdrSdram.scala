@@ -51,19 +51,22 @@ final class DdrSdram(
   val phy: SimpleTransporter = SimpleTransporter("PHY")
 
   // Transporter modelling the DDR memory ranks and bank groups
-  val banks: IndexedSeq[Target] =
-    (0 until bankGroupCnt * rankCnt * bankCnt).map(s => Target(s"Banks${s}"))
+  val banks: Seq[Target] =
+    for (i <- 0 until bankGroupCnt * rankCnt * bankCnt)
+      yield Target(s"Banks$i")
 
-  val bankGroups: IndexedSeq[SimpleTransporter] =
-    (0 until bankGroupCnt * rankCnt).map(s =>
-      SimpleTransporter(s"BankGroup${s}")
-    )
+  val bankGroups: Seq[SimpleTransporter] =
+    for (i <- 0 until bankGroupCnt * rankCnt)
+      yield SimpleTransporter(s"BankGroup$i")
 
-  val ranks: IndexedSeq[SimpleTransporter] =
-    (0 until rankCnt).map(s => SimpleTransporter(s"Rank${s}"))
+  val ranks: Seq[SimpleTransporter] =
+    for (i <- 0 until rankCnt)
+      yield SimpleTransporter(s"Rank$i")
 
   // Connections
-  ranks.foreach(phy link _)
+  for (rank <- ranks) {
+    phy link rank
+  }
 
   for (r <- 0 until rankCnt) {
     for (g <- 0 until bankGroupCnt) {
@@ -75,5 +78,4 @@ final class DdrSdram(
       }
     }
   }
-
 }

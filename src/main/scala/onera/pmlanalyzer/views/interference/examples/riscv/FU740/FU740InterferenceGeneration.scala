@@ -34,7 +34,7 @@ object FU740InterferenceGeneration extends App {
       FU740ConfiguredFull,
       FU740BenchmarkConfiguredInclusiveFull,
       FU740BenchmarkConfiguredFull,
-      FU740PartitionedConfiguredFull,
+      FU740PartitionedConfiguredFull
     )
   ) {
     // Compute all ite and itf for benchmarks

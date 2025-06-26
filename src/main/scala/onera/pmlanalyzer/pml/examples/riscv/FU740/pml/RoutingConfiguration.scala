@@ -27,7 +27,7 @@ trait RoutingConfiguration {
   self: FU740Platform =>
 
   /* Accesses to the DMA go through the slave port. */
-  for (i <- Initiator.all.filterNot(u74_cluster.dma.channel.contains(_))) {
+  for (i <- Initiator.all -- u74_cluster.dma.channel) {
     i targeting Target.all blockedBy u74_cluster.dma.master_port
   }
 
@@ -65,7 +65,8 @@ trait RoutingConfiguration {
    * the local core when it leaves its locality (to the L2 or memory).
    */
   for {
-    core <- u74_cluster.U74.map(_.core)
+    u7 <- u74_cluster.U74
+    core = u7.core
   } {
     core targeting u74_cluster.l2_cache_prts useLink core to u74_cluster.tilelink_switch
     core targeting ddr.banks useLink core to u74_cluster.tilelink_switch

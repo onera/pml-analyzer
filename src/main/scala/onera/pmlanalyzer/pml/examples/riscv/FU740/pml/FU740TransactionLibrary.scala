@@ -35,24 +35,17 @@ import scala.language.postfixOps
   * One way to define a [[pml.model.configuration.TransactionLibrary.Transaction]] or
   * a [[pml.model.configuration.TransactionLibrary.Scenario]] is to use the read/write operators specifying
   * which [[pml.model.software.Data]] is used by which [[pml.model.software.Application]].
-  * For instance
-  * {{{val app4_wr_input_d : Transaction = Transaction(app4 write input_d)}}}
-  * defines a read transaction called '''app4_wr_input_d''' between the initiator of app4 and the input_d data.
   * The location of the application and the data are provided in the [[FU740SoftwareAllocation]] trait.
   *
   * If you want to define several paths representing a multi-transaction use the [[pml.model.configuration.TransactionLibrary.Scenario]]
-  * For instance
-  * {{{val app1_rd_wr_L1 : Scenario = Scenario(app1_rd_L1, app1_wr_L1)}}}
-  * defines a scenario named '''app1_rd_wr_L1''' where app1 is reading and writing L1 cache
- *
- * @note A transaction or a scenario is only '''declared''' here, it will be considered during the interference analysis if it is
+  *
+  * @note A transaction or a scenario is only '''declared''' here, it will be considered during the interference analysis if it is
   *      actually used. This is done in the [[FU740LibraryConfiguration]] files.
   *      A transaction should be a path from an initiator to a target, if several paths are possible a warning will be raised.
   * @see [[pml.operators.Use.Ops]] for read/write operator definitions
   * */
 trait FU740TransactionLibrary extends TransactionLibrary {
   self: FU740Platform with FU740SoftwareAllocation =>
-
 
   /*
    * We model cached memory accesses using explicit scenarios, capturing the

@@ -29,75 +29,40 @@ import scala.language.postfixOps
 trait FU740BenchmarkLibrary extends FU740TransactionLibrary {
   self: FU740Platform with FU740SoftwareAllocation =>
 
-  /* Expected from trace:
-   * Hart_0_Load_L1D
-   * Hart_0_Store_L1D
-   * Hart_0_Load_L2
-   * Hart_0_Store_L2
-   * Hart_0_Load_DDR_b0
-   * Hart_0_Store_DDR_b0
-   * Hart_1_Load_L1D
-   * Hart_1_Store_L1D
-   * Hart_1_Load_LIM
-   * Hart_1_Store_LIM
-   * Hart_1_Load_L2
-   * Hart_1_Store_L2
-   * Hart_1_Store_DDR_b0
-   * Hart_1_Load_DDR_b0
-   * Hart_2_Load_L1D
-   * Hart_2_Store_L1D
-   * Hart_2_Load_L2
-   * Hart_2_Load_DDR_b0
-   * Hart_2_Store_L2
-   * Hart_3_Load_L1D
-   * Hart_3_Store_L1D
-   * Hart_3_Load_L2
-   * Hart_3_Store_L2
-   * Hart_2_Store_DDR_b0
-   * Hart_3_Load_DDR_b0
-   * Hart_3_Store_DDR_b0
-   * Hart_4_Load_L1D
-   * Hart_4_Store_L1D
-   * Hart_4_Load_L2
-   * Hart_4_Store_L2
-   * Hart_4_Load_DDR_b0
-   * Hart_4_Store_DDR_b0
-   */
-
-  val Hart_0_Load_L1D : Transaction = Transaction(t0_0)
-  val Hart_0_Store_L1D : Transaction = Transaction(t0_1)
-  val Hart_0_Load_L2 : Transaction = Transaction(t0_2)
-  val Hart_0_Store_L2 : Transaction = Transaction(t0_3)
+  val Hart_0_Load_L1D: Transaction = Transaction(t0_0)
+  val Hart_0_Store_L1D: Transaction = Transaction(t0_1)
+  val Hart_0_Load_L2: Transaction = Transaction(t0_2)
+  val Hart_0_Store_L2: Transaction = Transaction(t0_3)
   val Hart_0_Load_DDR_b0: Scenario = Scenario(t0_4)
   val Hart_0_Store_DDR_b0: Scenario = Scenario(t0_5)
 
-  val Hart_1_Load_L1D : Transaction = Transaction(t1_0)
-  val Hart_1_Store_L1D : Transaction = Transaction(t1_1)
+  val Hart_1_Load_L1D: Transaction = Transaction(t1_0)
+  val Hart_1_Store_L1D: Transaction = Transaction(t1_1)
   val Hart_1_Load_LIM: Transaction = Transaction(t1_4)
   val Hart_1_Store_LIM: Transaction = Transaction(t1_5)
-  val Hart_1_Load_L2 : Scenario = Scenario(t1_2)
-  val Hart_1_Store_L2 : Scenario = Scenario(t1_3)
+  val Hart_1_Load_L2: Scenario = Scenario(t1_2)
+  val Hart_1_Store_L2: Scenario = Scenario(t1_3)
   val Hart_1_Load_DDR_b0: Scenario = Scenario(t1_6)
   val Hart_1_Store_DDR_b0: Scenario = Scenario(t1_7)
 
-  val Hart_2_Load_L1D : Transaction = Transaction(t2_0)
-  val Hart_2_Store_L1D : Transaction = Transaction(t2_1)
-  val Hart_2_Load_L2 : Scenario = Scenario(t2_2)
-  val Hart_2_Store_L2 : Scenario = Scenario(t2_3)
+  val Hart_2_Load_L1D: Transaction = Transaction(t2_0)
+  val Hart_2_Store_L1D: Transaction = Transaction(t2_1)
+  val Hart_2_Load_L2: Scenario = Scenario(t2_2)
+  val Hart_2_Store_L2: Scenario = Scenario(t2_3)
   val Hart_2_Load_DDR_b0: Scenario = Scenario(t2_4)
   val Hart_2_Store_DDR_b0: Scenario = Scenario(t2_5)
 
-  val Hart_3_Load_L1D : Transaction = Transaction(t3_0)
-  val Hart_3_Store_L1D : Transaction = Transaction(t3_1)
-  val Hart_3_Load_L2 : Scenario = Scenario(t3_2)
-  val Hart_3_Store_L2 : Scenario = Scenario(t3_3)
+  val Hart_3_Load_L1D: Transaction = Transaction(t3_0)
+  val Hart_3_Store_L1D: Transaction = Transaction(t3_1)
+  val Hart_3_Load_L2: Scenario = Scenario(t3_2)
+  val Hart_3_Store_L2: Scenario = Scenario(t3_3)
   val Hart_3_Load_DDR_b0: Scenario = Scenario(t3_4)
   val Hart_3_Store_DDR_b0: Scenario = Scenario(t3_5)
 
-  val Hart_4_Load_L1D : Transaction = Transaction(t4_0)
-  val Hart_4_Store_L1D : Transaction = Transaction(t4_1)
-  val Hart_4_Load_L2 : Scenario = Scenario(t4_2)
-  val Hart_4_Store_L2 : Scenario = Scenario(t4_3)
+  val Hart_4_Load_L1D: Transaction = Transaction(t4_0)
+  val Hart_4_Store_L1D: Transaction = Transaction(t4_1)
+  val Hart_4_Load_L2: Scenario = Scenario(t4_2)
+  val Hart_4_Store_L2: Scenario = Scenario(t4_3)
   val Hart_4_Load_DDR_b0: Scenario = Scenario(t4_4)
   val Hart_4_Store_DDR_b0: Scenario = Scenario(t4_5)
 

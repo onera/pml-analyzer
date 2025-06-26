@@ -27,15 +27,15 @@ import scala.language.postfixOps
 
 /**
   * Definition and allocation of software and data to hardware for simple Keystone.
-  * Declaring the application app1
-  * {{{val app1: Application = Application()}}}
-  * Allocating app1 on [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.APU.Cor
-  * {{{app1 hostedBy APU.Cortex_a53_0}}}
-  * Declaring the data input_d
-  * {{{val input_d: Data = Data()}}}
-  * Allocating app1 on [[pml.examples.ZynqUltraScale.ZynqUltraScalePlatform.OCM.bank0]]
-  * {{{input_d hostedBy OCM.bank0}}}
-  * @see [[pml.operators.Use.Ops]] for hostedBy operator definition
+  * Declaring the application app0
+  * {{{val app0: Application = Application()}}}
+  * Allocating appO on [[onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Platform.u74_cluster.C0.core]]
+  * {{{app1 hostedBy u74_cluster.C0.core}}}
+  * Declaring the data ds
+  * {{{val ds: Data = Data()}}}
+  * Allocating app1 on [[onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Platform.u74_cluster.C0.dtim]]
+  * {{{ds hostedBy u74_cluster.C0.dtim}}}
+  * @see [[onera.pmlanalyzer.pml.operators.Use.Ops]] for hostedBy operator definition
   */
 trait FU740SoftwareAllocation {
   self: FU740Platform =>
@@ -90,9 +90,9 @@ trait FU740SoftwareAllocation {
     val S74: SiFiveS7Core = u74_cluster.S74(core)
 
     val locations: Seq[Target] = Seq(
-      u74_cluster.CoreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
+      u74_cluster.coreToL2Partition.filter(_._1 == S74.core).map(_._2).head,
       u74_cluster.l2_lim,
-      ddr.banks(0)
+      ddr.banks.head
     )
 
     val instances: Seq[Data] =
@@ -114,11 +114,11 @@ trait FU740SoftwareAllocation {
 
     val locations: Seq[Target] = Seq(
       U74.dl1_cache,
-      u74_cluster.CoreToL2Partition
+      u74_cluster.coreToL2Partition
         .filter(_._1 == U74.core)
         .map(_._2)
         .head,
-      ddr.banks(0)
+      ddr.banks.head
     )
 
     val instances: Seq[Data] =

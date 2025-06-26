@@ -27,6 +27,4 @@ trait FU740LibraryConfiguration
     extends FU740TransactionLibrary
     with FU740SoftwareAllocation {
   self: FU740Platform =>
-
-
 }

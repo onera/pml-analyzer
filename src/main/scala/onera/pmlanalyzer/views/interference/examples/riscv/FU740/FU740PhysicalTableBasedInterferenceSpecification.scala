@@ -61,7 +61,9 @@ trait FU740PhysicalTableBasedInterferenceSpecification
   for {
     t <- transactions
     c <- u74_cluster.cores
-    u <- uart.hardware.collect({case x: Target => x}) /* FIXME Should has an extension to collect targets ? */
+    u <- uart.hardware.collect({ case x: Target =>
+      x
+    }) /* FIXME Should has an extension to collect targets ? */
     if t.pathInitiatorIs(c)
     if t.pathTargetIs(u)
 

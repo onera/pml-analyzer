@@ -29,12 +29,8 @@ import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTable
 import onera.pmlanalyzer.views.interference.operators.*
 
 /**
-  * The interference calculus assumptions for the SimpleZynqUltraScale's applications are gathered here.
-  * For instance app22 and app3 cannot execute simultaneously so
-  * {{{app22 exclusiveWith app3}}}
-  * The app3 transfer transaction does not significantly impact the [[pml.examples.simpleZynqUltraScale.SimpleZynqUltraScalePlatform.TeraNet]]
-  * {{{app3_transfer notInterfereWith TeraNet.periph_bus.loads}}}
-  * @see [[views.interference.operators.Exclusive.Ops]] for interfere operator definition
+  * The interference calculus assumptions for the FU470's applications are gathered here.
+  * @see [[onera.pmlanalyzer.views.interference.operators.Exclusive.Ops]] for interfere operator definition
   */
 trait FU740ApplicativeTableBasedInterferenceSpecification
     extends ApplicativeTableBasedInterferenceSpecification {
@@ -42,6 +38,4 @@ trait FU740ApplicativeTableBasedInterferenceSpecification
     with FU740TransactionLibrary
     with FU740LibraryConfiguration
     with FU740SoftwareAllocation =>
-
-
 }

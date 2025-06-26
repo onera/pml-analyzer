@@ -110,8 +110,9 @@ class U74CoreComplex(
     /** Initiator modelling the DMAs
      *
      * @group initiator */
-    val channel: IndexedSeq[Initiator] =
-      (0 until channelCnt).map(i => Initiator(s"Channel$i"))
+    val channel: Seq[Initiator] =
+      for (i <- 0 until channelCnt)
+        yield Initiator(s"Channel$i")
 
     /** Transporter modelling the master and slave ports that go to the Tilelink Switch
      *
@@ -144,10 +145,11 @@ class U74CoreComplex(
 
   // Composites modelling the SiFive S7 core 0, the SiFive U7 cores 1-4 and the DMA
   val C0 = new SiFiveS7Core()
-  val S74: IndexedSeq[SiFiveS7Core] = IndexedSeq(C0)
+  val S74: Seq[SiFiveS7Core] = Seq(C0)
 
-  val U74: IndexedSeq[SiFiveU7Core] =
-    (1 to u74CoreCnt).map(i => SiFiveU7Core(s"C$i"))
+  val U74: Seq[SiFiveU7Core] =
+    for (i <- 1 to u74CoreCnt) yield SiFiveU7Core(s"C$i")
+
   val dma = new DirectMemoryAccess(dmaChannelCnt)
 
   // Gather all S7 and U7 cores
@@ -169,24 +171,24 @@ class U74CoreComplex(
   // Note that the memory can be of type LIM or Cache.
   // Here we differentiate between both for implementation easiness of them. However, this is not exact.
   val l2_memory_port: SimpleTransporter = SimpleTransporter()
-  val l2_banks: IndexedSeq[SimpleTransporter] =
-    (0 until l2BankCnt).map(i => SimpleTransporter(s"Bank$i"))
-  val l2_cache_prts: IndexedSeq[Target] =
+  val l2_banks: Seq[SimpleTransporter] =
+    for (i <- 0 until l2BankCnt)
+      yield SimpleTransporter(s"Bank$i")
+
+  val l2_cache_prts: Seq[Target] =
     if (l2Partitioned) {
-      for { i <- cores.indices } yield {
-        Target(s"L2CachePrt$i")
-      }
+      for (i <- cores.indices)
+        yield Target(s"L2CachePrt$i")
     } else {
-      IndexedSeq(Target("L2Cache"))
+      Seq(Target("L2Cache"))
     }
 
-  val CoreToL2Partition: IndexedSeq[(Initiator, Target)] =
-    for {
-      i <- cores.indices
-    } yield (
-      cores(i),
-      if (i < l2_cache_prts.size) l2_cache_prts(i) else l2_cache_prts.last
-    )
+  val coreToL2Partition: Seq[(Initiator, Target)] =
+    for (i <- cores.indices)
+      yield (
+        cores(i),
+        if (i < l2_cache_prts.size) l2_cache_prts(i) else l2_cache_prts.last
+      )
 
   val l2_lim: Target = Target()
 
@@ -210,7 +212,9 @@ class U74CoreComplex(
 //    U74(i).L1D_mem_ctrl link TileLinkSwitch
 //    U74(i).L1I_mem_ctrl link TileLinkSwitch
 //  }
-  cores foreach (_ link tilelink_switch)
+  for (c <- cores) {
+    c link tilelink_switch
+  }
 
   dma.master_port link tilelink_switch
 
@@ -226,14 +230,13 @@ class U74CoreComplex(
   l2_ctrl link directory
   l2_ctrl link l2_memory_port
 
-// L2 cache memory port to Bank connections
-  for (j <- 0 until l2BankCnt) {
-    l2_memory_port link l2_banks(j)
+  for (bank <- l2_banks) {
+    // L2 cache memory port to Bank connections
+    l2_memory_port link bank
+    // Banks to LIM connection
+    bank link l2_lim
   }
-// Banks to LIM connection
-  for (j <- 0 until l2BankCnt) {
-    l2_banks(j) link l2_lim
-  }
+
 // Banks to cache partitions connections
   for {
     partition <- l2_cache_prts
@@ -245,6 +248,6 @@ class U74CoreComplex(
   l2_ctrl link mshr
   l2_ctrl link wb_buffer
 
-// Output
+  // Output
   l2_ctrl link mem_bus
 }

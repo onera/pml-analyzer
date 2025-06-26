@@ -22,8 +22,9 @@ class CadenceDdrSdramController(
   }
 
   // Transporter modelling the configurable input ports
-  val input_ports: IndexedSeq[SimpleTransporter] =
-    (0 until inputPortCnt).map(i => SimpleTransporter(s"S$i"))
+  val input_ports: Seq[SimpleTransporter] =
+    for (i <- 0 until inputPortCnt)
+      yield SimpleTransporter(s"S$i")
 
   // Transporter modelling the DDR controller
   val arbiter: SimpleTransporter = SimpleTransporter()
@@ -31,7 +32,9 @@ class CadenceDdrSdramController(
   val cmd_queue: SimpleTransporter = SimpleTransporter()
 
   // Internal connections from input ports
-  input_ports.foreach(_ link arbiter)
+  for (port <- input_ports) {
+    port link arbiter
+  }
 
   // Memory controller sub-units
   arbiter link cmd_queue

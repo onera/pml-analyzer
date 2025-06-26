@@ -53,10 +53,10 @@ class FU740Platform(
    * Global components
    * ----------------------------------------------------------- */
   // FIXME Revert to N banks when we get a way to tag multiple paths, due to uncertainty on which bank has been traversed, as valid
-  val cache_banks: Int = 1
-  val channels_nb: Int = 4
-  val ddr_banks_nb: Int = 4
-  val ddr_gp_banks_nb: Int = 2
+  private val cache_banks: Int = 1
+  private val channels_nb: Int = 4
+  private val ddr_banks_nb: Int = 4
+  private val ddr_gp_banks_nb: Int = 2
 
   val u74_cluster = new U74CoreComplex(
     "Cluster0",

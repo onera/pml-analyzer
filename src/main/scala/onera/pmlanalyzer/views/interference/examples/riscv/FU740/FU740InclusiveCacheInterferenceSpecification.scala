@@ -22,11 +22,12 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
-trait FU740InclusiveCacheInterferenceSpecification extends PhysicalTableBasedInterferenceSpecification {
+trait FU740InclusiveCacheInterferenceSpecification
+    extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
 
   for {
-    (core, partition) <- u74_cluster.CoreToL2Partition
+    (core, partition) <- u74_cluster.coreToL2Partition
     core_complex <- u74_cluster.U74.filter(_.core == core)
 
     s <- partition.services
