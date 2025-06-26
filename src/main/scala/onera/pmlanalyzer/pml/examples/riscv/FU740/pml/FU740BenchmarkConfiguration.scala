@@ -22,9 +22,36 @@ trait FU740BenchmarkConfiguration
     with FU740BenchmarkLibrary {
   self: FU740Platform =>
 
-  for {
-    t <- benchTransactions
-  } {
-    t.used
-  }
+  Hart_0_Load_L1D.used
+  Hart_0_Store_L1D.used
+  Hart_0_Load_L2.used
+  Hart_0_Store_L2.used
+  Hart_0_Load_DDR_b0.used
+  Hart_0_Store_DDR_b0.used
+  Hart_1_Load_L1D.used
+  Hart_1_Store_L1D.used
+  Hart_1_Load_LIM.used
+  Hart_1_Store_LIM.used
+  Hart_1_Load_L2.used
+  Hart_1_Store_L2.used
+  Hart_1_Store_DDR_b0.used
+  Hart_1_Load_DDR_b0.used
+  Hart_2_Load_L1D.used
+  Hart_2_Store_L1D.used
+  Hart_2_Load_L2.used
+  Hart_2_Store_L2.used
+  Hart_2_Load_DDR_b0.used
+  Hart_2_Store_DDR_b0.used
+  Hart_3_Load_L1D.used
+  Hart_3_Store_L1D.used
+  Hart_3_Load_L2.used
+  Hart_3_Store_L2.used
+  Hart_3_Load_DDR_b0.used
+  Hart_3_Store_DDR_b0.used
+  Hart_4_Load_L1D.used
+  Hart_4_Store_L1D.used
+  Hart_4_Load_L2.used
+  Hart_4_Store_L2.used
+  Hart_4_Load_DDR_b0.used
+  Hart_4_Store_DDR_b0.used
 }
