@@ -26,7 +26,7 @@ import onera.pmlanalyzer.pml.operators.*
 import scala.language.postfixOps
 
 /**
-  * Definition and allocation of software and data to hardware for simple Keystone.
+  * Definition and allocation of software and data to hardware for the FU740 SoC.
   * Declaring the application app0
   * {{{val app0: Application = Application()}}}
   * Allocating appO on [[onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Platform.u74_cluster.C0.core]]
