@@ -50,57 +50,57 @@ object FU740Export extends App {
    * FU740 where all benchmarked transactions are considered
    * @group platform_def
    */
-  object FU740BenchmarkConfiguredFull
-      extends FU740Platform(
-        _u74CoreCnt = 4,
-        _sdramInputNb = 1,
-        _l2Partitioned = false
-      )
-      with FU740BenchmarkConfiguration
-      with RoutingConfiguration
-      with FU740PhysicalTableBasedInterferenceSpecification
-      with FU740ApplicativeTableBasedInterferenceSpecification
+//  object FU740BenchmarkConfiguredFull
+//      extends FU740Platform(
+//        _u74CoreCnt = 4,
+//        _sdramInputNb = 1,
+//        _l2Partitioned = false
+//      )
+//      with FU740BenchmarkConfiguration
+//      with RoutingConfiguration
+//      with FU740PhysicalTableBasedInterferenceSpecification
+//      with FU740ApplicativeTableBasedInterferenceSpecification
 
   /**
    * FU740 where all benchmarked transactions are considered
    * with interference specification for cache inclusion.
    * @group platform_def
    */
-  object FU740BenchmarkConfiguredInclusiveFull
-      extends FU740Platform(
-        _u74CoreCnt = 4,
-        _sdramInputNb = 1,
-        _l2Partitioned = false
-      )
-      with FU740BenchmarkConfiguration
-      with RoutingConfiguration
-      with FU740PhysicalTableBasedInterferenceSpecification
-      with FU740InclusiveCacheInterferenceSpecification
-      with FU740ApplicativeTableBasedInterferenceSpecification
+//  object FU740BenchmarkConfiguredInclusiveFull
+//      extends FU740Platform(
+//        _u74CoreCnt = 4,
+//        _sdramInputNb = 1,
+//        _l2Partitioned = false
+//      )
+//      with FU740BenchmarkConfiguration
+//      with RoutingConfiguration
+//      with FU740PhysicalTableBasedInterferenceSpecification
+//      with FU740InclusiveCacheInterferenceSpecification
+//      with FU740ApplicativeTableBasedInterferenceSpecification
 
   /**
    * FU740 where all transactions are considered
    * with cache partitioning.
    * @group platform_def
    */
-  object FU740PartitionedConfiguredFull
-      extends FU740Platform(
-        _u74CoreCnt = 4,
-        _sdramInputNb = 1,
-        _l2Partitioned = false
-      )
-      with FU740LibraryConfigurationFull
-      with RoutingConfiguration
-      with FU740PhysicalTableBasedInterferenceSpecification
-      with FU740ApplicativeTableBasedInterferenceSpecification
+//  object FU740PartitionedConfiguredFull
+//      extends FU740Platform(
+//        _u74CoreCnt = 4,
+//        _sdramInputNb = 1,
+//        _l2Partitioned = false
+//      )
+//      with FU740LibraryConfigurationFull
+//      with RoutingConfiguration
+//      with FU740PhysicalTableBasedInterferenceSpecification
+//      with FU740ApplicativeTableBasedInterferenceSpecification
 
   // Generate export for all configured platforms
   for (
     p <- Seq(
-      FU740ConfiguredFull,
-      FU740BenchmarkConfiguredFull,
-      FU740BenchmarkConfiguredInclusiveFull,
-      FU740PartitionedConfiguredFull
+      FU740ConfiguredFull
+//      FU740BenchmarkConfiguredFull,
+//      FU740BenchmarkConfiguredInclusiveFull,
+//      FU740PartitionedConfiguredFull
     )
   ) {
     // Export only HW used by SW (explicit)

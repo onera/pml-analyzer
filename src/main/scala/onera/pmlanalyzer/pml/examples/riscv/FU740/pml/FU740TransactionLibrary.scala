@@ -81,7 +81,7 @@ trait FU740TransactionLibrary extends TransactionLibrary {
   private val t1_l1_refill = Transaction(app1 write d1.DL1Cache)
   private val t1_l2_refill = Transaction(app1 write d1.L2Cache)
   private val t1_rd_lim = Transaction(app1 read di)
-  private val t1_wr_lim = Transaction(app1 read di)
+  private val t1_wr_lim = Transaction(app1 write di)
 
   val t1_0: Transaction = Transaction(t1_rd_l1)
   val t1_1: Transaction = Transaction(t1_wr_l1)
