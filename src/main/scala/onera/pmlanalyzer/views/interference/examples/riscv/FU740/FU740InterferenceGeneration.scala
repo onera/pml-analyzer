@@ -20,6 +20,7 @@ package onera.pmlanalyzer.views.interference.examples.riscv.FU740
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Export.*
 import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.exporters.*
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
@@ -37,6 +38,18 @@ object FU740InterferenceGeneration extends App {
 //      FU740PartitionedConfiguredFull
     )
   ) {
+    // Export the interference channel graph used by MONOSAT
+    p.exportAnalysisGraph()
+
+    // Export the size of the semantics
+    p.exportSemanticsSize()
+
+    // Export the graph reduction ratio (AnalysisGraph vs RestrictedServiceGraphWithInterfere)
+    p.exportGraphReduction()
+
+    // Export the semantics reduction ratio used to estimate proportion of k-redundant multi-transactions
+    p.exportSemanticReduction()
+
     // Compute all ite and itf for benchmarks
     p.computeAllInterference(5 hours, ignoreExistingAnalysisFiles = true)
   }

@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.interference.examples.riscv.FU740.{
 }
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.exporters.*
+
 
 /**
   * Program entry point to export several version of FU740 platform
@@ -125,17 +125,14 @@ object FU740Export extends App {
     // Export the routing constraints
     p.exportRouteTable()
 
-    // Export the deactivated components
-    p.exportDeactivatedComponents()
-
     // Export the transactions defined by the user
     p.exportUserTransactions()
 
     // Export the scenarios defined by the user
     p.exportUserScenarios()
-
-    // Export the service interference graph used for analysis
-    p.exportAnalysisGraph()
+    
+    // Export the service graph taking into account service interference
+    p.exportRestrictedServiceGraphWithInterfere()
   }
 
 }
