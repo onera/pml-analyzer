@@ -153,4 +153,22 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       map: PMLNodeMap[Transaction]
   ): Transaction =
     apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
+
+  /** A transaction can be build from another transaction
+   *
+   * @param name
+   *   explicit name of the transaction
+   * @param from
+   *   the initial transaction
+   * @return
+   *   the transaction (not used for now)
+   */
+  def apply(
+             name:String,
+             from: Transaction
+           )(using
+             info: ReflexiveInfo,
+             map: PMLNodeMap[Transaction]
+           ): Transaction =
+    apply(UserTransactionId(Symbol(name)), from.iniTgt, from.sw)
 }
