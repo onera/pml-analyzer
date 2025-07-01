@@ -164,6 +164,30 @@ object Use {
         b.stores
       )
 
+      /** The PML keyword specify that self writes something
+       *
+       * @param b
+       * the elements to write
+       * @param p
+       * that the element provide store services
+       * @param ev
+       * the proof that an application can use store services
+       * @tparam B
+       * the type of b
+       * @return
+       * the link
+       */
+      def write[B](
+                    b: Set[B]
+                  )(using
+                    p: Provided[B, Store],
+                    ev: Use[L, Store],
+                    line: Line,
+                    file: File
+                  ): Set[(L, Store)] = use(
+        b.stores
+      )
+
       /** The PML keyword specify that self uses some store services
         *
         * @param b
