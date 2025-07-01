@@ -32,10 +32,10 @@ object FU740InterferenceGeneration extends App {
 
   for (
     p <- Seq(
-      FU740ConfiguredFull
-//      FU740BenchmarkConfiguredInclusiveFull,
-//      FU740BenchmarkConfiguredFull,
-//      FU740PartitionedConfiguredFull
+      FU740ConfiguredFull,
+      FU740BenchmarkConfiguredInclusiveFull,
+      FU740BenchmarkConfiguredFull,
+      FU740PartitionedConfiguredFull
     )
   ) {
     // Export the interference channel graph used by MONOSAT
