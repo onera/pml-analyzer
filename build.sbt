@@ -176,7 +176,6 @@ lazy val commonSettings = Seq(
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
   publishMavenStyle := true,
-  credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials"),
   pomIncludeRepository := { _ => false },
   crossPaths := false,
   publishTo := {
