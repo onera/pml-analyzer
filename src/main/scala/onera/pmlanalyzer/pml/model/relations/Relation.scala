@@ -55,7 +55,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
    * @param r the right element
    * @return all modification in order of execution
    */
-  def getModificationsFor(l: L, r: R): Seq[Change[L, R]] =
+  def getModificationsFor(l: L, r: Option[R]): Seq[Change[L, R]] =
     modifications.filter(c => c.l == l && c.r == r).toSeq
 
   /** Provide the relation a map of edges

@@ -100,7 +100,7 @@ object RelationExporter {
           n <- next
           c <- context.InitiatorRouting.getModificationsFor(
             (ini, target, router),
-            n
+            Some(n)
           )
         } yield {
           s"$ini, $target, $router, $n, ${c.sourceFile}, ${c.lineInFile}\n"
@@ -121,7 +121,7 @@ object RelationExporter {
           for {
             (sw, initiators) <- context.SWUseInitiator.edges
             ini <- initiators
-            c <- context.SWUseInitiator.getModificationsFor(sw, ini)
+            c <- context.SWUseInitiator.getModificationsFor(sw, Some(ini))
           } yield {
             s"$sw, $ini, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -141,7 +141,7 @@ object RelationExporter {
           for {
             d <- Data.all
             t <- d.hostingTargets
-            c <- context.DataUseTarget.getModificationsFor(d, t)
+            c <- context.DataUseTarget.getModificationsFor(d, Some(t))
           } yield {
             s"$d, $t, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -163,7 +163,7 @@ object RelationExporter {
           for {
             (sw, services) <- context.SWUseService.edges
             s <- services
-            c <- context.SWUseService.getModificationsFor(sw, s)
+            c <- context.SWUseService.getModificationsFor(sw, Some(s))
           } yield {
             s"$sw, $s, ${c.sourceFile}, ${c.lineInFile}\n"
           }

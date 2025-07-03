@@ -70,6 +70,9 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
+    "src/main/scala/onera/pmlanalyzer/pml/examples/generic" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "generic",
+    "src/main/scala/onera/pmlanalyzer/pml/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "riscv",
+    "src/main/scala/onera/pmlanalyzer/views/interference/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "riscv",
     "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
     "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
     "src/test" -> (Compile / baseDirectory).value / "src" / "test"
@@ -173,7 +176,6 @@ lazy val commonSettings = Seq(
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
   publishMavenStyle := true,
-  credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials"),
   pomIncludeRepository := { _ => false },
   crossPaths := false,
   publishTo := {
