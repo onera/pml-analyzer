@@ -103,6 +103,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "mkdir -p /home/user/code/src/test")
       workDir("/home/user")
       if(monosatLib.exists() && monosatDynlib.exists()){
+        println("[info] using local monosat library files")
         copy(monosatLib,"code/lib")
         copy(monosatDynlib,"code/binlib")
       } else {
@@ -187,8 +188,6 @@ lazy val commonSettings = Seq(
   scalafixOnCompile := true,
   semanticdbEnabled := true,
   scalafmtOnCompile := true,
-  sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
-  sonatypeCredentialHost := "s01.oss.sonatype.org",
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
