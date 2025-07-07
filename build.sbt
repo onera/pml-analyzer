@@ -102,6 +102,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/views/interference")
       customInstruction("RUN", "mkdir -p /home/user/code/src/test")
       workDir("/home/user")
+      println(s"monosat lib exists ? ${monosatLib.exists()}")
       if(monosatLib.exists() && monosatDynlib.exists()){
         println("[info] using local monosat library files")
         copy(monosatLib,"code/lib")
