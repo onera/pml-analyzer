@@ -66,7 +66,7 @@ lazy val dockerSettings = Seq(
     ImageName(
       namespace = Some(organization.value),
       repository = name.value,
-      tag = Some("v" + version.value)
+      tag = Some("v" + version.value.split("\\+").head)
     )
   ),
   modelCode := Seq(
