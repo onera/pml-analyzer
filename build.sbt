@@ -180,6 +180,8 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
+  sonatypeCredentialHost := "s01.oss.sonatype.org",
+  sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
   pomIncludeRepository := { _ => false },
   crossPaths := false,
   versionScheme := Some("early-semver"),
