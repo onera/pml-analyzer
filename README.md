@@ -1,7 +1,7 @@
 <div align="center">
         <picture>
-          <source media="(prefers-color-scheme: dark)" src="doc/_assets/images/phylog2_dark.png">
-          <source media="(prefers-color-scheme: light)" src="doc/_assets/images/phylog2.png">
+          <source media="(prefers-color-scheme: dark)" srcset="doc/_assets/images/phylog2_dark.png">
+          <source media="(prefers-color-scheme: light)" srcset="doc/_assets/images/phylog2.png">
           <img alt="logo" src="doc/_assets/images/phylog2.png">
         </picture>
 </div>
