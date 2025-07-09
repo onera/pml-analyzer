@@ -1,7 +1,7 @@
 name: Release
 on:
   push:
-    branches: [ "58-add-automatic-push-to-central-and-sonatype" ]
+    branches: [ "master" ]
     tags: [ "**" ]
 
 # Defines two custom environment variables for the workflow.
