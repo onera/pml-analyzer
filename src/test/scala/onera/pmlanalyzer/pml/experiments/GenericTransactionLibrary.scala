@@ -27,18 +27,18 @@ import scala.language.postfixOps
 trait GenericTransactionLibrary(withDMA: Boolean = true)
     extends TransactionLibrary {
   self: GenericPlatform with GenericSoftware =>
-  
+
   def partition_resources[A, B](
-    asking: Seq[A],
-    resources: Seq[B]
+      asking: Seq[A],
+      resources: Seq[B]
   ): Map[A, Seq[B]] = {
     if (asking.isEmpty || resources.isEmpty) {
       asking.map((_, Seq.empty)).toMap
     } else if (asking.length <= resources.length) {
       asking.zip(resources.grouped(resources.length / asking.length)).toMap
     } else {
-      partition_resources(resources, asking)
-        .toSeq.flatMap((k,v) => v.map(a => a -> Seq(k)))
+      partition_resources(resources, asking).toSeq
+        .flatMap((k, v) => v.map(a => a -> Seq(k)))
         .groupMapReduce(_._1)(_._2)(_ ++ _)
     }
   }
@@ -95,7 +95,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
        */
       val readBanks: Seq[Transaction] =
         for (bank <- coreToBanks(core)) yield {
-          val bankName = bank.name.name.replace(s"${fullName}_","").toUpperCase
+          val bankName = bank.name.name.replace(s"${fullName}_", "").toUpperCase
           Transaction(
             s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_ld",
             application read bank
@@ -104,7 +104,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
 
       val writeBanks: Seq[Transaction] =
         for (bank <- coreToBanks(core)) yield {
-          val bankName = bank.name.name.replace(s"${fullName}_","").toUpperCase
+          val bankName = bank.name.name.replace(s"${fullName}_", "").toUpperCase
           Transaction(
             s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_st",
             application write bank

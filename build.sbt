@@ -81,8 +81,6 @@ lazy val dockerSettings = Seq(
     val minimalBuildSBT = writeMinimalBuildSBT.value
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
-    val monosatLib: File = base / "lib" / "monosat.jar"
-    val monosatDynlib: File = base / "binlib" / "libmonosat.so"
     new Dockerfile {
       from("openjdk:8")
       customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
@@ -102,17 +100,11 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/views/interference")
       customInstruction("RUN", "mkdir -p /home/user/code/src/test")
       workDir("/home/user")
-      if(monosatLib.exists() && monosatDynlib.exists()){
-        println("[info] using local monosat library files")
-        copy(monosatLib,"code/lib")
-        copy(monosatDynlib,"code/binlib")
-      } else {
-        customInstruction("RUN", "git clone https://github.com/sambayless/monosat.git")
-        workDir("/home/user/monosat")
-        customInstruction("RUN", "cmake -DJAVA=ON .")
-        customInstruction("RUN", "make")
-        customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
-      }
+      customInstruction("RUN", "git clone https://github.com/sambayless/monosat.git")
+      workDir("/home/user/monosat")
+      customInstruction("RUN", "cmake -DJAVA=ON .")
+      customInstruction("RUN", "make")
+      customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
         workDir("/home/user/code")
       for ((to, from) <- modelCode.value)
         copy(from, to)
