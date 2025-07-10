@@ -66,7 +66,7 @@ lazy val dockerSettings = Seq(
     ImageName(
       namespace = Some(organization.value),
       repository = name.value,
-      tag = Some("v" + version.value)
+      tag = Some("v" + version.value.split("\\+").head)
     )
   ),
   modelCode := Seq(
@@ -175,16 +175,9 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  publishMavenStyle := true,
   pomIncludeRepository := { _ => false },
   crossPaths := false,
-  publishTo := {
-    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-    else localStaging.value
-  },
-  publishMavenStyle := true,
-  version := "1.1.1",
+  versionScheme := Some("early-semver"),
   scalaVersion := "3.3.5",
   sbtVersion := "1.11.2",
   scalafixOnCompile := true,

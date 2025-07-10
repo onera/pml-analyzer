@@ -1,0 +1,132 @@
+name: Release
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "**" ]
+
+# Defines two custom environment variables for the workflow.
+# These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build Docker image and binary packages and publish them
+  build-and-publish:
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      #
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
+
+      # Since monosat compilation is time-consuming try first to find the binaries in cache
+      - name: Cache Monosat JAR and SO
+        id: cache-monosat
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-monosat-module
+        with:
+          path: |
+            lib/monosat.jar
+            binlib/libmonosat.so
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      # If cache miss first get monosat source files
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Get Monosat
+        uses: actions/checkout@v3
+        with:
+          repository: sambayless/monosat
+          path: monosat
+
+      # If cache miss configure project
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Configure Project
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          source-dir: 'monosat'
+          args: '-DJAVA=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5'
+
+      # If cache miss compile monosat
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Compile Monosat
+        run: make
+        working-directory: 'monosat/build'
+
+      # If cache miss put monosat.jar in local lib
+      - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
+        name: Moving monosat.jar and monosat.so
+        run: |
+          cp monosat/build/monosat.jar lib
+          mkdir binlib
+          cp monosat/build/libmonosat.so binlib
+
+      - name: Publish the release to Central
+        run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
+      # Uses sbt-docker plugin to generate Dockerfile and build image
+      - name: Run sbt docker
+        run: sbt docker
+
+      # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages.
+      # Once published, the packages are scoped to the account defined here.
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # This step uses https://github.com/docker/metadata-action#about to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step.
+      # The `images` value provides the base name for the tags and labels.
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
+      # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see https://github.com/docker/build-push-action#usage in the README of the `docker/build-push-action` repository.
+      # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: ./target/docker
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
+      # It increases supply chain security for people who consume the image.
+      # For more information, see /actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds.
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
