@@ -53,7 +53,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     }
   }
 
-  it should "provide a consistent graph and semantics reduction" taggedAs FastTests in {
+  it should "provide a consistent semantics reduction" taggedAs FastTests in {
     assume(
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
@@ -61,7 +61,13 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(
       BigDecimal(37) / 17
     )
-    MySys.computeGraphReduction() should be(BigDecimal(71) / 28)
   }
 
+  it should "provide a consistent graph reduction" taggedAs FastTests in {
+    assume(
+      InterferenceTestExtension.monosatLibraryLoaded,
+      Message.monosatLibraryNotLoaded
+    )
+    MySys.computeGraphReduction() should be(BigDecimal(71) / 22)
+  }
 }

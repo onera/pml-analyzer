@@ -70,6 +70,9 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
+    "src/main/scala/onera/pmlanalyzer/pml/examples/generic" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "generic",
+    "src/main/scala/onera/pmlanalyzer/pml/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "riscv",
+    "src/main/scala/onera/pmlanalyzer/views/interference/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "riscv",
     "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
     "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
     "src/test" -> (Compile / baseDirectory).value / "src" / "test"
@@ -105,7 +108,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "cmake -DJAVA=ON .")
       customInstruction("RUN", "make")
       customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
-        workDir("/home/user/code")
+      workDir("/home/user/code")
       for ((to, from) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
