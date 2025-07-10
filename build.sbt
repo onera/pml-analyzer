@@ -66,7 +66,7 @@ lazy val dockerSettings = Seq(
     ImageName(
       namespace = Some(organization.value),
       repository = name.value,
-      tag = Some("v" + version.value)
+      tag = Some("v" + version.value.split("\\+").head)
     )
   ),
   modelCode := Seq(
@@ -105,7 +105,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "cmake -DJAVA=ON .")
       customInstruction("RUN", "make")
       customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
-      workDir("/home/user/code")
+        workDir("/home/user/code")
       for ((to, from) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
@@ -172,17 +172,9 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  publishMavenStyle := true,
-  credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials"),
   pomIncludeRepository := { _ => false },
   crossPaths := false,
-  publishTo := {
-    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-    else localStaging.value
-  },
-  publishMavenStyle := true,
-  version := "1.1.1",
+  versionScheme := Some("early-semver"),
   scalaVersion := "3.3.5",
   sbtVersion := "1.11.2",
   scalafixOnCompile := true,

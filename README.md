@@ -1,6 +1,8 @@
 <div align="center">
         <picture>
-                <img src="doc/_assets/images/phylog2.png" alt="Library Banner">
+          <source media="(prefers-color-scheme: dark)" srcset="doc/_assets/images/phylog2_dark.png">
+          <source media="(prefers-color-scheme: light)" srcset="doc/_assets/images/phylog2.png">
+          <img alt="logo" src="doc/_assets/images/phylog2.png">
         </picture>
 </div>
 <br>
@@ -234,10 +236,10 @@ Docker enables you to create from this image a container where all dependencies 
 The following commands create a simple container that can be used to run the examples provided in PML Analyzer.
 
 ```shell
-# load directly the archive containing the image of the preconfigured PML Analyzer environment
+# pull directly the image from github registry containing the preconfigured PML Analyzer environment
 # note that this step is not needed if you use sbt docker command that already load the image among the available
 # docker images
-docker load < [IMAGE_NAME].tar.gz
+docker pull ghcr.io/onera/pml-analyzer:[VERSION]
 
 # The image has been configured to run as a non-root user
 # To share content between the container and the host, it is mandatory to create
