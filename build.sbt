@@ -184,6 +184,7 @@ lazy val commonSettings = Seq(
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
+  resolvers += Resolver.sonatypeCentralSnapshots,
   libraryDependencies ++= Seq(
     scalaz,
     scala_xml,
