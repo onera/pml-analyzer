@@ -2,35 +2,6 @@ import sbt.Tests
 import java.io.FileWriter
 import java.io.PrintWriter
 
-inThisBuild(List(
-  organization := "io.github.onera",
-  homepage := Some(url("https://github.com/onera/pml-analyzer")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/onera/pml-analyzer"),
-      "git@github.com:onera/pml-analyzer.git"
-    )
-  ),
-  developers := List(
-    Developer(
-      "kevin-delmas",
-      "kevin-delmas",
-      "kevin.delmas@onera.fr",
-      url("https://www.onera.fr/en/staff/kevin-delmas")
-    )
-  ),
-  licenses += (
-    "LGPL-2.1",
-    url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
-  ),
-  //FIXME this is not correct according to sbt-ci-release
-  publishTo := {
-    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-    else localStaging.value
-  }
-))
-
 //Definition of the managed dependencies
 val sourceCode = "com.lihaoyi" %% "sourcecode" % "0.3.0"
 val scalaz = "org.scalaz" %% "scalaz-core" % "7.3.7"
@@ -184,6 +155,26 @@ lazy val testSettings = Seq(
 
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
 lazy val commonSettings = Seq(
+  organization := "io.github.onera",
+  homepage := Some(url("https://github.com/onera/pml-analyzer")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/onera/pml-analyzer"),
+      "git@github.com:onera/pml-analyzer.git"
+    )
+  ),
+  developers := List(
+    Developer(
+      "kevin-delmas",
+      "kevin-delmas",
+      "kevin.delmas@onera.fr",
+      url("https://www.onera.fr/en/staff/kevin-delmas")
+    )
+  ),
+  licenses += (
+    "LGPL-2.1",
+    url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
+  ),
   scalaVersion := "3.3.5",
   sbtVersion := "1.11.2",
   versionScheme := Some("early-semver"),
