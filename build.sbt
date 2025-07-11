@@ -22,7 +22,13 @@ inThisBuild(List(
   licenses += (
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
-  )
+  ),
+  //FIXME this is not correct according to sbt-ci-release
+  publishTo := {
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
+  }
 ))
 
 //Definition of the managed dependencies
@@ -180,6 +186,7 @@ lazy val testSettings = Seq(
 lazy val commonSettings = Seq(
   scalaVersion := "3.3.5",
   sbtVersion := "1.11.2",
+  versionScheme := Some("early-semver"),
   scalafixOnCompile := true,
   semanticdbEnabled := true,
   scalafmtOnCompile := true,
