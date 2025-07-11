@@ -164,11 +164,11 @@ object Transaction extends PMLNodeBuilder[Transaction] {
    *   the transaction (not used for now)
    */
   def apply(
-             name:String,
-             from: Transaction
-           )(using
-             info: ReflexiveInfo,
-             map: PMLNodeMap[Transaction]
-           ): Transaction =
+      name: String,
+      from: Transaction
+  )(using
+      info: ReflexiveInfo,
+      map: PMLNodeMap[Transaction]
+  ): Transaction =
     apply(UserTransactionId(Symbol(name)), from.iniTgt, from.sw)
 }

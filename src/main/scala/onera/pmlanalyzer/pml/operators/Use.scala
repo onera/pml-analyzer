@@ -178,13 +178,13 @@ object Use {
        * the link
        */
       def write[B](
-                    b: Set[B]
-                  )(using
-                    p: Provided[B, Store],
-                    ev: Use[L, Store],
-                    line: Line,
-                    file: File
-                  ): Set[(L, Store)] = use(
+          b: Set[B]
+      )(using
+          p: Provided[B, Store],
+          ev: Use[L, Store],
+          line: Line,
+          file: File
+      ): Set[(L, Store)] = use(
         b.stores
       )
 
