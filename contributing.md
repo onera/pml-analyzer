@@ -25,17 +25,15 @@ sbt test
 ```shell
 sbt test 
 ```
+6. Automatic linter and formatter are used during the compilation process. 
+   Please ensure that all modifications after the linting and formatting processes are pushed.
+   To check please ensure that `isVersionStable` is true
 
-6. Update the README.md with details of changes to the API or the analysis process.
-7. Increase the version numbers in any examples files, the README.md and the build.sbt to the new version that this
-   Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
-
-```scala
-//Change version in build.sbt
-version := "X.Y.Z"
+```shell
+sbt isVersionStable 
 ```
 
-8. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
+7. You may merge the Pull Request in once you have the sign-off of two other developers, or if you
    do not have permission to do that, you may request the second reviewer to merge it for you.
 
 ## Code of Conduct
