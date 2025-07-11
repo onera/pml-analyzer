@@ -175,8 +175,6 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  pomIncludeRepository := { _ => false },
-  crossPaths := false,
   versionScheme := Some("early-semver"),
   scalaVersion := "3.3.5",
   sbtVersion := "1.11.2",
@@ -186,7 +184,6 @@ lazy val commonSettings = Seq(
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
-  resolvers += Resolver.sonatypeCentralSnapshots,
   libraryDependencies ++= Seq(
     scalaz,
     scala_xml,
