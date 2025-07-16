@@ -771,19 +771,19 @@ object Analyse {
           reducedNodePath(kv._1).map(_.toSet.flatten)
         )((l, _) => l)
 
-      val addUndirectedEdgeI: ((MNode, MNode)) => MEdge = immutableHashMapMemo {
-        x =>
-          MEdge(x._1, x._2, undirectedEdgeId(x._1, x._2))
+      //Add an undirected edge for any set containing two nodes
+      val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo { lr =>
+        MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
       }
 
       val addUndirectedEdge = (lr: Set[Service]) => {
         if (lr.size == 1) {
           for {
             ns <- serviceToNodes(lr.head).subsets(2).toSet
-          } yield addUndirectedEdgeI((ns.head, ns.last))
+          } yield addUndirectedEdgeI(ns)
         } else {
           serviceToNodes(lr.head).flatMap(n1 =>
-            serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI((n1, n2)))
+            serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI(Set(n1, n2)))
           )
         }
       }
