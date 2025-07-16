@@ -771,7 +771,7 @@ object Analyse {
           reducedNodePath(kv._1).map(_.toSet.flatten)
         )((l, _) => l)
 
-      //Add an undirected edge for any set containing two nodes
+      // Add an undirected edge for any set containing two nodes
       val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo { lr =>
         MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
       }
