@@ -26,13 +26,13 @@ import onera.pmlanalyzer.pml.model.hardware.{
   Transporter
 }
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification._
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
 import java.io.{FileWriter, Writer}
-import scala.collection.mutable.{HashMap => MHashMap}
+import scala.collection.mutable.HashMap as MHashMap
 
 object IDPExporter {
 
@@ -42,21 +42,13 @@ object IDPExporter {
         platform: Platform with InterferenceSpecification
     ) {
       def exportAsIDP()(implicit exporter: IDPPlatformExporter.type): Unit = {
-        val startDate = System.currentTimeMillis()
         val writer = new FileWriter(
           FileManager.exportDirectory.getFile(platform.fullName + ".pia")
         )
         exporter.exportIDP(platform)(writer)
         writer.close()
-        println(
-          Message.successfulExportInfo(
-            platform.fullName,
-            System.currentTimeMillis() - startDate
-          )
-        )
       }
     }
-
   }
 
   implicit object IDPPlatformExporter {
