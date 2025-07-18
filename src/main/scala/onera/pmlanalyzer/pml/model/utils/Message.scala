@@ -166,7 +166,9 @@ object Message {
               s"[INFO] size ${p._1}: ${p._2} over ${value(p._1)} (${
                   if (value(p._1) == 0) "0"
                   else if (p._2 * 100 / value(p._1) == 0) "< 1"
-                  else (BigDecimal(p._2 * 100) / BigDecimal(value(p._1))).toBigInt
+                  else (BigDecimal(p._2 * 100) / BigDecimal(value(p._1)))
+                    .setScale(0, BigDecimal.RoundingMode.HALF_UP)
+                    .toBigInt
                 }%)"
             case None =>
               s"[INFO] size ${p._1}: ${p._2}"
