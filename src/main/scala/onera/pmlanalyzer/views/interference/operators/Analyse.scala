@@ -1000,7 +1000,7 @@ object Analyse {
     }
 
     private def updateNumber(
-        nbITF: mutable.Map[Int, Int],
+        nbITF: mutable.Map[Int, BigInt],
         m: Map[Int, Set[Set[UserScenarioId]]]
     ): Unit = {
       for ((k, v) <- m)
