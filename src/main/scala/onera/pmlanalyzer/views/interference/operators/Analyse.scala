@@ -473,7 +473,8 @@ object Analyse {
           println(
             Message.successfulModelBuildInfo(
               platform.fullName,
-              ((System.currentTimeMillis() millis) - generateModelStart).toSeconds
+              ((System
+                .currentTimeMillis() millis) - generateModelStart).toSeconds
             )
           )
 
@@ -495,7 +496,8 @@ object Analyse {
           println(
             Message.successfulNonExclusiveScenarioEstimationInfo(
               platform.fullName,
-              ((System.currentTimeMillis() millis) - estimateNonExclusiveScenarioStart).toSeconds
+              ((System
+                .currentTimeMillis() millis) - estimateNonExclusiveScenarioStart).toSeconds
             )
           )
           for {
@@ -514,7 +516,8 @@ object Analyse {
             Message.iterationCompletedInfo(
               1,
               sizes.max,
-              ((System.currentTimeMillis() millis) - assessmentStartDate).toSeconds
+              ((System
+                .currentTimeMillis() millis) - assessmentStartDate).toSeconds
             )
           )
           for {
@@ -567,7 +570,8 @@ object Analyse {
               Message.iterationCompletedInfo(
                 size,
                 sizes.max,
-                ((System.currentTimeMillis() millis) - iterationStartDate).toSeconds
+                ((System
+                  .currentTimeMillis() millis) - iterationStartDate).toSeconds
               )
             )
             for {
@@ -603,7 +607,8 @@ object Analyse {
             )
           }
           val computationTime =
-            ((System.currentTimeMillis() millis) - assessmentStartDate).toSeconds
+            ((System
+              .currentTimeMillis() millis) - assessmentStartDate).toSeconds
           for { cW <- channelWriters }
             updateChannelFile(cW, channels)
 

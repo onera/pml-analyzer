@@ -19,7 +19,12 @@ package onera.pmlanalyzer.views.interference.exporters
 
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target, Transporter}
+import onera.pmlanalyzer.pml.model.hardware.{
+  Initiator,
+  Platform,
+  Target,
+  Transporter
+}
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import scalaz.Memo.immutableHashMapMemo
