@@ -447,8 +447,8 @@ object Analyse {
             aW.foreach(w => writeFileInfo(w, platform))
           }
 
-          val nbFree = mutable.Map.empty[Int, Int].withDefaultValue(0)
-          val nbITF = mutable.Map.empty[Int, Int].withDefaultValue(0)
+          val nbFree = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
+          val nbITF = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
           val channels = mutable.Map.empty[Int, Map[Channel, Int]]
 
           val update = (
@@ -935,7 +935,7 @@ object Analyse {
     private def writeFooter(
         writer: FileWriter,
         computationTime: Double,
-        size: Int = -1
+        size: BigInt = -1
     ): Unit =
       writer write
         s"""------------------------------------------
@@ -997,11 +997,11 @@ object Analyse {
     }
 
     private def updateNumber(
-        nbITF: mutable.Map[Int, Int],
+        nbITF: mutable.Map[Int, BigInt],
         m: Map[Int, Set[Set[UserScenarioId]]]
     ): Unit = {
       for ((k, v) <- m)
-        nbITF(k) = nbITF.getOrElse(k, 0) + v.size
+        nbITF(k) = nbITF.getOrElse(k, BigInt(0)) + v.size
     }
 
     private def updateChannelNumber(
