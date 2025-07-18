@@ -44,7 +44,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.io.Source
 import scala.jdk.CollectionConverters.*
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.*
 import scala.language.postfixOps
 
 /** Base trait providing proof that an element is analysable with monosat
@@ -412,7 +412,7 @@ object Analyse {
           )
           Set.empty
         case _ => {
-          val generateModelStart = System.currentTimeMillis()
+          val generateModelStart = System.currentTimeMillis() millis
           val problem = computeProblemConstraints(platform, maxSize)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
@@ -473,7 +473,7 @@ object Analyse {
           println(
             Message.successfulModelBuildInfo(
               platform.fullName,
-              (System.currentTimeMillis().toFloat - generateModelStart) * 1e-3
+              ((System.currentTimeMillis() millis) - generateModelStart).toSeconds
             )
           )
 
@@ -483,7 +483,7 @@ object Analyse {
             )
           )
           val estimateNonExclusiveScenarioStart =
-            System.currentTimeMillis().toFloat
+            System.currentTimeMillis() millis
           val nonExclusiveScenarios =
             if (computeSemantics)
               Some(
@@ -495,9 +495,7 @@ object Analyse {
           println(
             Message.successfulNonExclusiveScenarioEstimationInfo(
               platform.fullName,
-              (System
-                .currentTimeMillis()
-                .toFloat - estimateNonExclusiveScenarioStart) * 1e-3
+              ((System.currentTimeMillis() millis) - estimateNonExclusiveScenarioStart).toSeconds
             )
           )
           for {
@@ -510,13 +508,13 @@ object Analyse {
           }
             update(isFree, physical, userDefined)
 
-          val assessmentStartDate = System.currentTimeMillis()
+          val assessmentStartDate = System.currentTimeMillis() millis
 
           println(
             Message.iterationCompletedInfo(
               1,
               sizes.max,
-              (System.currentTimeMillis() - assessmentStartDate) * 1e-3
+              ((System.currentTimeMillis() millis) - assessmentStartDate).toSeconds
             )
           )
           for {
@@ -605,7 +603,7 @@ object Analyse {
             )
           }
           val computationTime =
-            (System.currentTimeMillis() - assessmentStartDate) * 1e-3
+            ((System.currentTimeMillis() millis) - assessmentStartDate).toSeconds
           for { cW <- channelWriters }
             updateChannelFile(cW, channels)
 
@@ -934,7 +932,7 @@ object Analyse {
 
     private def writeFooter(
         writer: FileWriter,
-        computationTime: Double,
+        computationTime: Long,
         size: Int = -1
     ): Unit =
       writer write
