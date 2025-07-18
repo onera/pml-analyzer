@@ -546,7 +546,7 @@ object Analyse {
           )
 
           for (size <- sizes) {
-            val iterationStartDate = System.currentTimeMillis()
+            val iterationStartDate = System.currentTimeMillis() millis
             val s = problem.instantiate(size)
             val variables =
               problem.groupedScenarios.transform((k, _) => k.toLit(s))
@@ -567,7 +567,7 @@ object Analyse {
               Message.iterationCompletedInfo(
                 size,
                 sizes.max,
-                (System.currentTimeMillis() - iterationStartDate) * 1e-3
+                ((System.currentTimeMillis() millis) - iterationStartDate).toSeconds
               )
             )
             for {
