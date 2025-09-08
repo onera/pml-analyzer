@@ -59,24 +59,24 @@ final class Scenario private (
     * @group scenario_class
     */
 object Scenario extends PMLNodeBuilder[Scenario] {
-  def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-      ta: ToTransaction[Set[A]],
-      tb: ToTransaction[Set[B]],
-      info: ReflexiveInfo,
-      map: PMLNodeMap[Scenario]
-  ): Scenario = {
-    val resultL = TransactionParam(iniTgtL)
-    val resultR = TransactionParam(iniTgtR)
-    apply(
-      UserScenarioId(name),
-      () => {
-        resultL._1() ++ resultR._1()
-      },
-      () => {
-        resultL._2() ++ resultR._2()
-      }
-    )
-  }
+//  def apply[A, B](name: Symbol, iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+//      ta: ToTransaction[Set[A]],
+//      tb: ToTransaction[Set[B]],
+//      info: ReflexiveInfo,
+//      map: PMLNodeMap[Scenario]
+//  ): Scenario = {
+//    val resultL = TransactionParam(iniTgtL)
+//    val resultR = TransactionParam(iniTgtR)
+//    apply(
+//      UserScenarioId(name),
+//      () => {
+//        resultL._1() ++ resultR._1()
+//      },
+//      () => {
+//        resultL._2() ++ resultR._2()
+//      }
+//    )
+//  }
 
   /** Build scenario from two write/read based transactions
      *
@@ -93,13 +93,13 @@ object Scenario extends PMLNodeBuilder[Scenario] {
      * @return
      * the corresponding scenario
      */
-  def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
-      name: Name,
-      ta: ToTransaction[Set[A]],
-      tb: ToTransaction[Set[B]],
-      info: ReflexiveInfo,
-      map: PMLNodeMap[Scenario]
-  ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
+//  def apply[A, B](iniTgtL: => Set[A], iniTgtR: => Set[B])(using
+//      name: Name,
+//      ta: ToTransaction[Set[A]],
+//      tb: ToTransaction[Set[B]],
+//      info: ReflexiveInfo,
+//      map: PMLNodeMap[Scenario]
+//  ): Scenario = apply(Symbol(name.value), iniTgtL, iniTgtR)
 
   /** Build a scenario from a transaction or another scenario
       * @param tr
@@ -138,7 +138,10 @@ object Scenario extends PMLNodeBuilder[Scenario] {
   ): Scenario =
     apply(name.value, tr: _*)
 
-  def apply(name: String, tr: Transaction*)(using
+  def apply(
+      name: String,
+      tr: Transaction*
+  )(using
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
   ): Scenario =

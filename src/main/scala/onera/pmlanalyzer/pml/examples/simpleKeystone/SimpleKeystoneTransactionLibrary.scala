@@ -126,6 +126,8 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
     * [[SimpleKeystonePlatform.spi]]
     * @group scenario_def
     */
+  private val readFrame = Transaction(app3 read output_d)
+  private val writeFrame = Transaction(app3 write output_spi_frame)
   val app3_transfer: Scenario =
-    Scenario(app3 read output_d, app3 write output_spi_frame)
+    Scenario(readFrame, writeFrame)
 }

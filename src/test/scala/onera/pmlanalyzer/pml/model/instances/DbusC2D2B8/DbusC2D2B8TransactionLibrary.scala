@@ -187,20 +187,25 @@ trait DbusC2D2B8TransactionLibrary extends TransactionLibrary {
   )
   tr_CIO_BK0_st.used
 
+  private val dma_rd_bk0 = Transaction(app_dma read rosace.ddr.BK0)
+  private val dma_wr_eth = Transaction(app_dma write rosace.eth)
   val tr_dma_BK0_eth: Scenario =
-    Scenario(app_dma read rosace.ddr.BK0, app_dma write rosace.eth)
+    Scenario(dma_rd_bk0, dma_wr_eth)
   tr_dma_BK0_eth.used
 
+  private val dma_rd_bk2 = Transaction(app_dma read rosace.ddr.BK2)
   val tr_dma_eth_BK2: Scenario =
-    Scenario(app_dma write rosace.ddr.BK2, app_dma read rosace.eth)
+    Scenario(dma_rd_bk2, dma_wr_eth)
   tr_dma_eth_BK2.used
 
+  private val dma_rd_bk4 = Transaction(app_dma read rosace.ddr.BK4)
   val tr_dma_eth_BK4: Scenario =
-    Scenario(app_dma write rosace.ddr.BK4, app_dma read rosace.eth)
+    Scenario(dma_rd_bk4, dma_wr_eth)
   tr_dma_eth_BK4.used
 
+  private val dma_rd_bk6 = Transaction(app_dma read rosace.ddr.BK6)
   val tr_dma_eth_BK6: Scenario =
-    Scenario(app_dma write rosace.ddr.BK6, app_dma read rosace.eth)
+    Scenario(dma_rd_bk6, dma_wr_eth)
   tr_dma_eth_BK6.used
 
 }

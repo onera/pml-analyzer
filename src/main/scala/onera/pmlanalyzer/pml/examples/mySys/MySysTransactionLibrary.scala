@@ -122,7 +122,9 @@ trait MySysTransactionLibrary extends TransactionLibrary {
     * and transfers it to [[MyProcPlatform.spi]]
     * @group scenario_def
     */
-  val t31: Scenario = Scenario(app3 read spi_frame, app3 write output_spi_frame)
+  private val readFrame = Transaction(app3 read spi_frame)
+  private val writeFrame = Transaction(app3 write output_spi_frame)
+  val t31: Scenario = Scenario(readFrame, writeFrame)
 
   /** t41: Each time an [[MyProcPlatform.eth]] frame arrives, it transfers the
     * payload of the frame to [[MyProcPlatform.MemorySubsystem.sram]]
