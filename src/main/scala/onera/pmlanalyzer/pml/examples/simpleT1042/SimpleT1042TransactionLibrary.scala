@@ -46,8 +46,10 @@ trait SimpleT1042TransactionLibrary extends TransactionLibrary {
   /** ----------------------------------------------------------- DMA copies
     * -----------------------------------------------------------
     */
-//  val app3_rd_output_d : Transaction = Transaction(app3 read output_d)
-//  val app3_wr_output_pcie_frame : Transaction = Transaction(app3 write output_pcie_frame)
+  private val app3_rd_output_d: Transaction = Transaction(app3 read output_d)
+  private val app3_wr_output_pcie_frame: Transaction = Transaction(
+    app3 write output_pcie_frame
+  )
   val app3_transfer: Scenario =
-    Scenario(app3 read output_d, app3 write output_pcie_frame)
+    Scenario(app3_rd_output_d, app3_wr_output_pcie_frame)
 }
