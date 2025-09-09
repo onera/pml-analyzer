@@ -27,7 +27,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalScenarioId,
   AtomicTransaction,
-  PhysicalAtomicTransactionId
+  AtomicTransactionId
 }
 
 import scala.collection.mutable
@@ -49,7 +49,7 @@ object Message {
 
   inline def multiPathTransactionWarning(
       userName: UserTransactionId,
-      list: Iterable[(PhysicalAtomicTransactionId, AtomicTransaction)]
+      list: Iterable[(AtomicTransactionId, AtomicTransaction)]
   ): String =
     s"""[WARNING] The transaction $userName addresses multiple physical transactions:
        |${list.map(_._1).mkString("[WARNING]", "\n", "\n")}
@@ -65,12 +65,12 @@ object Message {
   }
 
   inline def transactionNoInLibraryWarning(
-      name: PhysicalAtomicTransactionId
+      name: AtomicTransactionId
   ): String =
     s"[WARNING] The physical transaction $name is not in the library"
 
   inline def transactionHasSeveralNameWarning(
-      name: PhysicalAtomicTransactionId,
+      name: AtomicTransactionId,
       names: Iterable[UserTransactionId]
   ): String =
     s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
@@ -83,7 +83,7 @@ object Message {
 
   inline def multiPathScenarioWarning(
       userName: UserScenarioId,
-      list: Iterable[(PhysicalAtomicTransactionId, AtomicTransaction)]
+      list: Iterable[(AtomicTransactionId, AtomicTransaction)]
   ): String =
     s"""[WARNING] Some transactions in scenario $userName addresses multiple physical transactions:
        |${list.map(_._1).mkString("\n")}

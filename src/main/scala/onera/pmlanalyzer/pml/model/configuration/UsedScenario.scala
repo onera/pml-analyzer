@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{Message, ReflexiveInfo}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
-  PhysicalAtomicTransactionId
+  AtomicTransactionId
 }
 
 /** Class encoding the user defined scenarios used in the configuration
@@ -52,8 +52,8 @@ final class UsedScenario private (
       *   the set of physical transaction if possible
       */
   def toPhysical(
-      transactionsByName: Map[PhysicalAtomicTransactionId, AtomicTransaction]
-  ): Set[PhysicalAtomicTransactionId] = {
+      transactionsByName: Map[AtomicTransactionId, AtomicTransaction]
+  ): Set[AtomicTransactionId] = {
     iniTgt.flatMap(it =>
       transactionsByName
         .filter(p => p._2.size >= 2 && it._1 == p._2.head && it._2 == p._2.last)

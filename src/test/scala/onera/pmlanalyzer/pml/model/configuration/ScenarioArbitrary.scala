@@ -70,7 +70,7 @@ trait ScenarioArbitrary {
         for {
           (app, data) <- Gen.oneOf(validAD)
           name <- Gen.identifier.suchThat(s =>
-            AtomicTransaction
+            Scenario
               .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
               .isEmpty
           )

@@ -2,7 +2,7 @@ package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpecLike
@@ -15,10 +15,10 @@ class TransparentTest extends AnyFlatSpecLike with should.Matchers {
   object TransparentTestPlatform
       extends Platform(Symbol("TransparentTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification {
-    val tr1Id: PhysicalAtomicTransactionId = PhysicalAtomicTransactionId(
+    val tr1Id: AtomicTransactionId = AtomicTransactionId(
       Symbol("tr1")
     )
-    val tr2Id: PhysicalAtomicTransactionId = PhysicalAtomicTransactionId(
+    val tr2Id: AtomicTransactionId = AtomicTransactionId(
       Symbol("tr2")
     )
   }

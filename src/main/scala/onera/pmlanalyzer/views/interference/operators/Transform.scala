@@ -27,7 +27,7 @@ import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction => TransactionPath,
-  PhysicalAtomicTransactionId
+  AtomicTransactionId
 }
 
 private[operators] trait Transform[L, R] {
@@ -42,16 +42,16 @@ object Transform {
     /** Convert a physical id to the corresponding path of services
       * @group transform_operator
       */
-    given Transform[PhysicalAtomicTransactionId, Option[TransactionPath]] with {
-      def apply(l: PhysicalAtomicTransactionId): Option[TransactionPath] =
-        transactionsByName.get(l)
+    given Transform[AtomicTransactionId, Option[TransactionPath]] with {
+      def apply(l: AtomicTransactionId): Option[TransactionPath] =
+        atomicTransactionsByName.get(l)
     }
 
     /** Convert an application to the set of transaction id its trigger
       * @group transform_operator
       */
-    given Transform[Application, Set[PhysicalAtomicTransactionId]] with {
-      def apply(l: Application): Set[PhysicalAtomicTransactionId] =
+    given Transform[Application, Set[AtomicTransactionId]] with {
+      def apply(l: Application): Set[AtomicTransactionId] =
         transactionsBySW.getOrElse(l, Set.empty)
     }
   }
@@ -59,37 +59,19 @@ object Transform {
   trait TransactionLibraryInstances {
     self: TransactionLibrary & Platform =>
 
-    /** Convert a user transaction to its physical transaction id
-      * @group transform_operator
-      */
-    given Transform[AtomicTransaction, Option[PhysicalAtomicTransactionId]]
-    with {
-      def apply(l: AtomicTransaction): Option[PhysicalAtomicTransactionId] =
-        transactionByUserName.get(l.userName)
-    }
-
     /** Convert a user defined scenario to the set of its physical scenario ids
       * @group transform_operator
       */
-    given Transform[Scenario, Set[PhysicalAtomicTransactionId]] with {
-      def apply(l: Scenario): Set[PhysicalAtomicTransactionId] =
+    given Transform[Scenario, Set[AtomicTransactionId]] with {
+      def apply(l: Scenario): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l.userName, Set.empty)
-    }
-
-    /** Convert a user transaction id to its physical transaction id
-      * @group transform_operator
-      */
-    given Transform[UserTransactionId, Option[PhysicalAtomicTransactionId]]
-    with {
-      def apply(l: UserTransactionId): Option[PhysicalAtomicTransactionId] =
-        transactionByUserName.get(l)
     }
 
     /** Convert a user scenario id to the set of its physical scenario ids
       * @group transform_operator
       */
-    given Transform[UserScenarioId, Set[PhysicalAtomicTransactionId]] with {
-      def apply(l: UserScenarioId): Set[PhysicalAtomicTransactionId] =
+    given Transform[UserScenarioId, Set[AtomicTransactionId]] with {
+      def apply(l: UserScenarioId): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l, Set.empty)
     }
   }

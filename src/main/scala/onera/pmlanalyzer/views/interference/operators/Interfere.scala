@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.interference.model.relations.{
   InterfereRelation,
   NotInterfereRelation
 }
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
 private[operators] trait Interfere[L, R] {
@@ -112,15 +112,15 @@ object Interfere {
   }
 
   given [R <: Service](using
-      ev: Interfere[PhysicalAtomicTransactionId, Service]
-  ): Interfere[PhysicalAtomicTransactionId, R] with {
-    def interfereWith(l: PhysicalAtomicTransactionId, r: R)(using
+      ev: Interfere[AtomicTransactionId, Service]
+  ): Interfere[AtomicTransactionId, R] with {
+    def interfereWith(l: AtomicTransactionId, r: R)(using
         line: Line,
         file: File
     ): Unit =
       ev.interfereWith(l, r)
 
-    def notInterfereWith(l: PhysicalAtomicTransactionId, r: R)(using
+    def notInterfereWith(l: AtomicTransactionId, r: R)(using
         line: Line,
         file: File
     ): Unit =
@@ -128,8 +128,8 @@ object Interfere {
   }
 
   given [L, RS <: Service](using
-      transformation: Transform[L, Set[PhysicalAtomicTransactionId]],
-      ev: Interfere[PhysicalAtomicTransactionId, Service]
+      transformation: Transform[L, Set[AtomicTransactionId]],
+      ev: Interfere[AtomicTransactionId, Service]
   ): Interfere[L, RS] with {
     def interfereWith(l: L, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }
@@ -141,8 +141,8 @@ object Interfere {
   }
 
   given [L, RH <: Hardware](using
-      transformation: Transform[L, Set[PhysicalAtomicTransactionId]],
-      ev: Interfere[PhysicalAtomicTransactionId, Service],
+      transformation: Transform[L, Set[AtomicTransactionId]],
+      ev: Interfere[AtomicTransactionId, Service],
       p: Provided[RH, Service]
   ): Interfere[L, RH] with {
     def interfereWith(l: L, r: RH)(using line: Line, file: File): Unit =
@@ -161,8 +161,8 @@ object Interfere {
   }
 
   given [LP, RS <: Service](using
-      transformation: Transform[LP, Option[PhysicalAtomicTransactionId]],
-      ev: Interfere[PhysicalAtomicTransactionId, Service]
+      transformation: Transform[LP, Option[AtomicTransactionId]],
+      ev: Interfere[AtomicTransactionId, Service]
   ): Interfere[LP, RS] with {
     def interfereWith(l: LP, r: RS)(using line: Line, file: File): Unit =
       for { id <- transformation(l) }

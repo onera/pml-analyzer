@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.relations.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 import java.io.FileWriter
 import scala.collection.mutable.Set as MSet
@@ -54,7 +54,7 @@ trait TableBasedInterferenceSpecification
     *   a set of services
     */
   final def transactionInterfereWith(
-      t: PhysicalAtomicTransactionId
+      t: AtomicTransactionId
   ): Set[Service] =
     physicalTransactionIdInterfereWithService.get(t).getOrElse(Set.empty)
 
@@ -66,7 +66,7 @@ trait TableBasedInterferenceSpecification
     *   a set of services
     */
   final def transactionNotInterfereWith(
-      t: PhysicalAtomicTransactionId
+      t: AtomicTransactionId
   ): Set[Service] =
     physicalTransactionIdNotInterfereWithService.get(t).getOrElse(Set.empty)
 
@@ -76,7 +76,7 @@ trait TableBasedInterferenceSpecification
     * @return
     *   true is the transaction is discarded
     */
-  final def isTransparentTransaction(t: PhysicalAtomicTransactionId): Boolean =
+  final def isTransparentTransaction(t: AtomicTransactionId): Boolean =
     transactionIsTransparent.value.contains(t)
 
   /** Derive implementation from [[serviceInterfere]]
@@ -133,14 +133,14 @@ trait TableBasedInterferenceSpecification
     *   true if they cannot occur simultaneously
     */
   final def exclusiveWith(
-      l: PhysicalAtomicTransactionId,
-      r: PhysicalAtomicTransactionId
+      l: AtomicTransactionId,
+      r: AtomicTransactionId
   ): Boolean = {
     val tExclusive = transactionExclusive
       .get(l)
-      .getOrElse(Set.empty[PhysicalAtomicTransactionId])
+      .getOrElse(Set.empty[AtomicTransactionId])
       .contains(r)
-    val samePLUsed = l.pathInitiators.intersect(r.pathInitiators).nonEmpty
+    val samePLUsed = l.usedInitiators.intersect(r.usedInitiators).nonEmpty
     val differentAppUsed = Application.all
       .subsets(2)
       .filter(s => {

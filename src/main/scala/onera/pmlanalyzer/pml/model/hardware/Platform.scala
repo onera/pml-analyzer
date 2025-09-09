@@ -33,7 +33,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalScenario,
   PhysicalScenarioId,
   AtomicTransaction,
-  PhysicalAtomicTransactionId
+  AtomicTransactionId
 }
 import sourcecode.{Enclosing, File, Line}
 
@@ -84,28 +84,29 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactionsByName
-      : Map[PhysicalAtomicTransactionId, AtomicTransaction] =
-    this.usedTransactions.groupMapReduce(transactionId)(t => t)((l, _) => l)
+  final lazy val atomicTransactionsByName
+      : Map[AtomicTransactionId, AtomicTransaction] =
+    this.issuedAtomicTransactions.groupMapReduce(transactionId)(t => t)(
+      (l, _) => l
+    )
 
   /** Set of physical transactions WARNING: this lazy variable MUST NOT be
     * called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactions: Set[PhysicalAtomicTransactionId] =
-    transactionsByName.keySet
+  final lazy val atomicTransactions: Set[AtomicTransactionId] =
+    atomicTransactionsByName.keySet
 
   /** Map from the sw to the physical transaction id (default is emptySet)
     * WARNING: this lazy variable MUST NOT be called during platform object
     * initialisation
     * @group transaction
     */
-  final lazy val transactionsBySW
-      : Map[Application, Set[PhysicalAtomicTransactionId]] =
+  final lazy val transactionsBySW: Map[Application, Set[AtomicTransactionId]] =
     Application.all.groupMapReduce(a => a)(a => {
       val targetServices = a.targetService
       val initServices = a.hostingInitiators.flatMap(_.services)
-      transactionsByName
+      atomicTransactionsByName
         .collect({
           case (id, path)
               if targetServices.contains(path.last) && initServices
@@ -117,7 +118,7 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 
   private val _transactionId =
     collection.mutable.HashMap
-      .empty[AtomicTransaction, PhysicalAtomicTransactionId]
+      .empty[AtomicTransaction, AtomicTransactionId]
   private val _scenarioId =
     collection.mutable.HashMap.empty[PhysicalScenario, PhysicalScenarioId]
 
@@ -132,11 +133,11 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     */
   protected final def transactionId(
       t: AtomicTransaction
-  ): PhysicalAtomicTransactionId = _transactionId.getOrElseUpdate(
+  ): AtomicTransactionId = _transactionId.getOrElseUpdate(
     t, {
       val sameHT =
         _transactionId.keys.count(tp => t.head == tp.head && t.last == tp.last)
-      PhysicalAtomicTransactionId(Symbol(s"${t.head}_${t.last}_$sameHT"))
+      AtomicTransactionId(Symbol(s"${t.head}_${t.last}_$sameHT"))
     }
   )
 
@@ -144,9 +145,8 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactionsName
-      : Map[AtomicTransaction, PhysicalAtomicTransactionId] =
-    transactionsByName.groupMapReduce(_._2)(_._1)((l, _) => l)
+  final lazy val transactionsName: Map[AtomicTransaction, AtomicTransactionId] =
+    atomicTransactionsByName.groupMapReduce(_._2)(_._1)((l, _) => l)
 
   /** Build the scenario id as "t_1|...|t_n"
     *
@@ -164,9 +164,9 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
       }
     )
 
-  given ToServicePath[PhysicalAtomicTransactionId] with {
-    def apply(x: PhysicalAtomicTransactionId): Set[AtomicTransaction] = Set(
-      transactionsByName(x)
+  given Used[AtomicTransactionId, AtomicTransaction] with {
+    def apply(x: AtomicTransactionId): Set[AtomicTransaction] = Set(
+      atomicTransactionsByName(x)
     )
   }
 }

@@ -25,7 +25,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalScenario,
   PhysicalScenarioId,
   AtomicTransaction,
-  PhysicalAtomicTransactionId
+  AtomicTransactionId
 }
 import onera.pmlanalyzer.views.interference.operators.Transform
 
@@ -40,15 +40,15 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     * @group transaction_relation
     */
   final lazy val purifiedTransactions
-      : Map[PhysicalAtomicTransactionId, AtomicTransaction] =
-    this.transactionsByName.transform((k, _) => purify(k))
+      : Map[AtomicTransactionId, AtomicTransaction] =
+    this.atomicTransactionsByName.transform((k, _) => purify(k))
 
   /** Map from the service sequence representation to their id WARNING: this
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction_relation
     */
   final lazy val purifiedTransactionsName
-      : Map[AtomicTransaction, PhysicalAtomicTransactionId] =
+      : Map[AtomicTransaction, AtomicTransactionId] =
     purifiedTransactions.groupMapReduce(_._2)(_._1)((l, _) => l)
 
   /** compute the considered scenarios depending on the configuration and the
@@ -85,7 +85,7 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     * @return
     *   true is the transaction is discarded
     */
-  def isTransparentTransaction(t: PhysicalAtomicTransactionId): Boolean
+  def isTransparentTransaction(t: AtomicTransactionId): Boolean
 
   /** Provide the services a given transaction interfere with (additionally to
     * the one identified in its path)
@@ -95,7 +95,7 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     * @return
     *   a set of services
     */
-  def transactionInterfereWith(t: PhysicalAtomicTransactionId): Set[Service]
+  def transactionInterfereWith(t: AtomicTransactionId): Set[Service]
 
   /** Provide the services a given transaction do not interfere with
     * @group interfere_predicate
@@ -104,7 +104,7 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     * @return
     *   a set of services
     */
-  def transactionNotInterfereWith(t: PhysicalAtomicTransactionId): Set[Service]
+  def transactionNotInterfereWith(t: AtomicTransactionId): Set[Service]
 
   /** Check whether two hardware cannot work simultaneously
     * @group interfere_predicate
@@ -128,10 +128,10 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     *   true if they cannot occur simultaneously
     */
   final def finalExclusive(
-      l: PhysicalAtomicTransactionId,
-      r: PhysicalAtomicTransactionId
+      l: AtomicTransactionId,
+      r: AtomicTransactionId
   ): Boolean = {
-    antiReflexive(l, r) && symmetric[PhysicalAtomicTransactionId](
+    antiReflexive(l, r) && symmetric[AtomicTransactionId](
       exclusiveWith
     )(l, r)
   }
@@ -177,8 +177,8 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     * @return
     *   the path of the transaction
     */
-  private final def purify(t: PhysicalAtomicTransactionId): AtomicTransaction =
-    transactionsByName.get(t) match {
+  private final def purify(t: AtomicTransactionId): AtomicTransaction =
+    atomicTransactionsByName.get(t) match {
       case Some(h :: tail) =>
         (h +: (transactionInterfereWith(t).toList.sortBy(_.name.name) ++ tail))
           .filterNot(transactionNotInterfereWith(t))
@@ -208,24 +208,24 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     *   the equivalence classes
     */
   final def equivalenceTransactionClasses(
-      s: Set[PhysicalAtomicTransactionId]
-  ): Set[Set[PhysicalAtomicTransactionId]] = {
+      s: Set[AtomicTransactionId]
+  ): Set[Set[AtomicTransactionId]] = {
     val serviceClasses = serviceEquivalenceClasses(
-      s.flatMap(transactionsByName.get).flatMap(_.toSet)
+      s.flatMap(atomicTransactionsByName.get).flatMap(_.toSet)
     )
     val areEquivalentTr =
-      (l: PhysicalAtomicTransactionId, r: PhysicalAtomicTransactionId) => {
-        transactionsByName.contains(l) &&
-        transactionsByName.contains(r) &&
-        transactionsByName(l).size == transactionsByName(r).size &&
-        transactionsByName(l)
-          .zip(transactionsByName(r))
+      (l: AtomicTransactionId, r: AtomicTransactionId) => {
+        atomicTransactionsByName.contains(l) &&
+        atomicTransactionsByName.contains(r) &&
+        atomicTransactionsByName(l).size == atomicTransactionsByName(r).size &&
+        atomicTransactionsByName(l)
+          .zip(atomicTransactionsByName(r))
           .forall(p =>
             serviceClasses.exists(c => c.contains(p._1) && c.contains(p._2))
           )
       }
 
-    equivalenceClasses[PhysicalAtomicTransactionId]((le, re) =>
+    equivalenceClasses[AtomicTransactionId]((le, re) =>
       reflexive(le, re) || symmetric(areEquivalentTr)(le, re)
     )(s)
   }
@@ -306,8 +306,8 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     *   true if they cannot occur simultaneously
     */
   protected def exclusiveWith(
-      l: PhysicalAtomicTransactionId,
-      r: PhysicalAtomicTransactionId
+      l: AtomicTransactionId,
+      r: AtomicTransactionId
   ): Boolean
 
   /** Check if two services interfere with each other
@@ -371,8 +371,8 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     "Poor performance implementation, consider using MONOSAT problem to identify channel"
   )
   final def channel(
-      t: PhysicalAtomicTransactionId,
-      in: Set[PhysicalAtomicTransactionId]
+      t: AtomicTransactionId,
+      in: Set[AtomicTransactionId]
   ): Set[Service] =
     (for {
       ts <- purifiedTransactions.get(t)
@@ -387,16 +387,16 @@ trait InterferenceSpecification extends Transform.BasicInstances {
     "Poor performance implementation, consider using recursive transaction equivalence classes splitting perhaps implemented within MONOSAT"
   )
   final def equivalentTransactionSets(
-      s: Set[PhysicalAtomicTransactionId],
-      in: Set[PhysicalAtomicTransactionId]
-  ): Set[Set[PhysicalAtomicTransactionId]] = {
+      s: Set[AtomicTransactionId],
+      in: Set[AtomicTransactionId]
+  ): Set[Set[AtomicTransactionId]] = {
     val transactionsClasses = equivalenceTransactionClasses(in)
       .flatMap(c => c.intersect(s).map(_ -> c))
       .toMap
     s.foldLeft(
       (
-        Set.empty[PhysicalAtomicTransactionId],
-        Set.empty[Set[PhysicalAtomicTransactionId]]
+        Set.empty[AtomicTransactionId],
+        Set.empty[Set[AtomicTransactionId]]
       )
     )((acc, t) => {
       val (current, result) = acc
@@ -424,7 +424,7 @@ trait InterferenceSpecification extends Transform.BasicInstances {
 object InterferenceSpecification {
   type Path[A] = List[A]
   type AtomicTransaction = Path[Service]
-  type PhysicalScenario = Set[PhysicalAtomicTransactionId]
+  type PhysicalScenario = Set[AtomicTransactionId]
   type Channel = Set[Service]
 
   trait Id extends Ordered[Id] {
@@ -435,7 +435,7 @@ object InterferenceSpecification {
     def compare(that: Id): Int = id.name.compare(that.id.name)
   }
 
-  final case class PhysicalAtomicTransactionId(id: Symbol) extends Id
+  final case class AtomicTransactionId(id: Symbol) extends Id
 
   final case class PhysicalScenarioId(id: Symbol) extends Id
 
@@ -472,21 +472,21 @@ object InterferenceSpecification {
 
     def interfereWith(l: Hardware, r: Hardware): Boolean = false
 
-    def isTransparentTransaction(t: PhysicalAtomicTransactionId): Boolean =
+    def isTransparentTransaction(t: AtomicTransactionId): Boolean =
       false
 
-    def transactionInterfereWith(t: PhysicalAtomicTransactionId): Set[Service] =
+    def transactionInterfereWith(t: AtomicTransactionId): Set[Service] =
       Set.empty
 
     def transactionNotInterfereWith(
-        t: PhysicalAtomicTransactionId
+        t: AtomicTransactionId
     ): Set[Service] =
       Set.empty
 
     protected def exclusiveWith(
-        l: PhysicalAtomicTransactionId,
-        r: PhysicalAtomicTransactionId
+        l: AtomicTransactionId,
+        r: AtomicTransactionId
     ): Boolean =
-      l.pathInitiators == r.pathInitiators
+      l.usedInitiators == r.usedInitiators
   }
 }
