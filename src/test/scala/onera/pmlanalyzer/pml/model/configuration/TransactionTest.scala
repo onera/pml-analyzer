@@ -66,7 +66,7 @@ class TransactionTest
               applyAllLinks(link, undo = false)
               applyAllUses(useD, undo = false)
               applyAllUses(useA, undo = false)
-              forAll(minSuccessful(5)) { (s: Option[Transaction]) =>
+              forAll(minSuccessful(5)) { (s: Option[AtomicTransaction]) =>
                 for {
                   t <- s
                 } {

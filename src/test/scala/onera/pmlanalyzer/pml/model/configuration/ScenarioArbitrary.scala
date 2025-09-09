@@ -18,31 +18,89 @@
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
+import onera.pmlanalyzer.pml.model.relations.Endomorphism
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.{Context, Owner, ReflexiveInfo}
 import org.scalacheck.{Arbitrary, Gen}
+import onera.pmlanalyzer.pml.model.utils.{
+  All,
+  ArbitraryConfiguration,
+  Context,
+  Owner,
+  ReflexiveInfo
+}
+import onera.pmlanalyzer.pml.operators.*
 
 import scala.annotation.targetName
 
 trait ScenarioArbitrary {
   self: Platform with TransactionLibrary =>
 
+  private lazy val linkedAppToData: Set[(Application, Data)] =
+    for {
+      i <- All[Initiator]
+      if i.hostedApplications.nonEmpty
+      t <- Endomorphism
+        .closure(i, context.PLLinkableToPL.edges)
+        .collect({ case x: Target => x })
+      app <- i.hostedApplications
+      d <- t.hostedData
+    } yield app -> d
+
+  private lazy val allAppToData: Set[(Application, Data)] =
+    for {
+      app <- All[Application]
+      d <- All[Data]
+    } yield app -> d
+
+  private def simpleScenarioGenerator(using
+      c: ArbitraryConfiguration,
+      r: ReflexiveInfo
+  ): Arbitrary[Option[Scenario]] = Arbitrary(
+    {
+      val validAD =
+        if (c.discardImpossibleTransactions)
+          linkedAppToData
+        else
+          allAppToData
+      if (validAD.isEmpty)
+        None
+      else
+        for {
+          (app, data) <- Gen.oneOf(validAD)
+          name <- Gen.identifier.suchThat(s =>
+            AtomicTransaction
+              .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
+              .isEmpty
+          )
+          isRead <- Gen.prob(0.5)
+        } yield
+          if (isRead)
+            Some(Scenario(name, app read data))
+          else
+            Some(Scenario(name, app write data))
+    }
+  )
+
   @targetName("given_Option_Scenario")
   given (using
-      arbTr: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[Scenario]] = Arbitrary(
     for {
-      tT <- Gen.nonEmptyListOf(arbTr.arbitrary)
+      tT <- Gen.nonEmptyListOf(simpleScenarioGenerator.arbitrary)
       name <- Gen.identifier.suchThat(s =>
         Scenario.get(PMLNodeBuilder.formatName(Symbol(s), currentOwner)).isEmpty
       )
       tSeq = tT.flatten
-    } yield
-      if (tSeq.isEmpty)
-        None
-      else
-        Some(Scenario(name, tSeq: _*))
+    } yield {
+      tSeq match {
+        case ::(head, ::(second, next)) =>
+          Some(Scenario(name, head, second, next: _*))
+        case ::(head, Nil) => Some(head)
+        case Nil           => None
+      }
+    }
   )
 
   @targetName("given_Option_UserScenario")

@@ -26,8 +26,8 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalScenarioId,
-  PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransaction,
+  PhysicalAtomicTransactionId
 }
 
 import scala.collection.mutable
@@ -49,7 +49,7 @@ object Message {
 
   inline def multiPathTransactionWarning(
       userName: UserTransactionId,
-      list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
+      list: Iterable[(PhysicalAtomicTransactionId, AtomicTransaction)]
   ): String =
     s"""[WARNING] The transaction $userName addresses multiple physical transactions:
        |${list.map(_._1).mkString("[WARNING]", "\n", "\n")}
@@ -58,19 +58,19 @@ object Message {
   inline def multiPathRouteWarning(
       from: Service,
       to: Service,
-      transactions: Set[PhysicalTransaction]
+      transactions: Set[AtomicTransaction]
   ): String = {
     s"""[WARNING] Multiple paths have been detected from $from to $to
        |${transactions.map(_.mkString("<->")).mkString("\n")}""".stripMargin
   }
 
   inline def transactionNoInLibraryWarning(
-      name: PhysicalTransactionId
+      name: PhysicalAtomicTransactionId
   ): String =
     s"[WARNING] The physical transaction $name is not in the library"
 
   inline def transactionHasSeveralNameWarning(
-      name: PhysicalTransactionId,
+      name: PhysicalAtomicTransactionId,
       names: Iterable[UserTransactionId]
   ): String =
     s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
@@ -83,7 +83,7 @@ object Message {
 
   inline def multiPathScenarioWarning(
       userName: UserScenarioId,
-      list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
+      list: Iterable[(PhysicalAtomicTransactionId, AtomicTransaction)]
   ): String =
     s"""[WARNING] Some transactions in scenario $userName addresses multiple physical transactions:
        |${list.map(_._1).mkString("\n")}

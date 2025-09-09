@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.exporters
 
 import onera.pmlanalyzer.pml.model.configuration.{
   Scenario,
-  Transaction,
+  AtomicTransaction,
   TransactionLibrary
 }
 import onera.pmlanalyzer.pml.model.hardware.Platform
@@ -259,7 +259,7 @@ object RelationExporter {
           "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          tr <- Transaction.all
+          tr <- AtomicTransaction.all
           phyTr <- transactionByUserName.get(tr.userName)
         } yield s"${tr.userName}, ${transactionsByName(phyTr).mkString("::")}, ${tr.sourceFile}, ${tr.lineInFile}\n"
         toWrite.toSeq.sorted

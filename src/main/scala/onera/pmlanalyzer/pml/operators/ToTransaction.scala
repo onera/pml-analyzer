@@ -21,6 +21,7 @@ import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.software.Application
 import ToTransaction.TransactionParam
+import onera.pmlanalyzer.pml.model.configuration.Scenario
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 
 trait ToTransaction[A] {
@@ -35,6 +36,13 @@ object ToTransaction {
     def TransactionParam[A](a: => A)(using
         ev: ToTransaction[A]
     ): TransactionParam = ev(a)
+  }
+
+  given ToTransaction[Scenario] with {
+    def apply(
+        a: => Scenario
+    ): (() => Set[(Service, Service)], () => Set[Application]) =
+      (a.iniTgt, a.sw)
   }
 
   /** Utility function to convert an a set of application/target service to the

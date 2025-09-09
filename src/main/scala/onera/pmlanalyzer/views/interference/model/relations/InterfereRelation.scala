@@ -20,7 +20,7 @@ package onera.pmlanalyzer.views.interference.model.relations
 import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
 
 final case class InterfereRelation[L, R] private (iniValues: Map[L, Set[R]])
     extends Relation[L, R](iniValues)
@@ -35,9 +35,10 @@ object InterfereRelation {
       * @group interfere_relation
       */
     final implicit val physicalTransactionIdInterfereWithService
-        : InterfereRelation[PhysicalTransactionId, Service] = InterfereRelation(
-      Map.empty
-    )
+        : InterfereRelation[PhysicalAtomicTransactionId, Service] =
+      InterfereRelation(
+        Map.empty
+      )
 
     /** Relation gathering user defined service interferences
       * @group interfere_relation
