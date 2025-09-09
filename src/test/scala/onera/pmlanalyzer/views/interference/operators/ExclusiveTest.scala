@@ -14,16 +14,14 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 // import onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
 // import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalAtomicTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
@@ -39,10 +37,10 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
       with ApplicativeTableBasedInterferenceSpecification
       with TransactionLibraryInstances
       with TransactionLibrary {
-    val tr1Id: PhysicalAtomicTransactionId = PhysicalAtomicTransactionId(
+    val tr1Id: AtomicTransactionId = AtomicTransactionId(
       Symbol("tr1")
     )
-    val tr2Id: PhysicalAtomicTransactionId = PhysicalAtomicTransactionId(
+    val tr2Id: AtomicTransactionId = AtomicTransactionId(
       Symbol("tr2")
     )
 

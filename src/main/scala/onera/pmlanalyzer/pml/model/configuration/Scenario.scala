@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
@@ -41,7 +41,13 @@ final class Scenario private (
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],
     info: ReflexiveInfo
-) extends ScenarioLike(userName.id, info) {
+) extends PMLNode(info) {
+
+  /** Name of the node
+   *
+   * @group identifier
+   */
+  override val name: Symbol = userName.id
 
   /** Consider the transaction for the analysis
       *

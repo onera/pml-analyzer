@@ -124,9 +124,6 @@ object FU740Export extends App {
     // Export the routing constraints
     p.exportRouteTable()
 
-    // Export the transactions defined by the user
-    p.exportUserTransactions()
-
     // Export the scenarios defined by the user
     p.exportUserScenarios()
 

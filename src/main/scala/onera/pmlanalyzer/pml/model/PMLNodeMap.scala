@@ -52,9 +52,6 @@ object PMLNodeMap {
 
   given (using i: Instances): PMLNodeMap[Composite] = i.memoComposite
 
-  given (using i: Instances): PMLNodeMap[AtomicTransaction] = i.memoTransaction
-  given (using i: Instances): PMLNodeMap[UsedTransaction] =
-    i.memoUsedTransaction
   given (using i: Instances): PMLNodeMap[Scenario] = i.memoScenario
   given (using i: Instances): PMLNodeMap[UsedScenario] = i.memoUsedScenario
 
@@ -69,8 +66,6 @@ object PMLNodeMap {
     val memoSimpleTransporter: PMLNodeMap[SimpleTransporter]
     val memoVirtualizer: PMLNodeMap[Virtualizer]
     val memoComposite: PMLNodeMap[Composite]
-    val memoTransaction: PMLNodeMap[AtomicTransaction]
-    val memoUsedTransaction: PMLNodeMap[UsedTransaction]
     val memoScenario: PMLNodeMap[Scenario]
     val memoUsedScenario: PMLNodeMap[UsedScenario]
   }
@@ -86,8 +81,6 @@ object PMLNodeMap {
     val memoSimpleTransporter: PMLNodeMap[SimpleTransporter] = PMLNodeMap.empty
     val memoVirtualizer: PMLNodeMap[Virtualizer] = PMLNodeMap.empty
     val memoComposite: PMLNodeMap[Composite] = PMLNodeMap.empty
-    val memoTransaction: PMLNodeMap[AtomicTransaction] = PMLNodeMap.empty
-    val memoUsedTransaction: PMLNodeMap[UsedTransaction] = PMLNodeMap.empty
     val memoScenario: PMLNodeMap[Scenario] = PMLNodeMap.empty
     val memoUsedScenario: PMLNodeMap[UsedScenario] = PMLNodeMap.empty
   }

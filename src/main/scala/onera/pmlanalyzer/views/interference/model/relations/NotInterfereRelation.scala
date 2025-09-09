@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.Service
 import sourcecode.Name
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 final case class NotInterfereRelation[L, R] private (iniValues: Map[L, Set[R]])(
     using n: Name
@@ -35,7 +35,7 @@ object NotInterfereRelation {
       * @group interfere_relation
       */
     final implicit val physicalTransactionIdNotInterfereWithService
-        : NotInterfereRelation[PhysicalAtomicTransactionId, Service] =
+        : NotInterfereRelation[AtomicTransactionId, Service] =
       NotInterfereRelation(Map.empty)
 
     /** Relation gathering user defined service non-interferences

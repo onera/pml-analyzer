@@ -40,7 +40,7 @@ import onera.pmlanalyzer.views.interference.InterferenceTestExtension.{
 }
 import org.scalacheck.Shrink
 
-class TransactionTest
+class ScenarioTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
@@ -66,7 +66,7 @@ class TransactionTest
               applyAllLinks(link, undo = false)
               applyAllUses(useD, undo = false)
               applyAllUses(useA, undo = false)
-              forAll(minSuccessful(5)) { (s: Option[AtomicTransaction]) =>
+              forAll(minSuccessful(5)) { (s: Option[Scenario]) =>
                 for {
                   t <- s
                 } {
@@ -115,20 +115,21 @@ class TransactionTest
               applyAllLinks(link, undo = false)
               applyAllUses(useD, undo = false)
               applyAllUses(useA, undo = false)
-              forAll(minSuccessful(5)) { (s: Option[UsedTransaction]) =>
+              forAll(minSuccessful(5)) { (s: Option[UsedScenario]) =>
                 for {
                   t <- s
                 } {
                   t.owner should be(currentOwner)
                   for {
-                    id <- t.toPhysical(transactionsByName)
-                    path <- transactionsByName.get(id)
+                    id <- t.toPhysical(atomicTransactionsByName)
+                    path <- atomicTransactionsByName.get(id)
                   } {
                     checkImpossible(Set(path)) should be(empty)
-                    for { app <- t.sw }
-                      path.head.initiatorOwner should equal(
-                        app.hostingInitiators
-                      )
+                    for {
+                      ini <- path.head.initiatorOwner
+                    } {
+                      t.sw.flatMap(_.hostingInitiators) should contain(ini)
+                    }
                     for {
                       (l, r) <- path.zip(path.tail)
                     } {

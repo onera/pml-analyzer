@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.relations.{
 }
 import onera.pmlanalyzer.pml.model.software.Application
 import sourcecode.Name
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 final case class ExclusiveRelation[A] private (iniValues: Map[A, Set[A]])(using
     n: Name
@@ -37,7 +37,7 @@ object ExclusiveRelation {
       * @group exclusive_relation
       */
     final implicit val transactionExclusive
-        : ExclusiveRelation[PhysicalAtomicTransactionId] = ExclusiveRelation(
+        : ExclusiveRelation[AtomicTransactionId] = ExclusiveRelation(
       Map.empty
     )
   }

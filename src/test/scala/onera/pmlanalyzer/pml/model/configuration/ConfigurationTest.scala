@@ -149,7 +149,7 @@ class ConfigurationTest
   it should "derive the used transaction properly" taggedAs UnitTests in {
     transactionsBySW(appSmart1).size should be(1)
     mem1.loads should contain(
-      transactionsByName(transactionsBySW(appSmart1).head).last
+      atomicTransactionsByName(transactionsBySW(appSmart1).head).last
     )
     transactionsBySW(appSmart21).size should be(1)
     transactionsBySW(appSmart22).size should be(1)
@@ -166,7 +166,7 @@ class ConfigurationTest
     } yield {
       for {
         t <- transactions
-        path <- transactionsByName.get(t)
+        path <- atomicTransactionsByName.get(t)
       } yield Used.checkMultiPaths(Set(path)) should be(empty)
     }
   }
@@ -174,13 +174,13 @@ class ConfigurationTest
   it should "detect impossible service accesses " in {
     for (a <- Set(appSmart1, appSmart21, appSmart22))
       Used.checkImpossible(
-        transactionsBySW(a).map(transactionsByName),
+        transactionsBySW(a).map(atomicTransactionsByName),
         a.targetService,
         Some(a)
       ) should be(empty)
     Used
       .checkImpossible(
-        transactionsBySW(dmaDescriptor).map(transactionsByName),
+        transactionsBySW(dmaDescriptor).map(atomicTransactionsByName),
         dmaDescriptor.targetService,
         Some(dmaDescriptor)
       )

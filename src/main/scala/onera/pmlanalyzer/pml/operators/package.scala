@@ -51,4 +51,3 @@ package object operators
     with Restrict.Ops
     with Route.Ops
     with ToTransaction.Ops
-    with ToServicePath.Ops

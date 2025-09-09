@@ -20,7 +20,7 @@ package onera.pmlanalyzer.views.interference.examples.riscv.FU740
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
 import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -45,11 +45,11 @@ trait FU740PhysicalTableBasedInterferenceSpecification
    * Expressed by tagging transactions from the same initiator as exclusive.
    */
   for {
-    l <- transactions
-    r <- transactions
+    l <- atomicTransactions
+    r <- atomicTransactions
     if l != r
 
-    if l.pathInitiators == r.pathInitiators
+    if l.usedInitiators == r.usedInitiators
   } {
     l exclusiveWith r
   }
@@ -59,13 +59,13 @@ trait FU740PhysicalTableBasedInterferenceSpecification
    * Tagging all transactions from cores to UART targets as not interfering on the TileLink services.
    */
   for {
-    t <- transactions
+    t <- atomicTransactions
     c <- u74_cluster.cores
     u <- uart.hardware.collect({ case x: Target =>
       x
     }) /* FIXME Should has an extension to collect targets ? */
-    if t.pathInitiatorIs(c)
-    if t.pathTargetIs(u)
+    if t.useInitiator(c)
+    if t.useTarget(u)
 
     s <- u74_cluster.tilelink_switch.services
   } {

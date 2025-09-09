@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.UseRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
@@ -24,8 +25,9 @@ import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  Path,
-  AtomicTransaction
+  AtomicTransaction,
+  AtomicTransactionId,
+  Path
 }
 import onera.pmlanalyzer.pml.operators.*
 
@@ -120,7 +122,7 @@ object Used {
         * @return
         *   the set of used physical transactions
         */
-      def usedTransactions(using
+      def issuedAtomicTransactions(using
           ev: Used[L, AtomicTransaction]
       ): Set[AtomicTransaction] = ev(self)
 
@@ -134,7 +136,7 @@ object Used {
       def multiPathsTransactions(using
           ev: Used[L, AtomicTransaction]
       ): Set[Set[AtomicTransaction]] = {
-        Used.getMultiPaths(usedTransactions).values.toSet
+        Used.getMultiPaths(issuedAtomicTransactions).values.toSet
       }
     }
 
@@ -205,6 +207,69 @@ object Used {
         ev(
           self
         )
+    }
+
+    extension [T](x: T) {
+
+      /** Method that should be provided by sub-classes to access to the path
+       *
+       * @return
+       * the set of service paths
+       */
+      def paths(using ev: Used[T, AtomicTransaction]): Set[AtomicTransaction] =
+        ev(x)
+
+      /** Check if the target is in the possible targets of the transaction
+       *
+       * @param t
+       * target to find
+       * @return
+       * true if the target is contained
+       */
+      def useTarget(
+          t: Target
+      )(using
+          ev: Used[T, AtomicTransaction],
+          p: Provided[Target, Service]
+      ): Boolean =
+        usedTargets.contains(t)
+
+      /** Provide the targets of the transaction
+       *
+       * @return
+       * the set of targets
+       */
+      def usedTargets(using
+          ev: Used[T, AtomicTransaction],
+          p: Provided[Target, Service]
+      ): Set[Target] =
+        paths.filter(_.size >= 2).flatMap(t => t.last.targetOwner)
+
+      /** Provide the initiators fo a transaction
+       *
+       * @return
+       * the set of initiators
+       */
+      def usedInitiators(using
+          ev: Used[T, AtomicTransaction],
+          p: Provided[Initiator, Service]
+      ): Set[Initiator] =
+        paths.filter(_.nonEmpty).flatMap(t => t.head.initiatorOwner)
+
+      /** Check is the initiator is in the possible initiators of the transaction
+       *
+       * @param ini
+       * initiator to find
+       * @return
+       * true if the initiator is contained
+       */
+      def useInitiator(
+          ini: Initiator
+      )(using
+          ev: Used[T, AtomicTransaction],
+          p: Provided[Initiator, Service]
+      ): Boolean =
+        usedInitiators.contains(ini)
     }
   }
 
