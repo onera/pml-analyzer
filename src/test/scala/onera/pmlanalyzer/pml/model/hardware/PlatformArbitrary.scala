@@ -32,7 +32,7 @@ import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
 import onera.pmlanalyzer.pml.model.configuration.{
   Scenario,
   ScenarioArbitrary,
-  Transaction,
+  AtomicTransaction,
   TransactionArbitrary,
   TransactionLibrary
 }

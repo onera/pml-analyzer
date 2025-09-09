@@ -28,6 +28,6 @@ import scala.language.postfixOps
 trait CyclotronTransactionLibrary extends TransactionLibrary {
   self: CyclotronPlatform =>
 
-  val tr: Transaction = Transaction(dma read eth)
-  val usedTr: UsedTransaction = tr.used
+  val tr: Scenario = Scenario(dma read eth)
+  val usedTr: UsedScenario = tr.used
 }

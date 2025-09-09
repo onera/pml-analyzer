@@ -54,11 +54,11 @@ object IDPExporter {
   implicit object IDPPlatformExporter {
 
     // memoization of path id
-    private val _memoPathId = MHashMap.empty[PhysicalTransaction, String]
+    private val _memoPathId = MHashMap.empty[AtomicTransaction, String]
 
     // path id is formatted as "$head_$last_$i_path" where i is the number of path with the same
     // origin and destination as the one on build (possible when multiple paths in the architecture)
-    def pathId(p: PhysicalTransaction): String = _memoPathId.getOrElseUpdate(
+    def pathId(p: AtomicTransaction): String = _memoPathId.getOrElseUpdate(
       p, {
         val sameHT =
           _memoPathId.keys.count(k => k.head == p.head && k.last == p.last)

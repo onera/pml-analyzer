@@ -717,7 +717,7 @@ object Analyse {
       // FIXME If a scenario, the following computation consider that one of the services used by
       // several atomic transactions could be an interference channel that is obviously false
       // and complexify the graph for no reason
-      val pathT: Map[PhysicalScenarioId, Set[PhysicalTransaction]] =
+      val pathT: Map[PhysicalScenarioId, Set[AtomicTransaction]] =
         initialPathT.view
           .mapValues(s =>
             s.map(t =>

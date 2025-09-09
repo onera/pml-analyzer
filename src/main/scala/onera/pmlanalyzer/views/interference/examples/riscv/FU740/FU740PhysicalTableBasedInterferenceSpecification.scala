@@ -20,7 +20,7 @@ package onera.pmlanalyzer.views.interference.examples.riscv.FU740
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
 import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 

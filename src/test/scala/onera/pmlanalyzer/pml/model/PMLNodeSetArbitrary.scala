@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model
 
 import onera.pmlanalyzer.pml.model.configuration.{
   Scenario,
-  Transaction,
+  AtomicTransaction,
   UsedTransaction
 }
 import onera.pmlanalyzer.pml.model.hardware.*

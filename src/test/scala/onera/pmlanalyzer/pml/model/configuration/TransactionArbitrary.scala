@@ -56,7 +56,7 @@ trait TransactionArbitrary {
   given (using
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
-  ): Arbitrary[Option[Transaction]] = Arbitrary(
+  ): Arbitrary[Option[AtomicTransaction]] = Arbitrary(
     {
       val validAD =
         if (c.discardImpossibleTransactions)
@@ -69,22 +69,22 @@ trait TransactionArbitrary {
         for {
           (app, data) <- Gen.oneOf(validAD)
           name <- Gen.identifier.suchThat(s =>
-            Transaction
+            AtomicTransaction
               .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
               .isEmpty
           )
           isRead <- Gen.prob(0.5)
         } yield
           if (isRead)
-            Some(Transaction(name, app read data))
+            Some(AtomicTransaction(name, app read data))
           else
-            Some(Transaction(name, app write data))
+            Some(AtomicTransaction(name, app write data))
     }
   )
 
   @targetName("given_Option_UsedTransaction")
   given (using
-      arbTr: Arbitrary[Option[Transaction]],
+      arbTr: Arbitrary[Option[AtomicTransaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedTransaction]] = Arbitrary(
     for {

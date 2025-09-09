@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.interference.examples.simpleKeystone
 
 import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 

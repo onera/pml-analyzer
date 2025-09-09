@@ -55,16 +55,16 @@ trait MySysTransactionLibrary extends TransactionLibrary {
     * from [[MyProcPlatform.mpic]]
     * @group transaction_def
     */
-  val t11: Transaction = Transaction(app1 read interrupt_code)
+  val t11: Scenario = Scenario(app1 read interrupt_code)
 
   /** t12: [[MySysSoftwareAllocation.app1]] reads its input data from
     * [[MyProcPlatform.ddr]]
     * @group transaction_def
     */
-  val t12: Transaction = Transaction(app1 read input_app1)
+  val t12: Scenario = Scenario(app1 read input_app1)
 
-  private val app1_rd_L1: Transaction = Transaction(app1 read ARM0.cache)
-  private val app1_wr_L1: Transaction = Transaction(app1 write ARM0.cache)
+  private val app1_rd_L1: Scenario = Scenario(app1 read ARM0.cache)
+  private val app1_wr_L1: Scenario = Scenario(app1 write ARM0.cache)
 
   /** t13: [[MySysSoftwareAllocation.app1]] runs using [[MyProcPlatform.ARM0]]
     * cache
@@ -77,59 +77,59 @@ trait MySysTransactionLibrary extends TransactionLibrary {
     * [[MyProcPlatform.ddr]]
     * @group transaction_def
     */
-  val t14: Transaction = Transaction(app1 write output_app1)
+  val t14: Scenario = Scenario(app1 write output_app1)
 
   /** t21: [[MySysSoftwareAllocation.app21]] reads [[MyProcPlatform.dma_reg]]
     * value
     * @group transaction_def
     */
-  val t21: Transaction = Transaction(app21 read dma_reg_value)
+  val t21: Scenario = Scenario(app21 read dma_reg_value)
 
   /** t22: [[MySysSoftwareAllocation.app22]] load the Ethernet frame in
     * [[MyProcPlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t22: Transaction = Transaction(app22 read ethernet_frame)
+  val t22: Scenario = Scenario(app22 read ethernet_frame)
 
   /** t23: [[MySysSoftwareAllocation.app22]] stores the processed Ethernet frame
     * in [[MyProcPlatform.ddr]] and makes it available for
     * [[MySysSoftwareAllocation.app1]]
     * @group transaction_def
     */
-  val t23: Transaction = Transaction(app22 write input_app1)
+  val t23: Scenario = Scenario(app22 write input_app1)
 
   /** t24: [[MySysSoftwareAllocation.app22]] reads the output of
     * [[MySysSoftwareAllocation.app1]] and transforms them into SPI frames
     * @group transaction_def
     */
-  val t24: Transaction = Transaction(app22 read output_app1)
+  val t24: Scenario = Scenario(app22 read output_app1)
 
   /** t25: [[MySysSoftwareAllocation.app22]] writes the transformation in
     * [[MyProcPlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t25: Transaction = Transaction(app22 write spi_frame)
+  val t25: Scenario = Scenario(app22 write spi_frame)
 
   /** t26: [[MySysSoftwareAllocation.app22]] wakes up the [[MyProcPlatform.dma]]
     * by writing the address of the [[MyProcPlatform.spi]] frames into
     * [[MyProcPlatform.dma_reg]]
     * @group transaction_def
     */
-  val t26: Transaction = Transaction(app22 write dma_reg)
+  val t26: Scenario = Scenario(app22 write dma_reg)
 
   /** t31: When woke up, [[MySysSoftwareAllocation.app3]] reads the
     * [[MyProcPlatform.spi]] frame from [[MyProcPlatform.MemorySubsystem.sram]]
     * and transfers it to [[MyProcPlatform.spi]]
     * @group scenario_def
     */
-  private val readFrame = Transaction(app3 read spi_frame)
-  private val writeFrame = Transaction(app3 write output_spi_frame)
+  private val readFrame = Scenario(app3 read spi_frame)
+  private val writeFrame = Scenario(app3 write output_spi_frame)
   val t31: Scenario = Scenario(readFrame, writeFrame)
 
   /** t41: Each time an [[MyProcPlatform.eth]] frame arrives, it transfers the
     * payload of the frame to [[MyProcPlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t41: Transaction = Transaction(app4 write ethernet_frame)
+  val t41: Scenario = Scenario(app4 write ethernet_frame)
 
 }

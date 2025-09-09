@@ -60,27 +60,54 @@ final class Scenario private (
     */
 object Scenario extends PMLNodeBuilder[Scenario] {
 
-  /** Build a scenario from a transaction or another scenario
-      * @param tr
-      *   the original scenario like
-      * @param name
-      *   the implicitly derived name
-      * @return
-      *   the resulting scenario
-      */
-  def apply(
-      tr: ScenarioLike
+  /** A transaction can be built from an application targeting a load or a
+   * store service
+   *
+   * @param iniTgt
+   * the application/target service used
+   * @param name
+   * the implicit name of the transaction (deduced from val used during
+   * instantiation)
+   * @tparam A
+   * the type of requests
+   * @return
+   * the transaction (not used for now)
+   */
+  def apply[A: ToTransaction](
+      iniTgt: => A
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
-  ): Scenario =
-    apply(UserScenarioId(Symbol(name.value)), tr.iniTgt, tr.sw)
+  ): Scenario = {
+    val result = TransactionParam(iniTgt)
+    apply(UserScenarioId(Symbol(name.value)), result._1, result._2)
+  }
+
+  /** A transaction can be from an application targeting a load or a store
+   * service
+   *
+   * @param name
+   * explicit name of the transaction
+   * @param iniTgt
+   * the application/target service used
+   * @tparam A
+   * the type of requests
+   * @return
+   * the transaction (not used for now)
+   */
+  def apply[A: ToTransaction](name: String, iniTgt: => A)(using
+      givenInfo: ReflexiveInfo,
+      map: PMLNodeMap[Scenario]
+  ): Scenario = {
+    val result = TransactionParam(iniTgt)
+    apply(UserScenarioId(Symbol(name)), result._1, result._2)
+  }
 
   /** Build a Scenario from a bunch of transactions, this should not be used
       * with anonymous transaction
       *
-      * @param tr
+      * @param tail
       *   the set of transactions
       * @param name
       *   the implicit name of the scenario (same as the variable used to refer
@@ -89,17 +116,21 @@ object Scenario extends PMLNodeBuilder[Scenario] {
       *   a scenario
       */
   def apply(
-      tr: Transaction*
+      head: Scenario,
+      next: Scenario,
+      tail: Scenario*
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
   ): Scenario =
-    apply(name.value, tr: _*)
+    apply(name.value, head, next, tail: _*)
 
   def apply(
       name: String,
-      tr: Transaction*
+      head: Scenario,
+      next: Scenario,
+      tail: Scenario*
   )(using
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario]
@@ -107,10 +138,10 @@ object Scenario extends PMLNodeBuilder[Scenario] {
     apply(
       UserScenarioId(Symbol(name)),
       () => {
-        tr.flatMap(_.iniTgt()).toSet
+        (head +: next +: tail).flatMap(_.iniTgt()).toSet
       },
       () => {
-        tr.flatMap(_.sw()).toSet
+        (head +: next +: tail).flatMap(_.sw()).toSet
       }
     )
 

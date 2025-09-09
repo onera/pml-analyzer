@@ -21,12 +21,12 @@ import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransaction,
+  PhysicalAtomicTransactionId
 }
 
 trait ToServicePath[T] {
-  def apply(x: T): Set[PhysicalTransaction]
+  def apply(x: T): Set[AtomicTransaction]
 }
 
 object ToServicePath {
@@ -47,7 +47,7 @@ object ToServicePath {
        * @return
        * the set of service paths
        */
-      def paths(using ev: ToServicePath[T]): Set[PhysicalTransaction] = ev(x)
+      def paths(using ev: ToServicePath[T]): Set[AtomicTransaction] = ev(x)
 
       /** Check if the target is in the possible targets of the transaction
        *

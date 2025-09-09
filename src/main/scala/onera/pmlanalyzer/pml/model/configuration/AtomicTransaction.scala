@@ -36,7 +36,7 @@ import sourcecode.Name
     * @param sw
     *   the application that can use this transaction
     */
-final class Transaction private (
+final class AtomicTransaction private (
     val userName: UserTransactionId,
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],
@@ -57,10 +57,11 @@ final class Transaction private (
   override def toString: String = s"$userName"
 }
 
-/** Builder of platform [[Transaction]]
+/** Builder of platform [[AtomicTransaction]]
+ *
     * @group transaction_class
     */
-object Transaction extends PMLNodeBuilder[Transaction] {
+object AtomicTransaction extends PMLNodeBuilder[AtomicTransaction] {
 
   /** A transaction can be built from an application targeting a load or a
       * store service
@@ -80,8 +81,8 @@ object Transaction extends PMLNodeBuilder[Transaction] {
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction = {
+      map: PMLNodeMap[AtomicTransaction]
+  ): AtomicTransaction = {
     val result = TransactionParam(iniTgt)
     apply(UserTransactionId(Symbol(name.value)), result._1, result._2)
   }
@@ -107,11 +108,11 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       sw: () => Set[Application]
   )(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction = {
+      map: PMLNodeMap[AtomicTransaction]
+  ): AtomicTransaction = {
     getOrElseUpdate(
       PMLNodeBuilder.formatName(name.id, givenInfo.owner),
-      new Transaction(name, iniTgt, sw, givenInfo)
+      new AtomicTransaction(name, iniTgt, sw, givenInfo)
     )
   }
 
@@ -129,8 +130,8 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       */
   def apply[A: ToTransaction](name: String, iniTgt: => A)(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction = {
+      map: PMLNodeMap[AtomicTransaction]
+  ): AtomicTransaction = {
     val result = TransactionParam(iniTgt)
     apply(UserTransactionId(Symbol(name)), result._1, result._2)
   }
@@ -146,12 +147,12 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       *   the transaction (not used for now)
       */
   def apply(
-      from: Transaction
+      from: AtomicTransaction
   )(using
       name: Name,
       info: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction =
+      map: PMLNodeMap[AtomicTransaction]
+  ): AtomicTransaction =
     apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
 
   /** A transaction can be build from another transaction
@@ -165,10 +166,10 @@ object Transaction extends PMLNodeBuilder[Transaction] {
    */
   def apply(
       name: String,
-      from: Transaction
+      from: AtomicTransaction
   )(using
       info: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction =
+      map: PMLNodeMap[AtomicTransaction]
+  ): AtomicTransaction =
     apply(UserTransactionId(Symbol(name)), from.iniTgt, from.sw)
 }

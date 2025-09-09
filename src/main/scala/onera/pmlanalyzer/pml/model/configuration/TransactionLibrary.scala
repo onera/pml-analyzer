@@ -28,8 +28,8 @@ import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransaction,
+  PhysicalAtomicTransactionId
 }
 
 import scala.reflect.ClassTag
@@ -46,7 +46,7 @@ trait TransactionLibrary {
     * @group user_transaction_relation
     */
   final lazy val transactionByUserName
-      : Map[UserTransactionId, PhysicalTransactionId] =
+      : Map[UserTransactionId, PhysicalAtomicTransactionId] =
     UsedTransaction.all
       .flatMap(u =>
         for { t <- u.toPhysical(transactionsByName) } yield u.userName -> t
@@ -60,7 +60,7 @@ trait TransactionLibrary {
     * @group user_transaction_relation
     */
   final lazy val transactionUserName
-      : Map[PhysicalTransactionId, Set[UserTransactionId]] =
+      : Map[PhysicalAtomicTransactionId, Set[UserTransactionId]] =
     transactionByUserName.keySet
       .groupMap(k => transactionByUserName(k))(k => k)
       .withDefaultValue(Set.empty)
@@ -71,7 +71,7 @@ trait TransactionLibrary {
     * @group user_scenario_relation
     */
   final lazy val scenarioByUserName
-      : Map[UserScenarioId, Set[PhysicalTransactionId]] = {
+      : Map[UserScenarioId, Set[PhysicalAtomicTransactionId]] = {
     (transactionByUserName.keySet.map(k =>
       UserScenarioId(k.id) -> Set(transactionByUserName(k))
     ) ++
@@ -86,7 +86,7 @@ trait TransactionLibrary {
     * @group user_scenario_relation
     */
   final lazy val scenarioUserName
-      : Map[Set[PhysicalTransactionId], Set[UserScenarioId]] = {
+      : Map[Set[PhysicalAtomicTransactionId], Set[UserScenarioId]] = {
     val result = scenarioByUserName.keySet
       .groupMap(k => scenarioByUserName(k))(k => k)
       .withDefaultValue(Set.empty)
@@ -116,8 +116,8 @@ trait TransactionLibrary {
     *   the scenario library to check
     */
   final def checkLibrary(
-      tMap: Map[PhysicalTransactionId, Set[UserTransactionId]],
-      sMap: Map[Set[PhysicalTransactionId], Set[UserScenarioId]]
+      tMap: Map[PhysicalAtomicTransactionId, Set[UserTransactionId]],
+      sMap: Map[Set[PhysicalAtomicTransactionId], Set[UserScenarioId]]
   ): Unit = {
     for (k <- transactionsByName.keySet) {
       if (
@@ -146,7 +146,7 @@ trait TransactionLibrary {
     *   id of the user transaction
     */
   given ToServicePath[UserTransactionId] with {
-    def apply(x: UserTransactionId): Set[PhysicalTransaction] =
+    def apply(x: UserTransactionId): Set[AtomicTransaction] =
       (for {
         id <- transactionByUserName.get(x)
       } yield Set(transactionsByName(id))) getOrElse Set.empty
@@ -158,7 +158,7 @@ trait TransactionLibrary {
     *   id of the user scenario
     */
   given ToServicePath[UserScenarioId] with {
-    def apply(x: UserScenarioId): Set[PhysicalTransaction] =
+    def apply(x: UserScenarioId): Set[AtomicTransaction] =
       scenarioByUserName(x).flatMap(_.paths)
   }
 }

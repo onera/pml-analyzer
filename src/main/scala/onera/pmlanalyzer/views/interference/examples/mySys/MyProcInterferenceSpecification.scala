@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalAtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
