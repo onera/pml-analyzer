@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.configuration.Scenario
+import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
@@ -38,8 +38,8 @@ object DelayedTransform {
   type TransactionParam =
     (() => Set[(Service, Service)], () => Set[Application])
 
-  given DelayedTransform[Scenario, TransactionParam] with {
-    def apply(a: => Scenario): TransactionParam =
+  given DelayedTransform[Transaction, TransactionParam] with {
+    def apply(a: => Transaction): TransactionParam =
       (a.iniTgt, a.sw)
   }
 

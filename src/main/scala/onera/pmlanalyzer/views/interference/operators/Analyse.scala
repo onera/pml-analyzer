@@ -22,7 +22,7 @@ import monosat.Logic.*
 import net.sf.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
@@ -453,8 +453,8 @@ object Analyse {
 
           val update = (
               isFree: Boolean,
-              physical: Set[Set[PhysicalScenarioId]],
-              user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+              physical: Set[Set[PhysicalTransactionId]],
+              user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
           ) => {
             val userBySize =
               user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
@@ -717,7 +717,7 @@ object Analyse {
       // FIXME If a scenario, the following computation consider that one of the services used by
       // several atomic transactions could be an interference channel that is obviously false
       // and complexify the graph for no reason
-      val pathT: Map[PhysicalScenarioId, Set[AtomicTransaction]] =
+      val pathT: Map[PhysicalTransactionId, Set[AtomicTransaction]] =
         initialPathT.view
           .mapValues(s =>
             s.map(t =>
@@ -795,23 +795,24 @@ object Analyse {
       // * the transaction must not be transparent
       // * the edge must not contain a service considered as non impacted
       // FIXME * an edge is added between all nodes sharing a common service
-      val edgesToScenarios: Map[MEdge, Set[PhysicalScenarioId]] = pathT.keySet
-        .flatMap(s =>
-          val pathEdges = for {
-            t <- pathT(s) if t.size > 1
-            servCouple <- t.sliding(2)
-            edge <- addUndirectedEdge(servCouple.toSet)
-          } yield edge -> s
-          val serviceEdges = {
-            for {
-              t <- pathT(s)
-              service <- t
-              e <- addUndirectedEdge(Set(service))
-            } yield e -> s
-          }
-          pathEdges ++ serviceEdges
-        )
-        .groupMap(_._1)(_._2)
+      val edgesToScenarios: Map[MEdge, Set[PhysicalTransactionId]] =
+        pathT.keySet
+          .flatMap(s =>
+            val pathEdges = for {
+              t <- pathT(s) if t.size > 1
+              servCouple <- t.sliding(2)
+              edge <- addUndirectedEdge(servCouple.toSet)
+            } yield edge -> s
+            val serviceEdges = {
+              for {
+                t <- pathT(s)
+                service <- t
+                e <- addUndirectedEdge(Set(service))
+              } yield e -> s
+            }
+            pathEdges ++ serviceEdges
+          )
+          .groupMap(_._1)(_._2)
 
       val graph = MGraph(nodeToServices.keySet, edgesToScenarios.keySet)
 
@@ -991,17 +992,17 @@ object Analyse {
 
     private def updateResultFile(
         writer: Map[Int, FileWriter],
-        m: Map[Int, Set[Set[UserScenarioId]]]
+        m: Map[Int, Set[Set[UserTransactionId]]]
     ): Unit = {
       for ((k, v) <- m; ss <- v)
         writer(k).write(
-          s"${multiTransactionId(ss.map(s => PhysicalScenarioId(s.id)))}\n"
+          s"${multiTransactionId(ss.map(s => PhysicalTransactionId(s.id)))}\n"
         )
     }
 
     private def updateNumber(
         nbITF: mutable.Map[Int, BigInt],
-        m: Map[Int, Set[Set[UserScenarioId]]]
+        m: Map[Int, Set[Set[UserTransactionId]]]
     ): Unit = {
       for ((k, v) <- m)
         nbITF(k) = nbITF.getOrElse(k, BigInt(0)) + v.size
@@ -1010,8 +1011,8 @@ object Analyse {
     private def updateChannelNumber(
         problem: Problem,
         channels: mutable.Map[Int, Map[Channel, Int]],
-        physical: Set[Set[PhysicalScenarioId]],
-        user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+        physical: Set[Set[PhysicalTransactionId]],
+        user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
     ): Unit = {
       val channelNb = physical
         .flatMap(p => user(p).map(u => (problem.decodeChannel(p), u)))
@@ -1135,8 +1136,8 @@ object Analyse {
     )
     def getRedundantCard(
         platform: ConfiguredPlatform,
-        free: Set[Set[PhysicalScenarioId]],
-        itf: Set[Set[PhysicalScenarioId]]
+        free: Set[Set[PhysicalTransactionId]],
+        itf: Set[Set[PhysicalTransactionId]]
     ): Map[Int, BigInt] = {
       val idToScenario = platform.purifiedScenarios
       val exclusive = idToScenario.keySet.groupMapReduce(t => t)(t =>

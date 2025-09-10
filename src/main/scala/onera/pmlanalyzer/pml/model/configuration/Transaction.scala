@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
@@ -37,8 +37,8 @@ import sourcecode.Name
     * @param sw
     *   the application that can use this scenario
     */
-final class Scenario private (
-    val userName: UserScenarioId,
+final class Transaction private (
+    val userName: UserTransactionId,
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],
     info: ReflexiveInfo
@@ -57,15 +57,16 @@ final class Scenario private (
       */
   def used(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[UsedScenario]
-  ): UsedScenario =
-    UsedScenario(userName, iniTgt(), sw())
+      map: PMLNodeMap[UsedTransaction]
+  ): UsedTransaction =
+    UsedTransaction(userName, iniTgt(), sw())
 }
 
-/** Builder of platform [[Scenario]]
-    * @group scenario_class
+/** Builder of platform [[Transaction]]
+ *
+ * @group scenario_class
     */
-object Scenario extends PMLNodeBuilder[Scenario] {
+object Transaction extends PMLNodeBuilder[Transaction] {
 
   /** A transaction can be built from an application targeting a load or a
    * store service
@@ -85,11 +86,11 @@ object Scenario extends PMLNodeBuilder[Scenario] {
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Scenario],
+      map: PMLNodeMap[Transaction],
       ev: DelayedTransform[A, TransactionParam]
-  ): Scenario = {
+  ): Transaction = {
     val result = iniTgt.toTransactionParam
-    apply(UserScenarioId(Symbol(name.value)), result._1, result._2)
+    apply(UserTransactionId(Symbol(name.value)), result._1, result._2)
   }
 
   /** A transaction can be from an application targeting a load or a store
@@ -106,11 +107,11 @@ object Scenario extends PMLNodeBuilder[Scenario] {
    */
   def apply[A](name: String, iniTgt: => A)(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Scenario],
+      map: PMLNodeMap[Transaction],
       ev: DelayedTransform[A, TransactionParam]
-  ): Scenario = {
+  ): Transaction = {
     val result = iniTgt.toTransactionParam
-    apply(UserScenarioId(Symbol(name)), result._1, result._2)
+    apply(UserTransactionId(Symbol(name)), result._1, result._2)
   }
 
   /** Build a Scenario from a bunch of transactions, this should not be used
@@ -125,27 +126,27 @@ object Scenario extends PMLNodeBuilder[Scenario] {
       *   a scenario
       */
   def apply(
-      head: Scenario,
-      next: Scenario,
-      tail: Scenario*
+      head: Transaction,
+      next: Transaction,
+      tail: Transaction*
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Scenario]
-  ): Scenario =
+      map: PMLNodeMap[Transaction]
+  ): Transaction =
     apply(name.value, head, next, tail: _*)
 
   def apply(
       name: String,
-      head: Scenario,
-      next: Scenario,
-      tail: Scenario*
+      head: Transaction,
+      next: Transaction,
+      tail: Transaction*
   )(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Scenario]
-  ): Scenario =
+      map: PMLNodeMap[Transaction]
+  ): Transaction =
     apply(
-      UserScenarioId(Symbol(name)),
+      UserTransactionId(Symbol(name)),
       () => {
         (head +: next +: tail).flatMap(_.iniTgt()).toSet
       },
@@ -170,13 +171,16 @@ object Scenario extends PMLNodeBuilder[Scenario] {
       *   the transaction (not used for now)
       */
   def apply(
-      name: UserScenarioId,
+      name: UserTransactionId,
       iniTgt: () => Set[(Service, Service)],
       sw: () => Set[Application]
-  )(using givenInfo: ReflexiveInfo, map: PMLNodeMap[Scenario]): Scenario = {
+  )(using
+      givenInfo: ReflexiveInfo,
+      map: PMLNodeMap[Transaction]
+  ): Transaction = {
     getOrElseUpdate(
       PMLNodeBuilder.formatName(name.id, givenInfo.owner),
-      new Scenario(name, iniTgt, sw, givenInfo)
+      new Transaction(name, iniTgt, sw, givenInfo)
     )
   }
 }

@@ -145,8 +145,8 @@ trait TableBasedInterferenceSpecification
       .subsets(2)
       .filter(s => {
         val (al, ar) = (s.head, s.last)
-        val lUsed = s.filter(sw => transactionsBySW(sw).contains(l))
-        val rUsed = s.filter(sw => transactionsBySW(sw).contains(r))
+        val lUsed = s.filter(sw => atomicTransactionsBySW(sw).contains(l))
+        val rUsed = s.filter(sw => atomicTransactionsBySW(sw).contains(r))
         lUsed.contains(al) && rUsed.contains(ar) || lUsed.contains(ar) && rUsed
           .contains(al)
       })

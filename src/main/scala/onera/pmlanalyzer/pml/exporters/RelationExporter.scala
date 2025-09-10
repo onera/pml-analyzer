@@ -17,7 +17,10 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.{Scenario, TransactionLibrary}
+import onera.pmlanalyzer.pml.model.configuration.{
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.operators.*
@@ -253,7 +256,7 @@ object RelationExporter {
           "Scenario Name, Scenario Path, SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          sc <- Scenario.all
+          sc <- Transaction.all
           s <- scenarioByUserName.get(sc.userName)
           t = s
             .map(atomicTransactionsByName)

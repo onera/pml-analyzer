@@ -40,8 +40,8 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
     * @group user_scenario_relation
     */
   final lazy val scenarioByUserName
-      : Map[UserScenarioId, Set[AtomicTransactionId]] = {
-    UsedScenario.all
+      : Map[UserTransactionId, Set[AtomicTransactionId]] = {
+    UsedTransaction.all
       .map(u => u.userName -> u.toPhysical(atomicTransactionsByName))
       .groupMapReduce(_._1)(_._2)(_ ++ _)
   }
@@ -53,7 +53,7 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
     * @group user_scenario_relation
     */
   final lazy val scenarioUserName
-      : Map[Set[AtomicTransactionId], Set[UserScenarioId]] = {
+      : Map[Set[AtomicTransactionId], Set[UserTransactionId]] = {
     val result = scenarioByUserName.keySet
       .groupMap(k => scenarioByUserName(k))(k => k)
       .withDefaultValue(Set.empty)
@@ -66,8 +66,8 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
     * DEFINITION
     * @group user_scenario_relation
     */
-  final lazy val scenarioSW: Map[UserScenarioId, Set[Application]] = {
-    UsedScenario.all
+  final lazy val scenarioSW: Map[UserTransactionId, Set[Application]] = {
+    UsedTransaction.all
       .map(k => k.userName -> k.sw)
       .groupMapReduce(_._1)(_._2)(_ ++ _)
   }
@@ -82,7 +82,7 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
     *   the scenario library to check
     */
   final def checkLibrary(
-      sMap: Map[Set[AtomicTransactionId], Set[UserScenarioId]]
+      sMap: Map[Set[AtomicTransactionId], Set[UserTransactionId]]
   ): Unit = {
     this match {
       case i: InterferenceSpecification =>
@@ -98,22 +98,11 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
 
 object TransactionLibrary {
 
-  /** Base trait for user ids
-    */
-  sealed abstract class UserId {
-    val id: Symbol
-    override def toString: String = id.name
-  }
-
-  /** User id for transactions
-    * @param id
-    *   name of the transaction
-    */
-  final case class UserTransactionId(id: Symbol) extends UserId
-
   /** User id of scenarios
     * @param id
     *   name of the scenario
     */
-  final case class UserScenarioId(id: Symbol) extends UserId
+  final case class UserTransactionId(id: Symbol) {
+    override def toString: String = id.name
+  }
 }

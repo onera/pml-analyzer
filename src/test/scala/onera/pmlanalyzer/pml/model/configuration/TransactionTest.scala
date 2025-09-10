@@ -40,7 +40,7 @@ import onera.pmlanalyzer.views.interference.InterferenceTestExtension.{
 }
 import org.scalacheck.Shrink
 
-class ScenarioTest
+class TransactionTest
     extends AnyFlatSpec
     with ScalaCheckPropertyChecks
     with should.Matchers {
@@ -66,7 +66,7 @@ class ScenarioTest
               applyAllLinks(link, undo = false)
               applyAllUses(useD, undo = false)
               applyAllUses(useA, undo = false)
-              forAll(minSuccessful(5)) { (s: Option[Scenario]) =>
+              forAll(minSuccessful(5)) { (s: Option[Transaction]) =>
                 for {
                   t <- s
                 } {
@@ -115,7 +115,7 @@ class ScenarioTest
               applyAllLinks(link, undo = false)
               applyAllUses(useD, undo = false)
               applyAllUses(useA, undo = false)
-              forAll(minSuccessful(5)) { (s: Option[UsedScenario]) =>
+              forAll(minSuccessful(5)) { (s: Option[UsedTransaction]) =>
                 for {
                   t <- s
                 } {

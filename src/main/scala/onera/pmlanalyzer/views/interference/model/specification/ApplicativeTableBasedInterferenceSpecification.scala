@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.interference.model.specification
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
 
@@ -33,15 +33,17 @@ trait ApplicativeTableBasedInterferenceSpecification
     * @group exclusive_relation
     */
   final lazy val finalUserScenarioExclusive
-      : Map[UserScenarioId, Set[UserScenarioId]] = {
+      : Map[UserTransactionId, Set[UserTransactionId]] = {
     val exclusive = finalExclusive(purifiedScenarios.keySet)
     relationToMap(
       scenarioByUserName.keySet,
       (l, r) =>
         l != r && (
-          scenarioId(scenarioByUserName(l)) == scenarioId(scenarioByUserName(r))
-            || exclusive(scenarioId(scenarioByUserName(l)))
-              .contains(scenarioId(scenarioByUserName(r)))
+          transactionId(scenarioByUserName(l)) == transactionId(
+            scenarioByUserName(r)
+          )
+            || exclusive(transactionId(scenarioByUserName(l)))
+              .contains(transactionId(scenarioByUserName(r)))
             || scenarioSW(l)
               .flatMap(sw => swExclusive.get(sw).getOrElse(Set.empty))
               .intersect(scenarioSW(r))

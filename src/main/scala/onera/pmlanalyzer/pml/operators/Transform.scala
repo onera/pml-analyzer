@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
@@ -56,7 +56,7 @@ object Transform {
       */
     given Transform[Application, Set[AtomicTransactionId]] with {
       def apply(l: Application): Set[AtomicTransactionId] =
-        transactionsBySW.getOrElse(l, Set.empty)
+        atomicTransactionsBySW.getOrElse(l, Set.empty)
     }
   }
 
@@ -66,16 +66,16 @@ object Transform {
     /** Convert a user defined scenario to the set of its physical scenario ids
       * @group transform_operator
       */
-    given Transform[Scenario, Set[AtomicTransactionId]] with {
-      def apply(l: Scenario): Set[AtomicTransactionId] =
+    given Transform[Transaction, Set[AtomicTransactionId]] with {
+      def apply(l: Transaction): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l.userName, Set.empty)
     }
 
     /** Convert a user scenario id to the set of its physical scenario ids
       * @group transform_operator
       */
-    given Transform[UserScenarioId, Set[AtomicTransactionId]] with {
-      def apply(l: UserScenarioId): Set[AtomicTransactionId] =
+    given Transform[UserTransactionId, Set[AtomicTransactionId]] with {
+      def apply(l: UserTransactionId): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l, Set.empty)
     }
   }
