@@ -24,13 +24,9 @@ import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  AtomicTransaction,
-  AtomicTransactionId,
-  Path
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransaction, AtomicTransactionId, Path}
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.operators.Transform.TransactionParam
+import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 
 import scala.collection.mutable
 import scala.reflect.*
@@ -209,13 +205,13 @@ object Used {
           self
         )
     }
+    extension[T] (y: => T) {
+      
+      def toTransactionParam (using ev: DelayedTransform[T, TransactionParam]): TransactionParam = 
+        ev(y)
+    }
 
     extension [T](x: T) {
-
-      def toTransactionParam(using
-          ev: Transform[T, TransactionParam]
-      ): TransactionParam =
-        ev(x)
 
       /** Method that should be provided by sub-classes to access to the path
        *
