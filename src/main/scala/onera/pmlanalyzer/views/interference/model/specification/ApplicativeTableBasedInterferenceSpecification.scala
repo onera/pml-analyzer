@@ -21,11 +21,9 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.interference.operators.Transform
 
 trait ApplicativeTableBasedInterferenceSpecification
     extends TableBasedInterferenceSpecification
-    with Transform.TransactionLibraryInstances
     with ExclusiveRelation.LibraryInstances {
   self: Platform & TransactionLibrary =>
 

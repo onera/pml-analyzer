@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.relations.TransparentSet
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}

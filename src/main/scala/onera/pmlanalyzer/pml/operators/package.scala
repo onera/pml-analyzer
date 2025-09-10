@@ -50,4 +50,3 @@ package object operators
     with Used.Ops
     with Restrict.Ops
     with Route.Ops
-    with ToTransaction.Ops

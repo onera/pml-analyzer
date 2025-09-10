@@ -5,17 +5,12 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.dependability.model.Transition
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
-import onera.pmlanalyzer.views.interference.model.relations.{
-  InterfereRelation,
-  NotInterfereRelation
-}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
-import org.scalatest.flatspec.{AnyFlatSpec, AnyFlatSpecLike}
+import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 import sourcecode.Name
 

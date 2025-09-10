@@ -30,6 +30,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   Path
 }
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.Transform.TransactionParam
 
 import scala.collection.mutable
 import scala.reflect.*
@@ -211,12 +212,19 @@ object Used {
 
     extension [T](x: T) {
 
+      def toTransactionParam(using
+          ev: Transform[T, TransactionParam]
+      ): TransactionParam =
+        ev(x)
+
       /** Method that should be provided by sub-classes to access to the path
        *
        * @return
        * the set of service paths
        */
-      def paths(using ev: Used[T, AtomicTransaction]): Set[AtomicTransaction] =
+      def paths(using
+          ev: Transform[T, Set[AtomicTransaction]]
+      ): Set[AtomicTransaction] =
         ev(x)
 
       /** Check if the target is in the possible targets of the transaction
@@ -229,7 +237,7 @@ object Used {
       def useTarget(
           t: Target
       )(using
-          ev: Used[T, AtomicTransaction],
+          ev: Transform[T, Set[AtomicTransaction]],
           p: Provided[Target, Service]
       ): Boolean =
         usedTargets.contains(t)
@@ -240,7 +248,7 @@ object Used {
        * the set of targets
        */
       def usedTargets(using
-          ev: Used[T, AtomicTransaction],
+          ev: Transform[T, Set[AtomicTransaction]],
           p: Provided[Target, Service]
       ): Set[Target] =
         paths.filter(_.size >= 2).flatMap(t => t.last.targetOwner)
@@ -251,7 +259,7 @@ object Used {
        * the set of initiators
        */
       def usedInitiators(using
-          ev: Used[T, AtomicTransaction],
+          ev: Transform[T, Set[AtomicTransaction]],
           p: Provided[Initiator, Service]
       ): Set[Initiator] =
         paths.filter(_.nonEmpty).flatMap(t => t.head.initiatorOwner)
@@ -266,7 +274,7 @@ object Used {
       def useInitiator(
           ini: Initiator
       )(using
-          ev: Used[T, AtomicTransaction],
+          ev: Transform[T, Set[AtomicTransaction]],
           p: Provided[Initiator, Service]
       ): Boolean =
         usedInitiators.contains(ini)

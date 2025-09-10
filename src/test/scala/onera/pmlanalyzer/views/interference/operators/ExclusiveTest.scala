@@ -24,7 +24,7 @@ import org.scalatest.matchers.should
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 
 import scala.language.postfixOps
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
@@ -93,15 +93,11 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
   "Two transaction" should "be able to be exclusive from each other" taggedAs UnitTests in {
     tr1 exclusiveWith tr2
-    userScenarioExclusive(tr1.userName) should contain(
-      userScenarioExclusive(tr2.userName)
-    )
+    userScenarioExclusive(tr1.userName) should contain(tr2.userName)
   }
 
   "Two user transaction Id" should "be able to be exclusive" taggedAs UnitTests in {
     tr3.userName exclusiveWith tr4.userName
-    userScenarioExclusive(tr3.userName) should contain(
-      userScenarioExclusive(tr4.userName)
-    )
+    userScenarioExclusive(tr3.userName) should contain(tr4.userName)
   }
 }

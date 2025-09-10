@@ -27,11 +27,11 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   AtomicTransaction,
   AtomicTransactionId
 }
-import onera.pmlanalyzer.views.interference.operators.Transform
+import onera.pmlanalyzer.pml.operators.Transform
 
 /** Base trait for all interference specification
   */
-trait InterferenceSpecification extends Transform.BasicInstances {
+trait InterferenceSpecification {
   self: Platform =>
 
   /** Map from the physical transaction id and their service sequence

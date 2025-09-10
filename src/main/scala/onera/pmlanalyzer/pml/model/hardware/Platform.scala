@@ -53,7 +53,8 @@ import scala.language.implicitConversions
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
     extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
-    with ContainerLike {
+    with ContainerLike
+    with Transform.BasicInstances {
 
   implicit val context: Context = Context.EmptyContext()
 
@@ -163,12 +164,6 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
         )
       }
     )
-
-  given Used[AtomicTransactionId, AtomicTransaction] with {
-    def apply(x: AtomicTransactionId): Set[AtomicTransaction] = Set(
-      atomicTransactionsByName(x)
-    )
-  }
 }
 
 /** Static methods of Platform

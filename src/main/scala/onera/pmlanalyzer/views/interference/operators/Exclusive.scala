@@ -20,6 +20,7 @@ package onera.pmlanalyzer.views.interference.operators
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
 import onera.pmlanalyzer.pml.model.configuration.{Scenario, TransactionLibrary}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
