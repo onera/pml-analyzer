@@ -233,7 +233,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   final case class ExperimentResults(
       nbInitiators: Int,
       nbTargets: Int,
-      nbScenarios: Int,
+      nbTransactions: Int,
       analysisTime: Option[Double],
       semanticsDistribution: Map[Int, BigInt],
       itfDistribution: Map[Int, BigInt],
@@ -274,7 +274,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
           case Some(value)                => value.toString
           case None                       => "none"
       writer.write(
-        s"$nbInitiators, $nbTargets, $nbScenarios, $printTime, $semanticsSize, $pintGraphRed, $printSemRed, "
+        s"$nbInitiators, $nbTargets, $nbTransactions, $printTime, $semanticsSize, $pintGraphRed, $printSemRed, "
       )
       for { i <- 2 to maxSemantics }
         writer.write(
@@ -299,7 +299,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         )
   }
 
-  def getMaxScenarioSize(results: Seq[Set[Int]]): Int =
+  def getMaxMultiTransactionSize(results: Seq[Set[Int]]): Int =
     results.filter(_.nonEmpty).map(_.max).max
 
   it should "be used to export performance plots" taggedAs PerfTests in {
@@ -336,14 +336,16 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         )
       }).sortBy(_._1)
 
-    val maxItfSize = getMaxScenarioSize(result.map(_._2.itfDistribution.keySet))
+    val maxItfSize =
+      getMaxMultiTransactionSize(result.map(_._2.itfDistribution.keySet))
     val maxFreeSize =
-      getMaxScenarioSize(result.map(_._2.freeDistribution.keySet))
-    val maxRedSize = getMaxScenarioSize(result.map(_._2.redDistribution.keySet))
+      getMaxMultiTransactionSize(result.map(_._2.freeDistribution.keySet))
+    val maxRedSize =
+      getMaxMultiTransactionSize(result.map(_._2.redDistribution.keySet))
     val maxSemanticsSize =
-      getMaxScenarioSize(result.map(_._2.semanticsDistribution.keySet))
+      getMaxMultiTransactionSize(result.map(_._2.semanticsDistribution.keySet))
     writer.write(
-      "platform, nbInitiators, nbTargets, nbScenarios, analysisTime, semanticsSize, graphReduction, semanticsReduction, "
+      "platform, nbInitiators, nbTargets, nbTransactions, analysisTime, semanticsSize, graphReduction, semanticsReduction, "
     )
     writer.write(
       (2 to maxSemanticsSize).map(i => s"sem size $i").mkString("", ",", ",")

@@ -202,8 +202,6 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
     val dma_rd_reg = Transaction(app_dma read cfg_bus.dma_reg)
     val dma_wr_reg = Transaction(app_dma write cfg_bus.dma_reg)
 
-    // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
-    //  (or tag all `used` during the definition)
     val dma_rd_config = Transaction(
       "t_dma_rd_dma_reg",
       dma_rd_reg,

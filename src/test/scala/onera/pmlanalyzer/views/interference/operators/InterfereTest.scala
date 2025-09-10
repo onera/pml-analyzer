@@ -110,7 +110,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A Scenario and a set of physical transaction" should "be able to interfere" taggedAs UnitTests in {
+  "A Transaction and a set of services" should "be able to interfere" taggedAs UnitTests in {
     for {
       s <- i1.services
     } {
