@@ -57,7 +57,7 @@ trait ScenarioArbitrary {
   private def simpleScenarioGenerator(using
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
-  ): Arbitrary[Option[Scenario]] = Arbitrary(
+  ): Arbitrary[Option[Transaction]] = Arbitrary(
     {
       val validAD =
         if (c.discardImpossibleTransactions)
@@ -70,33 +70,35 @@ trait ScenarioArbitrary {
         for {
           (app, data) <- Gen.oneOf(validAD)
           name <- Gen.identifier.suchThat(s =>
-            Scenario
+            Transaction
               .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
               .isEmpty
           )
           isRead <- Gen.prob(0.5)
         } yield
           if (isRead)
-            Some(Scenario(name, app read data))
+            Some(Transaction(name, app read data))
           else
-            Some(Scenario(name, app write data))
+            Some(Transaction(name, app write data))
     }
   )
 
   @targetName("given_Option_Scenario")
   given (using
       r: ReflexiveInfo
-  ): Arbitrary[Option[Scenario]] = Arbitrary(
+  ): Arbitrary[Option[Transaction]] = Arbitrary(
     for {
       tT <- Gen.nonEmptyListOf(simpleScenarioGenerator.arbitrary)
       name <- Gen.identifier.suchThat(s =>
-        Scenario.get(PMLNodeBuilder.formatName(Symbol(s), currentOwner)).isEmpty
+        Transaction
+          .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
+          .isEmpty
       )
       tSeq = tT.flatten
     } yield {
       tSeq match {
         case ::(head, ::(second, next)) =>
-          Some(Scenario(name, head, second, next: _*))
+          Some(Transaction(name, head, second, next: _*))
         case ::(head, Nil) => Some(head)
         case Nil           => None
       }
@@ -105,9 +107,9 @@ trait ScenarioArbitrary {
 
   @targetName("given_Option_UserScenario")
   given (using
-      arbSc: Arbitrary[Option[Scenario]],
+      arbSc: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
-  ): Arbitrary[Option[UsedScenario]] = Arbitrary(
+  ): Arbitrary[Option[UsedTransaction]] = Arbitrary(
     for {
       oS <- arbSc.arbitrary
       s <- oS

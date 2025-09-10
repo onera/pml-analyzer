@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{Message, ReflexiveInfo}
@@ -37,8 +37,8 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
     * @param sw
     *   the application that can use this scenario
     */
-final class UsedScenario private (
-    val userName: UserScenarioId,
+final class UsedTransaction private (
+    val userName: UserTransactionId,
     iniTgt: Set[(Service, Service)],
     val sw: Set[Application],
     info: ReflexiveInfo
@@ -70,10 +70,11 @@ final class UsedScenario private (
   }
 }
 
-/** Builder of platform [[UsedScenario]]
-    * @group scenario_class
+/** Builder of platform [[UsedTransaction]]
+ *
+ * @group scenario_class
     */
-object UsedScenario extends PMLNodeBuilder[UsedScenario] {
+object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
 
   /** Build a used scenario from its attributes
       * @param name
@@ -88,16 +89,16 @@ object UsedScenario extends PMLNodeBuilder[UsedScenario] {
       *   the corresponding scenario (used in the interference analysis)
       */
   def apply(
-      name: UserScenarioId,
+      name: UserTransactionId,
       iniTgt: Set[(Service, Service)],
       sw: Set[Application]
   )(using
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[UsedScenario]
-  ): UsedScenario = {
+      map: PMLNodeMap[UsedTransaction]
+  ): UsedTransaction = {
     getOrElseUpdate(
       PMLNodeBuilder.formatName(name.id, givenInfo.owner),
-      new UsedScenario(name, iniTgt, sw, givenInfo)
+      new UsedTransaction(name, iniTgt, sw, givenInfo)
     )
   }
 }

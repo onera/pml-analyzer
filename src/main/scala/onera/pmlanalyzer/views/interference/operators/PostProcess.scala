@@ -353,7 +353,7 @@ object PostProcess {
           val multiPathsTransactions = x match {
             case c: TransactionLibrary =>
               x.multiPathsTransactions.flatMap(s => {
-                val transactionNames = s.map(x.transactionsName)
+                val transactionNames = s.map(x.atomicTransactionsName)
                 (for {
                   scenarios <- c.scenarioUserName.get(transactionNames)
                   if scenarios.nonEmpty
@@ -363,7 +363,7 @@ object PostProcess {
               })
             case _ =>
               x.multiPathsTransactions.map(
-                _.map(x.transactionsName).map(_.toString)
+                _.map(x.atomicTransactionsName).map(_.toString)
               )
           }
           resultFiles
@@ -440,7 +440,7 @@ object PostProcess {
         .map(
           _.flatMap(s =>
             x.applications.filter(sw =>
-              x.transactionsBySW(sw).exists(s2 => s2.toString == s)
+              x.atomicTransactionsBySW(sw).exists(s2 => s2.toString == s)
             )
           ).toSet
         )

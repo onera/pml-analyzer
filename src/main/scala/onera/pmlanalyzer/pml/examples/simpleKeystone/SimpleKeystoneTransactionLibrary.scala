@@ -56,61 +56,61 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
     * [[SimpleKeystonePlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t41_app4_wr_input_d: Scenario = Scenario(app4 write input_d)
+  val t41_app4_wr_input_d: Transaction = Transaction(app4 write input_d)
 
   /** t211: [[SimpleSoftwareAllocation.app21]] reads the last
     * [[SimpleKeystonePlatform.eth]] message from
     * [[SimpleKeystonePlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t211_app21_rd_input_d: Scenario = Scenario(app21 read input_d)
+  val t211_app21_rd_input_d: Transaction = Transaction(app21 read input_d)
 
   /** t212: [[SimpleSoftwareAllocation.app21]] makes some input treatments on
     * the message, and makes it available for [[SimpleSoftwareAllocation.app1]]
     * in [[SimpleKeystonePlatform.ddr]]
     * @group transaction_def
     */
-  val t212_app21_wr_d1: Scenario = Scenario(app21 write d1)
+  val t212_app21_wr_d1: Transaction = Transaction(app21 write d1)
 
   /** t11: [[SimpleSoftwareAllocation.app1]] begins by reading the interrupt
     * code from [[SimpleKeystonePlatform.mpic]]
     * @group transaction_def
     */
-  val t11_app1_rd_interrupt1: Scenario = Scenario(app1 read interrupt1)
+  val t11_app1_rd_interrupt1: Transaction = Transaction(app1 read interrupt1)
 
   /** t12: [[SimpleSoftwareAllocation.app1]] reads its input data from
     * [[SimpleKeystonePlatform.ddr]]
     * @group transaction_def
     */
-  val t12_app1_rd_d1: Scenario = Scenario(app1 read d1)
+  val t12_app1_rd_d1: Transaction = Transaction(app1 read d1)
 
   /** t13: [[SimpleSoftwareAllocation.app1]] it stores its output data in
     * [[SimpleKeystonePlatform.ddr]]
     * @group transaction_def
     */
-  val t13_app1_wr_d2: Scenario = Scenario(app1 write d2)
+  val t13_app1_wr_d2: Transaction = Transaction(app1 write d2)
 
-  private val app1_rd_L1: Scenario = Scenario(app1 read ARM0.cache)
-  private val app1_wr_L1: Scenario = Scenario(app1 write ARM0.cache)
+  private val app1_rd_L1: Transaction = Transaction(app1 read ARM0.cache)
+  private val app1_wr_L1: Transaction = Transaction(app1 write ARM0.cache)
 
   /** t14: [[SimpleSoftwareAllocation.app1]] runs using
     * [[SimpleKeystonePlatform.ARM0]] cache
     * @group scenario_def
     */
-  val t14_app1_rd_wr_L1: Scenario = Scenario(app1_rd_L1, app1_wr_L1)
+  val t14_app1_rd_wr_L1: Transaction = Transaction(app1_rd_L1, app1_wr_L1)
 
   /** t221: [[SimpleSoftwareAllocation.app22]] reads output data of
     * [[SimpleSoftwareAllocation.app1]] from [[SimpleKeystonePlatform.ddr]]
     * @group transaction_def
     */
-  val t221_app22_rd_d2: Scenario = Scenario(app22 read d2)
+  val t221_app22_rd_d2: Transaction = Transaction(app22 read d2)
 
   /** t222: [[SimpleSoftwareAllocation.app22]] store the
     * [[SimpleKeystonePlatform.spi]] frame then in
     * [[SimpleKeystonePlatform.MemorySubsystem.sram]]
     * @group transaction_def
     */
-  val t222_app22_wr_output_d: Scenario = Scenario(app22 write output_d)
+  val t222_app22_wr_output_d: Transaction = Transaction(app22 write output_d)
 
   /** t223: [[SimpleSoftwareAllocation.app22]] wakes up the
     * [[SimpleKeystonePlatform.dma]] by writing the address of the
@@ -118,7 +118,7 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
     * [[SimpleKeystonePlatform.dma_reg]]
     * @group transaction_def
     */
-  val t223_app22_st_dma_reg: Scenario = Scenario(app22 write dma_reg)
+  val t223_app22_st_dma_reg: Transaction = Transaction(app22 write dma_reg)
 
   /** When woke up, [[SimpleSoftwareAllocation.app3]] reads the
     * [[SimpleKeystonePlatform.spi]] frame from
@@ -126,8 +126,8 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
     * [[SimpleKeystonePlatform.spi]]
     * @group scenario_def
     */
-  private val readFrame = Scenario(app3 read output_d)
-  private val writeFrame = Scenario(app3 write output_spi_frame)
-  val app3_transfer: Scenario =
-    Scenario(readFrame, writeFrame)
+  private val readFrame = Transaction(app3 read output_d)
+  private val writeFrame = Transaction(app3 write output_spi_frame)
+  val app3_transfer: Transaction =
+    Transaction(readFrame, writeFrame)
 }

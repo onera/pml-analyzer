@@ -18,7 +18,10 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.pml.model.configuration.{Scenario, TransactionLibrary}
+import onera.pmlanalyzer.pml.model.configuration.{
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
@@ -46,9 +49,13 @@ object Exclusive {
       relation.add(l, r)
   }
 
-  given (using relation: ExclusiveRelation[UserScenarioId]): Exclusive[Scenario]
-  with {
-    def apply(l: Scenario, r: Scenario)(using line: Line, file: File): Unit =
+  given (using relation: ExclusiveRelation[UserTransactionId]): Exclusive[
+    Transaction
+  ] with {
+    def apply(l: Transaction, r: Transaction)(using
+        line: Line,
+        file: File
+    ): Unit =
       relation.add(l.userName, r.userName)
   }
 

@@ -20,15 +20,15 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 import monosat.Logic._
 import monosat.{Comparison, Graph, Lit, Solver}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.Service
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.formalisation.ProblemElement._
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   Channel,
-  PhysicalScenario,
-  PhysicalScenarioId
+  PhysicalTransaction,
+  PhysicalTransactionId
 }
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
@@ -139,17 +139,19 @@ final case class Reaches(graph: MGraph, from: MNode, to: MNode) extends ALit {
 
 class Problem(
     val platform: Platform with InterferenceSpecification,
-    val groupedScenarios: Map[MLit, Set[PhysicalScenarioId]],
+    val groupedScenarios: Map[MLit, Set[PhysicalTransactionId]],
     val litToNodeSet: Map[MLit, Set[Set[MNode]]],
-    val idToScenario: Map[PhysicalScenarioId, PhysicalScenario],
-    val exclusiveScenarios: Map[PhysicalScenarioId, Set[PhysicalScenarioId]],
+    val idToScenario: Map[PhysicalTransactionId, PhysicalTransaction],
+    val exclusiveScenarios: Map[PhysicalTransactionId, Set[
+      PhysicalTransactionId
+    ]],
     val serviceGraph: MGraph,
     val isFree: ALit,
     val isITF: ALit,
     val pbCst: Set[AssertPB],
     val simpleCst: Set[SimpleAssert],
     val nodeToServices: Map[MNode, Set[Service]],
-    val serviceToScenarioLit: Map[Service, Set[PhysicalScenarioId]],
+    val serviceToScenarioLit: Map[Service, Set[PhysicalTransactionId]],
     val maxSize: Option[Int]
 ) extends ProblemElement {
 
@@ -157,8 +159,8 @@ class Problem(
     nodeToServices.transform((_, v) => v.flatMap(serviceToScenarioLit))
 
   def decodeUserModel(
-      physicalModel: Set[PhysicalScenarioId]
-  ): Set[Set[UserScenarioId]] = platform match {
+      physicalModel: Set[PhysicalTransactionId]
+  ): Set[Set[UserTransactionId]] = platform match {
     case _ if physicalModel.isEmpty                  => Set.empty
     case _ if maxSize.exists(physicalModel.size > _) => Set.empty
     case spec: TransactionLibrary =>
@@ -169,7 +171,7 @@ class Problem(
       val userNames = scenario.view
         .mapValues(spec.scenarioUserName)
         .toMap
-        .transform((k, v) => if (v.isEmpty) Set(UserScenarioId(k.id)) else v)
+        .transform((k, v) => if (v.isEmpty) Set(UserTransactionId(k.id)) else v)
 
       val results = userNames.values.tail
         .foldLeft(userNames.values.head.map(n => Set(n)))((acc, names) =>
@@ -188,11 +190,11 @@ class Problem(
           }
         )
       results
-    case _ => Set(physicalModel.map(s => UserScenarioId(s.id)))
+    case _ => Set(physicalModel.map(s => UserTransactionId(s.id)))
   }
 
   // FIXME Are we integrating exclusive service in the channel even if not used in the scenario?
-  def decodeChannel(model: Set[PhysicalScenarioId]): Channel = {
+  def decodeChannel(model: Set[PhysicalTransactionId]): Channel = {
     if (maxSize.exists(model.size > _))
       Set.empty
     else
@@ -204,7 +206,7 @@ class Problem(
   def decodeModel(
       model: Set[MLit],
       modelIsFree: Boolean
-  ): Set[Set[PhysicalScenarioId]] = {
+  ): Set[Set[PhysicalTransactionId]] = {
     if (maxSize.exists(model.size > _))
       Set.empty
     else if (model.size == 1 && groupedScenarios(model.head).size == 1) {
@@ -250,7 +252,8 @@ class Problem(
           .foreach(l =>
             s.assertAtMostOne(groupedScenarios(l).map(variables).asJava)
           )
-      val decodedModels = collection.mutable.Set.empty[Set[PhysicalScenarioId]]
+      val decodedModels =
+        collection.mutable.Set.empty[Set[PhysicalTransactionId]]
       while (s.solve()) {
         val (positiveModel, negativeModel) =
           variables.keySet.partition(k => variables(k).value())
@@ -280,17 +283,19 @@ class Problem(
 object Problem {
   def apply(
       platform: Platform with InterferenceSpecification,
-      groupedScenarios: Map[MLit, Set[PhysicalScenarioId]],
+      groupedScenarios: Map[MLit, Set[PhysicalTransactionId]],
       litToNodeSet: Map[MLit, Set[Set[MNode]]],
-      idToScenario: Map[PhysicalScenarioId, PhysicalScenario],
-      exclusiveScenarios: Map[PhysicalScenarioId, Set[PhysicalScenarioId]],
+      idToScenario: Map[PhysicalTransactionId, PhysicalTransaction],
+      exclusiveScenarios: Map[PhysicalTransactionId, Set[
+        PhysicalTransactionId
+      ]],
       serviceGraph: MGraph,
       isFree: ALit,
       isITF: ALit,
       pbCst: Set[AssertPB],
       simpleCst: Set[SimpleAssert],
       nodeToServices: Map[MNode, Set[Service]],
-      serviceToScenarioLit: Map[Service, Set[PhysicalScenarioId]],
+      serviceToScenarioLit: Map[Service, Set[PhysicalTransactionId]],
       maxSize: Option[Int] = None
   ): Problem =
     new Problem(

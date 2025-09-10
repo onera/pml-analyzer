@@ -1,7 +1,6 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.operators.*
@@ -40,8 +39,8 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     d1 hostedBy (t1)
     d2 hostedBy (t2)
 
-    val tr1: Scenario = Scenario(app1 read d1)
-    val tr2: Scenario = Scenario(app2 read d2)
+    val tr1: Transaction = Transaction(app1 read d1)
+    val tr2: Transaction = Transaction(app2 read d2)
 
     val tr1Id: AtomicTransactionId = AtomicTransactionId(
       Symbol("tr1")
@@ -50,9 +49,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
       Symbol("tr2")
     )
 
-    val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
-
-    val scn: Scenario = Scenario(tr1, tr2)
+    val scn: Transaction = Transaction(tr1, tr2)
   }
 
   import InterfereTestPlatform.{*, given}

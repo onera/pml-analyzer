@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.model.relations
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   AntiReflexiveSymmetricEndomorphism,
   Endomorphism
@@ -47,7 +47,7 @@ object ExclusiveRelation {
       * @group exclusive_relation
       */
     final implicit val userScenarioExclusive
-        : ExclusiveRelation[UserScenarioId] = ExclusiveRelation(Map.empty)
+        : ExclusiveRelation[UserTransactionId] = ExclusiveRelation(Map.empty)
   }
   trait ApplicationInstances {
 

@@ -22,8 +22,8 @@ import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.operators._
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenario,
-  PhysicalScenarioId,
+  PhysicalTransaction,
+  PhysicalTransactionId,
   AtomicTransaction,
   AtomicTransactionId
 }
@@ -63,18 +63,19 @@ trait InterferenceSpecification {
     * @return
     *   the set of scenarios
     */
-  final lazy val purifiedScenarios: Map[PhysicalScenarioId, PhysicalScenario] =
+  final lazy val purifiedScenarios
+      : Map[PhysicalTransactionId, PhysicalTransaction] =
     this match {
       case l: TransactionLibrary =>
         val namedScenarios = l.scenarioByUserName
-          .map(kv => scenarioId(kv._2) -> kv._2)
+          .map(kv => transactionId(kv._2) -> kv._2)
         val anonymousTransaction = purifiedTransactions
           .filter(kv => !namedScenarios.values.exists(_.contains(kv._1)))
-          .map(kv => PhysicalScenarioId(kv._1.id) -> Set(kv._1))
+          .map(kv => PhysicalTransactionId(kv._1.id) -> Set(kv._1))
         namedScenarios ++ anonymousTransaction
       case _ =>
         val anonymousTransaction = purifiedTransactions
-          .map(kv => PhysicalScenarioId(kv._1.id) -> Set(kv._1))
+          .map(kv => PhysicalTransactionId(kv._1.id) -> Set(kv._1))
         anonymousTransaction
     }
 
@@ -146,11 +147,11 @@ trait InterferenceSpecification {
     *   true if they cannot occur simultaneously
     */
   final def finalExclusive(
-      l: PhysicalScenarioId,
-      r: PhysicalScenarioId
+      l: PhysicalTransactionId,
+      r: PhysicalTransactionId
   ): Boolean =
     antiReflexive(l, r) &&
-      symmetric((le: PhysicalScenarioId, re: PhysicalScenarioId) =>
+      symmetric((le: PhysicalTransactionId, re: PhysicalTransactionId) =>
         purifiedScenarios(le).exists(t =>
           purifiedScenarios(re).exists(tp => finalExclusive(t, tp))
         )
@@ -164,8 +165,8 @@ trait InterferenceSpecification {
     *   the map encoding
     */
   final def finalExclusive(
-      s: Set[PhysicalScenarioId]
-  ): Map[PhysicalScenarioId, Set[PhysicalScenarioId]] =
+      s: Set[PhysicalTransactionId]
+  ): Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
     relationToMap(s, (l, r) => finalExclusive(l, r))
 
   // TODO Very dirty, should consider that an affect is a scenario
@@ -241,8 +242,8 @@ trait InterferenceSpecification {
     *   true whether one channel exists
     */
   final def channelNonEmpty(
-      l: Set[PhysicalScenarioId],
-      r: Set[PhysicalScenarioId]
+      l: Set[PhysicalTransactionId],
+      r: Set[PhysicalTransactionId]
   ): Boolean =
     l.flatMap(purifiedScenarios)
       .flatMap(purifiedTransactions)
@@ -260,8 +261,8 @@ trait InterferenceSpecification {
     *   the map encoding
     */
   final def channelNonEmpty(
-      s: Set[Set[PhysicalScenarioId]]
-  ): Map[Set[PhysicalScenarioId], Set[Set[PhysicalScenarioId]]] =
+      s: Set[Set[PhysicalTransactionId]]
+  ): Map[Set[PhysicalTransactionId], Set[Set[PhysicalTransactionId]]] =
     relationToMap(s, (l, r) => channelNonEmpty(l, r))
 
   /** Check if two services interfere with each other
@@ -424,7 +425,7 @@ trait InterferenceSpecification {
 object InterferenceSpecification {
   type Path[A] = List[A]
   type AtomicTransaction = Path[Service]
-  type PhysicalScenario = Set[AtomicTransactionId]
+  type PhysicalTransaction = Set[AtomicTransactionId]
   type Channel = Set[Service]
 
   trait Id extends Ordered[Id] {
@@ -437,14 +438,14 @@ object InterferenceSpecification {
 
   final case class AtomicTransactionId(id: Symbol) extends Id
 
-  final case class PhysicalScenarioId(id: Symbol) extends Id
+  final case class PhysicalTransactionId(id: Symbol) extends Id
 
   final case class PhysicalMultiTransactionId(id: Symbol) extends Id
 
   final case class ChannelId(id: Symbol) extends Id
 
   def multiTransactionId(
-      t: Iterable[PhysicalScenarioId]
+      t: Iterable[PhysicalTransactionId]
   ): PhysicalMultiTransactionId =
     PhysicalMultiTransactionId(
       Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >"))
@@ -456,7 +457,7 @@ object InterferenceSpecification {
     )
 
   def groupedScenarioLitId(
-      s: Set[PhysicalScenarioId]
+      s: Set[PhysicalTransactionId]
   ): PhysicalMultiTransactionId =
     PhysicalMultiTransactionId(
       Symbol(multiTransactionId(s).id.name.replace(" ", ""))

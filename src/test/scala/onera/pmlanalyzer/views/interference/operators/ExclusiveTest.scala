@@ -1,34 +1,19 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification
-}
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import sourcecode.Name
-import org.scalatest.flatspec.AnyFlatSpec
+import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
-// import onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
-// import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.dependability.model.Transition
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
+import sourcecode.Name
 
 import scala.language.postfixOps
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
@@ -61,11 +46,11 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
     d1 hostedBy (t1)
     d2 hostedBy (t2)
 
-    val tr1: Scenario = Scenario(app1 read d1)
-    val tr2: Scenario = Scenario(app2 read d2)
+    val tr1: Transaction = Transaction(app1 read d1)
+    val tr2: Transaction = Transaction(app2 read d2)
 
-    val tr3: Scenario = Scenario(app1 read d1)
-    val tr4: Scenario = Scenario(app2 read d2)
+    val tr3: Transaction = Transaction(app1 read d1)
+    val tr4: Transaction = Transaction(app2 read d2)
 
     i1 link st1
 

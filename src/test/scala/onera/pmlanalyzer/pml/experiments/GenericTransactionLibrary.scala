@@ -56,7 +56,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
   /**
    * General-purpose Cores transactions
    */
-  val basicCoreTransactions: Seq[Seq[Seq[Seq[Seq[Scenario]]]]] =
+  val basicCoreTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
     for { gId <- groupCore.indices } yield for {
       clIdI <- groupCore(gId).clusters.indices
     } yield for { clIdJ <- groupCore(gId).clusters(clIdI).indices } yield for {
@@ -80,12 +80,12 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       /**
        * Cores read from and write to their cluster L2 cache.
        */
-      val readL2 = Scenario(
+      val readL2 = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L2_ld",
         application read cluster.L2
       )
 
-      val storeL2 = Scenario(
+      val storeL2 = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_L2_st",
         application write cluster.L2
       )
@@ -93,19 +93,19 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       /**
        * Cores read from and write to their allocated memory banks.
        */
-      val readBanks: Seq[Scenario] =
+      val readBanks: Seq[Transaction] =
         for (bank <- coreToBanks(core)) yield {
           val bankName = bank.name.name.replace(s"${fullName}_", "").toUpperCase
-          Scenario(
+          Transaction(
             s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_ld",
             application read bank
           )
         }
 
-      val writeBanks: Seq[Scenario] =
+      val writeBanks: Seq[Transaction] =
         for (bank <- coreToBanks(core)) yield {
           val bankName = bank.name.name.replace(s"${fullName}_", "").toUpperCase
-          Scenario(
+          Transaction(
             s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_${bankName}_st",
             application write bank
           )
@@ -134,7 +134,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
   /**
    * DSP Cores transactions
    */
-  val basicDspTransactions: Seq[Seq[Seq[Seq[Seq[Scenario]]]]] =
+  val basicDspTransactions: Seq[Seq[Seq[Seq[Seq[Transaction]]]]] =
     for { gId <- groupDSP.indices } yield for {
       clIdI <- groupDSP(gId).clusters.indices
     } yield for { clIdJ <- groupDSP(gId).clusters(clIdI).indices } yield for {
@@ -148,12 +148,12 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       /**
        * DSP Cores read from and write to their local SRAM.
        */
-      val readSram = Scenario(
+      val readSram = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_SRAM_ld",
         application read sram
       )
 
-      val writeSram = Scenario(
+      val writeSram = Transaction(
         s"t_G${gId}_Cl${clIdI}_${clIdJ}_C${cId}_SRAM_st",
         application write sram
       )
@@ -172,39 +172,39 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
   /**
    * DMA Transactions
    */
-  private val dma_rd_eth = Scenario(app_dma read eth)
-  val basicDmaTransactions: Seq[Scenario] = {
-    val ddrCopies: Seq[Scenario] = for {
+  private val dma_rd_eth = Transaction(app_dma read eth)
+  val basicDmaTransactions: Seq[Transaction] = {
+    val ddrCopies: Seq[Transaction] = for {
       ddr <- ddrs
       (bank, j) <- ddr.banks.zipWithIndex
     } yield {
-      val dma_wr_bank = Scenario(app_dma write bank)
-      Scenario(
+      val dma_wr_bank = Transaction(app_dma write bank)
+      Transaction(
         s"t_dma_st_DDR${ddr.id}_BK${j}",
         dma_rd_eth,
         dma_wr_bank
       )
     }
 
-    val sramCopies: Seq[Scenario] = for {
+    val sramCopies: Seq[Transaction] = for {
       group <- groupDSP
       cluster <- group.clusters.flatten
       sram <- cluster.SRAM
     } yield {
-      val dma_wr_sram = Scenario(app_dma write sram)
-      Scenario(
+      val dma_wr_sram = Transaction(app_dma write sram)
+      Transaction(
         s"t_dma_rd_G${group.id}_Cl${cluster.id}_SRAM${sram.name}",
         dma_rd_eth,
         dma_wr_sram
       )
     }
 
-    val dma_rd_reg = Scenario(app_dma read cfg_bus.dma_reg)
-    val dma_wr_reg = Scenario(app_dma write cfg_bus.dma_reg)
+    val dma_rd_reg = Transaction(app_dma read cfg_bus.dma_reg)
+    val dma_wr_reg = Transaction(app_dma write cfg_bus.dma_reg)
 
     // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
     //  (or tag all `used` during the definition)
-    val dma_rd_config = Scenario(
+    val dma_rd_config = Transaction(
       "t_dma_rd_dma_reg",
       dma_rd_reg,
       dma_wr_reg
