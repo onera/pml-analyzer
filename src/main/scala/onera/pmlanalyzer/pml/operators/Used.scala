@@ -24,7 +24,11 @@ import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransaction, AtomicTransactionId, Path}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  AtomicTransaction,
+  AtomicTransactionId,
+  Path
+}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 
@@ -205,9 +209,11 @@ object Used {
           self
         )
     }
-    extension[T] (y: => T) {
-      
-      def toTransactionParam (using ev: DelayedTransform[T, TransactionParam]): TransactionParam = 
+    extension [T](y: => T) {
+
+      def toTransactionParam(using
+          ev: DelayedTransform[T, TransactionParam]
+      ): TransactionParam =
         ev(y)
     }
 
