@@ -19,8 +19,7 @@ package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform}
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
+import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
@@ -28,7 +27,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 
 trait Transform[L, R] {
-  def apply(l: => L): R
+  def apply(l: L): R
 }
 
 object Transform {
@@ -37,7 +36,7 @@ object Transform {
     self: Platform =>
 
     given [U, V](using t: Transform[U, Option[V]]): Transform[U, Set[V]] with {
-      def apply(l: => U): Set[V] =
+      def apply(l: U): Set[V] =
         t.apply(l) match {
           case Some(value) => Set(value)
           case None        => Set.empty
@@ -48,7 +47,7 @@ object Transform {
       * @group transform_operator
       */
     given Transform[AtomicTransactionId, Option[AtomicTransaction]] with {
-      def apply(l: => AtomicTransactionId): Option[AtomicTransaction] =
+      def apply(l: AtomicTransactionId): Option[AtomicTransaction] =
         atomicTransactionsByName.get(l)
     }
 
@@ -56,7 +55,7 @@ object Transform {
       * @group transform_operator
       */
     given Transform[Application, Set[AtomicTransactionId]] with {
-      def apply(l: => Application): Set[AtomicTransactionId] =
+      def apply(l: Application): Set[AtomicTransactionId] =
         transactionsBySW.getOrElse(l, Set.empty)
     }
   }
@@ -68,7 +67,7 @@ object Transform {
       * @group transform_operator
       */
     given Transform[Scenario, Set[AtomicTransactionId]] with {
-      def apply(l: => Scenario): Set[AtomicTransactionId] =
+      def apply(l: Scenario): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l.userName, Set.empty)
     }
 
@@ -76,49 +75,9 @@ object Transform {
       * @group transform_operator
       */
     given Transform[UserScenarioId, Set[AtomicTransactionId]] with {
-      def apply(l: => UserScenarioId): Set[AtomicTransactionId] =
+      def apply(l: UserScenarioId): Set[AtomicTransactionId] =
         scenarioByUserName.getOrElse(l, Set.empty)
     }
   }
-
-  type TransactionParam =
-    (() => Set[(Service, Service)], () => Set[Application])
-
-  given Transform[Scenario, TransactionParam] with {
-    def apply(a: => Scenario): TransactionParam =
-      (a.iniTgt, a.sw)
-  }
-
-  /** Utility function to convert an a set of application/target service to the
-   * set of initial/target services
-   *
-   * @return
-   * the set of initial/target services and of applications invoking them
-   */
-
-  given applicationUsed[T <: Load | Store](using
-      u: Used[Application, Initiator],
-      p: Provided[Initiator, T]
-  ): Transform[Set[(Application, T)], TransactionParam] with {
-    def apply(a: => Set[(Application, T)]): TransactionParam = (
-      () => {
-        a.flatMap(as =>
-          as._1.hostingInitiators.flatMap(_.provided[T]).map(_ -> as._2)
-        )
-      },
-      () => a.map(_._1)
-    )
-  }
-
-  given initiatorUsed[T <: Load | Store](using
-      p: Provided[Initiator, T]
-  ): Transform[Set[(Initiator, T)], TransactionParam] with {
-    def apply(a: => Set[(Initiator, T)]): TransactionParam =
-      (
-        () => {
-          a.flatMap(as => as._1.provided[T].map(_ -> as._2))
-        },
-        () => Set.empty
-      )
-  }
 }
+

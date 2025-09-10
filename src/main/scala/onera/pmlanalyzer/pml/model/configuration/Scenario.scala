@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.operators.Transform.TransactionParam
+import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import sourcecode.Name
 
 /** Class encoding the defined transactions (not already used)
@@ -86,7 +86,7 @@ object Scenario extends PMLNodeBuilder[Scenario] {
       name: Name,
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario],
-      ev: Transform[A, TransactionParam]
+      ev: DelayedTransform[A, TransactionParam]
   ): Scenario = {
     val result = iniTgt.toTransactionParam
     apply(UserScenarioId(Symbol(name.value)), result._1, result._2)
@@ -107,7 +107,7 @@ object Scenario extends PMLNodeBuilder[Scenario] {
   def apply[A](name: String, iniTgt: => A)(using
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[Scenario],
-      ev: Transform[A, TransactionParam]
+      ev: DelayedTransform[A, TransactionParam]
   ): Scenario = {
     val result = iniTgt.toTransactionParam
     apply(UserScenarioId(Symbol(name)), result._1, result._2)
