@@ -22,7 +22,7 @@ package onera.pmlanalyzer.pml.examples
   *   [[SimpleKeystonePlatform]] for examples of [[pml.model.hardware.Hardware]]
   *   modelling features [[SimpleSoftwareAllocation]] for examples of
   *   [[pml.model.software.Application]] modelling features
-  *   [[SimpleKeystoneTransactionLibrary]] for examples of transaction/scenario
+  *   [[SimpleKeystoneTransactionLibrary]] for examples of transaction
   *   modelling features [[SimpleKeystoneLibraryConfiguration]] for example of
   *   transaction library configuration
   *   [[SimpleKeystoneLibraryConfigurationFull]] for examples of specialisation

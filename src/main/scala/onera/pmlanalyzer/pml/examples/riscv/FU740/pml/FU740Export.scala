@@ -124,8 +124,8 @@ object FU740Export extends App {
     // Export the routing constraints
     p.exportRouteTable()
 
-    // Export the scenarios defined by the user
-    p.exportUserScenarios()
+    // Export the transactions defined by the user
+    p.exportUserTransactions()
 
     // Export the service graph taking into account service interference
     p.exportRestrictedServiceGraphWithInterfere()

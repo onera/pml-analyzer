@@ -194,7 +194,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       p <- platforms
     } {
       p.exportRestrictedHWAndSWGraph()
-      p.exportUserScenarios()
+      p.exportUserTransactions()
     }
   }
 
@@ -326,7 +326,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
         p.fullName -> ExperimentResults(
           p.initiators.size,
           p.targets.size,
-          p.scenarioByUserName.keySet.size,
+          p.transactionByUserName.keySet.size,
           analysisTime,
           semanticsDistribution,
           itf,

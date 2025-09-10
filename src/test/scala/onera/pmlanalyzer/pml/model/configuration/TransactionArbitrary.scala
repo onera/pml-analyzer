@@ -34,7 +34,7 @@ import onera.pmlanalyzer.pml.operators.*
 
 import scala.annotation.targetName
 
-trait ScenarioArbitrary {
+trait TransactionArbitrary {
   self: Platform with TransactionLibrary =>
 
   private lazy val linkedAppToData: Set[(Application, Data)] =
@@ -54,7 +54,7 @@ trait ScenarioArbitrary {
       d <- All[Data]
     } yield app -> d
 
-  private def simpleScenarioGenerator(using
+  private def simpleTransactionGenerator(using
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
   ): Arbitrary[Option[Transaction]] = Arbitrary(
@@ -83,12 +83,12 @@ trait ScenarioArbitrary {
     }
   )
 
-  @targetName("given_Option_Scenario")
+  @targetName("given_Option_Transaction")
   given (using
       r: ReflexiveInfo
   ): Arbitrary[Option[Transaction]] = Arbitrary(
     for {
-      tT <- Gen.nonEmptyListOf(simpleScenarioGenerator.arbitrary)
+      tT <- Gen.nonEmptyListOf(simpleTransactionGenerator.arbitrary)
       name <- Gen.identifier.suchThat(s =>
         Transaction
           .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
@@ -105,7 +105,7 @@ trait ScenarioArbitrary {
     }
   )
 
-  @targetName("given_Option_UserScenario")
+  @targetName("given_Option_UsedTransaction")
   given (using
       arbSc: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo

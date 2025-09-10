@@ -139,10 +139,10 @@ final case class Reaches(graph: MGraph, from: MNode, to: MNode) extends ALit {
 
 class Problem(
     val platform: Platform with InterferenceSpecification,
-    val groupedScenarios: Map[MLit, Set[PhysicalTransactionId]],
+    val groupedTransactions: Map[MLit, Set[PhysicalTransactionId]],
     val litToNodeSet: Map[MLit, Set[Set[MNode]]],
-    val idToScenario: Map[PhysicalTransactionId, PhysicalTransaction],
-    val exclusiveScenarios: Map[PhysicalTransactionId, Set[
+    val idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
+    val exclusiveTransactions: Map[PhysicalTransactionId, Set[
       PhysicalTransactionId
     ]],
     val serviceGraph: MGraph,
@@ -151,12 +151,12 @@ class Problem(
     val pbCst: Set[AssertPB],
     val simpleCst: Set[SimpleAssert],
     val nodeToServices: Map[MNode, Set[Service]],
-    val serviceToScenarioLit: Map[Service, Set[PhysicalTransactionId]],
+    val serviceToTransactionLit: Map[Service, Set[PhysicalTransactionId]],
     val maxSize: Option[Int]
 ) extends ProblemElement {
 
-  private val nodeToScenario =
-    nodeToServices.transform((_, v) => v.flatMap(serviceToScenarioLit))
+  private val nodeToTransaction =
+    nodeToServices.transform((_, v) => v.flatMap(serviceToTransactionLit))
 
   def decodeUserModel(
       physicalModel: Set[PhysicalTransactionId]
@@ -164,12 +164,12 @@ class Problem(
     case _ if physicalModel.isEmpty                  => Set.empty
     case _ if maxSize.exists(physicalModel.size > _) => Set.empty
     case spec: TransactionLibrary =>
-      val scenario = idToScenario.view
+      val transaction = idToTransaction.view
         .filterKeys(physicalModel)
         .toMap
 
-      val userNames = scenario.view
-        .mapValues(spec.scenarioUserName)
+      val userNames = transaction.view
+        .mapValues(spec.transactionUserName)
         .toMap
         .transform((k, v) => if (v.isEmpty) Set(UserTransactionId(k.id)) else v)
 
@@ -180,7 +180,7 @@ class Problem(
             last <- platform match {
               case app: ApplicativeTableBasedInterferenceSpecification =>
                 val x = names.filter(id =>
-                  app.finalUserScenarioExclusive(id).intersect(p).isEmpty
+                  app.finalUserTransactionExclusive(id).intersect(p).isEmpty
                 )
                 x
               case _ => names
@@ -193,13 +193,13 @@ class Problem(
     case _ => Set(physicalModel.map(s => UserTransactionId(s.id)))
   }
 
-  // FIXME Are we integrating exclusive service in the channel even if not used in the scenario?
+  // FIXME Are we integrating exclusive service in the channel even if not used in the transaction?
   def decodeChannel(model: Set[PhysicalTransactionId]): Channel = {
     if (maxSize.exists(model.size > _))
       Set.empty
     else
-      nodeToScenario.keySet
-        .filter(k => model.intersect(nodeToScenario(k)).size >= 2)
+      nodeToTransaction.keySet
+        .filter(k => model.intersect(nodeToTransaction(k)).size >= 2)
         .flatMap(nodeToServices)
   }
 
@@ -209,14 +209,14 @@ class Problem(
   ): Set[Set[PhysicalTransactionId]] = {
     if (maxSize.exists(model.size > _))
       Set.empty
-    else if (model.size == 1 && groupedScenarios(model.head).size == 1) {
+    else if (model.size == 1 && groupedTransactions(model.head).size == 1) {
       Set.empty
-    } else if (model.forall(v => groupedScenarios(v).size == 1)) {
-      Set(model map { v => groupedScenarios(v).head })
+    } else if (model.forall(v => groupedTransactions(v).size == 1)) {
+      Set(model map { v => groupedTransactions(v).head })
     } else {
       val s = Problem.getNewSolver("-decide-theories")
-      val scenarios = model.flatMap(groupedScenarios)
-      val variables = scenarios
+      val transactionIds = model.flatMap(groupedTransactions)
+      val variables = transactionIds
         .map(k => k -> new Lit(s, k.id.name))
         .toMap
       variables.foreach(kv =>
@@ -224,7 +224,7 @@ class Problem(
           implies(
             kv._2,
             and(
-              exclusiveScenarios(kv._1)
+              exclusiveTransactions(kv._1)
                 .intersect(variables.keySet)
                 .map(variables)
                 .map(not)
@@ -235,7 +235,7 @@ class Problem(
       )
       s.assertAnd(
         model
-          .map(groupedScenarios)
+          .map(groupedTransactions)
           .map(st => or(st.map(variables).asJava))
           .asJava
       )
@@ -250,7 +250,7 @@ class Problem(
         model
           .filter(m => litToNodeSet(m).exists(_.nonEmpty))
           .foreach(l =>
-            s.assertAtMostOne(groupedScenarios(l).map(variables).asJava)
+            s.assertAtMostOne(groupedTransactions(l).map(variables).asJava)
           )
       val decodedModels =
         collection.mutable.Set.empty[Set[PhysicalTransactionId]]
@@ -275,7 +275,7 @@ class Problem(
     s.assertTrue(or(isITF.toLit(s), isFree.toLit(s)))
     pbCst.foreach(_.assert(s))
     simpleCst.foreach(_.assert(s))
-    s.assertPB(groupedScenarios.keySet.map(_.toLit(s)).toSeq.asJava, EQ, k)
+    s.assertPB(groupedTransactions.keySet.map(_.toLit(s)).toSeq.asJava, EQ, k)
     s
   }
 }
@@ -283,10 +283,10 @@ class Problem(
 object Problem {
   def apply(
       platform: Platform with InterferenceSpecification,
-      groupedScenarios: Map[MLit, Set[PhysicalTransactionId]],
+      groupedTransactions: Map[MLit, Set[PhysicalTransactionId]],
       litToNodeSet: Map[MLit, Set[Set[MNode]]],
-      idToScenario: Map[PhysicalTransactionId, PhysicalTransaction],
-      exclusiveScenarios: Map[PhysicalTransactionId, Set[
+      idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
+      exclusiveTransactions: Map[PhysicalTransactionId, Set[
         PhysicalTransactionId
       ]],
       serviceGraph: MGraph,
@@ -295,22 +295,22 @@ object Problem {
       pbCst: Set[AssertPB],
       simpleCst: Set[SimpleAssert],
       nodeToServices: Map[MNode, Set[Service]],
-      serviceToScenarioLit: Map[Service, Set[PhysicalTransactionId]],
+      serviceToTransactionLit: Map[Service, Set[PhysicalTransactionId]],
       maxSize: Option[Int] = None
   ): Problem =
     new Problem(
       platform,
-      groupedScenarios,
+      groupedTransactions,
       litToNodeSet,
-      idToScenario,
-      exclusiveScenarios,
+      idToTransaction,
+      exclusiveTransactions,
       serviceGraph,
       isFree,
       isITF,
       pbCst,
       simpleCst,
       nodeToServices,
-      serviceToScenarioLit,
+      serviceToTransactionLit,
       maxSize
     )
 

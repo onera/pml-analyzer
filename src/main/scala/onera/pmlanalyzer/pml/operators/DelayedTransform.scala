@@ -26,7 +26,7 @@ trait DelayedTransform[L, R] {
 
   /**
    * By-name implementation of transform
-   * Note that it is MANDATORY for Scenario definition since
+   * Note that it is MANDATORY for transaction definition since
    * its iniTgt and sw parameters should be evaluated only when triggering used keyword
    * @param l by-name value L to transform into R
    * @return the resulting R

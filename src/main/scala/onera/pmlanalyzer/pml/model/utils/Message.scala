@@ -51,19 +51,21 @@ object Message {
        |${transactions.map(_.mkString("<->")).mkString("\n")}""".stripMargin
   }
 
-  inline def impossibleScenarioWarning(userName: UserTransactionId): String =
-    s"[WARNING] The physical scenario $userName is not possible, check your link and route constraints"
+  inline def impossibleTransactionWarning(userName: UserTransactionId): String =
+    s"[WARNING] The physical transaction $userName is not possible, check your link and route constraints"
 
-  inline def multiPathScenarioWarning(
+  inline def multiPathTransactionWarning(
       userName: UserTransactionId,
       list: Iterable[(AtomicTransactionId, AtomicTransaction)]
   ): String =
-    s"""[WARNING] Some transactions in scenario $userName addresses multiple physical transactions:
+    s"""[WARNING] Some atomic transactions in transaction $userName addresses multiple physical transactions:
        |${list.map(_._1).mkString("\n")}
-       |all paths will be considered in the scenario, consider routing constraints to avoid multi-path""".stripMargin
+       |all paths will be considered in the transaction, consider routing constraints to avoid multi-path""".stripMargin
 
-  inline def scenarioNotInLibraryWarning(name: PhysicalTransactionId): String =
-    s"[WARNING] The physical scenario $name is considered but not defined in the library"
+  inline def transactionNotInLibraryWarning(
+      name: PhysicalTransactionId
+  ): String =
+    s"[WARNING] The physical transaction $name is considered but not defined in the library"
 
   inline def applicationNotUsingServicesWarning(a: Application): String =
     s"[WARNING] $a is not using any service"
@@ -104,14 +106,16 @@ object Message {
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
     s"[INFO] $platform MonoSat model successfully built in $time s"
 
-  inline def startingNonExclusiveScenarioEstimationInfo(platform: Any): String =
-    s"[INFO] Starting  $platform estimation of number of non exclusive scenarios"
+  inline def startingNonExclusiveTransactionEstimationInfo(
+      platform: Any
+  ): String =
+    s"[INFO] Starting  $platform estimation of number of non exclusive transactions"
 
-  inline def successfulNonExclusiveScenarioEstimationInfo(
+  inline def successfulNonExclusiveMultiTransactionEstimationInfo(
       platform: Any,
       time: Any
   ): String =
-    s"[INFO] $platform estimation of number of non exclusive scenarios completed in $time s"
+    s"[INFO] $platform estimation of number of non exclusive transactions completed in $time s"
 
   inline def iterationCompletedInfo(i: Any, n: Any, time: Any): String =
     s"[INFO] Iteration $i / $n completed in $time s"
@@ -125,9 +129,9 @@ object Message {
       over: Option[Map[Int, BigInt]]
   ): String =
     s"""[INFO] Interference ${if (isFree) "free " else ""}computed so far
-         |${printScenarioNumber(computed, over)}""".stripMargin
+         |${printMultiTransactionNumber(computed, over)}""".stripMargin
 
-  inline def printScenarioNumber(
+  inline def printMultiTransactionNumber(
       computed: mutable.Map[Int, BigInt],
       over: Option[Map[Int, BigInt]]
   ): String = {

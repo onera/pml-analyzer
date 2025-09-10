@@ -34,52 +34,50 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 trait TransactionLibrary extends Transform.TransactionLibraryInstances {
   self: Platform =>
 
-  /** Map from the user defined scenario to the physical transaction id WARNING:
-    * this lazy variable can be called ONLY AFTER TRANSACTION/SCENARIO
+  /** Map from the user defined transaction to the physical transaction id WARNING:
+    * this lazy variable can be called ONLY AFTER TRANSACTION
     * DEFINITION
-    * @group user_scenario_relation
+    * @group user_transaction_relation
     */
-  final lazy val scenarioByUserName
+  final lazy val transactionByUserName
       : Map[UserTransactionId, Set[AtomicTransactionId]] = {
     UsedTransaction.all
       .map(u => u.userName -> u.toPhysical(atomicTransactionsByName))
       .groupMapReduce(_._1)(_._2)(_ ++ _)
   }
 
-  /** Map from the physical scenario id (set of transaction id) to the user
-    * defined scenario(s) It is possible that a scenario is linked to several
-    * (or none) user defined scenarios WARNING: this lazy variable can be called
-    * ONLY AFTER TRANSACTION/SCENARIO DEFINITION
-    * @group user_scenario_relation
+  /** Map from the atomic transaction ids to the user
+    * defined transaction(s) It is possible that a transaction is linked to several
+    * (or none) user defined transactions WARNING: this lazy variable can be called
+    * ONLY AFTER TRANSACTION DEFINITION
+    * @group user_transaction_relation
     */
-  final lazy val scenarioUserName
+  final lazy val transactionUserName
       : Map[Set[AtomicTransactionId], Set[UserTransactionId]] = {
-    val result = scenarioByUserName.keySet
-      .groupMap(k => scenarioByUserName(k))(k => k)
+    val result = transactionByUserName.keySet
+      .groupMap(k => transactionByUserName(k))(k => k)
       .withDefaultValue(Set.empty)
     checkLibrary(result)
     result
   }
 
-  /** Map from the used scenario and the application involved in these scenarios
-    * WARNING: this lazy variable can be called ONLY AFTER TRANSACTION/SCENARIO
+  /** Map from the used transaction and the application involved in these transactions
+    * WARNING: this lazy variable can be called ONLY AFTER TRANSACTION
     * DEFINITION
-    * @group user_scenario_relation
+    * @group user_transaction_relation
     */
-  final lazy val scenarioSW: Map[UserTransactionId, Set[Application]] = {
+  final lazy val transactionSW: Map[UserTransactionId, Set[Application]] = {
     UsedTransaction.all
       .map(k => k.userName -> k.sw)
       .groupMapReduce(_._1)(_._2)(_ ++ _)
   }
 
-  /** Check the transaction and scenario libraries w.r.t. the transactions
+  /** Check the transaction libraries w.r.t. the transactions
     * computed with the actual the ideal (but not requested situation) is
     * one-to-one libraries definition of the platform
     * @group utilFun
-    * @param tMap
-    *   the transaction library to check
     * @param sMap
-    *   the scenario library to check
+    *   the transaction library to check
     */
   final def checkLibrary(
       sMap: Map[Set[AtomicTransactionId], Set[UserTransactionId]]
@@ -87,10 +85,10 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
     this match {
       case i: InterferenceSpecification =>
         for (
-          (s, st) <- i.purifiedScenarios
+          (s, st) <- i.purifiedTransactions
           if !sMap.contains(st) || sMap(st).isEmpty
         ) {
-          println(Message.scenarioNotInLibraryWarning(s))
+          println(Message.transactionNotInLibraryWarning(s))
         }
     }
   }
@@ -98,9 +96,9 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
 
 object TransactionLibrary {
 
-  /** User id of scenarios
+  /** User id of transactions
     * @param id
-    *   name of the scenario
+    *   name of the transaction
     */
   final case class UserTransactionId(id: Symbol) {
     override def toString: String = id.name

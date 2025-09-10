@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
 import onera.pmlanalyzer.pml.model.configuration.{
-  ScenarioArbitrary,
+  TransactionArbitrary,
   TransactionLibrary
 }
 import onera.pmlanalyzer.pml.model.hardware.CompositeArbitrary.given
@@ -37,8 +37,9 @@ import sourcecode.{File, Line}
 
 object PlatformArbitrary {
 
-  type PopulatedPlatform = Platform & ScenarioArbitrary & PMLNodeSetArbitrary &
-    LinkRelationArbitrary & UseRelationArbitrary & RoutingRelationArbitrary
+  type PopulatedPlatform = Platform & TransactionArbitrary &
+    PMLNodeSetArbitrary & LinkRelationArbitrary & UseRelationArbitrary &
+    RoutingRelationArbitrary
 
   given (using
       conf: ArbitraryConfiguration,
@@ -61,7 +62,7 @@ object PlatformArbitrary {
           with VirtualizerArbitrary
           with TransporterArbitrary
 //          with TransactionArbitrary
-          with ScenarioArbitrary
+          with TransactionArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary

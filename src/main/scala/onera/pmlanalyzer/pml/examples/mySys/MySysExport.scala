@@ -74,7 +74,7 @@ object MySysExport extends App {
   MySys.exportDeactivatedComponents()
 
   // Export the transactions defined by the user
-  MySys.exportUserScenarios()
+  MySys.exportUserTransactions()
 
   MySys.exportSemanticsSize()
 

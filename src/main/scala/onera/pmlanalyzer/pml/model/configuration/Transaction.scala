@@ -28,14 +28,14 @@ import sourcecode.Name
 
 /** Class encoding the defined transactions (not already used)
  *
- * @group scenario_class
+ * @group transaction_class
     * @param userName
     *   the name of the node
     * @param iniTgt
     *   a by-name value providing the origin-destination service couples of the
-    *   scenario (not evaluated during the object initialisation)
+    *   transaction (not evaluated during the object initialisation)
     * @param sw
-    *   the application that can use this scenario
+    *   the application that can use this transaction
     */
 final class Transaction private (
     val userName: UserTransactionId,
@@ -53,7 +53,7 @@ final class Transaction private (
   /** Consider the transaction for the analysis
       *
       * @return
-      *   the used scenario class
+      *   the used transaction class
       */
   def used(using
       givenInfo: ReflexiveInfo,
@@ -64,7 +64,7 @@ final class Transaction private (
 
 /** Builder of platform [[Transaction]]
  *
- * @group scenario_class
+ * @group transaction_class
     */
 object Transaction extends PMLNodeBuilder[Transaction] {
 
@@ -114,16 +114,16 @@ object Transaction extends PMLNodeBuilder[Transaction] {
     apply(UserTransactionId(Symbol(name)), result._1, result._2)
   }
 
-  /** Build a Scenario from a bunch of transactions, this should not be used
+  /** Build a transaction from a bunch of transactions, this should not be used
       * with anonymous transaction
       *
       * @param tail
       *   the set of transactions
       * @param name
-      *   the implicit name of the scenario (same as the variable used to refer
+      *   the implicit name of the transaction (same as the variable used to refer
       *   to it)
       * @return
-      *   a scenario
+      *   a transaction
       */
   def apply(
       head: Transaction,
@@ -155,18 +155,16 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       }
     )
 
-  /** Main constructor of a scenario, note that scenarios are memoized, so if
+  /** Main constructor of a transaction, note that transactions are memoized, so if
       * the same name is used in the same platform the constructor will send
-      * back the previous definition of the scenario
+      * back the previous definition of the transaction
       *
       * @param name
-      *   the name of the scenario
+      *   the name of the transaction
       * @param iniTgt
-      *   the set of initial/target services defining the scenario
+      *   the set of initial/target services defining the transaction
       * @param sw
-      *   the applications that may invoke this scenario
-      * @param owner
-      *   the owner of the transaction (the platform)
+      *   the applications that may invoke this transaction
       * @return
       *   the transaction (not used for now)
       */
