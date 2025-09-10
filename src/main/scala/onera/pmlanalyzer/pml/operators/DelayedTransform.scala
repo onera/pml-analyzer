@@ -23,6 +23,7 @@ import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 
 trait DelayedTransform[L, R] {
+
   /**
    * By-name implementation of transform
    * Note that it is MANDATORY for Scenario definition since
@@ -50,9 +51,9 @@ object DelayedTransform {
    */
 
   given applicationUsed[T <: Load | Store](using
-                                           u: Used[Application, Initiator],
-                                           p: Provided[Initiator, T]
-                                          ): DelayedTransform[Set[(Application, T)], TransactionParam] with {
+      u: Used[Application, Initiator],
+      p: Provided[Initiator, T]
+  ): DelayedTransform[Set[(Application, T)], TransactionParam] with {
     def apply(a: => Set[(Application, T)]): TransactionParam = (
       () => {
         a.flatMap(as =>
@@ -64,8 +65,8 @@ object DelayedTransform {
   }
 
   given initiatorUsed[T <: Load | Store](using
-                                         p: Provided[Initiator, T]
-                                        ): DelayedTransform[Set[(Initiator, T)], TransactionParam] with {
+      p: Provided[Initiator, T]
+  ): DelayedTransform[Set[(Initiator, T)], TransactionParam] with {
     def apply(a: => Set[(Initiator, T)]): TransactionParam =
       (
         () => {
