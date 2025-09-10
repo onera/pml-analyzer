@@ -73,8 +73,9 @@ object InterferenceTestExtension {
             List(fileITF, fileFree)
               .zip(List(rITFFile, rFreeFile))
               .flatMap(p => {
-                val expected = PostProcess.parseScenarioFile(p._1)
-                val found = PostProcess.parseScenarioFile(Source.fromFile(p._2))
+                val expected = PostProcess.parseMultiTransactionFile(p._1)
+                val found =
+                  PostProcess.parseMultiTransactionFile(Source.fromFile(p._2))
                 expected.diff(found).map(s => Missing(s)) ++ found
                   .diff(expected)
                   .map(s => Unknown(s))

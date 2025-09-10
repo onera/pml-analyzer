@@ -244,20 +244,20 @@ object RelationExporter {
         new FileWriter(file)
       }
 
-      private val scenarioTable: String =
-        platform.fullName + "UserScenarioTable.txt"
+      private val transactionTable: String =
+        platform.fullName + "UserTransactionTable.txt"
 
-      /** Export the scenarios used by a platform FORMAT: Scenario Name,
-        * Scenario Path (scenario_name, service_name(.service_name)*)+
+      /** Export the transactions used by a platform FORMAT: Transaction Name,
+        * Transaction Path (transaction_name, service_name(.service_name)*)+
         */
-      def exportUserScenarios(): Unit = {
-        val writer = getWriter(scenarioTable)
+      def exportUserTransactions(): Unit = {
+        val writer = getWriter(transactionTable)
         writer.write(
-          "Scenario Name, Scenario Path, SourceCodeFile, SourceCodeLine\n"
+          "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
           sc <- Transaction.all
-          s <- scenarioByUserName.get(sc.userName)
+          s <- transactionByUserName.get(sc.userName)
           t = s
             .map(atomicTransactionsByName)
             .map(x =>

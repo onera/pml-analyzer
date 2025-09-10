@@ -39,11 +39,11 @@ import scala.math.Ordering.Implicits._
 private[operators] trait PostProcess[-T] {
   def interferenceDiff(x: T, that: Platform): Seq[File]
 
-  def parseITFScenarioFile(x: T): Array[Seq[String]]
+  def parseITFMultiTransactionFile(x: T): Array[Seq[String]]
 
-  def parseITFScenarioFile(x: T, n: Int): Array[Seq[String]]
+  def parseITFMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
 
-  def parseFreeScenarioFile(x: T, n: Int): Array[Seq[String]]
+  def parseFreeMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
 
   def sortPLByITFImpact(x: T, max: Option[Int]): Future[Set[File]]
 
@@ -63,14 +63,14 @@ object PostProcess {
     * If y is a [[pml.model.hardware.Platform]] then we can compare the
     * interferences computed for x and y {{{x.interferenceDiff(y)}}} Try to find
     * and parse itf results for the considered element
-    * {{{x.parseITFScenarioFile()}}} Try to find and parse the n-itf results for
-    * the considered element {{{x.parseITFScenarioFile(n)}}} Try to find and
+    * {{{x.parseITFMultiTransactionFile()}}} Try to find and parse the n-itf results for
+    * the considered element {{{x.parseITFMultiTransactionFile(n)}}} Try to find and
     * parse the n-itf-free results for the considered element
-    * {{{x.parseFreeScenarioFile(n)}}} Compute for each hardware component the
-    * number of up to n-itf scenario where the component is involved in the
+    * {{{x.parseFreeMultiTransactionFile(n)}}} Compute for each hardware component the
+    * number of up to n-itf where the component is involved in the
     * interference channel. The result is provided in a file of the analysis
     * directory {{{x.sortPLByITFImpact(n)}}} Compute for each multi path
-    * transaction the number of up to itf scenario involving at least one of its
+    * transaction the number of up to itf involving at least one of its
     * branches The result is provided in a file of the analysis directory
     * {{{x.sortMultiPathByITFImpact(n)}}}
     */
@@ -97,40 +97,39 @@ object PostProcess {
         * @param ev
         *   the proof that any element of T is analysable
         * @return
-        *   the set of set of scenario identifiers that are interference
-        *   scenarios
+        *   the set of multi-transaction identifiers that are n-itf
         */
-      def parseITFScenarioFile()(using ev: PostProcess[T]): Array[Seq[String]] =
-        ev.parseITFScenarioFile(self)
+      def parseITFMultiTransactionFile()(using
+          ev: PostProcess[T]
+      ): Array[Seq[String]] =
+        ev.parseITFMultiTransactionFile(self)
 
       /** Try to find and parse the n-itf results for the considered element
         * @param n
-        *   the maximal size of transaction per itf scenario
+        *   the maximal size of transaction per itf
         * @param ev
         *   the proof that any element of T is analysable
         * @return
-        *   the set of set of scenario identifiers that are interference
-        *   scenarios
+        *   the set of multi-transaction identifiers that are n-itf
         */
-      def parseITFScenarioFile(n: Int)(using
+      def parseITFMultiTransactionFile(n: Int)(using
           ev: PostProcess[T]
-      ): Array[Seq[String]] = ev.parseITFScenarioFile(self, n)
+      ): Array[Seq[String]] = ev.parseITFMultiTransactionFile(self, n)
 
       /** Try to find and parse the n-itf-free results for the considered
         * element
         * @param n
-        *   the maximal size of transaction per itf scenario
+        *   the maximal size of transaction per itf-free
         * @param ev
         *   the proof that any element of T is analysable
         * @return
-        *   the set of set of scenario identifiers that are interference free
-        *   scenarios
+        *   the set of multi-transaction identifiers that are interference free
         */
-      def parseFreeScenarioFile(n: Int)(using
+      def parseFreeMultiTransactionFile(n: Int)(using
           ev: PostProcess[T]
-      ): Array[Seq[String]] = ev.parseFreeScenarioFile(self, n)
+      ): Array[Seq[String]] = ev.parseFreeMultiTransactionFile(self, n)
 
-      /** Compute for each hardware component the number of itf scenario where
+      /** Compute for each hardware component the number of itf where
         * the component is involved in the interference channel The result is
         * provided in a file of the analysis directory
         * @param max
@@ -145,7 +144,7 @@ object PostProcess {
       ): Set[File] =
         Await.result(ev.sortPLByITFImpact(self, max), Duration.Inf)
 
-      /** Compute for each multi path transaction the number of itf scenario
+      /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
         * file of the analysis directory
         * @param max
@@ -186,8 +185,8 @@ object PostProcess {
         )
         val sThisITF = Source.fromFile(thisITFFile)
         val sThatITF = Source.fromFile(thatITFFile)
-        val thisITF = parseScenarioFile(sThisITF)
-        val thatITF = parseScenarioFile(sThatITF)
+        val thisITF = parseMultiTransactionFile(sThisITF)
+        val thatITF = parseMultiTransactionFile(sThatITF)
         sThatITF.close()
         sThisITF.close()
         val thisDiffThat = thisITF.diff(thatITF).sorted
@@ -223,13 +222,15 @@ object PostProcess {
       }
     }
 
-    def parseITFScenarioFile(x: ConfiguredPlatform): Array[Seq[String]] =
+    def parseITFMultiTransactionFile(
+        x: ConfiguredPlatform
+    ): Array[Seq[String]] =
       for {
         k <- (2 to x.initiators.size).toArray
-        sc <- parseITFScenarioFile(x, k)
+        sc <- parseITFMultiTransactionFile(x, k)
       } yield sc
 
-    def parseITFScenarioFile(
+    def parseITFMultiTransactionFile(
         x: ConfiguredPlatform,
         n: Int
     ): Array[Seq[String]] = {
@@ -239,19 +240,21 @@ object PostProcess {
         )
       } yield {
         val s = Source.fromFile(file)
-        val result = parseScenarioFile(s)
+        val result = parseMultiTransactionFile(s)
         s.close()
         result
       }
     } getOrElse Array.empty
 
-    def parseFreeScenarioFile(x: ConfiguredPlatform): Array[Seq[String]] =
+    def parseFreeMultiTransactionFile(
+        x: ConfiguredPlatform
+    ): Array[Seq[String]] =
       for {
         k <- (2 to x.initiators.size).toArray
-        sc <- parseFreeScenarioFile(x, k)
+        sc <- parseFreeMultiTransactionFile(x, k)
       } yield sc
 
-    def parseFreeScenarioFile(
+    def parseFreeMultiTransactionFile(
         x: ConfiguredPlatform,
         n: Int
     ): Array[Seq[String]] = {
@@ -261,7 +264,7 @@ object PostProcess {
         )
       } yield {
         val s = Source.fromFile(file)
-        val result = parseScenarioFile(s)
+        val result = parseMultiTransactionFile(s)
         s.close()
         result
       }
@@ -304,7 +307,7 @@ object PostProcess {
     ): Map[Hardware, Int] = {
       import x._
       val results = parseChannel(Source.fromFile(file))
-      val plByScenario = results
+      val plByMultiTransaction = results
         .map(p =>
           p._1
             .flatMap(s =>
@@ -313,7 +316,8 @@ object PostProcess {
             .toSet -> p._2
         )
       x.directHardware.foldLeft(Map.empty[Hardware, Int])((localMap, pl) => {
-        val impacted = plByScenario.filter(_._1.contains(pl)).map(_._2).sum
+        val impacted =
+          plByMultiTransaction.filter(_._1.contains(pl)).map(_._2).sum
         if (impacted > 0)
           localMap.updated(pl, localMap.getOrElse(pl, 0) + impacted)
         else
@@ -355,10 +359,11 @@ object PostProcess {
               x.multiPathsTransactions.flatMap(s => {
                 val transactionNames = s.map(x.atomicTransactionsName)
                 (for {
-                  scenarios <- c.scenarioUserName.get(transactionNames)
-                  if scenarios.nonEmpty
+                  userTransactionIds <- c.transactionUserName
+                    .get(transactionNames)
+                  if userTransactionIds.nonEmpty
                 } yield {
-                  scenarios.map(x => Set(x.toString))
+                  userTransactionIds.map(x => Set(x.toString))
                 }) getOrElse Set(transactionNames.map(_.toString))
               })
             case _ =>
@@ -377,7 +382,7 @@ object PostProcess {
               val writer = new FileWriter(file)
               writer.write({
                 val source = Source.fromFile(file)
-                val itf = parseScenarioFile(source)
+                val itf = parseMultiTransactionFile(source)
                 source.close()
                 multiPathsTransactions
                   .groupMapReduce(k => k)(k =>
@@ -429,14 +434,14 @@ object PostProcess {
       }
     }
 
-    // FIXME If using a transaction library, the ids are UserScenarios and not PhysicalScenarios, need to know the difference
-    // to retrieve the scenarios used by a sw
+    // FIXME If using a transaction library, the ids are UserTransaction and not PhysicalTransaction, need to know the difference
+    // to retrieve the transactions used by a sw
     private def SWInvolvedInITF(
         x: ConfiguredPlatform,
         file: File
     ): Map[Set[Application], Int] = {
-      val results = parseScenarioFile(Source.fromFile(file))
-      val swByScenario = results
+      val results = parseMultiTransactionFile(Source.fromFile(file))
+      val swByMultiTransaction = results
         .map(
           _.flatMap(s =>
             x.applications.filter(sw =>
@@ -444,7 +449,7 @@ object PostProcess {
             )
           ).toSet
         )
-      swByScenario.groupMapReduce(s => s)(_ => 1)(_ + _)
+      swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
     }
   }
 
@@ -509,7 +514,7 @@ object PostProcess {
     }
   }
 
-  def parseScenarioFile(source: BufferedSource): Array[Seq[String]] = {
+  def parseMultiTransactionFile(source: BufferedSource): Array[Seq[String]] = {
     val res = source
       .getLines()
       .filter(_.head == '<')

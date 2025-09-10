@@ -63,20 +63,20 @@ object Transform {
   trait TransactionLibraryInstances {
     self: TransactionLibrary & Platform =>
 
-    /** Convert a user defined scenario to the set of its physical scenario ids
+    /** Convert a user defined transaction to the set of its atomic transaction ids
       * @group transform_operator
       */
     given Transform[Transaction, Set[AtomicTransactionId]] with {
       def apply(l: Transaction): Set[AtomicTransactionId] =
-        scenarioByUserName.getOrElse(l.userName, Set.empty)
+        transactionByUserName.getOrElse(l.userName, Set.empty)
     }
 
-    /** Convert a user scenario id to the set of its physical scenario ids
+    /** Convert a user transaction id to the set of its atomic transaction ids
       * @group transform_operator
       */
     given Transform[UserTransactionId, Set[AtomicTransactionId]] with {
       def apply(l: UserTransactionId): Set[AtomicTransactionId] =
-        scenarioByUserName.getOrElse(l, Set.empty)
+        transactionByUserName.getOrElse(l, Set.empty)
     }
   }
 }

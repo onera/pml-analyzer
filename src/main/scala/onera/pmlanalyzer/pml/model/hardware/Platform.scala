@@ -154,9 +154,9 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
   /** Build the transaction id as "at_1|...|at_n"
     *
     * @param s
-    *   the set of physical transactions forming the scenario
+    *   the set of atomic transactions forming the transaction
     * @return
-    *   the unique id of the scenario
+    *   the unique id of the transaction
     */
   final def transactionId(s: PhysicalTransaction): PhysicalTransactionId =
     _transactionId.getOrElseUpdate(

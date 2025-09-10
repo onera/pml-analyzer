@@ -66,9 +66,9 @@ object GraphExporter {
 
         val serviceAssociations = for {
           s <- it
-          t <- self.purifiedScenarios(s)
+          t <- self.purifiedTransactions(s)
           l = self
-            .purifiedTransactions(t)
+            .purifiedAtomicTransactions(t)
             .sliding(2)
             .collect { case Seq(f, t) => f -> t }
             .toList
@@ -78,8 +78,8 @@ object GraphExporter {
         } yield as
 
         val services = it
-          .flatMap(self.purifiedScenarios)
           .flatMap(self.purifiedTransactions)
+          .flatMap(self.purifiedAtomicTransactions)
 
         val interfereAssociations =
           (for {

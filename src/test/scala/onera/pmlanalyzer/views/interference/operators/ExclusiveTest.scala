@@ -78,11 +78,11 @@ class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 
   "Two transaction" should "be able to be exclusive from each other" taggedAs UnitTests in {
     tr1 exclusiveWith tr2
-    userScenarioExclusive(tr1.userName) should contain(tr2.userName)
+    userTransactionExclusive(tr1.userName) should contain(tr2.userName)
   }
 
   "Two user transaction Id" should "be able to be exclusive" taggedAs UnitTests in {
     tr3.userName exclusiveWith tr4.userName
-    userScenarioExclusive(tr3.userName) should contain(tr4.userName)
+    userTransactionExclusive(tr3.userName) should contain(tr4.userName)
   }
 }

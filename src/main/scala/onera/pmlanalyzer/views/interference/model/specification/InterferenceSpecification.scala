@@ -39,42 +39,29 @@ trait InterferenceSpecification {
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction_relation
     */
-  final lazy val purifiedTransactions
+  final lazy val purifiedAtomicTransactions
       : Map[AtomicTransactionId, AtomicTransaction] =
     this.atomicTransactionsByName.transform((k, _) => purify(k))
 
-  /** Map from the service sequence representation to their id WARNING: this
-    * lazy variable MUST NOT be called during platform object initialisation
+  /** compute the considered transactions depending on the configuration and the
+    * (optional) library, a transaction is either: a named and used transaction
+    * (e.g. val t = Transaction(a read b); t.used) or an anonymous transaction (e.g. a read b)
     * @group transaction_relation
-    */
-  final lazy val purifiedTransactionsName
-      : Map[AtomicTransaction, AtomicTransactionId] =
-    purifiedTransactions.groupMapReduce(_._2)(_._1)((l, _) => l)
-
-  /** compute the considered scenarios depending on the configuration and the
-    * (optional) library, a scenario is either: a named and used transaction
-    * (e.g. val t = Transaction(a read b); t.used) a named and used scenario
-    * (e.g. val s = Scenario(t1, t2); s.used) an anonymous copy (e.g. a copy r
-    * on s) an anonymous transaction (e.g. a read b) not already involved in a
-    * copy, a named scenario or a named transaction WARNING this will discard an
-    * anonymous transaction defined inside and outside a copy, this issue does
-    * not occur if we keep the segregation Smart/NonSmart
-    * @group scenario_relation
     * @return
-    *   the set of scenarios
+    *   the set of transactions
     */
-  final lazy val purifiedScenarios
+  final lazy val purifiedTransactions
       : Map[PhysicalTransactionId, PhysicalTransaction] =
     this match {
       case l: TransactionLibrary =>
-        val namedScenarios = l.scenarioByUserName
+        val namedTransactions = l.transactionByUserName
           .map(kv => transactionId(kv._2) -> kv._2)
-        val anonymousTransaction = purifiedTransactions
-          .filter(kv => !namedScenarios.values.exists(_.contains(kv._1)))
+        val anonymousTransaction = purifiedAtomicTransactions
+          .filter(kv => !namedTransactions.values.exists(_.contains(kv._1)))
           .map(kv => PhysicalTransactionId(kv._1.id) -> Set(kv._1))
-        namedScenarios ++ anonymousTransaction
+        namedTransactions ++ anonymousTransaction
       case _ =>
-        val anonymousTransaction = purifiedTransactions
+        val anonymousTransaction = purifiedAtomicTransactions
           .map(kv => PhysicalTransactionId(kv._1.id) -> Set(kv._1))
         anonymousTransaction
     }
@@ -119,12 +106,12 @@ trait InterferenceSpecification {
   final def finalInterfereWith(l: Hardware, r: Hardware): Boolean =
     antiReflexive(l, r) && symmetric[Hardware](interfereWith)(l, r)
 
-  /** Check whether two transaction will not occur simultaneously
+  /** Check whether two atomic transaction will not occur simultaneously
     * @group exclusive_predicate
     * @param l
-    *   the left transaction
+    *   the left atomic transaction
     * @param r
-    *   the right transaction
+    *   the right atomic transaction
     * @return
     *   true if they cannot occur simultaneously
     */
@@ -137,12 +124,12 @@ trait InterferenceSpecification {
     )(l, r)
   }
 
-  /** Check whether two scenarios will not occur simultaneously
+  /** Check whether two transactions will not occur simultaneously
     * @group exclusive_predicate
     * @param l
-    *   the left scenarios
+    *   the left transaction
     * @param r
-    *   the right scenarios
+    *   the right transaction
     * @return
     *   true if they cannot occur simultaneously
     */
@@ -152,15 +139,15 @@ trait InterferenceSpecification {
   ): Boolean =
     antiReflexive(l, r) &&
       symmetric((le: PhysicalTransactionId, re: PhysicalTransactionId) =>
-        purifiedScenarios(le).exists(t =>
-          purifiedScenarios(re).exists(tp => finalExclusive(t, tp))
+        purifiedTransactions(le).exists(t =>
+          purifiedTransactions(re).exists(tp => finalExclusive(t, tp))
         )
       )(l, r)
 
   /** Provide the map encoding of finalInterfereWith
     * @group exclusive_predicate
     * @param s
-    *   the set of scenario
+    *   the set of transactions
     * @return
     *   the map encoding
     */
@@ -169,7 +156,6 @@ trait InterferenceSpecification {
   ): Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
     relationToMap(s, (l, r) => finalExclusive(l, r))
 
-  // TODO Very dirty, should consider that an affect is a scenario
   /** Add the services of transactionInterfereWith to the path and remove the
     * ones of transactionNotInterfereWith
     * @group utilFun
@@ -232,12 +218,12 @@ trait InterferenceSpecification {
   }
 
   /** Check if it exists at least one common service used by two set of
-    * scenarios
+    * transactions
     * @group utilFun
     * @param l
-    *   the left set of scenarios
+    *   the left set of transactions
     * @param r
-    *   the right set of scenarios
+    *   the right set of transactions
     * @return
     *   true whether one channel exists
     */
@@ -245,18 +231,18 @@ trait InterferenceSpecification {
       l: Set[PhysicalTransactionId],
       r: Set[PhysicalTransactionId]
   ): Boolean =
-    l.flatMap(purifiedScenarios)
-      .flatMap(purifiedTransactions)
+    l.flatMap(purifiedTransactions)
+      .flatMap(purifiedAtomicTransactions)
       .exists(ls =>
-        r.flatMap(purifiedScenarios)
-          .flatMap(purifiedTransactions)
+        r.flatMap(purifiedTransactions)
+          .flatMap(purifiedAtomicTransactions)
           .exists(rs => ls == rs || finalInterfereWith(ls, rs))
       )
 
   /** Provide the map encoding of channelNonEmpty
     * @group utilFun
     * @param s
-    *   the set of gathered scenarios
+    *   the set of gathered transactions
     * @return
     *   the map encoding
     */
@@ -376,11 +362,11 @@ trait InterferenceSpecification {
       in: Set[AtomicTransactionId]
   ): Set[Service] =
     (for {
-      ts <- purifiedTransactions.get(t)
+      ts <- purifiedAtomicTransactions.get(t)
       ss = ts.toSet
     } yield {
       in
-        .flatMap(purifiedTransactions.get)
+        .flatMap(purifiedAtomicTransactions.get)
         .flatMap(tp => tp.toSet.intersect(ss))
     }) getOrElse Set.empty
 
@@ -456,7 +442,7 @@ object InterferenceSpecification {
       Symbol(t.map(_.toString).toArray.sorted.mkString("{ ", ", ", " }"))
     )
 
-  def groupedScenarioLitId(
+  def groupedTransactionsLitId(
       s: Set[PhysicalTransactionId]
   ): PhysicalMultiTransactionId =
     PhysicalMultiTransactionId(

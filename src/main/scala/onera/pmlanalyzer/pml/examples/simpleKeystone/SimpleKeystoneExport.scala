@@ -100,8 +100,8 @@ object SimpleKeystoneExport extends App {
     // Export the deactivated components
     p.exportDeactivatedComponents()
 
-    // Export the scenarios defined by the user
-    p.exportUserScenarios()
+    // Export the transactions defined by the user
+    p.exportUserTransactions()
   }
 
 }

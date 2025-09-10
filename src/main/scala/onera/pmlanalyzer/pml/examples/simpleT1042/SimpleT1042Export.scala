@@ -73,7 +73,7 @@ object SimpleT1042Export extends App {
     p.exportSWTargetUsageTable()
     p.exportRouteTable()
     p.exportDeactivatedComponents()
-    p.exportUserScenarios()
+    p.exportUserTransactions()
   }
 
 }

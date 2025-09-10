@@ -19,7 +19,7 @@ package onera.pmlanalyzer.pml.model
 
 /** Package containing configuration PML facet of a model
   *
-  * Use [[TransactionLibrary]] to define transactions or scenarios and select
+  * Use [[TransactionLibrary]] to define transactions and select
   * which ones should be consider for the analysis.
   *
   * Example of definition are provided in

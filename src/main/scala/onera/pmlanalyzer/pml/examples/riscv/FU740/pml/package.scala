@@ -22,7 +22,7 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740
  *
   * @see [[FU740Platform]] for examples of [[pml.model.hardware.Hardware]] modelling features
   *      [[FU740SoftwareAllocation]] for examples of [[pml.model.software.Application]] modelling features
-  *      [[FU740TransactionLibrary]] for examples of transaction/scenario modelling features
+  *      [[FU740TransactionLibrary]] for examples of transaction modelling features
   *      [[FU740LibraryConfiguration]] for example of transaction library configuration
   *      [[FU740LibraryConfigurationFull]] for examples of specialisation of library configurations
   *      [[FU740Export]] for examples of platform instantiation and [[pml.exporters]] usage

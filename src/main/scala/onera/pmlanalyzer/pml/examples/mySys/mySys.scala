@@ -22,7 +22,7 @@ package onera.pmlanalyzer.pml.examples
   *   [[MyProcPlatform]] for examples of [[pml.model.hardware.Hardware]]
   *   modelling features [[MySysSoftwareAllocation]] for examples of
   *   [[pml.model.software.Application]] modelling features
-  *   [[MySysTransactionLibrary]] for examples of transaction/scenario modelling
+  *   [[MySysTransactionLibrary]] for examples of transaction modelling
   *   features [[MySysLibraryConfiguration]] for example of transaction library
   *   configuration [[MySysExport]] for examples of platform instantiation and
   *   [[pml.exporters]] usage

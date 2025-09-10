@@ -28,25 +28,25 @@ trait ApplicativeTableBasedInterferenceSpecification
   self: Platform & TransactionLibrary =>
 
   /** Relation encoding the exclusivity constraints over
-    * [[pml.model.configuration.TransactionLibrary.UserScenarioId]] considered
+    * [[onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId]] considered
     * by the user
     * @group exclusive_relation
     */
-  final lazy val finalUserScenarioExclusive
+  final lazy val finalUserTransactionExclusive
       : Map[UserTransactionId, Set[UserTransactionId]] = {
-    val exclusive = finalExclusive(purifiedScenarios.keySet)
+    val exclusive = finalExclusive(purifiedTransactions.keySet)
     relationToMap(
-      scenarioByUserName.keySet,
+      transactionByUserName.keySet,
       (l, r) =>
         l != r && (
-          transactionId(scenarioByUserName(l)) == transactionId(
-            scenarioByUserName(r)
+          transactionId(transactionByUserName(l)) == transactionId(
+            transactionByUserName(r)
           )
-            || exclusive(transactionId(scenarioByUserName(l)))
-              .contains(transactionId(scenarioByUserName(r)))
-            || scenarioSW(l)
+            || exclusive(transactionId(transactionByUserName(l)))
+              .contains(transactionId(transactionByUserName(r)))
+            || transactionSW(l)
               .flatMap(sw => swExclusive.get(sw).getOrElse(Set.empty))
-              .intersect(scenarioSW(r))
+              .intersect(transactionSW(r))
               .nonEmpty
         )
     )

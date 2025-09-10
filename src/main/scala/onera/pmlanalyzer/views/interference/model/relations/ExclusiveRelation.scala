@@ -43,10 +43,10 @@ object ExclusiveRelation {
   }
   trait LibraryInstances {
 
-    /** Relation gathering user defined exclusive scenarios
+    /** Relation gathering user defined exclusive transactions
       * @group exclusive_relation
       */
-    final implicit val userScenarioExclusive
+    final implicit val userTransactionExclusive
         : ExclusiveRelation[UserTransactionId] = ExclusiveRelation(Map.empty)
   }
   trait ApplicationInstances {

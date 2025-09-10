@@ -27,15 +27,15 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   AtomicTransactionId
 }
 
-/** Class encoding the user defined scenarios used in the configuration
+/** Class encoding the user defined transactions used in the configuration
  *
- * @group scenario_class
+ * @group transaction_class
     * @param userName
     *   the name of the node
     * @param iniTgt
     *   the origin-destination services couples
     * @param sw
-    *   the application that can use this scenario
+    *   the application that can use this transaction
     */
 final class UsedTransaction private (
     val userName: UserTransactionId,
@@ -46,7 +46,7 @@ final class UsedTransaction private (
 
   val name: Symbol = userName.id
 
-  /** Try to find a physical transaction of the scenario
+  /** Try to find a physical transaction of the transaction
       *
       * @return
       *   the set of physical transaction if possible
@@ -59,11 +59,11 @@ final class UsedTransaction private (
         .filter(p => p._2.size >= 2 && it._1 == p._2.head && it._2 == p._2.last)
         .toList match {
         case Nil =>
-          println(Message.impossibleScenarioWarning(userName))
+          println(Message.impossibleTransactionWarning(userName))
           None
         case (k, _) :: Nil => Some(k)
         case h :: t =>
-          println(Message.multiPathScenarioWarning(userName, h +: t))
+          println(Message.multiPathTransactionWarning(userName, h +: t))
           (h +: t).map(_._1)
       }
     )
@@ -72,11 +72,11 @@ final class UsedTransaction private (
 
 /** Builder of platform [[UsedTransaction]]
  *
- * @group scenario_class
+ * @group transaction_class
     */
 object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
 
-  /** Build a used scenario from its attributes
+  /** Build a used transaction from its attributes
       * @param name
       *   the explicit name
       * @param iniTgt
@@ -84,9 +84,9 @@ object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
       * @param sw
       *   the application that can use it
       * @param owner
-      *   the implicitly derived owner of the scenario
+      *   the implicitly derived owner of the transaction
       * @return
-      *   the corresponding scenario (used in the interference analysis)
+      *   the corresponding transaction (used in the interference analysis)
       */
   def apply(
       name: UserTransactionId,
