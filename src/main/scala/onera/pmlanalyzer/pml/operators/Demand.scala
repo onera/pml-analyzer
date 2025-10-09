@@ -18,8 +18,10 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   DemandRelation,
@@ -60,8 +62,8 @@ object Demand {
   }
 
   given [LUS <: UserTransactionId, R](using
-      d: Demand[AtomicTransactionId, R],
-      transform: Transform[UserTransactionId, Set[AtomicTransactionId]]
+      transform: Transform[UserTransactionId, Set[AtomicTransactionId]],
+      d: Demand[AtomicTransactionId, R]
   ): Demand[LUS, R] with {
     def apply(l: LUS, r: R)(using line: Line, file: File): Unit =
       for {
@@ -69,14 +71,24 @@ object Demand {
       } yield x hasDemand r
   }
 
-  given [LPS <: PhysicalTransactionId, R](using
-      transform: Transform[PhysicalTransactionId, Set[AtomicTransactionId]],
-      d: Demand[PhysicalTransactionId, R]
-  ): Demand[LPS, R] with {
-    def apply(l: LPS, r: R)(using line: Line, file: File): Unit =
+  given [LTS <: Transaction, R](using
+      transform: Transform[Transaction, Set[AtomicTransactionId]],
+      d: Demand[AtomicTransactionId, R]
+  ): Demand[LTS, R] with {
+    def apply(l: LTS, r: R)(using line: Line, file: File): Unit =
       for {
         t <- transform(l)
       } yield t hasDemand r
+  }
+  
+  given [LAS <: Application, R](using
+      transform: Transform[Application, Set[AtomicTransactionId]],
+      d: Demand[AtomicTransactionId, R]
+  ): Demand[LAS, R] with {
+    def apply(l: LAS, r: R)(using line: Line, file: File): Unit =
+      for {
+        x <- transform(l)
+      } yield x hasDemand r
   }
 
   /**

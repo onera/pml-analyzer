@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.operators
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   DemandRelation,
   CapacityRelation,
@@ -42,7 +42,7 @@ object Capacity {
       def hasCapacity[R](
           r: R
       )(using d: Capacity[L, R], line: Line, file: File): Unit =
-        d(l, r)
+      d(l, r)
     }
   }
 
