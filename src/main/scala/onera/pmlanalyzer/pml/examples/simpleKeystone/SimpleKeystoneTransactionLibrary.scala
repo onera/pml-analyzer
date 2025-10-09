@@ -25,8 +25,7 @@ import scala.language.postfixOps
 
 /** This trait contains a library of all transactions that can occur on the
   * platform One way to define a
-  * [[pml.model.configuration.TransactionLibrary.Transaction]] or a
-  * [[pml.model.configuration.TransactionLibrary.Scenario]] is to use the
+  * [[onera.pmlanalyzer.pml.model.configuration.Transaction]] is to use the
   * read/write operators specifying which [[pml.model.software.Data]] is used by
   * which [[pml.model.software.Application]]. For instance
   * {{{val app4_wr_input_d : Transaction = Transaction(app4 write input_d)}}}
@@ -35,12 +34,12 @@ import scala.language.postfixOps
   * the data are provided in the [[SimpleSoftwareAllocation]] trait.
   *
   * If you want to define several paths representing a multi-transaction use the
-  * [[pml.model.configuration.TransactionLibrary.Scenario]] For instance
-  * {{{val app1_rd_wr_L1 : Scenario = Scenario(app1_rd_L1, app1_wr_L1)}}}
-  * defines a scenario named '''app1_rd_wr_L1''' where app1 is reading and
+  * [[onera.pmlanalyzer.pml.model.configuration.Transaction]] For instance
+  * {{{val app1_rd_wr_L1 : Transaction = Transaction(app1_rd_L1, app1_wr_L1)}}}
+  * defines a transaction named '''app1_rd_wr_L1''' where app1 is reading and
   * writing L1 cache
   * @note
-  *   A transaction or a scenario is only '''declared''' here, it will be
+  *   A transaction is only '''declared''' here, it will be
   *   considered during the interference analysis if it is actually used. This
   *   is done in the [[SimpleKeystoneLibraryConfiguration]] files. A transaction
   *   should be a path from an initiator to a target, if several paths are
@@ -95,9 +94,9 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
 
   /** t14: [[SimpleSoftwareAllocation.app1]] runs using
     * [[SimpleKeystonePlatform.ARM0]] cache
-    * @group scenario_def
+    * @group transaction_def
     */
-  val t14_app1_rd_wr_L1: Scenario = Scenario(app1_rd_L1, app1_wr_L1)
+  val t14_app1_rd_wr_L1: Transaction = Transaction(app1_rd_L1, app1_wr_L1)
 
   /** t221: [[SimpleSoftwareAllocation.app22]] reads output data of
     * [[SimpleSoftwareAllocation.app1]] from [[SimpleKeystonePlatform.ddr]]
@@ -124,10 +123,10 @@ trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
     * [[SimpleKeystonePlatform.spi]] frame from
     * [[SimpleKeystonePlatform.MemorySubsystem.sram]] and transfers it to
     * [[SimpleKeystonePlatform.spi]]
-    * @group scenario_def
+    * @group transaction_def
     */
   private val readFrame = Transaction(app3 read output_d)
   private val writeFrame = Transaction(app3 write output_spi_frame)
-  val app3_transfer: Scenario =
-    Scenario(readFrame, writeFrame)
+  val app3_transfer: Transaction =
+    Transaction(readFrame, writeFrame)
 }

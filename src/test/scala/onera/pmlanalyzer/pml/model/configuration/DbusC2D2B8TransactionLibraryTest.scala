@@ -30,9 +30,9 @@ class DbusC2D2B8TransactionLibraryTest
     with should.Matchers {
 
   DbusC2D2B8.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    DbusC2D2B8.transactionByUserName.size should be(32)
-    DbusC2D2B8.scenarioByUserName.size should be(36)
-    DbusC2D2B8.transactions.size should be(36)
+//    DbusC2D2B8.transactionByUserName.size should be(32)
+    DbusC2D2B8.transactionByUserName.size should be(36)
+    DbusC2D2B8.atomicTransactions.size should be(36)
   }
 
 }

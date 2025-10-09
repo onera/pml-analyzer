@@ -36,8 +36,8 @@ package onera.pmlanalyzer.views
   * @groupprio service_relation 3
   * @groupname transaction_relation Physical transaction relations
   * @groupprio transaction_relation 3
-  * @groupname scenario_relation Physical scenario relations
-  * @groupprio scenario_relation 3
+  * @groupname transaction_relation Physical transaction relations
+  * @groupprio transaction_relation 3
   * @groupname equivalence_relation Equivalence relations
   * @groupprio equivalence_relation 3
   * @groupname utilFun Utility functions

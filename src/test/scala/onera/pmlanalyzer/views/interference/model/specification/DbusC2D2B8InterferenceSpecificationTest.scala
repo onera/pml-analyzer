@@ -30,7 +30,7 @@ class DbusC2D2B8InterferenceSpecificationTest
     with should.Matchers {
 
   DbusC2D2B8.fullName should "contain the expected numbers of transactions considered for the interference calculus" taggedAs FastTests in {
-    DbusC2D2B8.purifiedTransactions.size should be(36)
-    DbusC2D2B8.purifiedScenarios.size should be(34)
+    DbusC2D2B8.purifiedAtomicTransactions.size should be(36)
+    DbusC2D2B8.purifiedTransactions.size should be(34)
   }
 }

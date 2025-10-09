@@ -22,7 +22,7 @@ import monosat.Logic.*
 import net.sf.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
@@ -453,8 +453,8 @@ object Analyse {
 
           val update = (
               isFree: Boolean,
-              physical: Set[Set[PhysicalScenarioId]],
-              user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+              physical: Set[Set[PhysicalTransactionId]],
+              user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
           ) => {
             val userBySize =
               user.values.flatten.groupBy(_.size).transform((_, v) => v.toSet)
@@ -479,13 +479,13 @@ object Analyse {
           )
 
           println(
-            Message.startingNonExclusiveScenarioEstimationInfo(
+            Message.startingNonExclusiveTransactionEstimationInfo(
               platform.fullName
             )
           )
-          val estimateNonExclusiveScenarioStart =
+          val estimateNonExclusiveMultiTransactionsStart =
             System.currentTimeMillis() millis
-          val nonExclusiveScenarios =
+          val nonExclusiveMultiTransactions =
             if (computeSemantics)
               Some(
                 platform.getSemanticsSize(ignoreExistingFile =
@@ -494,10 +494,10 @@ object Analyse {
               )
             else None
           println(
-            Message.successfulNonExclusiveScenarioEstimationInfo(
+            Message.successfulNonExclusiveMultiTransactionEstimationInfo(
               platform.fullName,
               ((System
-                .currentTimeMillis() millis) - estimateNonExclusiveScenarioStart).toSeconds
+                .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
             )
           )
           for {
@@ -522,29 +522,29 @@ object Analyse {
           )
           for {
             size <- sizes
-            map <- nonExclusiveScenarios
+            map <- nonExclusiveMultiTransactions
           } yield {
             assert(
               nbITF(size) <= map(size),
-              s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
+              s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-multi-transactions"
             )
             assert(
               nbFree(size) <= map(size),
-              s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
+              s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-multi-transactions"
             )
           }
           println(
             Message.iterationResultsInfo(
               isFree = false,
               nbITF,
-              nonExclusiveScenarios
+              nonExclusiveMultiTransactions
             )
           )
           println(
             Message.iterationResultsInfo(
               isFree = true,
               nbFree,
-              nonExclusiveScenarios
+              nonExclusiveMultiTransactions
             )
           )
 
@@ -552,7 +552,7 @@ object Analyse {
             val iterationStartDate = System.currentTimeMillis() millis
             val s = problem.instantiate(size)
             val variables =
-              problem.groupedScenarios.transform((k, _) => k.toLit(s))
+              problem.groupedTransactions.transform((k, _) => k.toLit(s))
             while (s.solve()) {
               val cube = variables.filter(_._2.value())
               val physical =
@@ -575,34 +575,34 @@ object Analyse {
               )
             )
             for {
-              map <- nonExclusiveScenarios
+              map <- nonExclusiveMultiTransactions
             } yield {
               if (size == 2)
                 assert(
                   nbITF(2) + nbFree(2) == map(2),
-                  "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-scenarios"
+                  "[ERROR] Interference analysis is unsound, the sum of 2-itf and 2-free is not equal to 2-multi-transactions"
                 )
               assert(
                 nbITF(size) <= map(size),
-                s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-scenarios"
+                s"[ERROR] Interference analysis is unsound, the number of $size-itf is greater thant $size-multi-transactions"
               )
               assert(
                 nbFree(size) <= map(size),
-                s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-scenarios"
+                s"[ERROR] Interference analysis is unsound, the number of $size-free is greater thant $size-multi-transactions"
               )
             }
             println(
               Message.iterationResultsInfo(
                 isFree = false,
                 nbITF,
-                nonExclusiveScenarios
+                nonExclusiveMultiTransactions
               )
             )
             println(
               Message.iterationResultsInfo(
                 isFree = true,
                 nbFree,
-                nonExclusiveScenarios
+                nonExclusiveMultiTransactions
               )
             )
           }
@@ -630,11 +630,17 @@ object Analyse {
           writeFileInfo(summaryWriter, platform)
           summaryWriter.write("Computed ITF\n")
           summaryWriter.write(
-            Message.printScenarioNumber(nbITF, nonExclusiveScenarios)
+            Message.printMultiTransactionNumber(
+              nbITF,
+              nonExclusiveMultiTransactions
+            )
           )
           summaryWriter.write("Computed ITF-free\n")
           summaryWriter.write(
-            Message.printScenarioNumber(nbFree, nonExclusiveScenarios)
+            Message.printMultiTransactionNumber(
+              nbFree,
+              nonExclusiveMultiTransactions
+            )
           )
           writeFooter(summaryWriter, computationTime)
 
@@ -688,20 +694,20 @@ object Analyse {
 
       // DEFINITION OF VARIABLES
 
-      // retrieving simple transactions to consider from the platform
-      val transactions = platform.purifiedTransactions
+      // retrieving simple atomicTransactions to consider from the platform
+      val atomicTransactions = platform.purifiedAtomicTransactions
 
-      val idToScenario = platform.purifiedScenarios
+      val idToTransaction = platform.purifiedTransactions
 
-      val scenarioToLit = idToScenario
+      val transactionToLit = idToTransaction
         .transform((k, _) => MLit(Symbol(k.id.name + "_sn")))
 
       // association of the simple transaction path to its formatted name
-      val initialPathT = idToScenario.to(SortedMap)
+      val initialPathT = idToTransaction.to(SortedMap)
 
-      // all the services used by transactions
+      // all the services used by atomicTransactions
       val initialServices = initialPathT.values
-        .flatMap(s => s.map(transactions))
+        .flatMap(s => s.map(atomicTransactions))
         .toSet
         .flatten
 
@@ -714,18 +720,18 @@ object Analyse {
 
       // the actual path will be the service that can be a channel, ie
       // a service that is a service (or exclusive to a service) of a different and non exclusive transaction
-      // FIXME If a scenario, the following computation consider that one of the services used by
-      // several atomic transactions could be an interference channel that is obviously false
+      // FIXME If a multi-path transaction, the following computation consider that one of the services used by
+      // several atomic atomicTransactions could be an interference channel that is obviously false
       // and complexify the graph for no reason
-      val pathT: Map[PhysicalScenarioId, Set[PhysicalTransaction]] =
+      val pathT: Map[PhysicalTransactionId, Set[AtomicTransaction]] =
         initialPathT.view
           .mapValues(s =>
             s.map(t =>
-              transactions(t).filter(s =>
-                transactions.keySet.exists(t2 =>
+              atomicTransactions(t).filter(s =>
+                atomicTransactions.keySet.exists(t2 =>
                   t != t2 &&
                     !platform.finalExclusive(t, t2) &&
-                    transactions(t2).exists(s2 =>
+                    atomicTransactions(t2).exists(s2 =>
                       s2 == s || initialServicesInterfere(s2).contains(s)
                     )
                 )
@@ -757,19 +763,19 @@ object Analyse {
       val reducedNodePath = pathT
         .transform((_, v) => v.map(t => t.map(serviceToNodes)))
 
-      val scenarioToGroupedLit = reducedNodePath
+      val transactionToGroupedLit = reducedNodePath
         .groupMap(_._2)(_._1)
         .values
         .flatMap(ss => ss.map(_ -> ss))
-        .groupMapReduce(_._1)(x => addLit(groupedScenarioLitId(x._2.toSet).id))(
-          (l, _) => l
-        )
+        .groupMapReduce(_._1)(x =>
+          addLit(groupedTransactionsLitId(x._2.toSet).id)
+        )((l, _) => l)
 
-      val groupedLitToScenarios = scenarioToGroupedLit
+      val groupedLitToTransactions = transactionToGroupedLit
         .groupMap(_._2)(_._1)
         .transform((_, v) => v.toSet)
 
-      val groupedLitToNodeSet = scenarioToGroupedLit
+      val groupedLitToNodeSet = transactionToGroupedLit
         .groupMapReduce(_._2)(kv =>
           reducedNodePath(kv._1).map(_.toSet.flatten)
         )((l, _) => l)
@@ -795,54 +801,55 @@ object Analyse {
       // * the transaction must not be transparent
       // * the edge must not contain a service considered as non impacted
       // FIXME * an edge is added between all nodes sharing a common service
-      val edgesToScenarios: Map[MEdge, Set[PhysicalScenarioId]] = pathT.keySet
-        .flatMap(s =>
-          val pathEdges = for {
-            t <- pathT(s) if t.size > 1
-            servCouple <- t.sliding(2)
-            edge <- addUndirectedEdge(servCouple.toSet)
-          } yield edge -> s
-          val serviceEdges = {
-            for {
-              t <- pathT(s)
-              service <- t
-              e <- addUndirectedEdge(Set(service))
-            } yield e -> s
-          }
-          pathEdges ++ serviceEdges
-        )
-        .groupMap(_._1)(_._2)
+      val edgesToTransactions: Map[MEdge, Set[PhysicalTransactionId]] =
+        pathT.keySet
+          .flatMap(s =>
+            val pathEdges = for {
+              t <- pathT(s) if t.size > 1
+              servCouple <- t.sliding(2)
+              edge <- addUndirectedEdge(servCouple.toSet)
+            } yield edge -> s
+            val serviceEdges = {
+              for {
+                t <- pathT(s)
+                service <- t
+                e <- addUndirectedEdge(Set(service))
+              } yield e -> s
+            }
+            pathEdges ++ serviceEdges
+          )
+          .groupMap(_._1)(_._2)
 
-      val graph = MGraph(nodeToServices.keySet, edgesToScenarios.keySet)
+      val graph = MGraph(nodeToServices.keySet, edgesToTransactions.keySet)
 
       // DEFINITION OF CONSTRAINTS
 
-      // an edge is enabled iff at least one of the transactions using is selected
-      val edgeCst = edgesToScenarios
+      // an edge is enabled iff at least one of the atomicTransactions using is selected
+      val edgeCst = edgesToTransactions
         .transform((k, trs) =>
           SimpleAssert(
             Equal(
               MEdgeLit(k, graph),
-              Or(trs.map(scenarioToGroupedLit).toSeq: _*)
+              Or(trs.map(transactionToGroupedLit).toSeq: _*)
             )
           )
         )
 
       // there is an interference if the remaining graph is connected,
-      // here translated as at least one service used by other transactions is reachable from
+      // here translated as at least one service used by other atomicTransactions is reachable from
       // the initiator service of another one
 
-      val (trivialFreeScenarios, otherScenarios) =
-        scenarioToGroupedLit.values.toSet
+      val (trivialFreeTransactions, otherTransactions) =
+        transactionToGroupedLit.values.toSet
           .partition(
             groupedLitToNodeSet(_).forall(_.isEmpty)
-          ) // All paths of the scenarios are only private ones
+          ) // All paths of the transactions are only private ones
 
-      val otherScenariosCouples = otherScenarios
+      val otherTransactionsCouples = otherTransactions
         .subsets(2)
         .map(ss => {
           val (s, sp) = (ss.head, ss.last)
-          // find a non private service of the left scenario
+          // find a non private service of the left transaction
           val sHeads = groupedLitToNodeSet(s).filter(_.nonEmpty).map(_.head)
           val spHeads = groupedLitToNodeSet(sp).filter(_.nonEmpty).map(_.head)
           (s -> sHeads, sp -> spHeads)
@@ -850,8 +857,8 @@ object Analyse {
         .toSet
 
       val isITF = And(
-        (trivialFreeScenarios.map(v => Not(v))
-          ++ otherScenariosCouples
+        (trivialFreeTransactions.map(v => Not(v))
+          ++ otherTransactionsCouples
             .map(ss => {
               val (vs -> sHeads, vsp -> spLasts) = ss
               Implies(
@@ -868,7 +875,7 @@ object Analyse {
       )
 
       val isFree = And(
-        otherScenariosCouples
+        otherTransactionsCouples
           .map(ss => {
             val (vs -> sHeads, vsp -> spLasts) = ss
             Implies(
@@ -887,23 +894,23 @@ object Analyse {
           .toSeq: _*
       )
 
-      // for each scenario, the scenarios that are exclusive with it
-      val exclusiveScenarios = idToScenario
+      // for each transaction, the transactions that are exclusive with it
+      val exclusiveTransactions = idToTransaction
         .transform((k, _) =>
-          idToScenario.keySet.filter(kp =>
+          idToTransaction.keySet.filter(kp =>
             k != kp && platform.finalExclusive(k, kp)
           )
         )
 
-      // for each grouped scenario variable v, the other variables containing only scenario that are exclusive with all
-      // scenario of v, thus these variables are exclusive
+      // for each grouped transactions variable v, the other variables containing only transactions that are exclusive with all
+      // transactions of v, thus these variables are exclusive
 
-      val onSnPerGrouped = groupedLitToScenarios.transform((k, v) =>
-        Implies(k, Or(v.map(scenarioToLit).toSeq: _*))
+      val onSnPerGrouped = groupedLitToTransactions.transform((k, v) =>
+        Implies(k, Or(v.map(transactionToLit).toSeq: _*))
       )
-      val nonExclusiveSn = scenarioToLit.transform((k, v) =>
-        exclusiveScenarios(k)
-          .map(scenarioToLit)
+      val nonExclusiveSn = transactionToLit.transform((k, v) =>
+        exclusiveTransactions(k)
+          .map(transactionToLit)
           .map(sLit => Implies(sLit, Not(v)))
       )
 
@@ -911,26 +918,26 @@ object Analyse {
         (onSnPerGrouped.values ++ nonExclusiveSn.values.flatten)
           .map(SimpleAssert.apply)
 
-      val serviceToScenarioLit = idToScenario.keySet
+      val serviceToTransactionLit = idToTransaction.keySet
         .flatMap(k =>
-          idToScenario(k).flatMap(tr => transactions(tr).map(_ -> k))
+          idToTransaction(k).flatMap(tr => atomicTransactions(tr).map(_ -> k))
         )
         .groupMap(_._1)(kv => kv._2)
         .transform((_, v) => v)
 
       Problem(
         platform,
-        groupedLitToScenarios,
+        groupedLitToTransactions,
         groupedLitToNodeSet,
-        idToScenario,
-        exclusiveScenarios,
+        idToTransaction,
+        exclusiveTransactions,
         graph,
         isFree,
         isITF,
         Set.empty,
         edgeCst.values.toSet ++ nonExclusive,
         nodeToServices,
-        serviceToScenarioLit,
+        serviceToTransactionLit,
         Some(maxSize)
       )
     }
@@ -991,17 +998,17 @@ object Analyse {
 
     private def updateResultFile(
         writer: Map[Int, FileWriter],
-        m: Map[Int, Set[Set[UserScenarioId]]]
+        m: Map[Int, Set[Set[UserTransactionId]]]
     ): Unit = {
       for ((k, v) <- m; ss <- v)
         writer(k).write(
-          s"${multiTransactionId(ss.map(s => PhysicalScenarioId(s.id)))}\n"
+          s"${multiTransactionId(ss.map(s => PhysicalTransactionId(s.id)))}\n"
         )
     }
 
     private def updateNumber(
         nbITF: mutable.Map[Int, BigInt],
-        m: Map[Int, Set[Set[UserScenarioId]]]
+        m: Map[Int, Set[Set[UserTransactionId]]]
     ): Unit = {
       for ((k, v) <- m)
         nbITF(k) = nbITF.getOrElse(k, BigInt(0)) + v.size
@@ -1010,8 +1017,8 @@ object Analyse {
     private def updateChannelNumber(
         problem: Problem,
         channels: mutable.Map[Int, Map[Channel, Int]],
-        physical: Set[Set[PhysicalScenarioId]],
-        user: Map[Set[PhysicalScenarioId], Set[Set[UserScenarioId]]]
+        physical: Set[Set[PhysicalTransactionId]],
+        user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
     ): Unit = {
       val channelNb = physical
         .flatMap(p => user(p).map(u => (problem.decodeChannel(p), u)))
@@ -1027,16 +1034,16 @@ object Analyse {
         }
     }
 
-    /** Compute the number of possible scenario sets for a given platform, this
-      * result can be used to estimate the proportion of itf or free scenario
-      * sets over all possible sets. It can be used to check that 2-ift + 2-free =
+    /** Compute the number of possible multi-transactions for a given platform, this
+      * result can be used to estimate the proportion of itf or free multi-transactions
+      * over all possible sets. It can be used to check that 2-ift + 2-free =
       * 2-non-exclusive (for higher cardinalities, the estimation of k-redundant
       * is needed)
       *
       * @param platform
       *   the studied platform
       * @return
-      *   the number of scenario sets per size
+      *   the number of multi-transactions per size
       */
     def getSemanticsSize(
         platform: ConfiguredPlatform,
@@ -1053,18 +1060,18 @@ object Analyse {
         platform: ConfiguredPlatform,
         max: Int
     ): Map[Int, BigInt] = {
-      val scenario = platform.purifiedScenarios
-      val exclusive = platform.finalExclusive(scenario.keySet)
+      val transactions = platform.purifiedTransactions
+      val exclusive = platform.finalExclusive(transactions.keySet)
       val factory = new SymbolBDDFactory()
       val bdd =
-        getNonExclusiveKBDD(scenario.keySet.toSeq, exclusive, max, factory)
+        getNonExclusiveKBDD(transactions.keySet.toSeq, exclusive, max, factory)
 
-      // for each cardinality, compute the number of satisfying assignments of the BDD encoding scenario sets
-      // containing exactly k non exclusive scenarios
+      // for each cardinality, compute the number of satisfying assignments of the BDD encoding transactions sets
+      // containing exactly k non-exclusive transactions
       val result = platform match {
         case l: TransactionLibrary =>
-          val weightMap = scenario
-            .transform((_, v) => l.scenarioUserName(v))
+          val weightMap = transactions
+            .transform((_, v) => l.transactionUserName(v))
             .map(kv => kv._1.id -> kv._2.size)
             .filter(_._2 >= 1)
           bdd.transform((_, v) => factory.getPathCount(v, weightMap))
@@ -1084,8 +1091,8 @@ object Analyse {
       val symbols =
         values.map(x => x -> factory.getVar(Symbol(x.toString))).toMap
 
-      // when a scenario s is selected then at no other scenarios is exclusive with it
-      // \bigwedge_{s \in scenarioVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
+      // when a transaction s is selected then other transactions that are exclusive with it are not selected
+      // \bigwedge_{s \in transactionVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
       val isExclusive = factory.andBDD(
         exclusive.map(p =>
           symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
@@ -1107,8 +1114,8 @@ object Analyse {
     ): Map[Int, BigInt] = {
       val factory = new SymbolBDDFactory()
       val result = getNonExclusiveKBDD(
-        platform.scenarioByUserName.keys.toSeq,
-        platform.finalUserScenarioExclusive,
+        platform.transactionByUserName.keys.toSeq,
+        platform.finalUserTransactionExclusive,
         max,
         factory
       ).transform((_, v) => factory.getPathCount(v))
@@ -1116,16 +1123,16 @@ object Analyse {
       result
     }
 
-    /** Compute the number of k-redundant scenario sets for a given platform, it
+    /** Compute the number of k-redundant multi-transactions for a given platform, it
       * can be used to check that for all size, k-free + k-itf + k-redundant =
       * k-non-exclusive
       *
       * @param platform
       *   the platform to analyse
       * @param free
-      *   the interference free scenario sets
+      *   the interference free multi-transactions
       * @param itf
-      *   the interference scenario sets
+      *   the interference multi-transactions
       * @return
       *   the number of k-redundant per size
       */
@@ -1135,18 +1142,18 @@ object Analyse {
     )
     def getRedundantCard(
         platform: ConfiguredPlatform,
-        free: Set[Set[PhysicalScenarioId]],
-        itf: Set[Set[PhysicalScenarioId]]
+        free: Set[Set[PhysicalTransactionId]],
+        itf: Set[Set[PhysicalTransactionId]]
     ): Map[Int, BigInt] = {
-      val idToScenario = platform.purifiedScenarios
-      val exclusive = idToScenario.keySet.groupMapReduce(t => t)(t =>
-        idToScenario.keySet.filter(platform.finalExclusive(t, _))
+      val idToTransaction = platform.purifiedTransactions
+      val exclusive = idToTransaction.keySet.groupMapReduce(t => t)(t =>
+        idToTransaction.keySet.filter(platform.finalExclusive(t, _))
       )(_ ++ _)
       val allResults = free ++ itf
-      val scenarioToMultiTransaction = allResults
+      val transactionToMultiTransaction = allResults
         .flatMap(ss => ss.map(s => s -> ss))
         .groupMap(_._1)(_._2)
-      val scenarioVar = idToScenario.keys.toSeq
+      val transactionVar = idToTransaction.keys.toSeq
       val nonEmptyChannelResults = platform
         .channelNonEmpty(allResults)
       val factory = new SymbolBDDFactory()
@@ -1164,9 +1171,9 @@ object Analyse {
             )
         )
       )
-      // if s in scenarioVar is selected then at least one free or itf is selected
+      // if s in transactionVar is selected then at least one free or itf is selected
       val sSelect: BDD = factory.andBDD(
-        scenarioToMultiTransaction.map(p =>
+        transactionToMultiTransaction.map(p =>
           factory
             .getVar(p._1.id)
             .imp(
@@ -1179,7 +1186,7 @@ object Analyse {
             )
         )
       )
-      // if a result is selected then all of its scenarios are selected
+      // if a result is selected then all of its transactions are selected
       val resultSelect: BDD = factory.andBDD(
         allResults.map(ss =>
           factory
@@ -1220,7 +1227,7 @@ object Analyse {
       (2 to platform.initiators.size)
         .map(k =>
           k -> {
-            val exactlyK = factory.mkExactlyK(scenarioVar.map(_.id), k)
+            val exactlyK = factory.mkExactlyK(transactionVar.map(_.id), k)
             // the selected itf or free must have a cardinality strictly lower than k
             val restrictedITFAndFree: BDD = factory.andBDD(
               allResults

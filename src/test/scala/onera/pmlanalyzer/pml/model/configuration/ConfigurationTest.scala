@@ -147,14 +147,14 @@ class ConfigurationTest
   }
 
   it should "derive the used transaction properly" taggedAs UnitTests in {
-    transactionsBySW(appSmart1).size should be(1)
+    atomicTransactionsBySW(appSmart1).size should be(1)
     mem1.loads should contain(
-      transactionsByName(transactionsBySW(appSmart1).head).last
+      atomicTransactionsByName(atomicTransactionsBySW(appSmart1).head).last
     )
-    transactionsBySW(appSmart21).size should be(1)
-    transactionsBySW(appSmart22).size should be(1)
+    atomicTransactionsBySW(appSmart21).size should be(1)
+    atomicTransactionsBySW(appSmart22).size should be(1)
     // One transaction is missing
-    transactionsBySW(dmaDescriptor).size should be(3)
+    atomicTransactionsBySW(dmaDescriptor).size should be(3)
   }
 
   it should "detect cyclic service paths" taggedAs UnitTests in {}
@@ -162,11 +162,11 @@ class ConfigurationTest
   it should "detect multiple routes" taggedAs UnitTests in {
     for {
       a <- ConfigurationFixture.applications
-      transactions <- transactionsBySW.get(a)
+      transactions <- atomicTransactionsBySW.get(a)
     } yield {
       for {
         t <- transactions
-        path <- transactionsByName.get(t)
+        path <- atomicTransactionsByName.get(t)
       } yield Used.checkMultiPaths(Set(path)) should be(empty)
     }
   }
@@ -174,13 +174,13 @@ class ConfigurationTest
   it should "detect impossible service accesses " in {
     for (a <- Set(appSmart1, appSmart21, appSmart22))
       Used.checkImpossible(
-        transactionsBySW(a).map(transactionsByName),
+        atomicTransactionsBySW(a).map(atomicTransactionsByName),
         a.targetService,
         Some(a)
       ) should be(empty)
     Used
       .checkImpossible(
-        transactionsBySW(dmaDescriptor).map(transactionsByName),
+        atomicTransactionsBySW(dmaDescriptor).map(atomicTransactionsByName),
         dmaDescriptor.targetService,
         Some(dmaDescriptor)
       )

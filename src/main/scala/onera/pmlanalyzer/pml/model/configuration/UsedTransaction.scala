@@ -18,16 +18,13 @@
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.{
-  UserScenarioId,
-  UserTransactionId
-}
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{Message, ReflexiveInfo}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransaction,
+  AtomicTransactionId
 }
 
 /** Class encoding the user defined transactions used in the configuration
@@ -42,65 +39,58 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
     */
 final class UsedTransaction private (
     val userName: UserTransactionId,
-    iniTgt: Iterable[(Service, Service)],
+    iniTgt: Set[(Service, Service)],
     val sw: Set[Application],
     info: ReflexiveInfo
 ) extends PMLNode(info) {
 
   val name: Symbol = userName.id
 
-  /** Try to find a physical transaction to the user transaction
+  /** Try to find a physical transaction of the transaction
       *
       * @return
-      *   the physical transaction if possible
+      *   the set of physical transaction if possible
       */
   def toPhysical(
-      transactionsByName: Map[PhysicalTransactionId, PhysicalTransaction]
-  )(using
-      r: ReflexiveInfo,
-      map: PMLNodeMap[Scenario],
-      mapU: PMLNodeMap[UsedScenario]
-  ): Option[PhysicalTransactionId] = transactionsByName
-    .filter(p =>
-      p._2.size >= 2 && iniTgt
-        .exists(it => it._1 == p._2.head && it._2 == p._2.last)
+      transactionsByName: Map[AtomicTransactionId, AtomicTransaction]
+  ): Set[AtomicTransactionId] = {
+    iniTgt.flatMap(it =>
+      transactionsByName
+        .filter(p => p._2.size >= 2 && it._1 == p._2.head && it._2 == p._2.last)
+        .toList match {
+        case Nil =>
+          println(Message.impossibleTransactionWarning(userName))
+          None
+        case (k, _) :: Nil => Some(k)
+        case h :: t =>
+          println(Message.multiPathTransactionWarning(userName, h +: t))
+          (h +: t).map(_._1)
+      }
     )
-    .toList match {
-    case Nil =>
-      println(Message.impossibleTransactionWarning(userName))
-      None
-    case (k, _) :: Nil => Some(k)
-    case h :: t =>
-      println(Message.multiPathTransactionWarning(userName, h +: t))
-      Scenario(UserScenarioId(userName.id), () => iniTgt.toSet, () => sw).used
-      None
   }
 }
 
 /** Builder of platform [[UsedTransaction]]
-    * @group transaction_class
+ *
+ * @group transaction_class
     */
 object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
 
-  /** Main constructor of a used transaction, note that used transaction are
-      * memoized, so if the same name is used in the same platform the
-      * constructor will send back the previous definition of the used
-      * transaction
-      *
+  /** Build a used transaction from its attributes
       * @param name
-      *   the name of the used transaction
+      *   the explicit name
       * @param iniTgt
-      *   the set of inital/target services defining the transaction
+      *   the initiator/target couples
       * @param sw
-      *   the application that may invoke this transaction
+      *   the application that can use it
       * @param owner
-      *   the platform owning the transaction
+      *   the implicitly derived owner of the transaction
       * @return
-      *   the used transaction
+      *   the corresponding transaction (used in the interference analysis)
       */
   def apply(
       name: UserTransactionId,
-      iniTgt: Iterable[(Service, Service)],
+      iniTgt: Set[(Service, Service)],
       sw: Set[Application]
   )(using
       givenInfo: ReflexiveInfo,
@@ -111,5 +101,4 @@ object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
       new UsedTransaction(name, iniTgt, sw, givenInfo)
     )
   }
-
 }

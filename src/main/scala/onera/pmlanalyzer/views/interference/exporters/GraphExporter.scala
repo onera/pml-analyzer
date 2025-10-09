@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenarioId,
+  PhysicalTransactionId,
   multiTransactionId
 }
 import onera.pmlanalyzer.views.interference.operators.Analyse
@@ -50,9 +50,9 @@ object GraphExporter {
       def exportAnalysisGraph()(using ev: Analyse[T]): File =
         ev.printGraph(self)
 
-      def exportInterferenceGraph(it: Set[PhysicalScenarioId]): File = {
+      def exportInterferenceGraph(it: Set[PhysicalTransactionId]): File = {
         val multiTransactionName = multiTransactionId(
-          it.map(x => PhysicalScenarioId(x.id))
+          it.map(x => PhysicalTransactionId(x.id))
         )
         val file = FileManager.exportDirectory.getFile(
           s"${self.fullName}_${
@@ -66,9 +66,9 @@ object GraphExporter {
 
         val serviceAssociations = for {
           s <- it
-          t <- self.purifiedScenarios(s)
+          t <- self.purifiedTransactions(s)
           l = self
-            .purifiedTransactions(t)
+            .purifiedAtomicTransactions(t)
             .sliding(2)
             .collect { case Seq(f, t) => f -> t }
             .toList
@@ -78,8 +78,8 @@ object GraphExporter {
         } yield as
 
         val services = it
-          .flatMap(self.purifiedScenarios)
           .flatMap(self.purifiedTransactions)
+          .flatMap(self.purifiedAtomicTransactions)
 
         val interfereAssociations =
           (for {

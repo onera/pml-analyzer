@@ -46,7 +46,7 @@ object InterferenceTestExtension {
     def test(
         max: Int,
         expectedResultsDirectoryPath: String
-    ): Future[Seq[Seq[ScenarioComparison]]] = {
+    ): Future[Seq[Seq[MultiTransactionComparison]]] = {
       x.computeKInterference(
         List(max, x.initiators.size).min,
         ignoreExistingAnalysisFiles = true,
@@ -73,8 +73,9 @@ object InterferenceTestExtension {
             List(fileITF, fileFree)
               .zip(List(rITFFile, rFreeFile))
               .flatMap(p => {
-                val expected = PostProcess.parseScenarioFile(p._1)
-                val found = PostProcess.parseScenarioFile(Source.fromFile(p._2))
+                val expected = PostProcess.parseMultiTransactionFile(p._1)
+                val found =
+                  PostProcess.parseMultiTransactionFile(Source.fromFile(p._2))
                 expected.diff(found).map(s => Missing(s)) ++ found
                   .diff(expected)
                   .map(s => Unknown(s))
@@ -85,9 +86,9 @@ object InterferenceTestExtension {
     }
   }
 
-  def failureMessage(diff: Seq[ScenarioComparison]): String = {
+  def failureMessage(diff: Seq[MultiTransactionComparison]): String = {
     if (diff.nonEmpty)
-      s"""${diff.size} scenarios of size ${diff.head.s.size} are incorrect:
+      s"""${diff.size} multi-transactions of size ${diff.head.s.size} are incorrect:
          |${diff.mkString("\n")}
 
          |""".stripMargin
@@ -96,14 +97,14 @@ object InterferenceTestExtension {
   }
 }
 
-sealed trait ScenarioComparison {
+sealed trait MultiTransactionComparison {
   val s: Seq[String]
 }
 
-final case class Missing(s: Seq[String]) extends ScenarioComparison {
+final case class Missing(s: Seq[String]) extends MultiTransactionComparison {
   override def toString: String = s.mkString("||") + " not found"
 }
 
-final case class Unknown(s: Seq[String]) extends ScenarioComparison {
+final case class Unknown(s: Seq[String]) extends MultiTransactionComparison {
   override def toString: String = s.mkString("||") + " not expected"
 }

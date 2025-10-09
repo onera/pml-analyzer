@@ -17,39 +17,44 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.service.*
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.model.software.Application
-import ToTransaction.TransactionParam
+import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.hardware.Initiator
+import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
+import onera.pmlanalyzer.pml.model.software.Application
 
-trait ToTransaction[A] {
-  def apply(a: => A): TransactionParam
+trait DelayedTransform[L, R] {
+
+  /**
+   * By-name implementation of transform
+   * Note that it is MANDATORY for transaction definition since
+   * its iniTgt and sw parameters should be evaluated only when triggering used keyword
+   * @param l by-name value L to transform into R
+   * @return the resulting R
+   */
+  def apply(l: => L): R
 }
 
-object ToTransaction {
+object DelayedTransform {
   type TransactionParam =
     (() => Set[(Service, Service)], () => Set[Application])
 
-  trait Ops {
-    def TransactionParam[A](a: => A)(using
-        ev: ToTransaction[A]
-    ): TransactionParam = ev(a)
+  given DelayedTransform[Transaction, TransactionParam] with {
+    def apply(a: => Transaction): TransactionParam =
+      (a.iniTgt, a.sw)
   }
 
   /** Utility function to convert an a set of application/target service to the
-    * set of initial/target services
-    * @return
-    *   the set of initial/target services and of applications invoking them
-    */
+   * set of initial/target services
+   *
+   * @return
+   * the set of initial/target services and of applications invoking them
+   */
 
   given applicationUsed[T <: Load | Store](using
       u: Used[Application, Initiator],
       p: Provided[Initiator, T]
-  ): ToTransaction[Set[(Application, T)]] with {
-    def apply(
-        a: => Set[(Application, T)]
-    ): (() => Set[(Service, Service)], () => Set[Application]) = (
+  ): DelayedTransform[Set[(Application, T)], TransactionParam] with {
+    def apply(a: => Set[(Application, T)]): TransactionParam = (
       () => {
         a.flatMap(as =>
           as._1.hostingInitiators.flatMap(_.provided[T]).map(_ -> as._2)
@@ -61,10 +66,8 @@ object ToTransaction {
 
   given initiatorUsed[T <: Load | Store](using
       p: Provided[Initiator, T]
-  ): ToTransaction[Set[(Initiator, T)]] with {
-    def apply(
-        a: => Set[(Initiator, T)]
-    ): (() => Set[(Service, Service)], () => Set[Application]) =
+  ): DelayedTransform[Set[(Initiator, T)], TransactionParam] with {
+    def apply(a: => Set[(Initiator, T)]): TransactionParam =
       (
         () => {
           a.flatMap(as => as._1.provided[T].map(_ -> as._2))
@@ -72,5 +75,4 @@ object ToTransaction {
         () => Set.empty
       )
   }
-
 }

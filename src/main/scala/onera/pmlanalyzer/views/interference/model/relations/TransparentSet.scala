@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.interference.model.relations
 
 import sourcecode.Name
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 import scala.collection.mutable.Set as MSet
 
@@ -33,6 +33,8 @@ object TransparentSet {
       * @group transparent_relation
       */
     final implicit val transactionIsTransparent
-        : TransparentSet[PhysicalTransactionId] = TransparentSet(MSet.empty)
+        : TransparentSet[AtomicTransactionId] = TransparentSet(
+      MSet.empty
+    )
   }
 }

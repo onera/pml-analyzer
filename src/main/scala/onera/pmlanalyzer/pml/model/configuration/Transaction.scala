@@ -17,15 +17,16 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
-import onera.pmlanalyzer.pml.operators.{ToTransaction, TransactionParam}
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import sourcecode.Name
 
-/** Class encoding the used defined transactions (not already used)
+/** Class encoding the defined transactions (not already used)
  *
  * @group transaction_class
     * @param userName
@@ -41,54 +42,122 @@ final class Transaction private (
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],
     info: ReflexiveInfo
-) extends ScenarioLike(userName.id, info) {
+) extends PMLNode(info) {
+
+  /** Name of the node
+   *
+   * @group identifier
+   */
+  override val name: Symbol = userName.id
 
   /** Consider the transaction for the analysis
       *
       * @return
-      *   the used transaction
+      *   the used transaction class
       */
   def used(using
       givenInfo: ReflexiveInfo,
       map: PMLNodeMap[UsedTransaction]
   ): UsedTransaction =
     UsedTransaction(userName, iniTgt(), sw())
-
-  override def toString: String = s"$userName"
 }
 
 /** Builder of platform [[Transaction]]
-    * @group transaction_class
+ *
+ * @group transaction_class
     */
 object Transaction extends PMLNodeBuilder[Transaction] {
 
   /** A transaction can be built from an application targeting a load or a
-      * store service
-      *
-      * @param iniTgt
-      *   the application/target service used
-      * @param name
-      *   the implicit name of the transaction (deduced from val used during
-      *   instantiation)
-      * @tparam A
-      *   the type of requests
-      * @return
-      *   the transaction (not used for now)
-      */
-  def apply[A: ToTransaction](
+   * store service
+   *
+   * @param iniTgt
+   * the application/target service used
+   * @param name
+   * the implicit name of the transaction (deduced from val used during
+   * instantiation)
+   * @tparam A
+   * the type of requests
+   * @return
+   * the transaction (not used for now)
+   */
+  def apply[A](
       iniTgt: => A
   )(using
       name: Name,
       givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
+      map: PMLNodeMap[Transaction],
+      ev: DelayedTransform[A, TransactionParam]
   ): Transaction = {
-    val result = TransactionParam(iniTgt)
+    val result = iniTgt.toTransactionParam
     apply(UserTransactionId(Symbol(name.value)), result._1, result._2)
   }
 
-  /** Main constructor of a transaction, note that transaction are memoized,
-      * so if the same name is used in the same platform the constructor will
-      * send back the previous definition of the transaction
+  /** A transaction can be from an application targeting a load or a store
+   * service
+   *
+   * @param name
+   * explicit name of the transaction
+   * @param iniTgt
+   * the application/target service used
+   * @tparam A
+   * the type of requests
+   * @return
+   * the transaction (not used for now)
+   */
+  def apply[A](name: String, iniTgt: => A)(using
+      givenInfo: ReflexiveInfo,
+      map: PMLNodeMap[Transaction],
+      ev: DelayedTransform[A, TransactionParam]
+  ): Transaction = {
+    val result = iniTgt.toTransactionParam
+    apply(UserTransactionId(Symbol(name)), result._1, result._2)
+  }
+
+  /** Build a transaction from a bunch of transactions, this should not be used
+      * with anonymous transaction
+      *
+      * @param tail
+      *   the set of transactions
+      * @param name
+      *   the implicit name of the transaction (same as the variable used to refer
+      *   to it)
+      * @return
+      *   a transaction
+      */
+  def apply(
+      head: Transaction,
+      next: Transaction,
+      tail: Transaction*
+  )(using
+      name: Name,
+      givenInfo: ReflexiveInfo,
+      map: PMLNodeMap[Transaction]
+  ): Transaction =
+    apply(name.value, head, next, tail: _*)
+
+  def apply(
+      name: String,
+      head: Transaction,
+      next: Transaction,
+      tail: Transaction*
+  )(using
+      givenInfo: ReflexiveInfo,
+      map: PMLNodeMap[Transaction]
+  ): Transaction =
+    apply(
+      UserTransactionId(Symbol(name)),
+      () => {
+        (head +: next +: tail).flatMap(_.iniTgt()).toSet
+      },
+      () => {
+        (head +: next +: tail).flatMap(_.sw()).toSet
+      }
+    )
+
+  /** Main constructor of a transaction, note that transactions are memoized, so if
+      * the same name is used in the same platform the constructor will send
+      * back the previous definition of the transaction
       *
       * @param name
       *   the name of the transaction
@@ -96,8 +165,6 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       *   the set of initial/target services defining the transaction
       * @param sw
       *   the applications that may invoke this transaction
-      * @param owner
-      *   the owner of the transaction (the platform)
       * @return
       *   the transaction (not used for now)
       */
@@ -114,61 +181,4 @@ object Transaction extends PMLNodeBuilder[Transaction] {
       new Transaction(name, iniTgt, sw, givenInfo)
     )
   }
-
-  /** A transaction can be from an application targeting a load or a store
-      * service
-      *
-      * @param name
-      *   explicit name of the transaction
-      * @param iniTgt
-      *   the application/target service used
-      * @tparam A
-      *   the type of requests
-      * @return
-      *   the transaction (not used for now)
-      */
-  def apply[A: ToTransaction](name: String, iniTgt: => A)(using
-      givenInfo: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction = {
-    val result = TransactionParam(iniTgt)
-    apply(UserTransactionId(Symbol(name)), result._1, result._2)
-  }
-
-  /** A transaction can be build from another transaction
-      *
-      * @param from
-      *   the initial transaction
-      * @param name
-      *   the implicit name of the transaction (deduced from val used during
-      *   instantiation)
-      * @return
-      *   the transaction (not used for now)
-      */
-  def apply(
-      from: Transaction
-  )(using
-      name: Name,
-      info: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction =
-    apply(UserTransactionId(Symbol(name.value)), from.iniTgt, from.sw)
-
-  /** A transaction can be build from another transaction
-   *
-   * @param name
-   *   explicit name of the transaction
-   * @param from
-   *   the initial transaction
-   * @return
-   *   the transaction (not used for now)
-   */
-  def apply(
-      name: String,
-      from: Transaction
-  )(using
-      info: ReflexiveInfo,
-      map: PMLNodeMap[Transaction]
-  ): Transaction =
-    apply(UserTransactionId(Symbol(name)), from.iniTgt, from.sw)
 }

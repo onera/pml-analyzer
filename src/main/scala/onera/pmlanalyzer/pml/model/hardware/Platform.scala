@@ -19,8 +19,6 @@ package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml
 import onera.pmlanalyzer.pml.model.*
-import onera.pmlanalyzer.pml.model.relations.Relation
-import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{
   Context,
@@ -30,8 +28,8 @@ import onera.pmlanalyzer.pml.model.utils.{
 }
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenario,
-  PhysicalScenarioId,
+  AtomicTransaction,
+  AtomicTransactionId,
   PhysicalTransaction,
   PhysicalTransactionId
 }
@@ -53,7 +51,8 @@ import scala.language.implicitConversions
   */
 abstract class Platform(val name: Symbol, line: Line, file: File)
     extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
-    with ContainerLike {
+    with ContainerLike
+    with Transform.BasicInstances {
 
   implicit val context: Context = Context.EmptyContext()
 
@@ -79,33 +78,35 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     */
   final lazy val fullName: String = currentOwner.toString
 
-  /** Map from the physical transaction id and their service sequence
+  /** Map from the physical atomic transaction id and their service sequence
     * representation computed through an analysis of the platform WARNING: this
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactionsByName
-      : Map[PhysicalTransactionId, PhysicalTransaction] =
-    this.usedTransactions.groupMapReduce(transactionId)(t => t)((l, _) => l)
+  final lazy val atomicTransactionsByName
+      : Map[AtomicTransactionId, AtomicTransaction] =
+    this.issuedAtomicTransactions.groupMapReduce(atomicTransactionId)(t => t)(
+      (l, _) => l
+    )
 
-  /** Set of physical transactions WARNING: this lazy variable MUST NOT be
+  /** Set of physical atomic transactions WARNING: this lazy variable MUST NOT be
     * called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactions: Set[PhysicalTransactionId] =
-    transactionsByName.keySet
+  final lazy val atomicTransactions: Set[AtomicTransactionId] =
+    atomicTransactionsByName.keySet
 
-  /** Map from the sw to the physical transaction id (default is emptySet)
+  /** Map from the sw to the physical atomic transaction id (default is emptySet)
     * WARNING: this lazy variable MUST NOT be called during platform object
     * initialisation
     * @group transaction
     */
-  final lazy val transactionsBySW
-      : Map[Application, Set[PhysicalTransactionId]] =
+  final lazy val atomicTransactionsBySW
+      : Map[Application, Set[AtomicTransactionId]] =
     Application.all.groupMapReduce(a => a)(a => {
       val targetServices = a.targetService
       val initServices = a.hostingInitiators.flatMap(_.services)
-      transactionsByName
+      atomicTransactionsByName
         .collect({
           case (id, path)
               if targetServices.contains(path.last) && initServices
@@ -115,12 +116,13 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
         .toSet
     })(_ ++ _)
 
+  private val _atomicTransactionId =
+    collection.mutable.HashMap
+      .empty[AtomicTransaction, AtomicTransactionId]
   private val _transactionId =
     collection.mutable.HashMap.empty[PhysicalTransaction, PhysicalTransactionId]
-  private val _scenarioId =
-    collection.mutable.HashMap.empty[PhysicalScenario, PhysicalScenarioId]
 
-  /** Build the transaction id as "head_last_i" where i is the number of path
+  /** Build the atomic transaction id as "head_last_i" where i is the number of path
     * with the same origin and destination as the one on build (possible when
     * multiple paths in the architecture)
     *
@@ -129,13 +131,15 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * @return
     *   the unique transaction id
     */
-  protected final def transactionId(
-      t: PhysicalTransaction
-  ): PhysicalTransactionId = _transactionId.getOrElseUpdate(
+  private final def atomicTransactionId(
+      t: AtomicTransaction
+  ): AtomicTransactionId = _atomicTransactionId.getOrElseUpdate(
     t, {
       val sameHT =
-        _transactionId.keys.count(tp => t.head == tp.head && t.last == tp.last)
-      PhysicalTransactionId(Symbol(s"${t.head}_${t.last}_$sameHT"))
+        _atomicTransactionId.keys.count(tp =>
+          t.head == tp.head && t.last == tp.last
+        )
+      AtomicTransactionId(Symbol(s"${t.head}_${t.last}_$sameHT"))
     }
   )
 
@@ -143,31 +147,25 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
     * lazy variable MUST NOT be called during platform object initialisation
     * @group transaction
     */
-  final lazy val transactionsName
-      : Map[PhysicalTransaction, PhysicalTransactionId] =
-    transactionsByName.groupMapReduce(_._2)(_._1)((l, _) => l)
+  final lazy val atomicTransactionsName
+      : Map[AtomicTransaction, AtomicTransactionId] =
+    atomicTransactionsByName.groupMapReduce(_._2)(_._1)((l, _) => l)
 
-  /** Build the scenario id as "t_1|...|t_n"
+  /** Build the transaction id as "at_1|...|at_n"
     *
     * @param s
-    *   the set of physical transactions forming the scenario
+    *   the set of atomic transactions forming the transaction
     * @return
-    *   the unique id of the scenario
+    *   the unique id of the transaction
     */
-  final def scenarioId(s: PhysicalScenario): PhysicalScenarioId =
-    _scenarioId.getOrElseUpdate(
+  final def transactionId(s: PhysicalTransaction): PhysicalTransactionId =
+    _transactionId.getOrElseUpdate(
       s, {
-        PhysicalScenarioId(
+        PhysicalTransactionId(
           Symbol(s.map(t => t.id.name).toArray.sorted.mkString("|"))
         )
       }
     )
-
-  given ToServicePath[PhysicalTransactionId] with {
-    def apply(x: PhysicalTransactionId): Set[PhysicalTransaction] = Set(
-      transactionsByName(x)
-    )
-  }
 }
 
 /** Static methods of Platform

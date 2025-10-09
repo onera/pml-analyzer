@@ -18,35 +18,35 @@
 package onera.pmlanalyzer.views.interference.model.specification
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.interference.operators.Transform
 
 trait ApplicativeTableBasedInterferenceSpecification
     extends TableBasedInterferenceSpecification
-    with Transform.TransactionLibraryInstances
     with ExclusiveRelation.LibraryInstances {
   self: Platform & TransactionLibrary =>
 
   /** Relation encoding the exclusivity constraints over
-    * [[pml.model.configuration.TransactionLibrary.UserScenarioId]] considered
+    * [[onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId]] considered
     * by the user
     * @group exclusive_relation
     */
-  final lazy val finalUserScenarioExclusive
-      : Map[UserScenarioId, Set[UserScenarioId]] = {
-    val exclusive = finalExclusive(purifiedScenarios.keySet)
+  final lazy val finalUserTransactionExclusive
+      : Map[UserTransactionId, Set[UserTransactionId]] = {
+    val exclusive = finalExclusive(purifiedTransactions.keySet)
     relationToMap(
-      scenarioByUserName.keySet,
+      transactionByUserName.keySet,
       (l, r) =>
         l != r && (
-          scenarioId(scenarioByUserName(l)) == scenarioId(scenarioByUserName(r))
-            || exclusive(scenarioId(scenarioByUserName(l)))
-              .contains(scenarioId(scenarioByUserName(r)))
-            || scenarioSW(l)
+          transactionId(transactionByUserName(l)) == transactionId(
+            transactionByUserName(r)
+          )
+            || exclusive(transactionId(transactionByUserName(l)))
+              .contains(transactionId(transactionByUserName(r)))
+            || transactionSW(l)
               .flatMap(sw => swExclusive.get(sw).getOrElse(Set.empty))
-              .intersect(scenarioSW(r))
+              .intersect(transactionSW(r))
               .nonEmpty
         )
     )

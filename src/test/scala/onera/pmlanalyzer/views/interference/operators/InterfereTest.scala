@@ -1,32 +1,19 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.views.interference.model.relations.{
-  InterfereRelation,
-  NotInterfereRelation
-}
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
-}
-
-import sourcecode.Name
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
+import sourcecode.Name
 
 import scala.language.postfixOps
-import onera.pmlanalyzer.views.dependability.model.Transition
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class InterfereTest extends AnyFlatSpecLike with should.Matchers {
 
@@ -55,16 +42,17 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     val tr1: Transaction = Transaction(app1 read d1)
     val tr2: Transaction = Transaction(app2 read d2)
 
-    val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
-    val tr2Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr2"))
+    val tr1Id: AtomicTransactionId = AtomicTransactionId(
+      Symbol("tr1")
+    )
+    val tr2Id: AtomicTransactionId = AtomicTransactionId(
+      Symbol("tr2")
+    )
 
-    val uTId: UserTransactionId = UserTransactionId(Symbol("uTId"))
-
-    val scn: Scenario = Scenario()
+    val scn: Transaction = Transaction(tr1, tr2)
   }
 
-  import InterfereTestPlatform.*
-  import InterfereTestPlatform.given
+  import InterfereTestPlatform.{*, given}
 
   "Two services" should "be able to interfere with each other" taggedAs UnitTests in {
     for {
@@ -122,7 +110,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     }
   }
 
-  "A Scenario and a set of physical transaction" should "be able to interfere" taggedAs UnitTests in {
+  "A Transaction and a set of services" should "be able to interfere" taggedAs UnitTests in {
     for {
       s <- i1.services
     } {

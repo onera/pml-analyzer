@@ -54,11 +54,11 @@ object IDPExporter {
   implicit object IDPPlatformExporter {
 
     // memoization of path id
-    private val _memoPathId = MHashMap.empty[PhysicalTransaction, String]
+    private val _memoPathId = MHashMap.empty[AtomicTransaction, String]
 
     // path id is formatted as "$head_$last_$i_path" where i is the number of path with the same
     // origin and destination as the one on build (possible when multiple paths in the architecture)
-    def pathId(p: PhysicalTransaction): String = _memoPathId.getOrElseUpdate(
+    def pathId(p: AtomicTransaction): String = _memoPathId.getOrElseUpdate(
       p, {
         val sameHT =
           _memoPathId.keys.count(k => k.head == p.head && k.last == p.last)
@@ -157,7 +157,7 @@ object IDPExporter {
       writer.write(s"Initiator_Number = ${hwComponents
           .count { case _: Initiator => true; case _ => false }}\n\n")
 
-      val transactions = platform.transactionsByName
+      val transactions = platform.atomicTransactionsByName
 
       // the interference analysis do not consider copy services, so these services must be discarded
       val services = transactions.values.toSet.flatten
@@ -193,17 +193,8 @@ object IDPExporter {
           .mkString("ProvidedBy = {\n\t", ";\n\t", "\n}\n\n")
       )
 
-      val pathNames = platform match {
-        case l: TransactionLibrary =>
-          val names = l.transactionUserName
-          transactions.keySet.map { k =>
-            k -> {
-              if (names(k).isEmpty) Set(s"${k}_path")
-              else names(k).map(t => s"${t}_path")
-            }
-          }.toMap
-        case _ => transactions.keySet.map { k => k -> Set(s"${k}_path") }.toMap
-      }
+      val pathNames =
+        transactions.keySet.map { k => k -> Set(s"${k}_path") }.toMap
 
       writer.write("/* Services paths used by at least one transaction */\n")
       writer.write(
@@ -232,16 +223,8 @@ object IDPExporter {
           .mkString("NextPathService = {\n\t", ";\n\t", "\n}\n\n")
       )
 
-      val transactionNames = platform match {
-        case l: TransactionLibrary =>
-          val names = l.transactionUserName
-          transactions.keySet.map { k =>
-            k -> {
-              if (names(k).isEmpty) Set(k.id.name) else names(k).map(_.id.name)
-            }
-          }.toMap
-        case _ => transactions.keySet.map { k => k -> Set(k.id.name) }.toMap
-      }
+      val transactionNames =
+        transactions.keySet.map { k => k -> Set(k.id.name) }.toMap
 
       writer.write("/* Single transactions triggered by software */\n")
       writer.write(

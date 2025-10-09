@@ -16,10 +16,13 @@
  ******************************************************************************/
 
 package onera.pmlanalyzer.pml.model.configuration
+
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.Endomorphism
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.model.utils.{Context, Owner, ReflexiveInfo}
+import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.utils.{
   All,
   ArbitraryConfiguration,
@@ -28,7 +31,6 @@ import onera.pmlanalyzer.pml.model.utils.{
   ReflexiveInfo
 }
 import onera.pmlanalyzer.pml.operators.*
-import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 
@@ -52,8 +54,7 @@ trait TransactionArbitrary {
       d <- All[Data]
     } yield app -> d
 
-  @targetName("given_Option_Transaction")
-  given (using
+  private def simpleTransactionGenerator(using
       c: ArbitraryConfiguration,
       r: ReflexiveInfo
   ): Arbitrary[Option[Transaction]] = Arbitrary(
@@ -82,14 +83,37 @@ trait TransactionArbitrary {
     }
   )
 
+  @targetName("given_Option_Transaction")
+  given (using
+      r: ReflexiveInfo
+  ): Arbitrary[Option[Transaction]] = Arbitrary(
+    for {
+      tT <- Gen.nonEmptyListOf(simpleTransactionGenerator.arbitrary)
+      name <- Gen.identifier.suchThat(s =>
+        Transaction
+          .get(PMLNodeBuilder.formatName(Symbol(s), currentOwner))
+          .isEmpty
+      )
+      tSeq = tT.flatten
+    } yield {
+      tSeq match {
+        case ::(head, ::(second, next)) =>
+          Some(Transaction(name, head, second, next: _*))
+        case ::(head, Nil) => Some(head)
+        case Nil           => None
+      }
+    }
+  )
+
   @targetName("given_Option_UsedTransaction")
   given (using
-      arbTr: Arbitrary[Option[Transaction]],
+      arbSc: Arbitrary[Option[Transaction]],
       r: ReflexiveInfo
   ): Arbitrary[Option[UsedTransaction]] = Arbitrary(
     for {
-      oT <- arbTr.arbitrary
-      t <- oT
-    } yield t.used
+      oS <- arbSc.arbitrary
+      s <- oS
+    } yield s.used
   )
+
 }

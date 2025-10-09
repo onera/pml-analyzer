@@ -46,10 +46,10 @@ trait SimpleT1042PhysicalTableBasedInterferenceSpecification
   }
 
   for {
-    l <- transactions
-    r <- transactions
+    l <- atomicTransactions
+    r <- atomicTransactions
     if l != r
-    if l.pathInitiators == r.pathInitiators
+    if l.usedInitiators == r.usedInitiators
   } yield {
     l exclusiveWith r
   }

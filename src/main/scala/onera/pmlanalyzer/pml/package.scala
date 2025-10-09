@@ -63,20 +63,20 @@ package onera.pmlanalyzer
   * @groupprio builder 4
   * @groupname transaction_class Transaction classes
   * @groupprio transaction_class 4
-  * @groupname scenario_class Scenario classes
-  * @groupprio scenario_class 4
+  * @groupname transaction_class Transaction classes
+  * @groupprio transaction_class 4
   * @groupname transaction_operation Transaction operators
   * @groupprio transaction_operation 2
-  * @groupname scenario_operation Scenario operators
-  * @groupprio scenario_operation 2
+  * @groupname transaction_operation Transaction operators
+  * @groupprio transaction_operation 2
   * @groupname user_transaction_relation Used user transaction relations
   * @groupprio user_transaction_relation 3
-  * @groupname user_scenario_relation Used user scenario relations
-  * @groupprio user_scenario_relation 3
+  * @groupname user_transaction_relation Used user transaction relations
+  * @groupprio user_transaction_relation 3
   * @groupname transaction_def User transaction definition
   * @groupprio transaction_def 0
-  * @groupname scenario_def User scenario definition
-  * @groupprio scenario_def 0
+  * @groupname transaction_def User transaction definition
+  * @groupprio transaction_def 0
   * @groupname identifier Identifiers
   * @groupprio identifier 3
   * @groupname target Target components

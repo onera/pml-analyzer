@@ -17,16 +17,13 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.{
-  UserScenarioId,
-  UserTransactionId
-}
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Target}
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
+import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenarioId,
-  PhysicalTransaction,
+  AtomicTransaction,
+  AtomicTransactionId,
   PhysicalTransactionId
 }
 
@@ -35,8 +32,6 @@ import scala.collection.mutable
 /** Listing all information, warning or error messages displayed to the user
   */
 object Message {
-  inline def impossibleTransactionWarning(userName: UserTransactionId): String =
-    s"[WARNING] The physical transaction $userName is not possible, check your link and route constraints"
 
   inline def impossibleRouteWarning(
       t: Service,
@@ -47,50 +42,30 @@ object Message {
         else ""
       }"""
 
-  inline def multiPathTransactionWarning(
-      userName: UserTransactionId,
-      list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
-  ): String =
-    s"""[WARNING] The transaction $userName addresses multiple physical transactions:
-       |${list.map(_._1).mkString("[WARNING]", "\n", "\n")}
-       |[WARNING] so $userName will be considered as a scenario""".stripMargin
-
   inline def multiPathRouteWarning(
       from: Service,
       to: Service,
-      transactions: Set[PhysicalTransaction]
+      transactions: Set[AtomicTransaction]
   ): String = {
     s"""[WARNING] Multiple paths have been detected from $from to $to
        |${transactions.map(_.mkString("<->")).mkString("\n")}""".stripMargin
   }
 
-  inline def transactionNoInLibraryWarning(
+  inline def impossibleTransactionWarning(userName: UserTransactionId): String =
+    s"[WARNING] The physical transaction $userName is not possible, check your link and route constraints"
+
+  inline def multiPathTransactionWarning(
+      userName: UserTransactionId,
+      list: Iterable[(AtomicTransactionId, AtomicTransaction)]
+  ): String =
+    s"""[WARNING] Some atomic transactions in transaction $userName addresses multiple physical transactions:
+       |${list.map(_._1).mkString("\n")}
+       |all paths will be considered in the transaction, consider routing constraints to avoid multi-path""".stripMargin
+
+  inline def transactionNotInLibraryWarning(
       name: PhysicalTransactionId
   ): String =
-    s"[WARNING] The physical transaction $name is not in the library"
-
-  inline def transactionHasSeveralNameWarning(
-      name: PhysicalTransactionId,
-      names: Iterable[UserTransactionId]
-  ): String =
-    s"""[WARNING] The physical transaction $name has ${names.size} distinct names:
-       |${names
-        .map(_.id.name)
-        .mkString("[WARNING] ", "\n[WARNING] ", "")}""".stripMargin
-
-  inline def impossibleScenarioWarning(userName: UserScenarioId): String =
-    s"[WARNING] The physical scenario $userName is not possible, check your link and route constraints"
-
-  inline def multiPathScenarioWarning(
-      userName: UserScenarioId,
-      list: Iterable[(PhysicalTransactionId, PhysicalTransaction)]
-  ): String =
-    s"""[WARNING] Some transactions in scenario $userName addresses multiple physical transactions:
-       |${list.map(_._1).mkString("\n")}
-       |all paths will be considered in the scenario, consider routing constraints to avoid multi-path""".stripMargin
-
-  inline def scenarioNotInLibraryWarning(name: PhysicalScenarioId): String =
-    s"[WARNING] The physical scenario $name is considered but not defined in the library"
+    s"[WARNING] The physical transaction $name is considered but not defined in the library"
 
   inline def applicationNotUsingServicesWarning(a: Application): String =
     s"[WARNING] $a is not using any service"
@@ -131,14 +106,16 @@ object Message {
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
     s"[INFO] $platform MonoSat model successfully built in $time s"
 
-  inline def startingNonExclusiveScenarioEstimationInfo(platform: Any): String =
-    s"[INFO] Starting  $platform estimation of number of non exclusive scenarios"
+  inline def startingNonExclusiveTransactionEstimationInfo(
+      platform: Any
+  ): String =
+    s"[INFO] Starting  $platform estimation of number of non exclusive transactions"
 
-  inline def successfulNonExclusiveScenarioEstimationInfo(
+  inline def successfulNonExclusiveMultiTransactionEstimationInfo(
       platform: Any,
       time: Any
   ): String =
-    s"[INFO] $platform estimation of number of non exclusive scenarios completed in $time s"
+    s"[INFO] $platform estimation of number of non exclusive transactions completed in $time s"
 
   inline def iterationCompletedInfo(i: Any, n: Any, time: Any): String =
     s"[INFO] Iteration $i / $n completed in $time s"
@@ -152,9 +129,9 @@ object Message {
       over: Option[Map[Int, BigInt]]
   ): String =
     s"""[INFO] Interference ${if (isFree) "free " else ""}computed so far
-         |${printScenarioNumber(computed, over)}""".stripMargin
+         |${printMultiTransactionNumber(computed, over)}""".stripMargin
 
-  inline def printScenarioNumber(
+  inline def printMultiTransactionNumber(
       computed: mutable.Map[Int, BigInt],
       over: Option[Map[Int, BigInt]]
   ): String = {

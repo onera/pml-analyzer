@@ -20,167 +20,87 @@ package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
-import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
-import sourcecode.{File, Line, Name}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransaction,
+  AtomicTransactionId
 }
-
-import scala.reflect.ClassTag
 
 /** Base trait for library of transactions
   */
-trait TransactionLibrary {
+trait TransactionLibrary extends Transform.TransactionLibraryInstances {
   self: Platform =>
 
-  /** Map from the user defined transaction to the physical transaction id this
-    * map does not contain user transactions with multi-path (contained in ...)
-    * WARNING: this lazy variable can be called ONLY AFTER TRANSACTION/SCENARIO
+  /** Map from the user defined transaction to the physical transaction id WARNING:
+    * this lazy variable can be called ONLY AFTER TRANSACTION
     * DEFINITION
     * @group user_transaction_relation
     */
   final lazy val transactionByUserName
-      : Map[UserTransactionId, PhysicalTransactionId] =
+      : Map[UserTransactionId, Set[AtomicTransactionId]] = {
     UsedTransaction.all
-      .flatMap(u =>
-        for { t <- u.toPhysical(transactionsByName) } yield u.userName -> t
-      )
-      .toMap
+      .map(u => u.userName -> u.toPhysical(atomicTransactionsByName))
+      .groupMapReduce(_._1)(_._2)(_ ++ _)
+  }
 
-  /** Map from the physical transaction id to the user defined id(s) It is
-    * possible that a physical transaction is linked to several (or none) user
-    * defined transactions WARNING: this lazy variable can be called ONLY AFTER
-    * TRANSACTION/SCENARIO DEFINITION
+  /** Map from the atomic transaction ids to the user
+    * defined transaction(s) It is possible that a transaction is linked to several
+    * (or none) user defined transactions WARNING: this lazy variable can be called
+    * ONLY AFTER TRANSACTION DEFINITION
     * @group user_transaction_relation
     */
   final lazy val transactionUserName
-      : Map[PhysicalTransactionId, Set[UserTransactionId]] =
-    transactionByUserName.keySet
+      : Map[Set[AtomicTransactionId], Set[UserTransactionId]] = {
+    val result = transactionByUserName.keySet
       .groupMap(k => transactionByUserName(k))(k => k)
       .withDefaultValue(Set.empty)
-
-  /** Map from the user defined scenario to the physical transaction id WARNING:
-    * this lazy variable can be called ONLY AFTER TRANSACTION/SCENARIO
-    * DEFINITION
-    * @group user_scenario_relation
-    */
-  final lazy val scenarioByUserName
-      : Map[UserScenarioId, Set[PhysicalTransactionId]] = {
-    (transactionByUserName.keySet.map(k =>
-      UserScenarioId(k.id) -> Set(transactionByUserName(k))
-    ) ++
-      UsedScenario.all.map(u => u.userName -> u.toPhysical(transactionsByName)))
-      .groupMapReduce(_._1)(_._2)(_ ++ _)
-  }
-
-  /** Map from the physical scenario id (set of transaction id) to the user
-    * defined scenario(s) It is possible that a scenario is linked to several
-    * (or none) user defined scenarios WARNING: this lazy variable can be called
-    * ONLY AFTER TRANSACTION/SCENARIO DEFINITION
-    * @group user_scenario_relation
-    */
-  final lazy val scenarioUserName
-      : Map[Set[PhysicalTransactionId], Set[UserScenarioId]] = {
-    val result = scenarioByUserName.keySet
-      .groupMap(k => scenarioByUserName(k))(k => k)
-      .withDefaultValue(Set.empty)
-    checkLibrary(transactionUserName, result)
+    checkLibrary(result)
     result
   }
 
-  /** Map from the used scenario and the application involved in these scenarios
-    * WARNING: this lazy variable can be called ONLY AFTER TRANSACTION/SCENARIO
+  /** Map from the used transaction and the application involved in these transactions
+    * WARNING: this lazy variable can be called ONLY AFTER TRANSACTION
     * DEFINITION
-    * @group user_scenario_relation
+    * @group user_transaction_relation
     */
-  final lazy val scenarioSW: Map[UserScenarioId, Set[Application]] = {
-    transactionByUserName
-    (UsedTransaction.all.map(k => UserScenarioId(k.name) -> k.sw) ++
-      UsedScenario.all.map(k => k.userName -> k.sw))
+  final lazy val transactionSW: Map[UserTransactionId, Set[Application]] = {
+    UsedTransaction.all
+      .map(k => k.userName -> k.sw)
       .groupMapReduce(_._1)(_._2)(_ ++ _)
   }
 
-  /** Check the transaction and scenario libraries w.r.t. the transactions
+  /** Check the transaction libraries w.r.t. the transactions
     * computed with the actual the ideal (but not requested situation) is
     * one-to-one libraries definition of the platform
     * @group utilFun
-    * @param tMap
-    *   the transaction library to check
     * @param sMap
-    *   the scenario library to check
+    *   the transaction library to check
     */
   final def checkLibrary(
-      tMap: Map[PhysicalTransactionId, Set[UserTransactionId]],
-      sMap: Map[Set[PhysicalTransactionId], Set[UserScenarioId]]
+      sMap: Map[Set[AtomicTransactionId], Set[UserTransactionId]]
   ): Unit = {
-    for (k <- transactionsByName.keySet) {
-      if (
-        (!tMap
-          .contains(k) || tMap(k).isEmpty) && !sMap.keySet.flatten.contains(k)
-      )
-        println(Message.transactionNoInLibraryWarning(k))
-      for { s <- tMap.get(k) if s.size >= 2 } yield println(
-        Message.transactionHasSeveralNameWarning(k, s)
-      )
-    }
     this match {
       case i: InterferenceSpecification =>
         for (
-          (s, st) <- i.purifiedScenarios
+          (s, st) <- i.purifiedTransactions
           if !sMap.contains(st) || sMap(st).isEmpty
         ) {
-          println(Message.scenarioNotInLibraryWarning(s))
+          println(Message.transactionNotInLibraryWarning(s))
         }
     }
-  }
-
-  /** Transaction extension method
-    * @group transaction_operation
-    * @param x
-    *   id of the user transaction
-    */
-  given ToServicePath[UserTransactionId] with {
-    def apply(x: UserTransactionId): Set[PhysicalTransaction] =
-      (for {
-        id <- transactionByUserName.get(x)
-      } yield Set(transactionsByName(id))) getOrElse Set.empty
-  }
-
-  /** Scenario extension method
-    * @group scenario_operation
-    * @param x
-    *   id of the user scenario
-    */
-  given ToServicePath[UserScenarioId] with {
-    def apply(x: UserScenarioId): Set[PhysicalTransaction] =
-      scenarioByUserName(x).flatMap(_.paths)
   }
 }
 
 object TransactionLibrary {
 
-  /** Base trait for user ids
-    */
-  sealed abstract class UserId {
-    val id: Symbol
-    override def toString: String = id.name
-  }
-
-  /** User id for transactions
+  /** User id of transactions
     * @param id
     *   name of the transaction
     */
-  final case class UserTransactionId(id: Symbol) extends UserId
-
-  /** User id of scenarios
-    * @param id
-    *   name of the scenario
-    */
-  final case class UserScenarioId(id: Symbol) extends UserId
+  final case class UserTransactionId(id: Symbol) {
+    override def toString: String = id.name
+  }
 }

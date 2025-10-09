@@ -173,26 +173,26 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
    * DMA Transactions
    */
   private val dma_rd_eth = Transaction(app_dma read eth)
-  val basicDmaTransactions: Seq[Scenario] = {
-    val ddrCopies: Seq[Scenario] = for {
+  val basicDmaTransactions: Seq[Transaction] = {
+    val ddrCopies: Seq[Transaction] = for {
       ddr <- ddrs
       (bank, j) <- ddr.banks.zipWithIndex
     } yield {
       val dma_wr_bank = Transaction(app_dma write bank)
-      Scenario(
+      Transaction(
         s"t_dma_st_DDR${ddr.id}_BK${j}",
         dma_rd_eth,
         dma_wr_bank
       )
     }
 
-    val sramCopies: Seq[Scenario] = for {
+    val sramCopies: Seq[Transaction] = for {
       group <- groupDSP
       cluster <- group.clusters.flatten
       sram <- cluster.SRAM
     } yield {
       val dma_wr_sram = Transaction(app_dma write sram)
-      Scenario(
+      Transaction(
         s"t_dma_rd_G${group.id}_Cl${cluster.id}_SRAM${sram.name}",
         dma_rd_eth,
         dma_wr_sram
@@ -202,9 +202,7 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
     val dma_rd_reg = Transaction(app_dma read cfg_bus.dma_reg)
     val dma_wr_reg = Transaction(app_dma write cfg_bus.dma_reg)
 
-    // FIXME ScenarioLike does not support the `used` operator, so we need a sequence of Scenario
-    //  (or tag all `used` during the definition)
-    val dma_rd_config = Scenario(
+    val dma_rd_config = Transaction(
       "t_dma_rd_dma_reg",
       dma_rd_reg,
       dma_wr_reg

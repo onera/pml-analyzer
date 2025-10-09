@@ -18,11 +18,13 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransactionId
+import onera.pmlanalyzer.pml.model.configuration.{
+  Transaction,
+  TransactionLibrary
 }
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
+import onera.pmlanalyzer.pml.operators.Transform
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
 private[operators] trait Exclusive[T] {
@@ -47,9 +49,19 @@ object Exclusive {
       relation.add(l, r)
   }
 
-  given [S](using
-      transform: Transform[S, Option[PhysicalTransactionId]],
-      ev: Exclusive[PhysicalTransactionId]
+  given (using relation: ExclusiveRelation[UserTransactionId]): Exclusive[
+    Transaction
+  ] with {
+    def apply(l: Transaction, r: Transaction)(using
+        line: Line,
+        file: File
+    ): Unit =
+      relation.add(l.userName, r.userName)
+  }
+
+  given [S, R](using
+      transform: Transform[S, Option[R]],
+      ev: Exclusive[R]
   ): Exclusive[S] with {
     def apply(l: S, r: S)(using line: Line, file: File): Unit = for {
       lId <- transform(l)

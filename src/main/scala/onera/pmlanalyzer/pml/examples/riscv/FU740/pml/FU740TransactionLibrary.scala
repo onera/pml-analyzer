@@ -19,12 +19,7 @@ package onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.{
-  UserScenarioId,
-  UserTransactionId
-}
 import onera.pmlanalyzer.pml.model.hardware.Target
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.Name
 
@@ -32,14 +27,11 @@ import scala.language.postfixOps
 
 /**
   * This trait contains a library of all transactions that can occur on the platform
-  * One way to define a [[pml.model.configuration.TransactionLibrary.Transaction]] or
-  * a [[pml.model.configuration.TransactionLibrary.Scenario]] is to use the read/write operators specifying
+  * One way to define a [[onera.pmlanalyzer.pml.model.configuration.Transaction]] is to use the read/write operators specifying
   * which [[pml.model.software.Data]] is used by which [[pml.model.software.Application]].
   * The location of the application and the data are provided in the [[FU740SoftwareAllocation]] trait.
   *
-  * If you want to define several paths representing a multi-transaction use the [[pml.model.configuration.TransactionLibrary.Scenario]]
-  *
-  * @note A transaction or a scenario is only '''declared''' here, it will be considered during the interference analysis if it is
+  * @note A transaction is only '''declared''' here, it will be considered during the interference analysis if it is
   *      actually used. This is done in the [[FU740LibraryConfiguration]] files.
   *      A transaction should be a path from an initiator to a target, if several paths are possible a warning will be raised.
   * @see [[pml.operators.Use.Ops]] for read/write operator definitions
@@ -48,7 +40,7 @@ trait FU740TransactionLibrary extends TransactionLibrary {
   self: FU740Platform with FU740SoftwareAllocation =>
 
   /*
-   * We model cached memory accesses using explicit scenarios, capturing the
+   * We model cached memory accesses using explicit transactions, capturing the
    * accesses to the updated caches. This could be:
    * - implicit, mapping the data in all updated targets.
    * - programmatic, based on the configuration of the cache hierarchy.
@@ -69,8 +61,8 @@ trait FU740TransactionLibrary extends TransactionLibrary {
   val t0_1: Transaction = Transaction(t0_wr_dtim)
   val t0_2: Transaction = Transaction(t0_rd_l2)
   val t0_3: Transaction = Transaction(t0_wr_l2)
-  val t0_4: Scenario = Scenario(t0_rd_mem, t0_l2_refill)
-  val t0_5: Scenario = Scenario(t0_wr_mem, t0_l2_refill)
+  val t0_4: Transaction = Transaction(t0_rd_mem, t0_l2_refill)
+  val t0_5: Transaction = Transaction(t0_wr_mem, t0_l2_refill)
 
   private val t1_rd_l1 = Transaction(app1 read d1.DL1Cache)
   private val t1_wr_l1 = Transaction(app1 write d1.DL1Cache)
@@ -85,10 +77,10 @@ trait FU740TransactionLibrary extends TransactionLibrary {
 
   val t1_0: Transaction = Transaction(t1_rd_l1)
   val t1_1: Transaction = Transaction(t1_wr_l1)
-  val t1_2: Scenario = Scenario(t1_rd_l2, t1_l1_refill)
-  val t1_3: Scenario = Scenario(t1_wr_l2, t1_l1_refill)
-  val t1_6: Scenario = Scenario(t1_rd_mem, t1_l2_refill, t1_l1_refill)
-  val t1_7: Scenario = Scenario(t1_wr_mem, t1_l2_refill, t1_l1_refill)
+  val t1_2: Transaction = Transaction(t1_rd_l2, t1_l1_refill)
+  val t1_3: Transaction = Transaction(t1_wr_l2, t1_l1_refill)
+  val t1_6: Transaction = Transaction(t1_rd_mem, t1_l2_refill, t1_l1_refill)
+  val t1_7: Transaction = Transaction(t1_wr_mem, t1_l2_refill, t1_l1_refill)
   val t1_4: Transaction = Transaction(t1_rd_lim)
   val t1_5: Transaction = Transaction(t1_wr_lim)
 
@@ -104,10 +96,10 @@ trait FU740TransactionLibrary extends TransactionLibrary {
 
   val t2_0: Transaction = Transaction(t2_rd_l1)
   val t2_1: Transaction = Transaction(t2_wr_l1)
-  val t2_2: Scenario = Scenario(t2_rd_l2, t2_l1_refill)
-  val t2_3: Scenario = Scenario(t2_wr_l2, t2_l1_refill)
-  val t2_4: Scenario = Scenario(t2_rd_mem, t2_l2_refill, t2_l1_refill)
-  val t2_5: Scenario = Scenario(t2_wr_mem, t2_l2_refill, t2_l1_refill)
+  val t2_2: Transaction = Transaction(t2_rd_l2, t2_l1_refill)
+  val t2_3: Transaction = Transaction(t2_wr_l2, t2_l1_refill)
+  val t2_4: Transaction = Transaction(t2_rd_mem, t2_l2_refill, t2_l1_refill)
+  val t2_5: Transaction = Transaction(t2_wr_mem, t2_l2_refill, t2_l1_refill)
   val t2_6: Transaction = Transaction(t2_rd_uart)
 
   private val t3_rd_l1 = Transaction(app3 read d3.DL1Cache)
@@ -121,10 +113,10 @@ trait FU740TransactionLibrary extends TransactionLibrary {
 
   val t3_0: Transaction = Transaction(t3_rd_l1)
   val t3_1: Transaction = Transaction(t3_wr_l1)
-  val t3_2: Scenario = Scenario(t3_rd_l2, t3_l1_refill)
-  val t3_3: Scenario = Scenario(t3_wr_l2, t3_l1_refill)
-  val t3_4: Scenario = Scenario(t3_rd_mem, t3_l2_refill, t3_l1_refill)
-  val t3_5: Scenario = Scenario(t3_wr_mem, t3_l2_refill, t3_l1_refill)
+  val t3_2: Transaction = Transaction(t3_rd_l2, t3_l1_refill)
+  val t3_3: Transaction = Transaction(t3_wr_l2, t3_l1_refill)
+  val t3_4: Transaction = Transaction(t3_rd_mem, t3_l2_refill, t3_l1_refill)
+  val t3_5: Transaction = Transaction(t3_wr_mem, t3_l2_refill, t3_l1_refill)
 
   private val t4_rd_l1 = Transaction(app4 read d4.DL1Cache)
   private val t4_wr_l1 = Transaction(app4 write d4.DL1Cache)
@@ -137,8 +129,8 @@ trait FU740TransactionLibrary extends TransactionLibrary {
 
   val t4_0: Transaction = Transaction(t4_rd_l1)
   val t4_1: Transaction = Transaction(t4_wr_l1)
-  val t4_2: Scenario = Scenario(t4_rd_l2, t4_l1_refill)
-  val t4_3: Scenario = Scenario(t4_wr_l2, t4_l1_refill)
-  val t4_4: Scenario = Scenario(t4_rd_mem, t4_l2_refill, t4_l1_refill)
-  val t4_5: Scenario = Scenario(t4_wr_mem, t4_l2_refill, t4_l1_refill)
+  val t4_2: Transaction = Transaction(t4_rd_l2, t4_l1_refill)
+  val t4_3: Transaction = Transaction(t4_wr_l2, t4_l1_refill)
+  val t4_4: Transaction = Transaction(t4_rd_mem, t4_l2_refill, t4_l1_refill)
+  val t4_5: Transaction = Transaction(t4_wr_mem, t4_l2_refill, t4_l1_refill)
 }

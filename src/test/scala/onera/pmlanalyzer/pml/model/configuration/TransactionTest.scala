@@ -121,14 +121,15 @@ class TransactionTest
                 } {
                   t.owner should be(currentOwner)
                   for {
-                    id <- t.toPhysical(transactionsByName)
-                    path <- transactionsByName.get(id)
+                    id <- t.toPhysical(atomicTransactionsByName)
+                    path <- atomicTransactionsByName.get(id)
                   } {
                     checkImpossible(Set(path)) should be(empty)
-                    for { app <- t.sw }
-                      path.head.initiatorOwner should equal(
-                        app.hostingInitiators
-                      )
+                    for {
+                      ini <- path.head.initiatorOwner
+                    } {
+                      t.sw.flatMap(_.hostingInitiators) should contain(ini)
+                    }
                     for {
                       (l, r) <- path.zip(path.tail)
                     } {

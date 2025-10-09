@@ -17,14 +17,14 @@
 
 package onera.pmlanalyzer.views.interference.model.relations
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   AntiReflexiveSymmetricEndomorphism,
   Endomorphism
 }
 import onera.pmlanalyzer.pml.model.software.Application
 import sourcecode.Name
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 final case class ExclusiveRelation[A] private (iniValues: Map[A, Set[A]])(using
     n: Name
@@ -37,17 +37,17 @@ object ExclusiveRelation {
       * @group exclusive_relation
       */
     final implicit val transactionExclusive
-        : ExclusiveRelation[PhysicalTransactionId] = ExclusiveRelation(
+        : ExclusiveRelation[AtomicTransactionId] = ExclusiveRelation(
       Map.empty
     )
   }
   trait LibraryInstances {
 
-    /** Relation gathering user defined exclusive scenarios
+    /** Relation gathering user defined exclusive transactions
       * @group exclusive_relation
       */
-    final implicit val userScenarioExclusive
-        : ExclusiveRelation[UserScenarioId] = ExclusiveRelation(Map.empty)
+    final implicit val userTransactionExclusive
+        : ExclusiveRelation[UserTransactionId] = ExclusiveRelation(Map.empty)
   }
   trait ApplicationInstances {
 

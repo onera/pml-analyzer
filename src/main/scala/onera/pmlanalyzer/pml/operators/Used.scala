@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.UseRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
@@ -24,10 +25,12 @@ import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  Path,
-  PhysicalTransaction
+  AtomicTransaction,
+  AtomicTransactionId,
+  Path
 }
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 
 import scala.collection.mutable
 import scala.reflect.*
@@ -120,9 +123,9 @@ object Used {
         * @return
         *   the set of used physical transactions
         */
-      def usedTransactions(using
-          ev: Used[L, PhysicalTransaction]
-      ): Set[PhysicalTransaction] = ev(self)
+      def issuedAtomicTransactions(using
+          ev: Used[L, AtomicTransaction]
+      ): Set[AtomicTransaction] = ev(self)
 
       /** PML keyword to access to multi-path physical transactions used by self
         *
@@ -132,9 +135,9 @@ object Used {
         *   the set of multi path used physical transactions
         */
       def multiPathsTransactions(using
-          ev: Used[L, PhysicalTransaction]
-      ): Set[Set[PhysicalTransaction]] = {
-        Used.getMultiPaths(usedTransactions).values.toSet
+          ev: Used[L, AtomicTransaction]
+      ): Set[Set[AtomicTransaction]] = {
+        Used.getMultiPaths(issuedAtomicTransactions).values.toSet
       }
     }
 
@@ -206,6 +209,78 @@ object Used {
           self
         )
     }
+    extension [T](y: => T) {
+
+      def toTransactionParam(using
+          ev: DelayedTransform[T, TransactionParam]
+      ): TransactionParam =
+        ev(y)
+    }
+
+    extension [T](x: T) {
+
+      /** Method that should be provided by sub-classes to access to the path
+       *
+       * @return
+       * the set of service paths
+       */
+      def paths(using
+          ev: Transform[T, Set[AtomicTransaction]]
+      ): Set[AtomicTransaction] =
+        ev(x)
+
+      /** Check if the target is in the possible targets of the transaction
+       *
+       * @param t
+       * target to find
+       * @return
+       * true if the target is contained
+       */
+      def useTarget(
+          t: Target
+      )(using
+          ev: Transform[T, Set[AtomicTransaction]],
+          p: Provided[Target, Service]
+      ): Boolean =
+        usedTargets.contains(t)
+
+      /** Provide the targets of the transaction
+       *
+       * @return
+       * the set of targets
+       */
+      def usedTargets(using
+          ev: Transform[T, Set[AtomicTransaction]],
+          p: Provided[Target, Service]
+      ): Set[Target] =
+        paths.filter(_.size >= 2).flatMap(t => t.last.targetOwner)
+
+      /** Provide the initiators fo a transaction
+       *
+       * @return
+       * the set of initiators
+       */
+      def usedInitiators(using
+          ev: Transform[T, Set[AtomicTransaction]],
+          p: Provided[Initiator, Service]
+      ): Set[Initiator] =
+        paths.filter(_.nonEmpty).flatMap(t => t.head.initiatorOwner)
+
+      /** Check is the initiator is in the possible initiators of the transaction
+       *
+       * @param ini
+       * initiator to find
+       * @return
+       * true if the initiator is contained
+       */
+      def useInitiator(
+          ini: Initiator
+      )(using
+          ev: Transform[T, Set[AtomicTransaction]],
+          p: Provided[Initiator, Service]
+      ): Boolean =
+        usedInitiators.contains(ini)
+    }
   }
 
   /** ------------------------------------------------------------------------------------------------------------------
@@ -223,8 +298,8 @@ object Used {
   }
 
   // derivations
-  given [P <: Platform: Typeable]: Used[P, PhysicalTransaction] with {
-    def apply(a: P): Set[PhysicalTransaction] = {
+  given [P <: Platform: Typeable]: Used[P, AtomicTransaction] with {
+    def apply(a: P): Set[AtomicTransaction] = {
       import a._
 
       val (appPaths, appWarnings) = a.applications.map(usedTransactionsBy).unzip
@@ -382,7 +457,7 @@ object Used {
   }
 
   def checkImpossible(
-      s: Set[PhysicalTransaction],
+      s: Set[AtomicTransaction],
       target: Set[Service] = Set.empty,
       a: Option[Application] = None
   ): Set[String] = {
@@ -392,18 +467,18 @@ object Used {
   }
 
   private def getMultiPaths(
-      s: Set[PhysicalTransaction]
-  ): Map[(Service, Service), Set[PhysicalTransaction]] =
+      s: Set[AtomicTransaction]
+  ): Map[(Service, Service), Set[AtomicTransaction]] =
     s.groupBy(t => (t.head, t.last))
       .filter(_._2.size >= 2)
 
-  def checkMultiPaths(s: Set[PhysicalTransaction]): Set[String] =
+  def checkMultiPaths(s: Set[AtomicTransaction]): Set[String] =
     getMultiPaths(s)
       .map(kv => multiPathRouteWarning(kv._1._1, kv._1._2, kv._2))
       .toSet
 
   private def checkTransactions(
-      s: Set[PhysicalTransaction],
+      s: Set[AtomicTransaction],
       target: Set[Service] = Set.empty,
       a: Option[Application] = None
   ): Set[String] =

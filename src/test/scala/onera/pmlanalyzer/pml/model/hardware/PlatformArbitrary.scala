@@ -17,32 +17,29 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.model.service.*
+import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
+import onera.pmlanalyzer.pml.model.configuration.{
+  TransactionArbitrary,
+  TransactionLibrary
+}
+import onera.pmlanalyzer.pml.model.hardware.CompositeArbitrary.given
 import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   RoutingRelationArbitrary,
   UseRelationArbitrary
 }
-import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
+import onera.pmlanalyzer.pml.model.service.*
+import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
+import onera.pmlanalyzer.pml.operators.*
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
-import CompositeArbitrary.given
-import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
-import onera.pmlanalyzer.pml.model.configuration.{
-  Scenario,
-  ScenarioArbitrary,
-  Transaction,
-  TransactionArbitrary,
-  TransactionLibrary
-}
-import onera.pmlanalyzer.pml.operators.*
 
 object PlatformArbitrary {
 
-  type PopulatedPlatform = Platform & ScenarioArbitrary & TransactionArbitrary &
-    PMLNodeSetArbitrary & TransactionLibrary & LinkRelationArbitrary &
-    UseRelationArbitrary & RoutingRelationArbitrary
+  type PopulatedPlatform = Platform & TransactionArbitrary &
+    PMLNodeSetArbitrary & LinkRelationArbitrary & UseRelationArbitrary &
+    RoutingRelationArbitrary
 
   given (using
       conf: ArbitraryConfiguration,
@@ -64,8 +61,8 @@ object PlatformArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
+//          with TransactionArbitrary
           with TransactionArbitrary
-          with ScenarioArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary
           with RoutingRelationArbitrary

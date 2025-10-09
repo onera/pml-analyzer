@@ -17,18 +17,10 @@
 
 package onera.pmlanalyzer.pml.model
 
-import onera.pmlanalyzer.pml.model.configuration.{
-  Scenario,
-  Transaction,
-  UsedTransaction
-}
 import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
 import org.scalacheck.{Arbitrary, Gen}
-
-import scala.reflect.Typeable
 
 trait PMLNodeSetArbitrary {
 

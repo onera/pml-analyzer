@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
 import onera.pmlanalyzer.pml.model.hardware.Initiator
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -78,10 +78,10 @@ trait MyProcInterferenceSpecification
 
   // All transactions issued from the same initiator are exclusive
   for {
-    l <- transactions
-    r <- transactions
+    l <- atomicTransactions
+    r <- atomicTransactions
     if l != r
-    if l.pathInitiators == r.pathInitiators
+    if l.usedInitiators == r.usedInitiators
   } yield {
     l exclusiveWith r
   }

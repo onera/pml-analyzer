@@ -18,14 +18,12 @@
 package onera.pmlanalyzer.pml.examples.mySys
 
 import onera.pmlanalyzer.pml.exporters.*
-import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.examples.mySys.{
-  MySysInterferenceSpecification,
-  MyProcInterferenceSpecification
+  MyProcInterferenceSpecification,
+  MySysInterferenceSpecification
 }
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.operators.*
 
 /** Program entry point to export several version of Keystone
   */
@@ -76,7 +74,7 @@ object MySysExport extends App {
   MySys.exportDeactivatedComponents()
 
   // Export the transactions defined by the user
-  MySys.exportUserScenarios()
+  MySys.exportUserTransactions()
 
   MySys.exportSemanticsSize()
 

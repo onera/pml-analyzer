@@ -18,7 +18,6 @@
 package onera.pmlanalyzer.pml.exporters
 
 import onera.pmlanalyzer.pml.model.configuration.{
-  Scenario,
   Transaction,
   TransactionLibrary
 }
@@ -223,7 +222,7 @@ object RelationExporter {
         writer.write("Transaction Name, Transaction Path\n")
         import platform._
         for {
-          (n, t) <- transactionsByName.toSeq.sortBy(_.toString())
+          (n, t) <- atomicTransactionsByName.toSeq.sortBy(_.toString())
         }
           writer.write(s"$n, ${t.mkString("::")}\n")
         writer.flush()
@@ -247,8 +246,6 @@ object RelationExporter {
 
       private val transactionTable: String =
         platform.fullName + "UserTransactionTable.txt"
-      private val scenarioTable: String =
-        platform.fullName + "UserScenarioTable.txt"
 
       /** Export the transactions used by a platform FORMAT: Transaction Name,
         * Transaction Path (transaction_name, service_name(.service_name)*)+
@@ -259,28 +256,10 @@ object RelationExporter {
           "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          tr <- Transaction.all
-          phyTr <- transactionByUserName.get(tr.userName)
-        } yield s"${tr.userName}, ${transactionsByName(phyTr).mkString("::")}, ${tr.sourceFile}, ${tr.lineInFile}\n"
-        toWrite.toSeq.sorted
-          .foreach(writer.write)
-        writer.flush()
-        writer.close()
-      }
-
-      /** Export the scenarios used by a platform FORMAT: Scenario Name,
-        * Scenario Path (scenario_name, service_name(.service_name)*)+
-        */
-      def exportUserScenarios(): Unit = {
-        val writer = getWriter(scenarioTable)
-        writer.write(
-          "Scenario Name, Scenario Path, SourceCodeFile, SourceCodeLine\n"
-        )
-        val toWrite = for {
-          sc <- Scenario.all
-          s <- scenarioByUserName.get(sc.userName)
+          sc <- Transaction.all
+          s <- transactionByUserName.get(sc.userName)
           t = s
-            .map(transactionsByName)
+            .map(atomicTransactionsByName)
             .map(x =>
               if (s.size <= 1)
                 x.mkString("::")

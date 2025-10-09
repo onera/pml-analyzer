@@ -17,8 +17,9 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.relations.TransparentSet
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
 private[operators] trait Transparent[T] {
@@ -50,8 +51,8 @@ object Transparent {
   }
 
   given [U](using
-      transformation: Transform[U, Option[PhysicalTransactionId]],
-      ev: Transparent[PhysicalTransactionId]
+      transformation: Transform[U, Option[AtomicTransactionId]],
+      ev: Transparent[AtomicTransactionId]
   ): Transparent[U] with {
     def apply(x: U)(using line: Line, file: File): Unit = for {
       id <- transformation(x)
@@ -59,8 +60,8 @@ object Transparent {
   }
 
   given [V](using
-      transformation: Transform[V, Set[PhysicalTransactionId]],
-      ev: Transparent[PhysicalTransactionId]
+      transformation: Transform[V, Set[AtomicTransactionId]],
+      ev: Transparent[AtomicTransactionId]
   ): Transparent[V] with {
     def apply(x: V)(using line: Line, file: File): Unit = for {
       id <- transformation(x)
