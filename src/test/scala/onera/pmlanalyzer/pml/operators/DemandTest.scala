@@ -36,7 +36,7 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   PhysicalTransaction,
-  PhysicalTransactionId
+  AtomicTransactionId
 }
 import onera.pmlanalyzer.views.dependability.model.Transition
 import onera.pmlanalyzer.views.interference.operators.Transform.{
@@ -58,8 +58,8 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
       with TransactionLibraryInstances
       with Relation.Instances
       with TransactionLibrary {
-    val tr1Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr1"))
-    val tr2Id: PhysicalTransactionId = PhysicalTransactionId(Symbol("tr2"))
+    val tr1Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr1"))
+    val tr2Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr2"))
 
     val i1: Initiator = Initiator()
     val i2: Initiator = Initiator()

@@ -18,19 +18,15 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.{
-  UserScenarioId,
-  UserTransactionId
-}
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalScenarioId,
-  PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
+import onera.pmlanalyzer.pml.model.relations.{
+  DemandRelation,
+  CapacityRelation
 }
-import onera.pmlanalyzer.pml.model.relations.DemandRelation
-import onera.pmlanalyzer.pml.model.relations.CapacityRelation
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.views.interference.operators.Transform
+import onera.pmlanalyzer.pml.operators.Transform
 import sourcecode.{File, Line}
 
 private[operators] trait Demand[L, R] {
@@ -53,8 +49,8 @@ object Demand {
   }
 
   given [LUT <: UserTransactionId, R](using
-      d: Demand[PhysicalTransactionId, R],
-      transform: Transform[UserTransactionId, Option[PhysicalTransactionId]]
+      d: Demand[AtomicTransactionId, R],
+      transform: Transform[UserTransactionId, Option[AtomicTransactionId]]
   ): Demand[LUT, R] with {
     def apply(l: LUT, r: R)(using line: Line, file: File): Unit =
       transform(l) match {
@@ -63,9 +59,9 @@ object Demand {
       }
   }
 
-  given [LUS <: UserScenarioId, R](using
-      d: Demand[PhysicalTransactionId, R],
-      transform: Transform[UserScenarioId, Set[PhysicalTransactionId]]
+  given [LUS <: UserTransactionId, R](using
+      d: Demand[AtomicTransactionId, R],
+      transform: Transform[UserTransactionId, Set[AtomicTransactionId]]
   ): Demand[LUS, R] with {
     def apply(l: LUS, r: R)(using line: Line, file: File): Unit =
       for {
@@ -73,8 +69,8 @@ object Demand {
       } yield x hasDemand r
   }
 
-  given [LPS <: PhysicalScenarioId, R](using
-      transform: Transform[PhysicalScenarioId, Set[PhysicalTransactionId]],
+  given [LPS <: PhysicalTransactionId, R](using
+      transform: Transform[PhysicalTransactionId, Set[AtomicTransactionId]],
       d: Demand[PhysicalTransactionId, R]
   ): Demand[LPS, R] with {
     def apply(l: LPS, r: R)(using line: Line, file: File): Unit =

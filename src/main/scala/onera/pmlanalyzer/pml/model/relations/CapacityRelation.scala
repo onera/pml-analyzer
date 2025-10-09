@@ -19,7 +19,7 @@
 package onera.pmlanalyzer.pml.model.relations
 
 import scala.collection.mutable.Map as MMap
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserScenarioId
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   AntiReflexiveSymmetricEndomorphism,
   Endomorphism
