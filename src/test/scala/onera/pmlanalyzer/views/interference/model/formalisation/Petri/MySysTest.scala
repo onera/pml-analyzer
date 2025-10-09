@@ -27,7 +27,7 @@ class MySysTest extends AnyFlatSpec with should.Matchers {
 
   "MySys" should "be transformable into PetriNet" in {
     for {
-      (sId, tIds) <- scenarioByUserName
+      (sId, tIds) <- transactionByUserName
     } {
       println(s"$sId contains:")
       for {

@@ -21,7 +21,7 @@ package onera.pmlanalyzer.pml.model.relations
 import sourcecode.Name
 
 import scala.collection.mutable.Map as MMap
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 import scala.collection.mutable
 
@@ -34,7 +34,7 @@ object DemandRelation {
     /** Relation gathering user defined capacity for each service (default 1)
      */
     final implicit val demandOfTransaction
-        : DemandRelation[PhysicalTransactionId, Int] =
+        : DemandRelation[AtomicTransactionId, Int] =
       DemandRelation(Map.empty)
   }
 }

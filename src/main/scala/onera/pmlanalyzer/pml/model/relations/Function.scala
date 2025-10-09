@@ -77,7 +77,7 @@ abstract class Function[L, R](iniValues: Map[L, R])(using n: Name) {
   def add(a: L, b: R)(using line: Line, file: File): Unit = {
     _values(a) = b
     _inverse.getOrElseUpdate(b, mutable.Set.empty[L]) += a
-    modifications += Change(a, b, isAdd = true, line, file)
+    modifications += Change(a, Some(b), isAdd = true, line, file)
   }
 
   /** Remove a from the relation WARNING: this is different from removing all
@@ -93,7 +93,7 @@ abstract class Function[L, R](iniValues: Map[L, R])(using n: Name) {
     } {
       sa -= a
     }
-    modifications += Change(a, _values(a), isAdd = false, line, file)
+    modifications += Change(a, Some(_values(a)), isAdd = false, line, file)
     _values.remove(a)
   }
 
