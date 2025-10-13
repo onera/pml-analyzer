@@ -18,45 +18,49 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import sourcecode.{
+  File,
+  Line
+}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.model.software.{
+  Application,
+  Data
+}
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.pml.model.relations.{
   CapacityRelation,
   DemandRelation,
   ProvideRelation
 }
-import sourcecode.{File, Line}
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
   PhysicalTableBasedInterferenceSpecification
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
+  AtomicTransaction,
   AtomicTransactionId
 }
-import onera.pmlanalyzer.views.dependability.model.Transition
-import onera.pmlanalyzer.views.interference.operators.Transform.{
-  TransactionLibraryInstances,
-  InterferenceSpecificationInstances
-}
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.relations.*
+//import onera.pmlanalyzer.pml.model.relations.*
+
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import scala.language.postfixOps
 
 class DemandTest extends AnyFlatSpecLike with should.Matchers {
   object DemandTestPlatform
       extends Platform(Symbol("DemandTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
+      with DemandRelation.Instances
       with TransactionLibraryInstances
-      with Relation.Instances
       with TransactionLibrary {
     val tr1Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr1"))
     val tr2Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr2"))
@@ -100,22 +104,27 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
 //
 //    tr4 used
 
-    val sc1: Scenario = Scenario(tr3, tr4)
-
-    sc1 used
   }
 
   import DemandTestPlatform.{*, given}
 
-  "A Transaction" should "have a demand" in {
-    tr1.userName hasDemand 3
-    demandOfTransaction(transactionByUserName(tr1.userName)) shouldBe 3
+  "An AtomictransactionId" should "has a demand" taggedAs UnitTests in {
+    tr1Id hasDemand 2
+    demandOfTransaction(tr1Id) shouldBe 2
   }
 
-  "A UserScenarioId" should "be associated to a demand" in {
-    sc1.userName hasDemand 5
-    for {
-      pt <- scenarioByUserName(sc1.userName)
-    } yield demandOfTransaction(pt) shouldBe 5
+  "A UserTransactionId" should "has a demand" taggedAs UnitTests in {
+    tr1.userName hasDemand 3
+    for { at <- transactionByUserName(tr1.userName) } {
+      demandOfTransaction(at) shouldBe 3
+    }
   }
+  
+  "A Transaction" should "has a demand" taggedAs UnitTests in {
+    tr2 hasDemand 4
+    for { at <- transactionByUserName(tr2.userName) } {
+      demandOfTransaction(at) shouldBe 4
+    }
+  }
+  
 }

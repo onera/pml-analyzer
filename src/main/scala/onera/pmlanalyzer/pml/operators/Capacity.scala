@@ -8,12 +8,8 @@ package onera.pmlanalyzer.pml.operators
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.pml.model.relations.{
-  DemandRelation,
-  CapacityRelation,
-  ProvideRelation
-}
+import onera.pmlanalyzer.pml.model.relations.CapacityRelation
+
 import sourcecode.{File, Line}
 
 private[operators] trait Capacity[L, R] {

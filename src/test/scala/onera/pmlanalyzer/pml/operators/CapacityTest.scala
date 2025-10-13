@@ -17,46 +17,49 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import sourcecode.{
+  File,
+  Line
+}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
   CapacityRelation,
   DemandRelation,
   ProvideRelation
 }
-import sourcecode.{File, Line}
+
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
   PhysicalTableBasedInterferenceSpecification
 }
+import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.software.{
+  Application,
+  Data
+}
 import onera.pmlanalyzer.pml.model.relations.*
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.views.dependability.model.Transition
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.views.interference.operators.Transform.TransactionLibraryInstances
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+
+import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 
 import scala.language.postfixOps
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 
 class CapacityTest extends AnyFlatSpecLike with should.Matchers {
   object CapacityTestPlatform
       extends Platform(Symbol("CapacityTestPlatform"))
-      with PhysicalTableBasedInterferenceSpecification
+      with PhysicalTableBasedInterferenceSpecification 
+      with CapacityRelation.Instances
       with TransactionLibraryInstances
-      with Relation.Instances
       with TransactionLibrary {
     val tr1Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr1"))
     val tr2Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr2"))
@@ -103,14 +106,14 @@ class CapacityTest extends AnyFlatSpecLike with should.Matchers {
 
   import CapacityTestPlatform.{*, given}
 
-  "A Service" should "have a capacity" in {
+  "A Service" should "have a capacity" taggedAs UnitTests in {
     for { s <- t1.services } yield s hasCapacity 3
     for { s <- t1.services } {
       capacityOfService(s) shouldBe 3
     }
   }
 
-  "A Hardware component" should "admit a capacity" in {
+  "A Hardware component" should "admit a capacity" taggedAs UnitTests in {
     t2 hasCapacity 2
     for { s <- t2.services } {
       capacityOfService(s) shouldBe 2

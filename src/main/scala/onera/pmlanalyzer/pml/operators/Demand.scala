@@ -18,18 +18,17 @@
 
 package onera.pmlanalyzer.pml.operators
 
+import sourcecode.{
+  File,
+  Line
+}
 import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.pml.model.relations.{
-  DemandRelation,
-  CapacityRelation
-}
+import onera.pmlanalyzer.pml.model.relations.DemandRelation
+
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.pml.operators.Transform
-import sourcecode.{File, Line}
+
 
 private[operators] trait Demand[L, R] {
   def apply(l: L, r: R)(using line: Line, file: File): Unit
@@ -80,7 +79,7 @@ object Demand {
         t <- transform(l)
       } yield t hasDemand r
   }
-  
+
   given [LAS <: Application, R](using
       transform: Transform[Application, Set[AtomicTransactionId]],
       d: Demand[AtomicTransactionId, R]
