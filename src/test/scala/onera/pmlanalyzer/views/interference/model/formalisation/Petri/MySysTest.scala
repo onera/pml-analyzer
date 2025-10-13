@@ -32,8 +32,8 @@ class MySysTest extends AnyFlatSpec with should.Matchers {
       println(s"$sId contains:")
       for {
         tId <- tIds
-        sPath <- purifiedTransactions.get(tId)
-        tName <- transactionUserName.getOrElse(tId, Set(tId))
+        sPath <- purifiedAtomicTransactions.get(tId)
+        tName <- transactionUserName.getOrElse(Set(tId), Set(tId))
       } {
         println(s"$tName: ${sPath.mkString("::")}")
       }
