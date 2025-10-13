@@ -244,5 +244,5 @@ class MyProcPlatform private (name: Symbol, line: Line, file: File)
 
   // DMA connections
   dma link TeraNet.periph_bus
-  
+
 }
