@@ -18,19 +18,13 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import sourcecode.{
-  File,
-  Line
-}
+import sourcecode.{File, Line}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.software.{
-  Application,
-  Data
-}
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.pml.model.relations.{
   CapacityRelation,
@@ -99,11 +93,6 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
     tr1 used
 
     tr2 used
-
-//    tr3 used
-//
-//    tr4 used
-
   }
 
   import DemandTestPlatform.{*, given}
@@ -119,12 +108,18 @@ class DemandTest extends AnyFlatSpecLike with should.Matchers {
       demandOfTransaction(at) shouldBe 3
     }
   }
-  
+
   "A Transaction" should "has a demand" taggedAs UnitTests in {
     tr2 hasDemand 4
     for { at <- transactionByUserName(tr2.userName) } {
       demandOfTransaction(at) shouldBe 4
     }
   }
-  
+
+  "An Application" should "be associated to a demand" taggedAs UnitTests in {
+    app1 hasDemand 5
+    for { at <- atomicTransactionsBySW(app1) } {
+      demandOfTransaction(at) shouldBe 5
+    }
+  }
 }

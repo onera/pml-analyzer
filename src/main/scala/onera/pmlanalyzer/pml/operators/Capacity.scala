@@ -26,7 +26,7 @@ object Capacity {
       def hasCapacity[R](
           r: R
       )(using d: Capacity[L, R], line: Line, file: File): Unit =
-      d(l, r)
+        d(l, r)
     }
   }
 

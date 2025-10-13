@@ -17,10 +17,7 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import sourcecode.{
-  File,
-  Line
-}
+import sourcecode.{File, Line}
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
@@ -39,10 +36,7 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 import onera.pmlanalyzer.pml.model.configuration.Transaction
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.software.{
-  Application,
-  Data
-}
+import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.relations.*
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
@@ -57,7 +51,7 @@ import scala.language.postfixOps
 class CapacityTest extends AnyFlatSpecLike with should.Matchers {
   object CapacityTestPlatform
       extends Platform(Symbol("CapacityTestPlatform"))
-      with PhysicalTableBasedInterferenceSpecification 
+      with PhysicalTableBasedInterferenceSpecification
       with CapacityRelation.Instances
       with TransactionLibraryInstances
       with TransactionLibrary {
