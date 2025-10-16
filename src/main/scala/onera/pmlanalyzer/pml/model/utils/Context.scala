@@ -28,6 +28,8 @@ abstract class Context
     with AuthorizeRelation.Instances
     with RoutingRelation.Instances
     with PMLNodeMap.Instances
+    with CapacityRelation.Instances
+    with DemandRelation.Instances
 
 object Context {
 
@@ -39,4 +41,7 @@ object Context {
       with AuthorizeRelation.EmptyInstances
       with RoutingRelation.EmptyInstances
       with PMLNodeMap.EmptyInstances
+/*      with CapacityRelation.EmptyInstances
+      with DemandRelation.EmptyInstances
+ */
 }
