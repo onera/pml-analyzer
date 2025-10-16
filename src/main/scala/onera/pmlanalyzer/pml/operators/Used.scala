@@ -229,6 +229,22 @@ object Used {
       ): Set[AtomicTransaction] =
         ev(x)
 
+      /** Check if the transaction is a load transaction
+       *
+       * @return
+       * true if target services are loads
+       */
+      def isLoad(using ev: Transform[T, Set[AtomicTransaction]]): Boolean =
+        paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Load])
+
+      /** Check if the transaction is a store transaction
+       *
+       * @return
+       * true if target services are stores
+       */
+      def isStore(using ev: Transform[T, Set[AtomicTransaction]]): Boolean =
+        paths.forall(path => path.nonEmpty && path.head.isInstanceOf[Store])
+
       /** Check if the target is in the possible targets of the transaction
        *
        * @param t
