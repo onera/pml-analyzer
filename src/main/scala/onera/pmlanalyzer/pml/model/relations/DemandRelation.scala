@@ -33,6 +33,10 @@ object DemandRelation {
 
     /** Relation gathering user defined capacity for each service (default 1)
      */
+    implicit val demandOfTransaction: DemandRelation[AtomicTransactionId, Int]
+  }
+
+  trait EmptyInstances extends Instances {
     final implicit val demandOfTransaction
         : DemandRelation[AtomicTransactionId, Int] =
       DemandRelation(Map.empty)
