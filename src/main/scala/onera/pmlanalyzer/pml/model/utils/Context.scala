@@ -41,7 +41,6 @@ object Context {
       with AuthorizeRelation.EmptyInstances
       with RoutingRelation.EmptyInstances
       with PMLNodeMap.EmptyInstances
-/*      with CapacityRelation.EmptyInstances
+      with CapacityRelation.EmptyInstances
       with DemandRelation.EmptyInstances
- */
 }

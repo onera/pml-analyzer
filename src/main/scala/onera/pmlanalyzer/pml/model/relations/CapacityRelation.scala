@@ -35,6 +35,10 @@ final class CapacityRelation[L, R] private (iniValues: Map[L, R])
 
 object CapacityRelation {
   trait Instances {
+    implicit val capacityOfService: CapacityRelation[Service, Int]
+  }
+
+  trait EmptyInstances extends Instances {
 
     /** Relation gathering user defined capacity for each service (default 1)
      */
