@@ -11,6 +11,7 @@ val scalactic = "org.scalactic" %% "scalactic" % "3.2.15"
 val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
+val choco = "org.choco-solver" % "choco-solver" % "5.0.0-beta.1"
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
@@ -192,7 +193,8 @@ lazy val commonSettings = Seq(
     scalatest,
     scalactic,
     scalaplus,
-    parallel
+    parallel,
+    choco
   ),
   docSetting
 ) ++ dockerSettings ++ assemblySettings ++ testSettings
