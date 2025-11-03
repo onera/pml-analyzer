@@ -52,8 +52,8 @@ object SemanticsExporter {
       }
 
       def exportSemanticReduction(implm: SolverImplm = Monosat)(using
-                                                      ev: Analyse[T],
-                                                      p: Provided[T, Hardware]
+          ev: Analyse[T],
+          p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
           FileManager.getSemanticsReductionFileName(self)

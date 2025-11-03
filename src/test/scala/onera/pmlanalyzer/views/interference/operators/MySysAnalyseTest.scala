@@ -25,7 +25,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.ChocoSolver
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  Choco,
+  Monosat
+}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -49,7 +52,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       Message.monosatLibraryNotLoaded
     )
     val diff =
-      Await.result(MySys.test(4, expectedResultsDirectoryPath, Monosat), 10 minutes)
+      Await.result(
+        MySys.test(4, expectedResultsDirectoryPath, Monosat),
+        10 minutes
+      )
     if (diff.exists(_.nonEmpty)) {
       fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
     }
@@ -57,7 +63,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   it should "provide the verified interference and free with Choco" taggedAs FastTests in {
     val diff =
-      Await.result(MySys.test(4, expectedResultsDirectoryPath, Choco), 10 minutes)
+      Await.result(
+        MySys.test(4, expectedResultsDirectoryPath, Choco),
+        10 minutes
+      )
     if (diff.exists(_.nonEmpty)) {
       fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
     }

@@ -68,14 +68,14 @@ class ChocoSolver extends Solver {
   type GraphLit = UndirectedGraphVar
   type Constraint = ChocoConstraint
   type Expression = ReExpression
-  
+
   private val memoEdges = mutable.Map.empty[String, BoolLit]
   private val memoNodes = mutable.Map.empty[String, BoolLit]
   private val model: ChocoModel = ChocoModel()
 
   def assert(lt: Expr | Connected): Unit = lt match {
-    case a:Expr => a.toExpr(this).post()
-    case c:Connected => c.toConstraint(this).post() 
+    case a: Expr      => a.toExpr(this).post()
+    case c: Connected => c.toConstraint(this).post()
   }
 
   def assertPB(l: Seq[ALit], c: Comparator, k: Int): Unit = {
@@ -130,16 +130,28 @@ class ChocoSolver extends Solver {
         val mG = model.graphVar("g", LB, UB)
 
         // Fetch the node variables from g
-        val nodeVars = nodeMap.transform((k, _) => memoNodes.getOrElseUpdate(k.id.name,model.boolVar(k.id.name)))
+        val nodeVars = nodeMap.transform((k, _) =>
+          memoNodes.getOrElseUpdate(k.id.name, model.boolVar(k.id.name))
+        )
         model
-          .nodesChanneling(mG, nodeVars.keySet.toArray.sortBy(nodeMap).map(nodeVars))
+          .nodesChanneling(
+            mG,
+            nodeVars.keySet.toArray.sortBy(nodeMap).map(nodeVars)
+          )
           .post()
 
         // Fetch the edge variables from g
         val edgeVars =
-          g.edges.map(e => (e.from, e.to) -> 
-            memoEdges.getOrElseUpdate(e.id.name,model.boolVar(s"${e.from.id.name}--${e.to.id.name}"))).toMap
-          
+          g.edges
+            .map(e =>
+              (e.from, e.to) ->
+                memoEdges.getOrElseUpdate(
+                  e.id.name,
+                  model.boolVar(s"${e.from.id.name}--${e.to.id.name}")
+                )
+            )
+            .toMap
+
         for {
           ((l, r), v) <- edgeVars
         } {
@@ -150,28 +162,30 @@ class ChocoSolver extends Solver {
     )
 
   def boolLit(a: MLit): BoolLit =
-    memoBooLit.getOrElseUpdate(a, {
-      model.boolVar(a.id.name)
-    })
+    memoBooLit.getOrElseUpdate(
+      a, {
+        model.boolVar(a.id.name)
+      }
+    )
 
-  def getEdge(g: MGraph, id: String): Option[BoolLit] = 
+  def getEdge(g: MGraph, id: String): Option[BoolLit] =
     memoEdges.get(id)
 
   def getNode(g: MGraph, id: String): Option[BoolLit] =
     memoNodes.get(id)
 
-  def and(l: Seq[Expr]): Expression = 
-  if(l.isEmpty) {
-    model.boolVar(true)
-  } else {
-    l.head.toExpr(this).and(l.tail.map(_.toExpr(this)).toArray:_*)
-  }
-  
+  def and(l: Seq[Expr]): Expression =
+    if (l.isEmpty) {
+      model.boolVar(true)
+    } else {
+      l.head.toExpr(this).and(l.tail.map(_.toExpr(this)).toArray: _*)
+    }
+
   def or(l: Seq[Expr]): Expression =
-    if(l.isEmpty) {
+    if (l.isEmpty) {
       model.boolVar(false)
     } else {
-      l.head.toExpr(this).or(l.tail.map(_.toExpr(this)).toArray:_*)
+      l.head.toExpr(this).or(l.tail.map(_.toExpr(this)).toArray: _*)
     }
 
   def implies(l: Expr, r: Expr): Expression =
@@ -219,8 +233,8 @@ class MonoSatSolver extends Solver {
   private val solver: monosat.Solver = monosat.Solver("-decide-theories")
 
   def assert(lt: Expr | Connected): Unit = lt match {
-    case a:Expr => solver.assertTrue(a.toExpr(this))
-    case c:Connected => solver.assertTrue(c.toConstraint(this))
+    case a: Expr      => solver.assertTrue(a.toExpr(this))
+    case c: Connected => solver.assertTrue(c.toConstraint(this))
   }
 
   def assertPB(l: Seq[ALit], c: Comparator, k: Int): Unit = {
@@ -295,11 +309,11 @@ class MonoSatSolver extends Solver {
     val mG = graphLit(g)
     val pairs = for {
       ss <- g.nodes.subsets(2)
-      from <- getNode(g,ss.head.id.name)
+      from <- getNode(g, ss.head.id.name)
       to <- getNode(g, ss.last.id.name)
     } yield {
       solver.implies(
-        solver.and(from,to),
+        solver.and(from, to),
         mG.reaches(mG.getNode(ss.head.id.name), mG.getNode(ss.last.id.name))
       )
     }

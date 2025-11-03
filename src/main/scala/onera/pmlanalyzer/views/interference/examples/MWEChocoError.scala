@@ -10,6 +10,7 @@ import org.chocosolver.util.objects.setDataStructures.SetType
  * MWE for InvalidSolutionException Error
  */
 object MWEChocoError extends App {
+
   /**
    * Create transaction boolean variables
    */

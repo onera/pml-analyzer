@@ -47,9 +47,17 @@ private[operators] trait PostProcess[-T] {
 
   def parseFreeMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
 
-  def sortPLByITFImpact(x: T, max: Option[Int], implm: SolverImplm): Future[Set[File]]
+  def sortPLByITFImpact(
+      x: T,
+      max: Option[Int],
+      implm: SolverImplm
+  ): Future[Set[File]]
 
-  def sortMultiPathByITFImpact(x: T, max: Option[Int], implm: SolverImplm): Future[Set[File]]
+  def sortMultiPathByITFImpact(
+      x: T,
+      max: Option[Int],
+      implm: SolverImplm
+  ): Future[Set[File]]
 
 }
 
@@ -144,7 +152,7 @@ object PostProcess {
       def sortPLByITFImpact(max: Option[Int], implm: SolverImplm)(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortPLByITFImpact(self, max,implm), Duration.Inf)
+        Await.result(ev.sortPLByITFImpact(self, max, implm), Duration.Inf)
 
       /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
@@ -156,10 +164,16 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortMultiPathByITFImpact(max: Option[Int], implm: SolverImplm = Monosat)(using
+      def sortMultiPathByITFImpact(
+          max: Option[Int],
+          implm: SolverImplm = Monosat
+      )(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortMultiPathByITFImpact(self, max, implm), Duration.Inf)
+        Await.result(
+          ev.sortMultiPathByITFImpact(self, max, implm),
+          Duration.Inf
+        )
     }
   }
 

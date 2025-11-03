@@ -863,7 +863,7 @@ object Analyse {
             )
           )
         )
-      
+
       val trivialFreeTransactions =
         transactionToGroupedLit.values.toSet
           .filter(
@@ -879,7 +879,7 @@ object Analyse {
             Implies(l, Or(nsL))
           }
         )
-        
+
       val nonEmptyGraph = Or(graph.nodes.map(n => MNodeLit(n, graph)).toSeq)
       val isNotTrivialFree = And(trivialFreeTransactions.map(v => Not(v)).toSeq)
       val isConnected = Connected(graph)
@@ -890,16 +890,18 @@ object Analyse {
           isConnected,
           contributeToGraph
         )
-      
-      //free are only computed when the selected groupedLit
-      //does not share a common service
+
+      // free are only computed when the selected groupedLit
+      // does not share a common service
       val isFree = And(
         for {
           l <- groupedLitToNodeSet.keySet.toSeq
           l2 <- groupedLitToNodeSet.keySet - l
-          if groupedLitToNodeSet(l).flatten.intersect(groupedLitToNodeSet(l2).flatten).nonEmpty
+          if groupedLitToNodeSet(l).flatten
+            .intersect(groupedLitToNodeSet(l2).flatten)
+            .nonEmpty
         } yield {
-          Not(And(Seq(l,l2)))
+          Not(And(Seq(l, l2)))
         }
       )
 
