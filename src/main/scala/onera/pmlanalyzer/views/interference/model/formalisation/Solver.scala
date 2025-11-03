@@ -246,7 +246,7 @@ class MonoSatSolver extends Solver {
           val res = mG.addNode(n.id.name)
           // must add a loop edge to encode that a node can exist even
           // if no edges are activated
-          mG.addEdge(res, res)
+          mG.addEdge(res, res, n.id.name)
           n -> res
         }).toMap
 
@@ -267,15 +267,13 @@ class MonoSatSolver extends Solver {
   }
 
   /**
-   * A node is activated iff at least one of its adjacent edge is activated.
-   * Note that each node has a loop
+   * A node is activated iff the loop edge is activated
    * @param g the graph literal
    * @param id the id of the node to get
    * @return a boolean variable true iff the node belongs to the graph
    */
   def getNode(g: MGraph, id: String): Option[BoolLit] = {
-    val mG = graphLit(g)
-    Some(solver.or(mG.getEdgeVars(mG.getNode(id))))
+    graphLit(g).getEdgeVars.asScala.find(_.name() == id)
   }
 
   def and(l: Seq[Expr]): Expression =
@@ -296,9 +294,14 @@ class MonoSatSolver extends Solver {
   def connected(g: MGraph): Constraint = {
     val mG = graphLit(g)
     val pairs = for {
-      ss <- mG.nodes().asScala.toSet.subsets(2)
+      ss <- g.nodes.subsets(2)
+      from <- getNode(g,ss.head.id.name)
+      to <- getNode(g, ss.last.id.name)
     } yield {
-      mG.reaches(ss.head, ss.last)
+      solver.implies(
+        solver.and(from,to),
+        mG.reaches(mG.getNode(ss.head.id.name), mG.getNode(ss.last.id.name))
+      )
     }
     solver.and(pairs.toSeq.asJava)
   }
