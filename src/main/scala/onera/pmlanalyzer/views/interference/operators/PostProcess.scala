@@ -22,15 +22,17 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
 import java.io.{File, FileWriter}
-import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.io.{BufferedSource, Source}
-import scala.math.Ordering.Implicits._
+import scala.math.Ordering.Implicits.*
 
 /** Base trait providing proof that an element is post processable
   * @tparam T
@@ -45,9 +47,9 @@ private[operators] trait PostProcess[-T] {
 
   def parseFreeMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
 
-  def sortPLByITFImpact(x: T, max: Option[Int]): Future[Set[File]]
+  def sortPLByITFImpact(x: T, max: Option[Int], implm: SolverImplm): Future[Set[File]]
 
-  def sortMultiPathByITFImpact(x: T, max: Option[Int]): Future[Set[File]]
+  def sortMultiPathByITFImpact(x: T, max: Option[Int], implm: SolverImplm): Future[Set[File]]
 
 }
 
@@ -139,10 +141,10 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortPLByITFImpact(max: Option[Int])(using
+      def sortPLByITFImpact(max: Option[Int], implm: SolverImplm)(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortPLByITFImpact(self, max), Duration.Inf)
+        Await.result(ev.sortPLByITFImpact(self, max,implm), Duration.Inf)
 
       /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
@@ -154,10 +156,10 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortMultiPathByITFImpact(max: Option[Int])(using
+      def sortMultiPathByITFImpact(max: Option[Int], implm: SolverImplm = Monosat)(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortMultiPathByITFImpact(self, max), Duration.Inf)
+        Await.result(ev.sortMultiPathByITFImpact(self, max, implm), Duration.Inf)
     }
   }
 
@@ -272,14 +274,16 @@ object PostProcess {
 
     def sortPLByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat
     ): Future[Set[File]] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm
       ) map { resultFiles =>
         resultFiles
           .filter(_.getName.contains("channel"))
@@ -344,14 +348,16 @@ object PostProcess {
 
     def sortMultiPathByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat
     ): Future[Set[File]] =
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm
       ) map { resultFiles =>
         {
           val multiPathsTransactions = x match {
@@ -402,14 +408,16 @@ object PostProcess {
     @deprecated("this indicator should not be used for now, not useful info")
     def sortSWByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat
     ): Future[File] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm
       ) map { resultFiles =>
         {
           val file = FileManager.analysisDirectory.getFile(

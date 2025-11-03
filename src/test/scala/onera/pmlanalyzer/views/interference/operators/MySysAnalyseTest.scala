@@ -24,6 +24,8 @@ import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
+import onera.pmlanalyzer.views.interference.model.formalisation.ChocoSolver
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -41,13 +43,21 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   private val expectedResultsDirectoryPath = "mySys"
 
-  it should "provide the verified interference and free" in {
+  it should "provide the verified interference and free with Monosat" taggedAs FastTests in {
     assume(
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
     val diff =
-      Await.result(MySys.test(4, expectedResultsDirectoryPath), 10 minutes)
+      Await.result(MySys.test(4, expectedResultsDirectoryPath, Monosat), 10 minutes)
+    if (diff.exists(_.nonEmpty)) {
+      fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
+    }
+  }
+
+  it should "provide the verified interference and free with Choco" taggedAs FastTests in {
+    val diff =
+      Await.result(MySys.test(4, expectedResultsDirectoryPath, Choco), 10 minutes)
     if (diff.exists(_.nonEmpty)) {
       fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
     }
@@ -58,7 +68,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
-    MySys.computeSemanticReduction(ignoreExistingFiles = true) should be(
+    MySys.computeSemanticReduction(Monosat) should be(
       BigDecimal(37) / 17
     )
   }
@@ -68,6 +78,6 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
-    MySys.computeGraphReduction() should be(BigDecimal(71) / 22)
+    MySys.computeGraphReduction(Monosat) should be(BigDecimal(71) / 22)
   }
 }

@@ -17,7 +17,6 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
-import monosat.*
 import monosat.Logic.*
 import net.sf.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
@@ -29,7 +28,8 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.formalisation.*
-import onera.pmlanalyzer.views.interference.model.formalisation.ProblemElement.*
+import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
@@ -58,14 +58,15 @@ trait Analyse[-T] {
       ignoreExistingAnalysisFiles: Boolean,
       computeSemantics: Boolean,
       verboseResultFile: Boolean,
-      onlySummary: Boolean
+      onlySummary: Boolean,
+      implm: SolverImplm
   ): Future[Set[File]]
 
-  def printGraph(platform: T): File
+  def printGraph(platform: T, implm: SolverImplm): File
 
   def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
 
-  def getGraphSize(platform: T): (BigInt, BigInt)
+  def getGraphSize(platform: T, implm: SolverImplm): (BigInt, BigInt)
 }
 
 object Analyse {
@@ -113,7 +114,8 @@ object Analyse {
           ignoreExistingAnalysisFiles: Boolean,
           computeSemantics: Boolean,
           verboseResultFile: Boolean,
-          onlySummary: Boolean
+          onlySummary: Boolean,
+          implm: SolverImplm
       )(using ev: Analyse[T]): Future[Set[File]] =
         ev.computeInterference(
           self,
@@ -121,7 +123,8 @@ object Analyse {
           ignoreExistingAnalysisFiles,
           computeSemantics,
           verboseResultFile,
-          onlySummary
+          onlySummary,
+          implm
         )
 
       /** Perform the interference analysis
@@ -148,7 +151,8 @@ object Analyse {
           ignoreExistingAnalysisFiles: Boolean = false,
           computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false,
-          onlySummary: Boolean = false
+          onlySummary: Boolean = false,
+          implm: SolverImplm = Monosat
       )(using ev: Analyse[T]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -157,7 +161,8 @@ object Analyse {
             ignoreExistingAnalysisFiles,
             computeSemantics,
             verboseResultFile,
-            onlySummary
+            onlySummary,
+            implm
           ),
           timeout
         )
@@ -182,7 +187,8 @@ object Analyse {
           ignoreExistingAnalysisFiles: Boolean = false,
           computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false,
-          onlySummary: Boolean = false
+          onlySummary: Boolean = false,
+          implm: SolverImplm = Monosat
       )(using ev: Analyse[T], p: Provided[T, Hardware]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -191,7 +197,8 @@ object Analyse {
             ignoreExistingAnalysisFiles,
             computeSemantics,
             verboseResultFile,
-            onlySummary
+            onlySummary,
+            implm
           ),
           timeout
         )
@@ -207,7 +214,10 @@ object Analyse {
         else
           ev.getSemanticsSize(self, self.initiators.size)
 
-      def computeSemanticReduction(ignoreExistingFiles: Boolean = false)(using
+      def computeSemanticReduction(
+          implm: SolverImplm,
+          ignoreExistingFiles: Boolean = false
+      )(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): BigDecimal = {
@@ -218,7 +228,8 @@ object Analyse {
             ignoreExistingAnalysisFiles = ignoreExistingFiles,
             computeSemantics = true,
             verboseResultFile = false,
-            onlySummary = true
+            onlySummary = true,
+            implm = implm
           ),
           1 minute
         )
@@ -242,14 +253,16 @@ object Analyse {
         }) getOrElse BigDecimal(-1)
       }
 
-      private def computeGraphReduction(using ev: Analyse[T]): BigDecimal = {
+      private def computeGraphReduction(
+          implm: SolverImplm
+      )(using ev: Analyse[T]): BigDecimal = {
         val graph = self.fullServiceGraphWithInterfere()
         val systemGraphSize =
           (graph.keySet ++ graph.values.flatten).size + graph
             .flatMap(p => p._2 map { x => Set(p._1, x) })
             .toSet
             .size
-        val (nodeSize, edgeSize) = self.getAnalysisGraphSize()
+        val (nodeSize, edgeSize) = self.getAnalysisGraphSize(implm)
         val graphSize = BigDecimal(nodeSize + edgeSize)
         if (graphSize != 0) {
           BigDecimal(systemGraphSize) / graphSize
@@ -261,18 +274,21 @@ object Analyse {
       }
 
       def computeGraphReduction(
+          implm: SolverImplm,
           ignoreExistingFile: Boolean = false
       )(using ev: Analyse[T]): BigDecimal =
         if (ignoreExistingFile)
-          computeGraphReduction
+          computeGraphReduction(implm)
         else {
           PostProcess
             .parseGraphReductionFile(self)
-            .getOrElse(computeGraphReduction)
+            .getOrElse(computeGraphReduction(implm))
         }
 
-      def getAnalysisGraphSize()(using ev: Analyse[T]): (BigInt, BigInt) =
-        ev.getGraphSize(self)
+      def getAnalysisGraphSize(implm: SolverImplm)(using
+          ev: Analyse[T]
+      ): (BigInt, BigInt) =
+        ev.getGraphSize(self, implm)
     }
   }
 
@@ -284,28 +300,52 @@ object Analyse {
     */
   given Analyse[ConfiguredPlatform] with {
 
-    def getGraphSize(platform: ConfiguredPlatform): (BigInt, BigInt) = {
+    def getGraphSize(
+        platform: ConfiguredPlatform,
+        implm: SolverImplm
+    ): (BigInt, BigInt) = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size)
-      val dummySolver = new Solver()
-      val graph = problem.serviceGraph.toGraph(dummySolver)
-      // Undirected graph but MONOSAT always considers oriented so need to divide by two
-      val result = (BigInt(graph.nodes().size()), BigInt(graph.nEdges()) / 2)
-      dummySolver.close()
+        computeProblemConstraints(platform, platform.initiators.size, implm)
+      val graph = problem.serviceGraph
+      val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
     }
 
-    def printGraph(platform: ConfiguredPlatform): File = {
+    def printGraph(platform: ConfiguredPlatform, implm: SolverImplm): File = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size)
+        computeProblemConstraints(platform, platform.initiators.size, implm)
       val result =
         FileManager.exportDirectory.getFile(s"${platform.name.name}_graph.dot")
-      val graphWriter = new FileWriter(result)
-      val dummySolver = new Solver()
-      graphWriter.write(problem.serviceGraph.toGraph(dummySolver).draw())
-      dummySolver.close()
-      graphWriter.close()
+      val emptySolver = Solver(implm)
+      problem.serviceGraph.exportGraph(emptySolver, result)
+      emptySolver.close()
       result
+    }
+
+    private def solve(
+        model: Model,
+        size: Int,
+        isFree: Boolean,
+        update: (
+            Boolean,
+            Set[Set[PhysicalTransactionId]],
+            Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
+        ) => Unit
+    ): Unit = {
+      val problem = model.instantiate(size, isFree)
+      val variables =
+        model.groupedTransactions.transform((k, _) => k.toLit(problem))
+      val results =
+        problem.enumerateSolution(variables.keySet)
+      for { r <- results } {
+        val physical = model.decodeModel(
+          r.collect({ case l: MLit => l }),
+          isFree
+        )
+        val userDefined = physical
+          .groupMapReduce(p => p)(model.decodeUserModel)(_ ++ _)
+        update(isFree, physical, userDefined)
+      }
     }
 
     /** Sequential version of MONOSAT-based interference computation The
@@ -324,7 +364,8 @@ object Analyse {
         ignoreExistingAnalysisFiles: Boolean,
         computeSemantics: Boolean,
         verboseResultFile: Boolean,
-        onlySummary: Boolean
+        onlySummary: Boolean,
+        implm: SolverImplm
     ): Future[Set[File]] = Future {
       val sizes = 2 to maxSize
       val interferenceFiles =
@@ -413,7 +454,7 @@ object Analyse {
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val problem = computeProblemConstraints(platform, maxSize)
+          val model = computeProblemConstraints(platform, maxSize, implm)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>
@@ -466,7 +507,7 @@ object Analyse {
               updateNumber(nbITF, userBySize)
               for { iW <- interferenceWriters }
                 updateResultFile(iW, userBySize)
-              updateChannelNumber(problem, channels, physical, user)
+              updateChannelNumber(model, channels, physical, user)
             }
           }
 
@@ -501,11 +542,12 @@ object Analyse {
             )
           )
           for {
-            (k, v) <- problem.litToNodeSet
+            (k, v) <- model.litToNodeSet
             isFree = v.forall(_.isEmpty)
-            physical = problem.decodeModel(Set(k), isFree) if physical.nonEmpty
+            physical = model.decodeModel(Set(k), isFree)
+            if physical.nonEmpty
             userDefined = physical.groupMapReduce(p => p)(
-              problem.decodeUserModel
+              model.decodeUserModel
             )(_ ++ _)
           }
             update(isFree, physical, userDefined)
@@ -549,23 +591,9 @@ object Analyse {
           )
 
           for (size <- sizes) {
-            val iterationStartDate = System.currentTimeMillis() millis
-            val s = problem.instantiate(size)
-            val variables =
-              problem.groupedTransactions.transform((k, _) => k.toLit(s))
-            while (s.solve()) {
-              val cube = variables.filter(_._2.value())
-              val physical =
-                problem.decodeModel(
-                  cube.keySet,
-                  problem.isFree.toLit(s).value()
-                )
-              val userDefined = physical
-                .groupMapReduce(p => p)(problem.decodeUserModel)(_ ++ _)
-              update(problem.isFree.toLit(s).value(), physical, userDefined)
-              s.assertTrue(not(monosat.Logic.and(cube.values.toSeq.asJava)))
-            }
-            s.close()
+            val iterationStartDate = (System.currentTimeMillis() millis)
+            solve(model, size, isFree = false, update)
+            solve(model, size, isFree = true, update)
             println(
               Message.iterationCompletedInfo(
                 size,
@@ -682,8 +710,9 @@ object Analyse {
       */
     private def computeProblemConstraints(
         platform: ConfiguredPlatform,
-        maxSize: Int
-    ): Problem = {
+        maxSize: Int,
+        implm: SolverImplm
+    ): Model = {
 
       // Utilitarian functions
       val addNode: Set[Service] => MNode = immutableHashMapMemo { ss =>
@@ -700,7 +729,7 @@ object Analyse {
       val idToTransaction = platform.purifiedTransactions
 
       val transactionToLit = idToTransaction
-        .transform((k, _) => MLit(Symbol(k.id.name + "_sn")))
+        .transform((k, _) => MLit(Symbol(k.id.name)))
 
       // association of the simple transaction path to its formatted name
       val initialPathT = idToTransaction.to(SortedMap)
@@ -830,68 +859,48 @@ object Analyse {
           SimpleAssert(
             Equal(
               MEdgeLit(k, graph),
-              Or(trs.map(transactionToGroupedLit).toSeq: _*)
+              Or(trs.map(transactionToGroupedLit).toSeq)
             )
           )
         )
-
-      // there is an interference if the remaining graph is connected,
-      // here translated as at least one service used by other atomicTransactions is reachable from
-      // the initiator service of another one
-
-      val (trivialFreeTransactions, otherTransactions) =
+      
+      val trivialFreeTransactions =
         transactionToGroupedLit.values.toSet
-          .partition(
+          .filter(
             groupedLitToNodeSet(_).forall(_.isEmpty)
           ) // All paths of the transactions are only private ones
 
-      val otherTransactionsCouples = otherTransactions
-        .subsets(2)
-        .map(ss => {
-          val (s, sp) = (ss.head, ss.last)
-          // find a non private service of the left transaction
-          val sHeads = groupedLitToNodeSet(s).filter(_.nonEmpty).map(_.head)
-          val spHeads = groupedLitToNodeSet(sp).filter(_.nonEmpty).map(_.head)
-          (s -> sHeads, sp -> spHeads)
-        })
-        .toSet
-
-      val isITF = And(
-        (trivialFreeTransactions.map(v => Not(v))
-          ++ otherTransactionsCouples
-            .map(ss => {
-              val (vs -> sHeads, vsp -> spLasts) = ss
-              Implies(
-                And(vs, vsp),
-                Or(
-                  sHeads
-                    .flatMap(head =>
-                      spLasts.map(last => Reaches(graph, head, last))
-                    )
-                    .toSeq: _*
-                )
-              )
-            })).toSeq: _*
-      )
-
+      val contributeToGraph =
+        And(
+          for {
+            (l, ns) <- groupedLitToNodeSet.toSeq
+            nsL = ns.flatten.map(n => MNodeLit(n, graph)).toSeq
+          } yield {
+            Implies(l, Or(nsL))
+          }
+        )
+        
+      val nonEmptyGraph = Or(graph.nodes.map(n => MNodeLit(n, graph)).toSeq)
+      val isNotTrivialFree = And(trivialFreeTransactions.map(v => Not(v)).toSeq)
+      val isConnected = Connected(graph)
+      val isITF =
+        Seq(
+          nonEmptyGraph,
+          isNotTrivialFree,
+          isConnected,
+          contributeToGraph
+        )
+      
+      //free are only computed when the selected groupedLit
+      //does not share a common service
       val isFree = And(
-        otherTransactionsCouples
-          .map(ss => {
-            val (vs -> sHeads, vsp -> spLasts) = ss
-            Implies(
-              And(vs, vsp),
-              Not(
-                Or(
-                  sHeads
-                    .flatMap(head =>
-                      spLasts.map(last => Reaches(graph, head, last))
-                    )
-                    .toSeq: _*
-                )
-              )
-            )
-          })
-          .toSeq: _*
+        for {
+          l <- groupedLitToNodeSet.keySet.toSeq
+          l2 <- groupedLitToNodeSet.keySet - l
+          if groupedLitToNodeSet(l).flatten.intersect(groupedLitToNodeSet(l2).flatten).nonEmpty
+        } yield {
+          Not(And(Seq(l,l2)))
+        }
       )
 
       // for each transaction, the transactions that are exclusive with it
@@ -906,7 +915,7 @@ object Analyse {
       // transactions of v, thus these variables are exclusive
 
       val onSnPerGrouped = groupedLitToTransactions.transform((k, v) =>
-        Implies(k, Or(v.map(transactionToLit).toSeq: _*))
+        Implies(k, Or(v.map(transactionToLit).toSeq))
       )
       val nonExclusiveSn = transactionToLit.transform((k, v) =>
         exclusiveTransactions(k)
@@ -925,7 +934,7 @@ object Analyse {
         .groupMap(_._1)(kv => kv._2)
         .transform((_, v) => v)
 
-      Problem(
+      Model(
         platform,
         groupedLitToTransactions,
         groupedLitToNodeSet,
@@ -938,6 +947,7 @@ object Analyse {
         edgeCst.values.toSet ++ nonExclusive,
         nodeToServices,
         serviceToTransactionLit,
+        implm,
         Some(maxSize)
       )
     }
@@ -1015,7 +1025,7 @@ object Analyse {
     }
 
     private def updateChannelNumber(
-        problem: Problem,
+        problem: Model,
         channels: mutable.Map[Int, Map[Channel, Int]],
         physical: Set[Set[PhysicalTransactionId]],
         user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]

@@ -20,11 +20,10 @@ package onera.pmlanalyzer.views.interference.exporters
 import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransactionId,
-  multiTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalTransactionId, multiTransactionId}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -34,21 +33,21 @@ object GraphExporter {
   trait Ops {
     extension [T <: Platform with InterferenceSpecification](self: T) {
 
-      def exportGraphReduction()(using ev: Analyse[T]): File = {
+      def exportGraphReduction(implm: SolverImplm = Monosat)(using ev: Analyse[T]): File = {
         val file = FileManager.exportDirectory.getFile(
           FileManager.getGraphReductionFileName(self)
         )
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")
         writer.write(
-          self.computeGraphReduction(ignoreExistingFile = true).toString()
+          self.computeGraphReduction(implm).toString()
         )
         writer.close()
         file
       }
 
-      def exportAnalysisGraph()(using ev: Analyse[T]): File =
-        ev.printGraph(self)
+      def exportAnalysisGraph(implm: SolverImplm = Monosat)(using ev: Analyse[T]): File =
+        ev.printGraph(self,implm)
 
       def exportInterferenceGraph(it: Set[PhysicalTransactionId]): File = {
         val multiTransactionName = multiTransactionId(
