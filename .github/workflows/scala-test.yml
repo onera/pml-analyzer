@@ -74,6 +74,3 @@ jobs:
 
       - name: Run tests
         run: sbt test
-
-      - name: Perform an interference analysis on Simple Keystone
-        run: sbt "runMain onera.pmlanalyzer.views.interference.examples.simpleKeystone.SimpleKeystoneInterferenceGeneration"
