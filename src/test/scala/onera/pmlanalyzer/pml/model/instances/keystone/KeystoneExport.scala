@@ -9,9 +9,10 @@ object KeystoneExport extends App {
   object Keystone extends KeystonePlatform
 
   // Creation of the Keystone platform configured with Rosace
-  object KeystoneWithRosace extends KeystonePlatform
-    with RosaceConfiguration
-    with KeystoneRoutingConstraints
+  object KeystoneWithRosace
+      extends KeystonePlatform
+      with RosaceConfiguration
+      with KeystoneRoutingConstraints
 
   // Export non-configured SW and HW dependencies
   Keystone.exportHWAndSWGraph()

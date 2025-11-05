@@ -11,7 +11,6 @@ trait KeystoneRoutingConstraints {
     * of some routing rules
     * ----------------------------------------------------------- */
 
-
   // All access (R/W) to DDR or MSMC SRAM from ARMs are routed to the AXI by the MMU
   //  ARMPac.cores foreach { core =>
   //    core.mmu route (MSMC_SRAM.banks ++ DDR.banks) by core.core to AXI

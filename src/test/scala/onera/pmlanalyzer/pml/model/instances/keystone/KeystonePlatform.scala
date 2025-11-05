@@ -51,12 +51,12 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
 
   // 2 Banked MSMC SRAM
   case object MSMC_SRAM extends Composite("MSMC_SRAM") {
-    val banks : IndexedSeq[Target] = (0 to 1).map(i => Target(s"Bank$i"))
+    val banks: IndexedSeq[Target] = (0 to 1).map(i => Target(s"Bank$i"))
   }
 
   // 2 Banked DDR
   case object DDR extends Composite("DDR") {
-    val banks : IndexedSeq[Target] = (0 to 1).map(i => Target(s"Bank$i"))
+    val banks: IndexedSeq[Target] = (0 to 1).map(i => Target(s"Bank$i"))
   }
 
   // MSMC managing access to the external DDR and internal SRAM
@@ -94,7 +94,8 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
   val AXI: SimpleTransporter = SimpleTransporter()
 
   // Consider eight DSP
-  val corePacs: IndexedSeq[CorePac] = 0 until 8 map (i => new CorePac(s"CorePac$i"))
+  val corePacs: IndexedSeq[CorePac] =
+    0 until 8 map (i => new CorePac(s"CorePac$i"))
 
   /** -----------------------------------------------------------
     * Physical connections
@@ -102,11 +103,13 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
 
   // DSP MPAX is connected to the MSMC and the Teranet
   // DSP SRAM can also be accessed via Teranet
-  corePacs.foreach {pac => {
-    pac.mpax link MSMC
-    pac.mpax link TeraNet
-    TeraNet link pac.dsram
-  }}
+  corePacs.foreach { pac =>
+    {
+      pac.mpax link MSMC
+      pac.mpax link TeraNet
+      TeraNet link pac.dsram
+    }
+  }
 
   // DDR and internal MSMC SRAM banks are accessed through the MSMC
   DDR.banks foreach { bank => MSMC link bank }
@@ -120,10 +123,9 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
   TeraNet link SPI
 
   // ARM MMU can access to the AXI or TeraNet directly
-  ARMPac.cores foreach {_.mmu link AXI}
-  ARMPac.cores foreach {_.mmu link TeraNet}
+  ARMPac.cores foreach { _.mmu link AXI }
+  ARMPac.cores foreach { _.mmu link TeraNet }
 
   // AXI controlled can access to the MSMC
   AXI link MSMC
 }
-

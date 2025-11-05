@@ -31,7 +31,10 @@ import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification
+}
 
 import java.io.{File, FileWriter}
 import scala.collection.immutable.SortedMap
@@ -895,12 +898,16 @@ object Analyse {
       // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1
       val isFree = And(
         for {
-          (g,ns) <- groupedLitToNodeSet.toSeq
-          gs = groupedLitToNodeSet.collect({
-            case(k,v) if k!=g && v.flatten.intersect(ns.flatten).nonEmpty => k
-          }).toSeq
+          (g, ns) <- groupedLitToNodeSet.toSeq
+          gs = groupedLitToNodeSet
+            .collect({
+              case (k, v)
+                  if k != g && v.flatten.intersect(ns.flatten).nonEmpty =>
+                k
+            })
+            .toSeq
           if gs.nonEmpty
-        }yield {
+        } yield {
           Implies(g, Not(Or(gs)))
         }
       )
@@ -914,12 +921,12 @@ object Analyse {
         )
 
       val nonExclusiveSn = for {
-        (l,trs) <- groupedLitToTransactions
-        (l2,trs2) <- groupedLitToTransactions 
-        if l != l2 
+        (l, trs) <- groupedLitToTransactions
+        (l2, trs2) <- groupedLitToTransactions
+        if l != l2
         if trs.forall(t => trs2.subsetOf(exclusiveTransactions(t)))
           || trs2.forall(t => trs.subsetOf(exclusiveTransactions(t)))
-      } yield Not(And(Seq(l,l2)))
+      } yield Not(And(Seq(l, l2)))
 
       val nonExclusive =
         nonExclusiveSn.map(SimpleAssert.apply)

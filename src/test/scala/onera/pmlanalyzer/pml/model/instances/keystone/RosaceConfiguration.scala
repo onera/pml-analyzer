@@ -1,7 +1,10 @@
 package onera.pmlanalyzer.pml.model.instances.keystone
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.configuration.{Transaction, TransactionLibrary}
+import onera.pmlanalyzer.pml.model.configuration.{
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line}
@@ -60,9 +63,20 @@ trait RosaceConfiguration extends TransactionLibrary {
 
   // First Rosace data
   val RosaceAData: Set[Data] = Set(
-    azFA, vzFA, hFA, qFA, vaFA,
-    azA, vzA, hA, qA, vaA,
-    hCA, vaCA, δEcA, δThcA
+    azFA,
+    vzFA,
+    hFA,
+    qFA,
+    vaFA,
+    azA,
+    vzA,
+    hA,
+    qA,
+    vaA,
+    hCA,
+    vaCA,
+    δEcA,
+    δThcA
   )
 
   // filters outputs: azF, vzF, hF, qF, vaF
@@ -87,9 +101,20 @@ trait RosaceConfiguration extends TransactionLibrary {
 
   // Second Rosace data
   val RosaceBData: Set[Data] = Set(
-    azFB, vzFB, hFB, qFB, vaFB,
-    azB, vzB, hB, qB, vaB,
-    hCB, vaCB, δEcB, δThcB
+    azFB,
+    vzFB,
+    hFB,
+    qFB,
+    vaFB,
+    azB,
+    vzB,
+    hB,
+    qB,
+    vaB,
+    hCB,
+    vaCB,
+    δEcB,
+    δThcB
   )
 
   // cross check results
@@ -242,21 +267,21 @@ trait RosaceConfiguration extends TransactionLibrary {
   engineB hostedBy corePacs(1).dsp
   nnB hostedBy corePacs(1).dsp
 
-  //Executed by DSP 2/3
+  // Executed by DSP 2/3
   checkA hostedBy corePacs(2).dsp
   checkB hostedBy corePacs(3).dsp
 
-  //Executed by DSP 4
+  // Executed by DSP 4
   ioServer hostedBy corePacs(4).dsp
 
-  //Executed by EDMA
+  // Executed by EDMA
   edmaMicroCode hostedBy EDMA
 
   /** -----------------------------------------------------------
     * DMA Transfers
     * ----------------------------------------------------------- */
 
-  //Copy provided by EDMA
+  // Copy provided by EDMA
   private val edma_rd_spi = Transaction(edmaMicroCode read SPI)
   private val edma_rd_io = Transaction(edmaMicroCode read ioServer.data)
   private val edma_wr_hCA = Transaction(edmaMicroCode write hCA)
@@ -293,7 +318,7 @@ trait RosaceConfiguration extends TransactionLibrary {
   } yield {
     a read a.data
     a read a.instruction
-    a write a.data 
+    a write a.data
     a write a.instruction
   }
 
@@ -325,8 +350,8 @@ trait RosaceConfiguration extends TransactionLibrary {
   nnA write azA
   nnA write hA
   nnA write vzA
-  nnA write qA 
-  nnA write  vaA
+  nnA write qA
+  nnA write vaA
 
   altitudeHoldB read hCB
   altitudeHoldB read hFB
@@ -380,10 +405,11 @@ trait RosaceConfiguration extends TransactionLibrary {
     * ----------------------------------------------------------- */
   PCIe.deactivated
 
-  corePacs.drop(5) foreach { c => {
-    c.dsram.deactivated
-    c.dsp.deactivated
-    c.mpax.deactivated
-  }
+  corePacs.drop(5) foreach { c =>
+    {
+      c.dsram.deactivated
+      c.dsp.deactivated
+      c.mpax.deactivated
+    }
   }
 }
