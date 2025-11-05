@@ -210,9 +210,6 @@ class ChocoSolver extends Solver {
   def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] = {
     val models = mutable.Set.empty[Set[MLit]]
     val solver = model.getSolver
-    //FIXME For choco, the enumeration cannot be performed safely by adding 
-    // the negation of the cube. So the "free" decision variable must belongs to get
-    // otherwise choco enumerate all of them
     while (solver.solve()) {
       models += (for {
         l <- toGet

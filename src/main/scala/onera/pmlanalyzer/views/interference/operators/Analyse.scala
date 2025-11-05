@@ -728,8 +728,11 @@ object Analyse {
 
       val idToTransaction = platform.purifiedTransactions
 
-      val transactionToLit = idToTransaction
-        .transform((k, _) => MLit(Symbol(k.id.name)))
+//      //FIXME THESE VARIABLES SHOULD NOT BELONG
+//      // TO THE PROBLEM, HERE ONLY USED TO AVOID
+//      // SELECTION OF EXCLUSIVE MULTI-TRANSACTION
+//      val transactionToLit = idToTransaction
+//        .transform((k, _) => MLit(Symbol(k.id.name)))
 
       // association of the simple transaction path to its formatted name
       val initialPathT = idToTransaction.to(SortedMap)
@@ -892,7 +895,7 @@ object Analyse {
         )
 
       // free are only computed when the selected groupedLit
-      // does not share a common service
+      // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1 
       val isFree = And(
         for {
           l <- groupedLitToNodeSet.keySet.toSeq
@@ -913,21 +916,18 @@ object Analyse {
           )
         )
 
-      // for each grouped transactions variable v, the other variables containing only transactions that are exclusive with all
-      // transactions of v, thus these variables are exclusive
-
-      val onSnPerGrouped = groupedLitToTransactions.transform((k, v) =>
-        Implies(k, Or(v.map(transactionToLit).toSeq))
-      )
-      val nonExclusiveSn = transactionToLit.transform((k, v) =>
-        exclusiveTransactions(k)
-          .map(transactionToLit)
-          .map(sLit => Implies(sLit, Not(v)))
-      )
+      // for each grouped transactions variable v forbid the other grouped transaction variable
+      //that are always exclusive to it (cannot form a multi-transaction out of it)
+      val nonExclusiveSn = for {
+        (l,trs) <- groupedLitToTransactions
+        (l2,trs2) <- groupedLitToTransactions 
+        if l != l2 
+        if trs.forall(t => exclusiveTransactions(t).subsetOf(trs2))
+          || trs2.forall(t => exclusiveTransactions(t).subsetOf(trs))
+      } yield Not(And(Seq(l,l2)))
 
       val nonExclusive =
-        (onSnPerGrouped.values ++ nonExclusiveSn.values.flatten)
-          .map(SimpleAssert.apply)
+        nonExclusiveSn.map(SimpleAssert.apply)
 
       val serviceToTransactionLit = idToTransaction.keySet
         .flatMap(k =>
