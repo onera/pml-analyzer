@@ -18,11 +18,16 @@
 package onera.pmlanalyzer.views.interference.model.formalisation
 
 import monosat.Lit
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  Choco,
+  Monosat
+}
 import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
-import org.chocosolver.solver.Model as ChocoModel
+import org.chocosolver.solver.{Settings, Model as ChocoModel}
 import org.chocosolver.solver.constraints.Constraint as ChocoConstraint
 import org.chocosolver.solver.constraints.Operator
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
+import org.chocosolver.util.ESat
 import org.chocosolver.util.objects.setDataStructures.SetType
 import org.chocosolver.util.objects.graphs.UndirectedGraph
 
@@ -42,6 +47,8 @@ sealed trait Solver {
   type BoolLit <: Expression
   type GraphLit
   type Constraint
+
+  val implm: SolverImplm
 
   protected val memoBooLit = mutable.Map.empty[ALit, BoolLit]
   protected val memoGraph = mutable.Map.empty[MGraph, GraphLit]
@@ -69,9 +76,11 @@ class ChocoSolver extends Solver {
   type Constraint = ChocoConstraint
   type Expression = ReExpression
 
+  override val implm: SolverImplm = Choco
+
   private val memoEdges = mutable.Map.empty[String, BoolLit]
   private val memoNodes = mutable.Map.empty[String, BoolLit]
-  private val model: ChocoModel = ChocoModel()
+  private val model: ChocoModel = ChocoModel(Settings.prod())
 
   def assert(lt: Expr | Connected): Unit = lt match {
     case a: Expr      => a.toExpr(this).post()
@@ -207,16 +216,24 @@ class ChocoSolver extends Solver {
     file
   }
 
+  // FIXME Choco can send false solutions that are discarded, so the ananlysis
+  // can be incomplete
   def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] = {
     val models = mutable.Set.empty[Set[MLit]]
     val solver = model.getSolver
     while (solver.solve()) {
-      models += (for {
-        l <- toGet
-        if l.toLit(this).getValue == 1
-      } yield {
-        l
-      })
+      if (model.getCstrs.forall(_.isSatisfied == ESat.TRUE)) {
+        models += (for {
+          l <- toGet
+          if l.toLit(this).getValue == 1
+        } yield {
+          l
+        })
+      } else {
+        println(
+          "[WARNING] incorrect solution computed by Choco, analysis may not be incomplete"
+        )
+      }
     }
     models
   }
@@ -229,6 +246,8 @@ class MonoSatSolver extends Solver {
   type GraphLit = monosat.Graph
   type Constraint = monosat.Lit
   type Expression = monosat.Lit
+
+  override val implm: SolverImplm = Monosat
 
   private val solver: monosat.Solver = monosat.Solver("-decide-theories")
 

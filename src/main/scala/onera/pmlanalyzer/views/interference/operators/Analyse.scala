@@ -305,45 +305,45 @@ object Analyse {
         implm: SolverImplm
     ): (BigInt, BigInt) = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size, implm)
-      val graph = problem.serviceGraph
+        computeProblemConstraints(platform, platform.initiators.size)
+      val graph = problem.graph
       val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
     }
 
     def printGraph(platform: ConfiguredPlatform, implm: SolverImplm): File = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size, implm)
+        computeProblemConstraints(platform, platform.initiators.size)
       val result =
         FileManager.exportDirectory.getFile(s"${platform.name.name}_graph.dot")
       val emptySolver = Solver(implm)
-      problem.serviceGraph.exportGraph(emptySolver, result)
+      problem.graph.exportGraph(emptySolver, result)
       emptySolver.close()
       result
     }
 
     private def solve(
-        model: Model,
+        calculusProblem: InterferenceCalculusProblem with Decoder,
         size: Int,
         isFree: Boolean,
+        implm: SolverImplm,
         update: (
             Boolean,
             Set[Set[PhysicalTransactionId]],
             Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
         ) => Unit
     ): Unit = {
-      val problem = model.instantiate(size, isFree)
-      val variables =
-        model.groupedTransactions.transform((k, _) => k.toLit(problem))
+      val instantiatedProblem = calculusProblem.instantiate(size, isFree, implm)
       val results =
-        problem.enumerateSolution(variables.keySet)
+        instantiatedProblem.enumerateSolution(calculusProblem.variables)
       for { r <- results } {
-        val physical = model.decodeModel(
+        val physical = calculusProblem.decodeModel(
           r.collect({ case l: MLit => l }),
-          isFree
+          isFree,
+          implm
         )
         val userDefined = physical
-          .groupMapReduce(p => p)(model.decodeUserModel)(_ ++ _)
+          .groupMapReduce(p => p)(calculusProblem.decodeUserModel)(_ ++ _)
         update(isFree, physical, userDefined)
       }
     }
@@ -454,7 +454,7 @@ object Analyse {
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val model = computeProblemConstraints(platform, maxSize, implm)
+          val calculusProblem = computeProblemConstraints(platform, maxSize)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>
@@ -507,7 +507,7 @@ object Analyse {
               updateNumber(nbITF, userBySize)
               for { iW <- interferenceWriters }
                 updateResultFile(iW, userBySize)
-              updateChannelNumber(model, channels, physical, user)
+              updateChannelNumber(calculusProblem, channels, physical, user)
             }
           }
 
@@ -542,12 +542,12 @@ object Analyse {
             )
           )
           for {
-            (k, v) <- model.litToNodeSet
-            isFree = v.forall(_.isEmpty)
-            physical = model.decodeModel(Set(k), isFree)
+            (k, v) <- calculusProblem.litToNode
+            isFree = v.isEmpty
+            physical = calculusProblem.decodeModel(Set(k), isFree, implm)
             if physical.nonEmpty
             userDefined = physical.groupMapReduce(p => p)(
-              model.decodeUserModel
+              calculusProblem.decodeUserModel
             )(_ ++ _)
           }
             update(isFree, physical, userDefined)
@@ -592,8 +592,8 @@ object Analyse {
 
           for (size <- sizes) {
             val iterationStartDate = (System.currentTimeMillis() millis)
-            solve(model, size, isFree = false, update)
-            solve(model, size, isFree = true, update)
+            solve(calculusProblem, size, isFree = false, implm, update)
+            solve(calculusProblem, size, isFree = true, implm, update)
             println(
               Message.iterationCompletedInfo(
                 size,
@@ -710,249 +710,50 @@ object Analyse {
       */
     private def computeProblemConstraints(
         platform: ConfiguredPlatform,
-        maxSize: Int,
-        implm: SolverImplm
-    ): Model = {
-
-      // Utilitarian functions
-      val addNode: Set[Service] => MNode = immutableHashMapMemo { ss =>
-        MNode(nodeId(ss))
-      }
-
-      val addLit: LitId => MLit = immutableHashMapMemo { s => MLit(s) }
-
-      // DEFINITION OF VARIABLES
-
-      // retrieving simple atomicTransactions to consider from the platform
-      val atomicTransactions = platform.purifiedAtomicTransactions
-
-      val idToTransaction = platform.purifiedTransactions
-
-//      //FIXME THESE VARIABLES SHOULD NOT BELONG
-//      // TO THE PROBLEM, HERE ONLY USED TO AVOID
-//      // SELECTION OF EXCLUSIVE MULTI-TRANSACTION
-//      val transactionToLit = idToTransaction
-//        .transform((k, _) => MLit(Symbol(k.id.name)))
-
-      // association of the simple transaction path to its formatted name
-      val initialPathT = idToTransaction.to(SortedMap)
-
-      // all the services used by atomicTransactions
-      val initialServices = initialPathT.values
-        .flatMap(s => s.map(atomicTransactions))
-        .toSet
-        .flatten
-
-      // all the services exclusive to a given one
-      val initialServicesInterfere = initialServices
-        .map(s =>
-          s -> initialServices.filter(s2 => platform.finalInterfereWith(s, s2))
+        maxSize: Int
+    ): InterferenceCalculusProblem with Decoder = {
+      val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
+        platform.relationToMap(
+          platform.purifiedAtomicTransactions.keySet,
+          (l, r) => platform.finalExclusive(l, r)
         )
-        .toMap
-
-      // the actual path will be the service that can be a channel, ie
-      // a service that is a service (or exclusive to a service) of a different and non exclusive transaction
-      // FIXME If a multi-path transaction, the following computation consider that one of the services used by
-      // several atomic atomicTransactions could be an interference channel that is obviously false
-      // and complexify the graph for no reason
-      val pathT: Map[PhysicalTransactionId, Set[AtomicTransaction]] =
-        initialPathT.view
-          .mapValues(s =>
-            s.map(t =>
-              atomicTransactions(t).filter(s =>
-                atomicTransactions.keySet.exists(t2 =>
-                  t != t2 &&
-                    !platform.finalExclusive(t, t2) &&
-                    atomicTransactions(t2).exists(s2 =>
-                      s2 == s || initialServicesInterfere(s2).contains(s)
-                    )
-                )
-              )
-            )
-          )
-          .toMap
-
-      val services = pathT.values.toSet.flatten.flatten
-
-      val servicesExclusive = services
-        .map(s =>
-          s -> services.filter(s2 => platform.finalInterfereWith(s, s2))
+      val exclusiveWithTr
+          : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
+        platform.relationToMap(
+          platform.purifiedTransactions.keySet,
+          (l, r) => platform.finalExclusive(l, r)
         )
-        .toMap
+      val interfereWith: Map[Service, Set[Service]] =
+        platform.relationToMap(
+          platform.services,
+          (l, r) => platform.finalInterfereWith(l, r)
+        )
 
-      // the nodes of the service graph are the services grouped by exclusivity pairs
-      val serviceToNodes = servicesExclusive.transform((k, v) =>
-        if (v.isEmpty)
-          Set(addNode(Set(k)))
-        else
-          v.map(k2 => addNode(Set(k, k2)))
-      )
-
-      val nodeToServices = serviceToNodes.keySet
-        .flatMap(k => serviceToNodes(k).map(_ -> k))
-        .groupMap(_._1)(_._2)
-
-      val reducedNodePath = pathT
-        .transform((_, v) => v.map(t => t.map(serviceToNodes)))
-
-      val transactionToGroupedLit = reducedNodePath
-        .groupMap(_._2)(_._1)
-        .values
-        .flatMap(ss => ss.map(_ -> ss))
-        .groupMapReduce(_._1)(x =>
-          addLit(groupedTransactionsLitId(x._2.toSet).id)
-        )((l, _) => l)
-
-      val groupedLitToTransactions = transactionToGroupedLit
-        .groupMap(_._2)(_._1)
-        .transform((_, v) => v.toSet)
-
-      val groupedLitToNodeSet = transactionToGroupedLit
-        .groupMapReduce(_._2)(kv =>
-          reducedNodePath(kv._1).map(_.toSet.flatten)
-        )((l, _) => l)
-
-      // Add an undirected edge for any set containing two nodes
-      val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo { lr =>
-        MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
-      }
-
-      val addUndirectedEdge = (lr: Set[Service]) => {
-        if (lr.size == 1) {
-          for {
-            ns <- serviceToNodes(lr.head).subsets(2).toSet
-          } yield addUndirectedEdgeI(ns)
-        } else {
-          serviceToNodes(lr.head).flatMap(n1 =>
-            serviceToNodes(lr.last).map(n2 => addUndirectedEdgeI(Set(n1, n2)))
-          )
+      val finalUserTransactionExclusiveOpt =
+        platform match {
+          case appSpec: ApplicativeTableBasedInterferenceSpecification =>
+            Some(appSpec.finalUserTransactionExclusive)
+          case _ => None
         }
-      }
 
-      // an edge is added to service graph iff one of transaction use it:
-      // * the transaction must not be transparent
-      // * the edge must not contain a service considered as non impacted
-      // FIXME * an edge is added between all nodes sharing a common service
-      val edgesToTransactions: Map[MEdge, Set[PhysicalTransactionId]] =
-        pathT.keySet
-          .flatMap(s =>
-            val pathEdges = for {
-              t <- pathT(s) if t.size > 1
-              servCouple <- t.sliding(2)
-              edge <- addUndirectedEdge(servCouple.toSet)
-            } yield edge -> s
-            val serviceEdges = {
-              for {
-                t <- pathT(s)
-                service <- t
-                e <- addUndirectedEdge(Set(service))
-              } yield e -> s
-            }
-            pathEdges ++ serviceEdges
-          )
-          .groupMap(_._1)(_._2)
-
-      val graph = MGraph(nodeToServices.keySet, edgesToTransactions.keySet)
-
-      // DEFINITION OF CONSTRAINTS
-
-      // an edge is enabled iff at least one of the atomicTransactions using is selected
-      val edgeCst = edgesToTransactions
-        .transform((k, trs) =>
-          SimpleAssert(
-            Equal(
-              MEdgeLit(k, graph),
-              Or(trs.map(transactionToGroupedLit).toSeq)
-            )
-          )
-        )
-
-      val trivialFreeTransactions =
-        transactionToGroupedLit.values.toSet
-          .filter(
-            groupedLitToNodeSet(_).forall(_.isEmpty)
-          ) // All paths of the transactions are only private ones
-
-      val contributeToGraph =
-        And(
-          for {
-            (l, ns) <- groupedLitToNodeSet.toSeq
-            nsL = ns.flatten.map(n => MNodeLit(n, graph)).toSeq
-          } yield {
-            Implies(l, Or(nsL))
-          }
-        )
-
-      val nonEmptyGraph = Or(graph.nodes.map(n => MNodeLit(n, graph)).toSeq)
-      val isNotTrivialFree = And(trivialFreeTransactions.map(v => Not(v)).toSeq)
-      val isConnected = Connected(graph)
-      val isITF =
-        Seq(
-          nonEmptyGraph,
-          isNotTrivialFree,
-          isConnected,
-          contributeToGraph
-        )
-
-      // free are only computed when the selected groupedLit
-      // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1
-      val isFree = And(
-        for {
-          (g, ns) <- groupedLitToNodeSet.toSeq
-          gs = groupedLitToNodeSet
-            .collect({
-              case (k, v)
-                  if k != g && v.flatten.intersect(ns.flatten).nonEmpty =>
-                k
-            })
-            .toSeq
-          if gs.nonEmpty
-        } yield {
-          Implies(g, Not(Or(gs)))
+      val transactionUserNameOpt =
+        platform match {
+          case lib: TransactionLibrary =>
+            Some(lib.transactionUserName)
+          case _ => None
         }
-      )
 
-      // for each transaction, the transactions that are exclusive with it
-      val exclusiveTransactions = idToTransaction
-        .transform((k, _) =>
-          idToTransaction.keySet.filter(kp =>
-            k != kp && platform.finalExclusive(k, kp)
-          )
-        )
-
-      val nonExclusiveSn = for {
-        (l, trs) <- groupedLitToTransactions
-        (l2, trs2) <- groupedLitToTransactions
-        if l != l2
-        if trs.forall(t => trs2.subsetOf(exclusiveTransactions(t)))
-          || trs2.forall(t => trs.subsetOf(exclusiveTransactions(t)))
-      } yield Not(And(Seq(l, l2)))
-
-      val nonExclusive =
-        nonExclusiveSn.map(SimpleAssert.apply)
-
-      val serviceToTransactionLit = idToTransaction.keySet
-        .flatMap(k =>
-          idToTransaction(k).flatMap(tr => atomicTransactions(tr).map(_ -> k))
-        )
-        .groupMap(_._1)(kv => kv._2)
-        .transform((_, v) => v)
-
-      Model(
-        platform,
-        groupedLitToTransactions,
-        groupedLitToNodeSet,
-        idToTransaction,
-        exclusiveTransactions,
-        graph,
-        isFree,
-        isITF,
-        Set.empty,
-        edgeCst.values.toSet ++ nonExclusive,
-        nodeToServices,
-        serviceToTransactionLit,
-        implm,
-        Some(maxSize)
+      DefaultInterferenceCalculusProblem(
+        platform.purifiedAtomicTransactions,
+        platform.purifiedTransactions,
+        exclusiveWithATr,
+        exclusiveWithTr,
+        interfereWith: Map[Service, Set[Service]],
+        Some(maxSize),
+        finalUserTransactionExclusiveOpt: Option[
+          Map[UserTransactionId, Set[UserTransactionId]]
+        ],
+        transactionUserNameOpt
       )
     }
 
@@ -1029,13 +830,13 @@ object Analyse {
     }
 
     private def updateChannelNumber(
-        problem: Model,
+        calculusProblem: InterferenceCalculusProblem with Decoder,
         channels: mutable.Map[Int, Map[Channel, Int]],
         physical: Set[Set[PhysicalTransactionId]],
         user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
     ): Unit = {
       val channelNb = physical
-        .flatMap(p => user(p).map(u => (problem.decodeChannel(p), u)))
+        .flatMap(p => user(p).map(u => (calculusProblem.decodeChannel(p), u)))
         .groupBy(_._2.size)
         .transform((_, v) => v.groupMap(_._1)(_._2).transform((_, v) => v.size))
       for ((k, v) <- channelNb)

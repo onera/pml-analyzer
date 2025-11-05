@@ -33,7 +33,7 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
     * ----------------------------------------------------------- */
 
   // Composite representing Keystone CorePacs (dsp, sram, mpax)
-  class CorePac(name: Symbol) extends Composite(name) {
+  class CorePac(corePacName: Symbol) extends Composite(corePacName) {
     val dsp: Initiator = Initiator()
     val dsram: Target = Target()
     val isram: Target = Target()
@@ -75,7 +75,7 @@ class KeystonePlatform(name: Symbol) extends Platform(name) {
   case object ARMPac extends Composite("ARMPac") {
 
     // Composite representing Keystone ARM cores and their internal L1 cache
-    class ARMCore(name: Symbol) extends Composite(name) {
+    class ARMCore(armCoreName: Symbol) extends Composite(armCoreName) {
       val core: Initiator = Initiator()
       val L1: SimpleTransporter = SimpleTransporter()
       val mmu: Virtualizer = Virtualizer()
