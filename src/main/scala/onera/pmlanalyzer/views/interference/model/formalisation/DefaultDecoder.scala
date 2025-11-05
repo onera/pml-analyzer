@@ -21,7 +21,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 trait DefaultDecoder extends Decoder {
   val transactionVars: Map[MLit, PhysicalTransactionId]
-  val variables: Set[MLit] = transactionVars.keySet
 
   def decodeModel(
       model: Set[MLit],

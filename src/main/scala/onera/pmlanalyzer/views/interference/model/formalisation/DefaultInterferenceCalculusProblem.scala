@@ -181,6 +181,8 @@ final case class DefaultInterferenceCalculusProblem(
     .flatMap((k, v) => v.map(k -> _))
     .groupMapReduce(_._2)((k, _) => Set(k))(_ ++ _)
 
+  val variables: Set[MLit] = transactionVars.keySet
+
   val litToNode: Map[MLit, Set[MNode]] =
     nodeToTransaction.toSeq
       .flatMap((k, v) => v.map(k -> _))
@@ -192,6 +194,7 @@ final case class DefaultInterferenceCalculusProblem(
       implm: SolverImplm
   ): Solver = {
     val s = Solver(implm)
+    graph.toLit(s)
     s.assertPB(transactionVar.values.toSeq, EQ, k)
     if (!computeFree) {
       for {

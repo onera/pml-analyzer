@@ -305,7 +305,7 @@ object Analyse {
         implm: SolverImplm
     ): (BigInt, BigInt) = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size)
+        computeGroupedBasedProblem(platform, platform.initiators.size)
       val graph = problem.graph
       val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
@@ -313,7 +313,7 @@ object Analyse {
 
     def printGraph(platform: ConfiguredPlatform, implm: SolverImplm): File = {
       val problem =
-        computeProblemConstraints(platform, platform.initiators.size)
+        computeGroupedBasedProblem(platform, platform.initiators.size)
       val result =
         FileManager.exportDirectory.getFile(s"${platform.name.name}_graph.dot")
       val emptySolver = Solver(implm)
@@ -454,7 +454,7 @@ object Analyse {
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val calculusProblem = computeProblemConstraints(platform, maxSize)
+          val calculusProblem = computeDefaultProblem(platform, maxSize)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>
@@ -541,16 +541,17 @@ object Analyse {
                 .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
             )
           )
-          for {
-            (k, v) <- calculusProblem.litToNode
-            isFree = v.isEmpty
-            physical = calculusProblem.decodeModel(Set(k), isFree, implm)
-            if physical.nonEmpty
-            userDefined = physical.groupMapReduce(p => p)(
-              calculusProblem.decodeUserModel
-            )(_ ++ _)
-          }
-            update(isFree, physical, userDefined)
+//          //FIXME SHOULD NOT BE HERE SINCE ONLY APPLICABLE FOR GROUPED BASED COMPUTATION
+//          for {
+//            (k, v) <- calculusProblem.litToNode
+//            isFree = v.isEmpty
+//            physical = calculusProblem.decodeModel(Set(k), isFree, implm)
+//            if physical.nonEmpty
+//            userDefined = physical.groupMapReduce(p => p)(
+//              calculusProblem.decodeUserModel
+//            )(_ ++ _)
+//          }
+//            update(isFree, physical, userDefined)
 
           val assessmentStartDate = System.currentTimeMillis() millis
 
@@ -708,7 +709,7 @@ object Analyse {
       * @return
       *   the variables and constraints to be instantiated in a MONOSAT Solver
       */
-    private def computeProblemConstraints(
+    private def computeDefaultProblem(
         platform: ConfiguredPlatform,
         maxSize: Int
     ): InterferenceCalculusProblem with Decoder = {
@@ -744,6 +745,55 @@ object Analyse {
         }
 
       DefaultInterferenceCalculusProblem(
+        platform.purifiedAtomicTransactions,
+        platform.purifiedTransactions,
+        exclusiveWithATr,
+        exclusiveWithTr,
+        interfereWith: Map[Service, Set[Service]],
+        Some(maxSize),
+        finalUserTransactionExclusiveOpt: Option[
+          Map[UserTransactionId, Set[UserTransactionId]]
+        ],
+        transactionUserNameOpt
+      )
+    }
+
+    private def computeGroupedBasedProblem(
+                                       platform: ConfiguredPlatform,
+                                       maxSize: Int
+                                     ): InterferenceCalculusProblem with Decoder = {
+      val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
+        platform.relationToMap(
+          platform.purifiedAtomicTransactions.keySet,
+          (l, r) => platform.finalExclusive(l, r)
+        )
+      val exclusiveWithTr
+      : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
+        platform.relationToMap(
+          platform.purifiedTransactions.keySet,
+          (l, r) => platform.finalExclusive(l, r)
+        )
+      val interfereWith: Map[Service, Set[Service]] =
+        platform.relationToMap(
+          platform.services,
+          (l, r) => platform.finalInterfereWith(l, r)
+        )
+
+      val finalUserTransactionExclusiveOpt =
+        platform match {
+          case appSpec: ApplicativeTableBasedInterferenceSpecification =>
+            Some(appSpec.finalUserTransactionExclusive)
+          case _ => None
+        }
+
+      val transactionUserNameOpt =
+        platform match {
+          case lib: TransactionLibrary =>
+            Some(lib.transactionUserName)
+          case _ => None
+        }
+
+      GroupedLitInterferenceCalculusProblem(
         platform.purifiedAtomicTransactions,
         platform.purifiedTransactions,
         exclusiveWithATr,

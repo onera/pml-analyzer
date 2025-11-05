@@ -23,15 +23,13 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.{
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-trait GroupedLItDecoder extends Decoder {
+trait GroupedLitDecoder extends Decoder {
 
   val groupedLitToTransactions: Map[MLit, Set[PhysicalTransactionId]]
   val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]]
   val exclusiveWithTr: Map[PhysicalTransactionId, Set[
     PhysicalTransactionId
   ]]
-
-  val variables: Set[MLit] = groupedLitToTransactions.keySet
 
   def decodeModel(
       model: Set[MLit],

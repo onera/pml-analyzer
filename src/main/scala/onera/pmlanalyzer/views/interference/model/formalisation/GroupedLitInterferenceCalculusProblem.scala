@@ -46,7 +46,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       Map[Set[AtomicTransactionId], Set[UserTransactionId]]
     ]
 ) extends InterferenceCalculusProblem
-    with GroupedLItDecoder {
+    with GroupedLitDecoder {
 
   private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
     List(l, r).map(_.id.name).sorted.mkString("--")
@@ -255,12 +255,15 @@ final case class GroupedLitInterferenceCalculusProblem(
         _ ++ _
       )
 
+  val variables: Set[MLit] = groupedLitToTransactions.keySet
+
   def instantiate(
       k: Int,
       computeFree: Boolean,
       implm: SolverImplm
   ): Solver = {
     val s = Solver(implm)
+    graph.toLit(s)
     s.assertPB(groupedLitToTransactions.keySet.toSeq, EQ, k)
     if (!computeFree) {
       for {
