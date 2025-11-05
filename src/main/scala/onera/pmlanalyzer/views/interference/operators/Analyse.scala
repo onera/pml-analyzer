@@ -916,14 +916,15 @@ object Analyse {
           )
         )
 
+      //FIXME seems to not encode correctly the explusion
       // for each grouped transactions variable v forbid the other grouped transaction variable
       //that are always exclusive to it (cannot form a multi-transaction out of it)
       val nonExclusiveSn = for {
         (l,trs) <- groupedLitToTransactions
         (l2,trs2) <- groupedLitToTransactions 
         if l != l2 
-        if trs.forall(t => exclusiveTransactions(t).subsetOf(trs2))
-          || trs2.forall(t => exclusiveTransactions(t).subsetOf(trs))
+        if trs.forall(t => trs2.subsetOf(exclusiveTransactions(t)))
+          || trs2.forall(t => trs.subsetOf(exclusiveTransactions(t)))
       } yield Not(And(Seq(l,l2)))
 
       val nonExclusive =
