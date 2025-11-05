@@ -27,14 +27,11 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.formalisation.*
+import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  InterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification}
 
 import java.io.{File, FileWriter}
 import scala.collection.immutable.SortedMap
@@ -895,16 +892,16 @@ object Analyse {
         )
 
       // free are only computed when the selected groupedLit
-      // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1 
+      // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1
       val isFree = And(
         for {
-          l <- groupedLitToNodeSet.keySet.toSeq
-          l2 <- groupedLitToNodeSet.keySet - l
-          if groupedLitToNodeSet(l).flatten
-            .intersect(groupedLitToNodeSet(l2).flatten)
-            .nonEmpty
-        } yield {
-          Not(And(Seq(l, l2)))
+          (g,ns) <- groupedLitToNodeSet.toSeq
+          gs = groupedLitToNodeSet.collect({
+            case(k,v) if k!=g && v.flatten.intersect(ns.flatten).nonEmpty => k
+          }).toSeq
+          if gs.nonEmpty
+        }yield {
+          Implies(g, Not(Or(gs)))
         }
       )
 
@@ -916,9 +913,6 @@ object Analyse {
           )
         )
 
-      //FIXME seems to not encode correctly the explusion
-      // for each grouped transactions variable v forbid the other grouped transaction variable
-      //that are always exclusive to it (cannot form a multi-transaction out of it)
       val nonExclusiveSn = for {
         (l,trs) <- groupedLitToTransactions
         (l2,trs2) <- groupedLitToTransactions 
