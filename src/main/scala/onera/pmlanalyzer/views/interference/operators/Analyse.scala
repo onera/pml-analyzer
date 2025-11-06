@@ -454,7 +454,7 @@ object Analyse {
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val calculusProblem = computeDefaultProblem(platform, maxSize)
+          val calculusProblem = computeGroupedBasedProblem(platform, maxSize)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>

@@ -32,8 +32,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 import scalaz.Memo.immutableHashMapMemo
 
-import scala.collection.immutable.SortedMap
-
 final case class DefaultInterferenceCalculusProblem(
     atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
     idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
@@ -84,7 +82,7 @@ final case class DefaultInterferenceCalculusProblem(
       val notEx = ex.map(tr2 => Not(transactionVar(tr2))).toSeq
       SimpleAssert(Implies(transactionVar(tr), And(notEx)))
     }
-
+  
   // Add constraint C^2_{\Sys} cardinality constraint
 
   // association of the simple transaction path to its formatted name
@@ -117,7 +115,7 @@ final case class DefaultInterferenceCalculusProblem(
     trToNode.toSeq
       .flatMap((k, v) => v.map(k -> _))
       .groupMapReduce(_._2)((k, _) => Set(k))(_ ++ _)
-
+  
   private val trToEdge =
     for {
       (tr, nSet) <- trToNode

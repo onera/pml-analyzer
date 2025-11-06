@@ -147,27 +147,44 @@ final case class GroupedLitInterferenceCalculusProblem(
   // an edge is added to service graph iff one of transaction use it:
   // * the transaction must not be transparent
   // * the edge must not contain a service considered as non impacted
-  // FIXME * an edge is added between all nodes sharing a common service
-  private val edgesToTransactions: Map[MEdge, Set[PhysicalTransactionId]] =
-    pathT.keySet
-      .flatMap(s =>
-        val pathEdges = for {
-          t <- pathT(s) if t.size > 1
-          servCouple <- t.sliding(2)
-          edge <- addUndirectedEdge(servCouple.toSet)
-        } yield edge -> s
-        val serviceEdges = {
-          for {
-            t <- pathT(s)
-            service <- t
-            e <- addUndirectedEdge(Set(service))
-          } yield e -> s
-        }
-        pathEdges ++ serviceEdges
-      )
-      .groupMap(_._1)(_._2)
+  // FIXME THIS IMPLEMENTATION IS NOT WORKING ON NON ATOMIC TRANSACTIONS SINCE
+  //  CHANNEL ON TWO DIFFERENT BRANCHES ARE NOT CONNECTED
+//  private val edgesToTransactions: Map[MEdge, Set[PhysicalTransactionId]] =
+//    pathT.keySet
+//      .flatMap(s =>
+//        val pathEdges = for {
+//          t <- pathT(s) if t.size > 1
+//          servCouple <- t.sliding(2)
+//          edge <- addUndirectedEdge(servCouple.toSet)
+//        } yield edge -> s
+//        val serviceEdges = {
+//          for {
+//            t <- pathT(s)
+//            service <- t
+//            e <- addUndirectedEdge(Set(service))
+//          } yield e -> s
+//        }
+//        pathEdges ++ serviceEdges
+//      )
+//      .groupMap(_._1)(_._2)
 
-  val graph: MGraph = MGraph(nodeToServices.keySet, edgesToTransactions.keySet)
+  private val edgesToTransactions =
+    (for {
+      (g, nSet) <- groupedLitToNodeSet.toSet
+      nP <- nSet.flatten.subsets(2).toSet
+    } yield {
+      addUndirectedEdgeI(nP) -> groupedLitToTransactions(g)
+    }).toMap
+
+  val graph: MGraph = MGraph(groupedLitToNodeSet.values.flatten.flatten.toSet, edgesToTransactions.keySet)
+
+  private val nodeVar =
+    (for {
+      n <- groupedLitToNodeSet.values.flatten.flatten.toSet
+    } yield {
+      n ->  MNodeLit(n, graph)
+    }).toMap
+
 
   // DEFINITION OF CONSTRAINTS
 
@@ -177,7 +194,13 @@ final case class GroupedLitInterferenceCalculusProblem(
       SimpleAssert(
         Equal(
           MEdgeLit(k, graph),
-          Or(trs.map(transactionToGroupedLit).toSeq)
+          And(
+            Seq(
+              Or(trs.map(transactionToGroupedLit).toSeq),
+              nodeVar(k.from),
+              nodeVar(k.to)
+            )
+          )
         )
       )
     )
@@ -192,13 +215,13 @@ final case class GroupedLitInterferenceCalculusProblem(
     And(
       for {
         (l, ns) <- groupedLitToNodeSet.toSeq
-        nsL = ns.flatten.map(n => MNodeLit(n, graph)).toSeq
+        nsL = ns.flatten.map(n => nodeVar(n)).toSeq
       } yield {
         Implies(l, Or(nsL))
       }
     )
 
-  private val nonEmptyGraph = Or(graph.nodes.map(n => MNodeLit(n, graph)).toSeq)
+  private val nonEmptyGraph = Or(graph.nodes.map(n => nodeVar(n)).toSeq)
   private val isNotTrivialFree = And(
     trivialFreeTransactions.map(v => Not(v)).toSeq
   )
