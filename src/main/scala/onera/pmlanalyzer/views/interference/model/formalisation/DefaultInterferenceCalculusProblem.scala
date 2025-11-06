@@ -64,9 +64,9 @@ final case class DefaultInterferenceCalculusProblem(
     MNode(nodeId(ss))
   }
 
-  private val addEdge: ((MNode, MNode)) => MEdge = immutableHashMapMemo {
-    (l, r) =>
-      MEdge(l, r, undirectedEdgeId(l, r))
+  private val addEdge: Set[MNode] => MEdge = immutableHashMapMemo {
+    l =>
+      MEdge(l.head, l.last, undirectedEdgeId(l.head, l.last))
   }
 
   private val transactionVar =
@@ -77,7 +77,8 @@ final case class DefaultInterferenceCalculusProblem(
   // Add constraint C^1_{\Sys} i.e. transactions should not be exclusive
   private val exclusiveCst =
     for {
-      (tr, ex) <- exclusiveWithTr.toSeq
+      (tr, exTrS) <- exclusiveWithTr.toSeq
+      ex = exTrS - tr //removing tr to avoid var => not var
       if ex.nonEmpty
     } yield {
       val notEx = ex.map(tr2 => Not(transactionVar(tr2))).toSeq
@@ -87,7 +88,7 @@ final case class DefaultInterferenceCalculusProblem(
   // Add constraint C^2_{\Sys} cardinality constraint
 
   // association of the simple transaction path to its formatted name
-  private val initialPathT = idToTransaction.to(SortedMap)
+  private val initialPathT = idToTransaction
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
   private val serviceToNodes = interfereWith.transform((k, v) =>
@@ -103,7 +104,8 @@ final case class DefaultInterferenceCalculusProblem(
     } yield {
       t -> (for {
         at <- atSet
-        at2 <- atomicTransactions.keySet -- exclusiveWithATr(at) - at
+        t2 <- initialPathT.keySet -- exclusiveWithTr(t) - t
+        at2 <- initialPathT(t2) -- exclusiveWithATr(at) - at
         s <- atomicTransactions(at)
         s2 <- atomicTransactions(at2)
         if s == s2 || interfereWith(s2).contains(s)
@@ -122,7 +124,7 @@ final case class DefaultInterferenceCalculusProblem(
     } yield {
       tr -> (for {
         nP <- nSet.subsets(2).toSet
-      } yield addEdge((nP.head, nP.last)))
+      } yield addEdge(nP))
     }
 
   private val edgeToTr =
@@ -150,7 +152,16 @@ final case class DefaultInterferenceCalculusProblem(
   private val edgeCst =
     for {
       (e, trS) <- edgeToTr.toSeq
-    } yield SimpleAssert(Equal(edgeVar(e), Or(trS.map(transactionVar).toSeq)))
+    } yield SimpleAssert(Equal(edgeVar(e),
+      And(
+        Seq(
+          Or(trS.map(transactionVar).toSeq),
+          nodeVar(e.from),
+          nodeVar(e.to)
+        )
+      )
+    )
+    )
 
   private val isFree =
     And(
