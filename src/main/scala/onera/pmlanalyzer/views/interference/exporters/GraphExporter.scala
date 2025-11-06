@@ -20,13 +20,12 @@ package onera.pmlanalyzer.views.interference.exporters
 import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransactionId,
-  multiTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalTransactionId, multiTransactionId}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -37,7 +36,8 @@ object GraphExporter {
     extension [T <: Platform with InterferenceSpecification](self: T) {
 
       def exportGraphReduction(
-          implm: SolverImplm = Monosat
+          implm: SolverImplm = Monosat,
+          method: Method = Default
       )(using ev: Analyse[T]): File = {
         val file = FileManager.exportDirectory.getFile(
           FileManager.getGraphReductionFileName(self)
@@ -45,17 +45,20 @@ object GraphExporter {
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")
         writer.write(
-          self.computeGraphReduction(implm).toString()
+          self.computeGraphReduction(implm, method).toString()
         )
         writer.close()
         file
       }
 
-      def exportAnalysisGraph(implm: SolverImplm = Monosat)(using
+      def exportAnalysisGraph(implm: SolverImplm = Monosat, method: Method = Default)(using
           ev: Analyse[T]
       ): File =
-        ev.printGraph(self, implm)
+        ev.printGraph(self, implm, method)
 
+      //FIXME Add coloring of edge per transaction
+      // remove interfere on service from the same initiation
+      // add edge labelled with plus for non-atomic multi-transaction
       def exportInterferenceGraph(it: Set[PhysicalTransactionId]): File = {
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))

@@ -144,30 +144,6 @@ final case class GroupedLitInterferenceCalculusProblem(
     }
   }
 
-  // an edge is added to service graph iff one of transaction use it:
-  // * the transaction must not be transparent
-  // * the edge must not contain a service considered as non impacted
-  // FIXME THIS IMPLEMENTATION IS NOT WORKING ON NON ATOMIC TRANSACTIONS SINCE
-  //  CHANNEL ON TWO DIFFERENT BRANCHES ARE NOT CONNECTED
-//  private val edgesToTransactions: Map[MEdge, Set[PhysicalTransactionId]] =
-//    pathT.keySet
-//      .flatMap(s =>
-//        val pathEdges = for {
-//          t <- pathT(s) if t.size > 1
-//          servCouple <- t.sliding(2)
-//          edge <- addUndirectedEdge(servCouple.toSet)
-//        } yield edge -> s
-//        val serviceEdges = {
-//          for {
-//            t <- pathT(s)
-//            service <- t
-//            e <- addUndirectedEdge(Set(service))
-//          } yield e -> s
-//        }
-//        pathEdges ++ serviceEdges
-//      )
-//      .groupMap(_._1)(_._2)
-
   private val edgesToTransactions =
     (for {
       (g, nSet) <- groupedLitToNodeSet.toSet

@@ -19,6 +19,7 @@ package onera.pmlanalyzer.views.interference
 
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
@@ -47,7 +48,8 @@ object InterferenceTestExtension {
     def test(
         max: Int,
         expectedResultsDirectoryPath: String,
-        implm: SolverImplm
+        implm: SolverImplm,
+        method: Method
     ): Future[Seq[Seq[MultiTransactionComparison]]] = {
       x.computeKInterference(
         List(max, x.initiators.size).min,
@@ -55,7 +57,8 @@ object InterferenceTestExtension {
         computeSemantics = false,
         verboseResultFile = false,
         onlySummary = false,
-        implm
+        implm,
+        method
       ) map { resultFiles =>
         {
           for {

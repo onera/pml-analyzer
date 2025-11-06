@@ -23,6 +23,8 @@ import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
@@ -50,13 +52,15 @@ private[operators] trait PostProcess[-T] {
   def sortPLByITFImpact(
       x: T,
       max: Option[Int],
-      implm: SolverImplm
+      implm: SolverImplm,
+      method: Method 
   ): Future[Set[File]]
 
   def sortMultiPathByITFImpact(
       x: T,
       max: Option[Int],
-      implm: SolverImplm
+      implm: SolverImplm,
+      method: Method 
   ): Future[Set[File]]
 
 }
@@ -149,10 +153,10 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortPLByITFImpact(max: Option[Int], implm: SolverImplm)(using
+      def sortPLByITFImpact(max: Option[Int], implm: SolverImplm, method: Method)(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortPLByITFImpact(self, max, implm), Duration.Inf)
+        Await.result(ev.sortPLByITFImpact(self, max, implm, method), Duration.Inf)
 
       /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
@@ -166,12 +170,13 @@ object PostProcess {
         */
       def sortMultiPathByITFImpact(
           max: Option[Int],
-          implm: SolverImplm = Monosat
+          implm: SolverImplm = Monosat,
+          method: Method = Default
       )(using
           ev: PostProcess[T]
       ): Set[File] =
         Await.result(
-          ev.sortMultiPathByITFImpact(self, max, implm),
+          ev.sortMultiPathByITFImpact(self, max, implm, method),
           Duration.Inf
         )
     }
@@ -289,7 +294,8 @@ object PostProcess {
     def sortPLByITFImpact(
         x: ConfiguredPlatform,
         max: Option[Int],
-        implm: SolverImplm = Monosat
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[Set[File]] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
@@ -297,7 +303,8 @@ object PostProcess {
         computeSemantics = false,
         verboseResultFile = false,
         onlySummary = false,
-        implm
+        implm,
+        method
       ) map { resultFiles =>
         resultFiles
           .filter(_.getName.contains("channel"))
@@ -363,7 +370,8 @@ object PostProcess {
     def sortMultiPathByITFImpact(
         x: ConfiguredPlatform,
         max: Option[Int],
-        implm: SolverImplm = Monosat
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[Set[File]] =
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
@@ -371,7 +379,8 @@ object PostProcess {
         computeSemantics = false,
         verboseResultFile = false,
         onlySummary = false,
-        implm
+        implm,
+        method
       ) map { resultFiles =>
         {
           val multiPathsTransactions = x match {
@@ -423,7 +432,8 @@ object PostProcess {
     def sortSWByITFImpact(
         x: ConfiguredPlatform,
         max: Option[Int],
-        implm: SolverImplm = Monosat
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[File] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
@@ -431,7 +441,8 @@ object PostProcess {
         computeSemantics = false,
         verboseResultFile = false,
         onlySummary = false,
-        implm
+        implm,
+        method
       ) map { resultFiles =>
         {
           val file = FileManager.analysisDirectory.getFile(

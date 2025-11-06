@@ -17,10 +17,15 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
 trait DefaultDecoder extends Decoder {
   val transactionVars: Map[MLit, PhysicalTransactionId]
+
+  def decodeTrivialSolutions(implm: SolverImplm): Seq[(Boolean, Set[Set[PhysicalTransactionId]], Map[Set[PhysicalTransactionId],Set[Set[UserTransactionId]]])] =
+    Seq.empty
 
   def decodeModel(
       model: Set[MLit],

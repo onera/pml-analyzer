@@ -23,3 +23,9 @@ trait InterferenceCalculusProblem {
 
   def instantiate(k: Int, computeFree: Boolean, implm: SolverImplm): Solver
 }
+
+object InterferenceCalculusProblem {
+  enum Method {
+    case GroupedLitBased, Default
+  }
+}

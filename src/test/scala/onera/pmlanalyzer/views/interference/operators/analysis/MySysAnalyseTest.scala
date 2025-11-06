@@ -21,11 +21,10 @@ import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
-import onera.pmlanalyzer.views.interference.model.formalisation.ChocoSolver
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
-  Choco,
-  Monosat
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.{ChocoSolver, SolverImplm}
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -46,29 +45,24 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   private val expectedResultsDirectoryPath = "mySys"
 
-  it should "provide the verified interference and free with Monosat" taggedAs FastTests in {
-    assume(
-      InterferenceTestExtension.monosatLibraryLoaded,
-      Message.monosatLibraryNotLoaded
-    )
-    val diff =
-      Await.result(
-        MySys.test(4, expectedResultsDirectoryPath, Monosat),
+  for {
+    method <- Method.values
+    implm <- SolverImplm.values
+  } {
+    s"For ${MySys.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
+      if (implm == Monosat) {
+        assume(
+          monosatLibraryLoaded,
+          Message.monosatLibraryNotLoaded
+        )
+      }
+      val diff = Await.result(
+        MySys.test(4, expectedResultsDirectoryPath, implm, method),
         10 minutes
       )
-    if (diff.exists(_.nonEmpty)) {
-      fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
-    }
-  }
-
-  it should "provide the verified interference and free with Choco" taggedAs FastTests in {
-    val diff =
-      Await.result(
-        MySys.test(4, expectedResultsDirectoryPath, Choco),
-        10 minutes
-      )
-    if (diff.exists(_.nonEmpty)) {
-      fail(diff.map(InterferenceTestExtension.failureMessage).mkString("\n"))
+      if (diff.exists(_.nonEmpty)) {
+        fail(diff.map(failureMessage).mkString("\n"))
+      }
     }
   }
 
@@ -77,7 +71,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
-    MySys.computeSemanticReduction(Monosat) should be(
+    MySys.computeSemanticReduction(implm = Monosat, method = Default) should be(
       BigDecimal(37) / 17
     )
   }
@@ -87,6 +81,6 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       InterferenceTestExtension.monosatLibraryLoaded,
       Message.monosatLibraryNotLoaded
     )
-    MySys.computeGraphReduction(Monosat) should be(BigDecimal(71) / 22)
+    MySys.computeGraphReduction(implm = Monosat, method = Default) should be(BigDecimal(71) / 22)
   }
 }

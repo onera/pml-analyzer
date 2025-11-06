@@ -26,15 +26,14 @@ import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  InterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification}
 
 import java.io.{File, FileWriter}
 import scala.collection.immutable.SortedMap
@@ -59,14 +58,15 @@ trait Analyse[-T] {
       computeSemantics: Boolean,
       verboseResultFile: Boolean,
       onlySummary: Boolean,
-      implm: SolverImplm
+      implm: SolverImplm,
+      method: Method
   ): Future[Set[File]]
 
-  def printGraph(platform: T, implm: SolverImplm): File
+  def printGraph(platform: T, implm: SolverImplm, method: Method): File
 
   def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
 
-  def getGraphSize(platform: T, implm: SolverImplm): (BigInt, BigInt)
+  def getGraphSize(platform: T, implm: SolverImplm, method: Method): (BigInt, BigInt)
 }
 
 object Analyse {
@@ -115,7 +115,8 @@ object Analyse {
           computeSemantics: Boolean,
           verboseResultFile: Boolean,
           onlySummary: Boolean,
-          implm: SolverImplm
+          implm: SolverImplm,
+          method: Method
       )(using ev: Analyse[T]): Future[Set[File]] =
         ev.computeInterference(
           self,
@@ -124,7 +125,8 @@ object Analyse {
           computeSemantics,
           verboseResultFile,
           onlySummary,
-          implm
+          implm, 
+          method
         )
 
       /** Perform the interference analysis
@@ -152,7 +154,8 @@ object Analyse {
           computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false,
           onlySummary: Boolean = false,
-          implm: SolverImplm = Monosat
+          implm: SolverImplm = Monosat,
+          method: Method = Default
       )(using ev: Analyse[T]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -162,7 +165,8 @@ object Analyse {
             computeSemantics,
             verboseResultFile,
             onlySummary,
-            implm
+            implm,
+            method
           ),
           timeout
         )
@@ -188,7 +192,8 @@ object Analyse {
           computeSemantics: Boolean = true,
           verboseResultFile: Boolean = false,
           onlySummary: Boolean = false,
-          implm: SolverImplm = Monosat
+          implm: SolverImplm = Monosat,
+          method: Method = Default
       )(using ev: Analyse[T], p: Provided[T, Hardware]): Set[File] =
         Await.result(
           ev.computeInterference(
@@ -198,7 +203,8 @@ object Analyse {
             computeSemantics,
             verboseResultFile,
             onlySummary,
-            implm
+            implm,
+            method
           ),
           timeout
         )
@@ -216,7 +222,8 @@ object Analyse {
 
       def computeSemanticReduction(
           implm: SolverImplm,
-          ignoreExistingFiles: Boolean = false
+          method: Method,
+          ignoreExistingFiles: Boolean = false,
       )(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
@@ -229,7 +236,8 @@ object Analyse {
             computeSemantics = true,
             verboseResultFile = false,
             onlySummary = true,
-            implm = implm
+            implm = implm,
+            method
           ),
           1 minute
         )
@@ -254,7 +262,8 @@ object Analyse {
       }
 
       private def computeGraphReduction(
-          implm: SolverImplm
+          implm: SolverImplm, 
+          method: Method
       )(using ev: Analyse[T]): BigDecimal = {
         val graph = self.fullServiceGraphWithInterfere()
         val systemGraphSize =
@@ -262,7 +271,7 @@ object Analyse {
             .flatMap(p => p._2 map { x => Set(p._1, x) })
             .toSet
             .size
-        val (nodeSize, edgeSize) = self.getAnalysisGraphSize(implm)
+        val (nodeSize, edgeSize) = self.getAnalysisGraphSize(implm, method)
         val graphSize = BigDecimal(nodeSize + edgeSize)
         if (graphSize != 0) {
           BigDecimal(systemGraphSize) / graphSize
@@ -275,20 +284,21 @@ object Analyse {
 
       def computeGraphReduction(
           implm: SolverImplm,
+          method: Method,
           ignoreExistingFile: Boolean = false
       )(using ev: Analyse[T]): BigDecimal =
         if (ignoreExistingFile)
-          computeGraphReduction(implm)
+          computeGraphReduction(implm,method)
         else {
           PostProcess
             .parseGraphReductionFile(self)
-            .getOrElse(computeGraphReduction(implm))
+            .getOrElse(computeGraphReduction(implm,method))
         }
 
-      def getAnalysisGraphSize(implm: SolverImplm)(using
+      def getAnalysisGraphSize(implm: SolverImplm, method: Method)(using
           ev: Analyse[T]
       ): (BigInt, BigInt) =
-        ev.getGraphSize(self, implm)
+        ev.getGraphSize(self, implm, method)
     }
   }
 
@@ -302,18 +312,19 @@ object Analyse {
 
     def getGraphSize(
         platform: ConfiguredPlatform,
-        implm: SolverImplm
+        implm: SolverImplm, 
+        method: Method
     ): (BigInt, BigInt) = {
       val problem =
-        computeGroupedBasedProblem(platform, platform.initiators.size)
+        computeProblem(platform, platform.initiators.size, method)
       val graph = problem.graph
       val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
     }
 
-    def printGraph(platform: ConfiguredPlatform, implm: SolverImplm): File = {
+    def printGraph(platform: ConfiguredPlatform, implm: SolverImplm, method: Method): File = {
       val problem =
-        computeGroupedBasedProblem(platform, platform.initiators.size)
+        computeProblem(platform, platform.initiators.size, method)
       val result =
         FileManager.exportDirectory.getFile(s"${platform.name.name}_graph.dot")
       val emptySolver = Solver(implm)
@@ -365,7 +376,8 @@ object Analyse {
         computeSemantics: Boolean,
         verboseResultFile: Boolean,
         onlySummary: Boolean,
-        implm: SolverImplm
+        implm: SolverImplm,
+        method: Method
     ): Future[Set[File]] = Future {
       val sizes = 2 to maxSize
       val interferenceFiles =
@@ -454,7 +466,7 @@ object Analyse {
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val calculusProblem = computeGroupedBasedProblem(platform, maxSize)
+          val calculusProblem = computeProblem(platform, maxSize, method)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>
@@ -541,17 +553,12 @@ object Analyse {
                 .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
             )
           )
-//          //FIXME SHOULD NOT BE HERE SINCE ONLY APPLICABLE FOR GROUPED BASED COMPUTATION
-//          for {
-//            (k, v) <- calculusProblem.litToNode
-//            isFree = v.isEmpty
-//            physical = calculusProblem.decodeModel(Set(k), isFree, implm)
-//            if physical.nonEmpty
-//            userDefined = physical.groupMapReduce(p => p)(
-//              calculusProblem.decodeUserModel
-//            )(_ ++ _)
-//          }
-//            update(isFree, physical, userDefined)
+          for {
+            (isFree, physical, userDefined) <- calculusProblem
+              .decodeTrivialSolutions(implm)
+          } {
+            update(isFree, physical, userDefined)
+          }
 
           val assessmentStartDate = System.currentTimeMillis() millis
 
@@ -709,9 +716,10 @@ object Analyse {
       * @return
       *   the variables and constraints to be instantiated in a MONOSAT Solver
       */
-    private def computeDefaultProblem(
+    private def computeProblem(
         platform: ConfiguredPlatform,
-        maxSize: Int
+        maxSize: Int,
+        method:Method
     ): InterferenceCalculusProblem with Decoder = {
       val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
         platform.relationToMap(
@@ -744,67 +752,34 @@ object Analyse {
           case _ => None
         }
 
-      DefaultInterferenceCalculusProblem(
-        platform.purifiedAtomicTransactions,
-        platform.purifiedTransactions,
-        exclusiveWithATr,
-        exclusiveWithTr,
-        interfereWith: Map[Service, Set[Service]],
-        Some(maxSize),
-        finalUserTransactionExclusiveOpt: Option[
-          Map[UserTransactionId, Set[UserTransactionId]]
-        ],
-        transactionUserNameOpt
-      )
-    }
-
-    private def computeGroupedBasedProblem(
-                                       platform: ConfiguredPlatform,
-                                       maxSize: Int
-                                     ): InterferenceCalculusProblem with Decoder = {
-      val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedAtomicTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val exclusiveWithTr
-      : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val interfereWith: Map[Service, Set[Service]] =
-        platform.relationToMap(
-          platform.services,
-          (l, r) => platform.finalInterfereWith(l, r)
-        )
-
-      val finalUserTransactionExclusiveOpt =
-        platform match {
-          case appSpec: ApplicativeTableBasedInterferenceSpecification =>
-            Some(appSpec.finalUserTransactionExclusive)
-          case _ => None
-        }
-
-      val transactionUserNameOpt =
-        platform match {
-          case lib: TransactionLibrary =>
-            Some(lib.transactionUserName)
-          case _ => None
-        }
-
-      GroupedLitInterferenceCalculusProblem(
-        platform.purifiedAtomicTransactions,
-        platform.purifiedTransactions,
-        exclusiveWithATr,
-        exclusiveWithTr,
-        interfereWith: Map[Service, Set[Service]],
-        Some(maxSize),
-        finalUserTransactionExclusiveOpt: Option[
-          Map[UserTransactionId, Set[UserTransactionId]]
-        ],
-        transactionUserNameOpt
-      )
+      method match {
+        case Method.GroupedLitBased => 
+          GroupedLitInterferenceCalculusProblem(
+            platform.purifiedAtomicTransactions,
+            platform.purifiedTransactions,
+            exclusiveWithATr,
+            exclusiveWithTr,
+            interfereWith: Map[Service, Set[Service]],
+            Some(maxSize),
+            finalUserTransactionExclusiveOpt: Option[
+              Map[UserTransactionId, Set[UserTransactionId]]
+            ],
+            transactionUserNameOpt
+          )
+        case Method.Default => 
+          DefaultInterferenceCalculusProblem(
+            platform.purifiedAtomicTransactions,
+            platform.purifiedTransactions,
+            exclusiveWithATr,
+            exclusiveWithTr,
+            interfereWith: Map[Service, Set[Service]],
+            Some(maxSize),
+            finalUserTransactionExclusiveOpt: Option[
+              Map[UserTransactionId, Set[UserTransactionId]]
+            ],
+            transactionUserNameOpt
+          )
+      }
     }
 
     private def writeFooter(

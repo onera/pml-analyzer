@@ -34,6 +34,8 @@ trait Decoder {
       : Option[Map[Set[AtomicTransactionId], Set[UserTransactionId]]]
   val litToNode: Map[MLit, Set[MNode]]
 
+  def decodeTrivialSolutions(implm: SolverImplm): Seq[(Boolean, Set[Set[PhysicalTransactionId]], Map[Set[PhysicalTransactionId],Set[Set[UserTransactionId]]])]
+
   def decodeModel(
       model: Set[MLit],
       modelIsFree: Boolean,
