@@ -33,8 +33,8 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       with RosaceInterferenceSpecification
 
   for {
-    method <- Seq(Default) // Method.values
-    implm <- Seq(Choco) // SolverImplm.values
+    method <- Method.values 
+    implm <- SolverImplm.values 
   } {
     s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
       if (implm == Monosat) {

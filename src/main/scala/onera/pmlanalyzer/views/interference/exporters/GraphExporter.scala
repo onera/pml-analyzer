@@ -68,7 +68,9 @@ object GraphExporter {
               self match {
                 case lib: TransactionLibrary =>
                   val atomic = lib.transactionByUserName(UserTransactionId(Symbol(tr)))
-                  Some(self.purifiedTransactions.find(_._2 == atomic).get._1)
+                  for{
+                    (id,_) <- self.purifiedTransactions.find(_._2 == atomic)
+                  } yield  id
                 case _ => None
               }
             )
@@ -84,7 +86,6 @@ object GraphExporter {
       // remove interfere on service from the same initiation
       // add edge labelled with plus for non-atomic multi-transaction
       def exportInterferenceGraph(it: Set[PhysicalTransactionId], additionalName:Option[String] =  None): File = {
-        
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))
         )
