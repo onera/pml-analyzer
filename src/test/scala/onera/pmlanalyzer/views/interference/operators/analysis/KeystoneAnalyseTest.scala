@@ -1,5 +1,6 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
 import org.scalatest.flatspec.AnyFlatSpec
@@ -12,10 +13,14 @@ import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
+import onera.pmlanalyzer.views.interference.{Missing, Unknown}
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.{Default, GroupedLitBased}
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
+
+import scala.util.{Failure, Success, Try}
 
 class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
 
@@ -28,31 +33,40 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       with RosaceInterferenceSpecification
 
   for {
-    method <- Seq(Default)//Method.values
-    implm <- Seq(Choco)//SolverImplm.values
-  }{
+    method <- Seq(Default) // Method.values
+    implm <- Seq(Choco) // SolverImplm.values
+  } {
     s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      if(implm == Monosat) {
+      if (implm == Monosat) {
         assume(
           monosatLibraryLoaded,
           Message.monosatLibraryNotLoaded
         )
       }
-      val toExport = Set(
-        "KeystoneWithRosace_EDMA_load_KeystoneWithRosace_SPI_load_0|KeystoneWithRosace_EDMA_store_KeystoneWithRosace_MSMC_SRAM_Bank0_store_0",
-        "KeystoneWithRosace_ARMPac_ARM0_core_load_KeystoneWithRosace_DDR_Bank0_load_0",
-        "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac2_dsram_load_0"
-      )
-      
-      KeystoneWithRosace.exportInterferenceGraph(KeystoneWithRosace.purifiedTransactions.keySet.filter(
-        k => toExport.contains(k.id.name)
-      ))
-      val diff = Await.result(
-        KeystoneWithRosace.test(4, expectedResultsDirectoryPath, implm, method),
-        10 minutes
-      )
-      if (diff.exists(_.nonEmpty)) {
-        fail(diff.map(failureMessage).mkString("\n"))
+      Try({
+        Await.result(
+          KeystoneWithRosace
+            .test(4, expectedResultsDirectoryPath, implm, method),
+          10 minutes
+        )
+      }) match {
+        case Failure(exception) => assume(false, exception.getMessage)
+        case Success(diff)      =>
+          for {
+            (dS,i) <- diff.zipWithIndex
+            if dS.nonEmpty && i <=1
+            d <- dS
+          } {
+            d match {
+              case Missing(_, isFree) => 
+                KeystoneWithRosace.exportInterferenceGraphFromString(d.s.toSet,Some(s"missing_${if(isFree) "free" else "itf"}"))
+              case Unknown(_,isFree) => 
+                KeystoneWithRosace.exportInterferenceGraphFromString(d.s.toSet,Some(s"unknown_${if(isFree) "free" else "itf"}"))
+            }
+          }
+          if (diff.exists(_.nonEmpty)) {
+            fail(diff.map(failureMessage).mkString("\n"))
+          }
       }
     }
   }

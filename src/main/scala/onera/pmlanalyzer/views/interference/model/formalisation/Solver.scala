@@ -230,9 +230,7 @@ class ChocoSolver extends Solver {
           l
         })
       } else {
-        println(
-          "[WARNING] incorrect solution computed by Choco, analysis may not be incomplete"
-        )
+        throw Exception("[ERROR] incorrect solution computed by Choco, analysis may be incomplete")
       }
     }
     models

@@ -19,6 +19,8 @@ package onera.pmlanalyzer.views.interference.exporters
 
 import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
@@ -56,15 +58,42 @@ object GraphExporter {
       ): File =
         ev.printGraph(self, implm, method)
 
-      //FIXME Add coloring of edge per transaction
+      def exportInterferenceGraphFromString(it: Set[String], additionalName:Option[String] =  None): Option[File] = {
+        val fromPhyTr =
+          for {
+            tr <- it
+            id = self.purifiedTransactions.keySet.find(_.id.name == tr)
+          } yield {
+            id.orElse(
+              self match {
+                case lib: TransactionLibrary =>
+                  val atomic = lib.transactionByUserName(UserTransactionId(Symbol(tr)))
+                  Some(self.purifiedTransactions.find(_._2 == atomic).get._1)
+                case _ => None
+              }
+            )
+          }
+        val found = fromPhyTr.flatten
+        if(found.size == fromPhyTr.size)
+          Some(exportInterferenceGraph(found, additionalName))
+        else 
+          None
+      }
+      
+      //FIXME Add two versions one with coloring of edge per transaction, the other with transaction labelled to edges
       // remove interfere on service from the same initiation
       // add edge labelled with plus for non-atomic multi-transaction
-      def exportInterferenceGraph(it: Set[PhysicalTransactionId]): File = {
+      def exportInterferenceGraph(it: Set[PhysicalTransactionId], additionalName:Option[String] =  None): File = {
+        
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))
         )
+        val add = additionalName match {
+          case Some(value) => s"_$value"
+          case None => ""
+        }
         val file = FileManager.exportDirectory.getFile(
-          s"${self.fullName}_${
+          s"${self.fullName}${add}_${
               if (multiTransactionName.id.name.length >= 100) multiTransactionName.hashCode.toString
               else multiTransactionName
             }.dot"

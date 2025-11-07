@@ -150,7 +150,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       nP <- nSet.flatten.subsets(2).toSet
     } yield {
       addUndirectedEdgeI(nP) -> groupedLitToTransactions(g)
-    }).toMap
+    }).groupMapReduce(_._1)(_._2)(_ ++ _)
 
   val graph: MGraph = MGraph(groupedLitToNodeSet.values.flatten.flatten.toSet, edgesToTransactions.keySet)
 
