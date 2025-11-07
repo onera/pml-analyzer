@@ -25,7 +25,10 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, PhysicalTableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  PhysicalTableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -318,9 +321,11 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
           case None => (Map.empty[Int, BigInt], Map.empty[Int, BigInt], None)
 
         val semanticsReduction =
-          if (itf.nonEmpty) Some(p.computeSemanticReduction(Monosat, Default)) else None
+          if (itf.nonEmpty) Some(p.computeSemanticReduction(Monosat, Default))
+          else None
         val graphReduction =
-          if (itf.nonEmpty) Some(p.computeGraphReduction(Monosat, Default)) else None
+          if (itf.nonEmpty) Some(p.computeGraphReduction(Monosat, Default))
+          else None
 
         p.fullName -> ExperimentResults(
           p.initiators.size,

@@ -27,7 +27,10 @@ import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalc
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{PhysicalTransactionId, multiTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  PhysicalTransactionId,
+  multiTransactionId
+}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
@@ -53,12 +56,18 @@ object GraphExporter {
         file
       }
 
-      def exportAnalysisGraph(implm: SolverImplm = Monosat, method: Method = Default)(using
+      def exportAnalysisGraph(
+          implm: SolverImplm = Monosat,
+          method: Method = Default
+      )(using
           ev: Analyse[T]
       ): File =
         ev.printGraph(self, implm, method)
 
-      def exportInterferenceGraphFromString(it: Set[String], additionalName:Option[String] =  None): Option[File] = {
+      def exportInterferenceGraphFromString(
+          it: Set[String],
+          additionalName: Option[String] = None
+      ): Option[File] = {
         val fromPhyTr =
           for {
             tr <- it
@@ -67,34 +76,38 @@ object GraphExporter {
             id.orElse(
               self match {
                 case lib: TransactionLibrary =>
-                  val atomic = lib.transactionByUserName(UserTransactionId(Symbol(tr)))
-                  for{
-                    (id,_) <- self.purifiedTransactions.find(_._2 == atomic)
-                  } yield  id
+                  val atomic =
+                    lib.transactionByUserName(UserTransactionId(Symbol(tr)))
+                  for {
+                    (id, _) <- self.purifiedTransactions.find(_._2 == atomic)
+                  } yield id
                 case _ => None
               }
             )
           }
         val found = fromPhyTr.flatten
-        if(found.size == fromPhyTr.size)
+        if (found.size == fromPhyTr.size)
           Some(exportInterferenceGraph(found, additionalName))
-        else 
+        else
           None
       }
-      
-      //FIXME Add two versions one with coloring of edge per transaction, the other with transaction labelled to edges
+
+      // FIXME Add two versions one with coloring of edge per transaction, the other with transaction labelled to edges
       // remove interfere on service from the same initiation
       // add edge labelled with plus for non-atomic multi-transaction
-      def exportInterferenceGraph(it: Set[PhysicalTransactionId], additionalName:Option[String] =  None): File = {
+      def exportInterferenceGraph(
+          it: Set[PhysicalTransactionId],
+          additionalName: Option[String] = None
+      ): File = {
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))
         )
         val add = additionalName match {
           case Some(value) => s"_$value"
-          case None => ""
+          case None        => ""
         }
         val file = FileManager.exportDirectory.getFile(
-          s"${self.fullName}${add}_${multiTransactionName.hashCode.toString}.dot"
+          s"${self.fullName}${add}_${multiTransactionName.hashCode}.dot"
         )
         implicit val writer: FileWriter = new FileWriter(file)
         DOTServiceOnly.resetService()

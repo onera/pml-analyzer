@@ -152,15 +152,17 @@ final case class GroupedLitInterferenceCalculusProblem(
       addUndirectedEdgeI(nP) -> groupedLitToTransactions(g)
     }).groupMapReduce(_._1)(_._2)(_ ++ _)
 
-  val graph: MGraph = MGraph(groupedLitToNodeSet.values.flatten.flatten.toSet, edgesToTransactions.keySet)
+  val graph: MGraph = MGraph(
+    groupedLitToNodeSet.values.flatten.flatten.toSet,
+    edgesToTransactions.keySet
+  )
 
   private val nodeVar =
     (for {
       n <- groupedLitToNodeSet.values.flatten.flatten.toSet
     } yield {
-      n ->  MNodeLit(n, graph)
+      n -> MNodeLit(n, graph)
     }).toMap
-
 
   // DEFINITION OF CONSTRAINTS
 
@@ -248,7 +250,7 @@ final case class GroupedLitInterferenceCalculusProblem(
     }).groupMap(_._1)(_._2)
 
   val litToNode: Map[MLit, Set[MNode]] =
-    groupedLitToNodeSet.transform((_,v) => v.flatten)
+    groupedLitToNodeSet.transform((_, v) => v.flatten)
 
   val variables: Set[MLit] =
     groupedLitToTransactions.keySet

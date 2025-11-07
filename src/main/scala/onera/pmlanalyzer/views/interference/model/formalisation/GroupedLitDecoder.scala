@@ -19,7 +19,10 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.{GE, LE}
+import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.{
+  GE,
+  LE
+}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
 trait GroupedLitDecoder extends Decoder {
@@ -30,17 +33,22 @@ trait GroupedLitDecoder extends Decoder {
     PhysicalTransactionId
   ]]
 
-  def decodeTrivialSolutions(implm: SolverImplm): Seq[(Boolean, Set[Set[PhysicalTransactionId]], Map[Set[PhysicalTransactionId],Set[Set[UserTransactionId]]])] =
-      for {
-        (k, v) <- litToNode.toSeq
-        isFree = v.isEmpty
-        physical = decodeModel(Set(k), isFree, implm)
-        if physical.nonEmpty
-        userDefined = physical.groupMapReduce(p => p)(
-          decodeUserModel
-        )(_ ++ _)
-      } yield
-        (isFree, physical, userDefined)
+  def decodeTrivialSolutions(implm: SolverImplm): Seq[
+    (
+        Boolean,
+        Set[Set[PhysicalTransactionId]],
+        Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
+    )
+  ] =
+    for {
+      (k, v) <- litToNode.toSeq
+      isFree = v.isEmpty
+      physical = decodeModel(Set(k), isFree, implm)
+      if physical.nonEmpty
+      userDefined = physical.groupMapReduce(p => p)(
+        decodeUserModel
+      )(_ ++ _)
+    } yield (isFree, physical, userDefined)
 
   def decodeModel(
       model: Set[MLit],

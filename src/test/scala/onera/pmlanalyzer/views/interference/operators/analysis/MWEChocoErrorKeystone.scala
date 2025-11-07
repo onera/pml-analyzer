@@ -27,6 +27,7 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph
 import org.chocosolver.util.objects.setDataStructures.SetType
 
 object MWEChocoErrorKeystone extends App {
+
   /**
    * Create transaction boolean variables
    */

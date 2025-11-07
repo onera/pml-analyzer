@@ -82,9 +82,9 @@ object InterferenceTestExtension {
                 val expected = PostProcess.parseMultiTransactionFile(p._1._1)
                 val found =
                   PostProcess.parseMultiTransactionFile(Source.fromFile(p._2))
-                expected.diff(found).map(s => Missing(s,p._1._2)) ++ found
+                expected.diff(found).map(s => Missing(s, p._1._2)) ++ found
                   .diff(expected)
-                  .map(s => Unknown(s,p._1._2))
+                  .map(s => Unknown(s, p._1._2))
               })
           }
         }
@@ -108,10 +108,14 @@ sealed trait MultiTransactionComparison {
   val s: Seq[String]
 }
 
-final case class Missing(s: Seq[String], isFree: Boolean) extends MultiTransactionComparison {
-  override def toString: String = s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not found"
+final case class Missing(s: Seq[String], isFree: Boolean)
+    extends MultiTransactionComparison {
+  override def toString: String =
+    s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not found"
 }
 
-final case class Unknown(s: Seq[String], isFree: Boolean) extends MultiTransactionComparison {
-  override def toString: String = s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not expected"
+final case class Unknown(s: Seq[String], isFree: Boolean)
+    extends MultiTransactionComparison {
+  override def toString: String =
+    s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not expected"
 }

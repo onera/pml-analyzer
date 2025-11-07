@@ -24,7 +24,13 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 trait DefaultDecoder extends Decoder {
   val transactionVars: Map[MLit, PhysicalTransactionId]
 
-  def decodeTrivialSolutions(implm: SolverImplm): Seq[(Boolean, Set[Set[PhysicalTransactionId]], Map[Set[PhysicalTransactionId],Set[Set[UserTransactionId]]])] =
+  def decodeTrivialSolutions(implm: SolverImplm): Seq[
+    (
+        Boolean,
+        Set[Set[PhysicalTransactionId]],
+        Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
+    )
+  ] =
     Seq.empty
 
   def decodeModel(

@@ -53,7 +53,10 @@ object SemanticsExporter {
         file
       }
 
-      def exportSemanticReduction(implm: SolverImplm = Monosat, method: Method = Default)(using
+      def exportSemanticReduction(
+          implm: SolverImplm = Monosat,
+          method: Method = Default
+      )(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): File = {

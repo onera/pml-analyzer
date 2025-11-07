@@ -33,7 +33,10 @@ import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification
+}
 
 import java.io.{File, FileWriter}
 import scala.collection.immutable.SortedMap
@@ -66,7 +69,11 @@ trait Analyse[-T] {
 
   def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
 
-  def getGraphSize(platform: T, implm: SolverImplm, method: Method): (BigInt, BigInt)
+  def getGraphSize(
+      platform: T,
+      implm: SolverImplm,
+      method: Method
+  ): (BigInt, BigInt)
 }
 
 object Analyse {
@@ -125,7 +132,7 @@ object Analyse {
           computeSemantics,
           verboseResultFile,
           onlySummary,
-          implm, 
+          implm,
           method
         )
 
@@ -223,7 +230,7 @@ object Analyse {
       def computeSemanticReduction(
           implm: SolverImplm,
           method: Method,
-          ignoreExistingFiles: Boolean = false,
+          ignoreExistingFiles: Boolean = false
       )(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
@@ -262,7 +269,7 @@ object Analyse {
       }
 
       private def computeGraphReduction(
-          implm: SolverImplm, 
+          implm: SolverImplm,
           method: Method
       )(using ev: Analyse[T]): BigDecimal = {
         val graph = self.fullServiceGraphWithInterfere()
@@ -288,11 +295,11 @@ object Analyse {
           ignoreExistingFile: Boolean = false
       )(using ev: Analyse[T]): BigDecimal =
         if (ignoreExistingFile)
-          computeGraphReduction(implm,method)
+          computeGraphReduction(implm, method)
         else {
           PostProcess
             .parseGraphReductionFile(self)
-            .getOrElse(computeGraphReduction(implm,method))
+            .getOrElse(computeGraphReduction(implm, method))
         }
 
       def getAnalysisGraphSize(implm: SolverImplm, method: Method)(using
@@ -312,7 +319,7 @@ object Analyse {
 
     def getGraphSize(
         platform: ConfiguredPlatform,
-        implm: SolverImplm, 
+        implm: SolverImplm,
         method: Method
     ): (BigInt, BigInt) = {
       val problem =
@@ -322,7 +329,11 @@ object Analyse {
       result
     }
 
-    def printGraph(platform: ConfiguredPlatform, implm: SolverImplm, method: Method): File = {
+    def printGraph(
+        platform: ConfiguredPlatform,
+        implm: SolverImplm,
+        method: Method
+    ): File = {
       val problem =
         computeProblem(platform, platform.initiators.size, method)
       val result =
@@ -719,7 +730,7 @@ object Analyse {
     private def computeProblem(
         platform: ConfiguredPlatform,
         maxSize: Int,
-        method:Method
+        method: Method
     ): InterferenceCalculusProblem with Decoder = {
       val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
         platform.relationToMap(
@@ -753,7 +764,7 @@ object Analyse {
         }
 
       method match {
-        case Method.GroupedLitBased => 
+        case Method.GroupedLitBased =>
           GroupedLitInterferenceCalculusProblem(
             platform.purifiedAtomicTransactions,
             platform.purifiedTransactions,
@@ -766,7 +777,7 @@ object Analyse {
             ],
             transactionUserNameOpt
           )
-        case Method.Default => 
+        case Method.Default =>
           DefaultInterferenceCalculusProblem(
             platform.purifiedAtomicTransactions,
             platform.purifiedTransactions,

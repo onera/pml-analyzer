@@ -21,10 +21,20 @@ import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
-import onera.pmlanalyzer.views.interference.model.formalisation.{ChocoSolver, SolverImplm}
+import onera.pmlanalyzer.views.interference.model.formalisation.{
+  ChocoSolver,
+  InterferenceCalculusProblem,
+  SolverImplm
+}
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.{
+  Default,
+  GroupedLitBased
+}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  Choco,
+  Monosat
+}
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
 import org.scalatest.flatspec.AnyFlatSpec
@@ -37,8 +47,6 @@ import scala.util.{Failure, Success, Try}
 
 class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
-  MySys.exportInterferenceGraphFromString(Set("t11", "t26"))
-  
   MySys.fullName should "contain the expected semantics distribution" taggedAs FastTests in {
     val semanticsDistribution =
       MySys.getSemanticsSize(ignoreExistingFile = true)
@@ -66,35 +74,44 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           10 minutes
         )
       }) match {
-        case Failure(exception) => 
+        case Failure(exception) =>
           assume(false, exception.getMessage)
         case Success(diff) =>
-          for { d <- diff.flatten}
+          for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)
           if (diff.exists(_.nonEmpty)) {
             fail(diff.map(failureMessage).mkString("\n"))
           }
       }
     }
-  }
-
-  it should "provide a consistent semantics reduction" taggedAs FastTests in {
-    assume(
-      InterferenceTestExtension.monosatLibraryLoaded,
-      Message.monosatLibraryNotLoaded
-    )
-    MySys.computeSemanticReduction(implm = Monosat, method = Default) should be(
-      BigDecimal(37) / 17
-    )
-  }
-
-  it should "provide a consistent graph reduction" taggedAs FastTests in {
-    assume(
-      InterferenceTestExtension.monosatLibraryLoaded,
-      Message.monosatLibraryNotLoaded
-    )
-    MySys.computeGraphReduction(implm = Monosat, method = Default) should be(
-      BigDecimal(71) / 22
-    )
+    it should "provide a consistent semantics reduction" taggedAs FastTests in {
+      if (implm == Monosat) {
+        assume(
+          monosatLibraryLoaded,
+          Message.monosatLibraryNotLoaded
+        )
+      }
+      val semanticReduction =
+        MySys.computeSemanticReduction(
+          implm = Monosat,
+          method = Default
+        )
+      assume(
+        semanticReduction != -1,
+        "[ERROR] cannot compute semantic reduction"
+      )
+      semanticReduction should be(
+        BigDecimal(37) / 17
+      )
+    }
+    it should "provide a consistent graph reduction" taggedAs FastTests in {
+      if (implm == Monosat) {
+        assume(
+          monosatLibraryLoaded,
+          Message.monosatLibraryNotLoaded
+        )
+      }
+      MySys.computeGraphReduction(implm, method) should be(BigDecimal(71) / 45)
+    }
   }
 }

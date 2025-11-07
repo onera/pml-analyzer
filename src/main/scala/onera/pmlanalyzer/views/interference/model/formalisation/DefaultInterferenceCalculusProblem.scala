@@ -62,9 +62,8 @@ final case class DefaultInterferenceCalculusProblem(
     MNode(nodeId(ss))
   }
 
-  private val addEdge: Set[MNode] => MEdge = immutableHashMapMemo {
-    l =>
-      MEdge(l.head, l.last, undirectedEdgeId(l.head, l.last))
+  private val addEdge: Set[MNode] => MEdge = immutableHashMapMemo { l =>
+    MEdge(l.head, l.last, undirectedEdgeId(l.head, l.last))
   }
 
   private val transactionVar =
@@ -76,13 +75,13 @@ final case class DefaultInterferenceCalculusProblem(
   private val exclusiveCst =
     for {
       (tr, exTrS) <- exclusiveWithTr.toSeq
-      ex = exTrS - tr //removing tr to avoid var => not var
+      ex = exTrS - tr // removing tr to avoid var => not var
       if ex.nonEmpty
     } yield {
       val notEx = ex.map(tr2 => Not(transactionVar(tr2))).toSeq
       SimpleAssert(Implies(transactionVar(tr), And(notEx)))
     }
-  
+
   // Add constraint C^2_{\Sys} cardinality constraint
 
   // association of the simple transaction path to its formatted name
@@ -115,7 +114,7 @@ final case class DefaultInterferenceCalculusProblem(
     trToNode.toSeq
       .flatMap((k, v) => v.map(k -> _))
       .groupMapReduce(_._2)((k, _) => Set(k))(_ ++ _)
-  
+
   private val trToEdge =
     for {
       (tr, nSet) <- trToNode
@@ -150,15 +149,17 @@ final case class DefaultInterferenceCalculusProblem(
   private val edgeCst =
     for {
       (e, trS) <- edgeToTr.toSeq
-    } yield SimpleAssert(Equal(edgeVar(e),
-      And(
-        Seq(
-          Or(trS.map(transactionVar).toSeq),
-          nodeVar(e.from),
-          nodeVar(e.to)
+    } yield SimpleAssert(
+      Equal(
+        edgeVar(e),
+        And(
+          Seq(
+            Or(trS.map(transactionVar).toSeq),
+            nodeVar(e.from),
+            nodeVar(e.to)
+          )
         )
       )
-    )
     )
 
   private val isFree =

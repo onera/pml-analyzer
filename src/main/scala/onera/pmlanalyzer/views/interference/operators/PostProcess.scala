@@ -53,14 +53,14 @@ private[operators] trait PostProcess[-T] {
       x: T,
       max: Option[Int],
       implm: SolverImplm,
-      method: Method 
+      method: Method
   ): Future[Set[File]]
 
   def sortMultiPathByITFImpact(
       x: T,
       max: Option[Int],
       implm: SolverImplm,
-      method: Method 
+      method: Method
   ): Future[Set[File]]
 
 }
@@ -153,10 +153,17 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortPLByITFImpact(max: Option[Int], implm: SolverImplm, method: Method)(using
+      def sortPLByITFImpact(
+          max: Option[Int],
+          implm: SolverImplm,
+          method: Method
+      )(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortPLByITFImpact(self, max, implm, method), Duration.Inf)
+        Await.result(
+          ev.sortPLByITFImpact(self, max, implm, method),
+          Duration.Inf
+        )
 
       /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
