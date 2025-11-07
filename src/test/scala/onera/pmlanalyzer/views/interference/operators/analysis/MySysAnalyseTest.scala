@@ -26,6 +26,7 @@ import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalc
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
 import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.exporters.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -36,6 +37,8 @@ import scala.util.{Failure, Success, Try}
 
 class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
 
+  MySys.exportInterferenceGraphFromString(Set("t11", "t26"))
+  
   MySys.fullName should "contain the expected semantics distribution" taggedAs FastTests in {
     val semanticsDistribution =
       MySys.getSemanticsSize(ignoreExistingFile = true)
@@ -66,6 +69,8 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
         case Failure(exception) => 
           assume(false, exception.getMessage)
         case Success(diff) =>
+          for { d <- diff.flatten}
+            MySys.exportInterferenceGraphFromString(d.s.toSet)
           if (diff.exists(_.nonEmpty)) {
             fail(diff.map(failureMessage).mkString("\n"))
           }

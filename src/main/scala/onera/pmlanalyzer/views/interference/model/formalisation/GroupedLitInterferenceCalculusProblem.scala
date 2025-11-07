@@ -248,13 +248,10 @@ final case class GroupedLitInterferenceCalculusProblem(
     }).groupMap(_._1)(_._2)
 
   val litToNode: Map[MLit, Set[MNode]] =
-    nodeToTransaction.toSeq
-      .flatMap((k, v) => v.map(k -> _))
-      .groupMapReduce((_, v) => transactionToGroupedLit(v))((k, _) => Set(k))(
-        _ ++ _
-      )
+    groupedLitToNodeSet.transform((_,v) => v.flatten)
 
-  val variables: Set[MLit] = groupedLitToTransactions.keySet
+  val variables: Set[MLit] =
+    groupedLitToTransactions.keySet
 
   def instantiate(
       k: Int,
