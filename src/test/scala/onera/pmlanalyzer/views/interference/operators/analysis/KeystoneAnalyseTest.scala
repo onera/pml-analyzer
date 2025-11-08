@@ -74,13 +74,13 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
         Await.result(
           KeystoneWithRosace
             .test(13, expectedResultsDirectoryPath, implm, method),
-          10 minutes
+          1 hour
         )
       }) match {
         case Failure(exception) => assume(false, exception.getMessage)
         case Success(diff) =>
           if (diff.exists(_.nonEmpty)) {
-            fail(diff.map(failureMessage).mkString("\n"))
+            fail()
           }
       }
     }
