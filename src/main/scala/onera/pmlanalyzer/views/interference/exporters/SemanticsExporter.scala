@@ -61,7 +61,11 @@ object SemanticsExporter {
           p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticsReductionFileName(self, Some(method), Some(implm))
+          FileManager.getSemanticsReductionFileName(
+            self,
+            Some(method),
+            Some(implm)
+          )
         )
         val writer = new FileWriter(file)
         writer.write("Semantics Reduction is\n")

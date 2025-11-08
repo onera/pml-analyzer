@@ -249,7 +249,11 @@ object Analyse {
           1 minute
         )
         (for {
-          (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(self, Some(method), Some(implm))
+          (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(
+            self,
+            Some(method),
+            Some(implm)
+          )
         } yield {
           val nonRed =
             itfResult.filter(_._1 >= 3).values.sum
@@ -401,7 +405,12 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisITFFileName(platform, size, Some(method), Some(implm))
+                      .getInterferenceAnalysisITFFileName(
+                        platform,
+                        size,
+                        Some(method),
+                        Some(implm)
+                      )
                   )
               )
               .toMap
@@ -417,7 +426,12 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisFreeFileName(platform, size, Some(method), Some(implm))
+                      .getInterferenceAnalysisFreeFileName(
+                        platform,
+                        size,
+                        Some(method),
+                        Some(implm)
+                      )
                   )
               )
               .toMap
@@ -432,7 +446,12 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisChannelFileName(platform, size, Some(method), Some(implm))
+                      .getInterferenceAnalysisChannelFileName(
+                        platform,
+                        size,
+                        Some(method),
+                        Some(implm)
+                      )
                   )
               )
               .toMap
@@ -445,7 +464,11 @@ object Analyse {
         } yield (iF.values ++ fF.values ++ cF.values).toSet
 
       val summaryFile = FileManager.analysisDirectory.getFile(
-        FileManager.getInterferenceAnalysisSummaryFileName(platform, Some(method), Some(implm))
+        FileManager.getInterferenceAnalysisSummaryFileName(
+          platform,
+          Some(method),
+          Some(implm)
+        )
       )
 
       files match

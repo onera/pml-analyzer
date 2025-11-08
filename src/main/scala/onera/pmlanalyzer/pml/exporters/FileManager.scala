@@ -52,7 +52,7 @@ object FileManager {
     def getFile(s: String): File = {
       new File(directory, s)
     }
-    
+
     /** find recursively a file by its name
       * @param fileName
       *   name of the file to find

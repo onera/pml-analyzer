@@ -63,7 +63,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     method <- Method.values
     implm <- SolverImplm.values
   } {
-    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference" taggedAs PerfTests in {
+    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
       if (implm == Monosat) {
         assume(
           monosatLibraryLoaded,

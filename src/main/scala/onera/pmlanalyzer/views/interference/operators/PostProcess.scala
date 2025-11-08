@@ -42,18 +42,31 @@ import scala.math.Ordering.Implicits.*
   */
 private[operators] trait PostProcess[-T] {
   def interferenceDiff(
-                        x: T, 
-                        that: Platform,       
-                        method: Method,
-                        implm: SolverImplm): Seq[File]
+      x: T,
+      that: Platform,
+      method: Method,
+      implm: SolverImplm
+  ): Seq[File]
 
-  def parseITFMultiTransactionFile(x: T,       
-                                   method: Option[Method],
-                                   implm: Option[SolverImplm]): Array[Seq[String]]
+  def parseITFMultiTransactionFile(
+      x: T,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
-  def parseITFMultiTransactionFile(x: T, n: Int, method: Option[Method], implm: Option[SolverImplm]): Array[Seq[String]]
+  def parseITFMultiTransactionFile(
+      x: T,
+      n: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
-  def parseFreeMultiTransactionFile(x: T, n: Int, method: Option[Method], implm: Option[SolverImplm]): Array[Seq[String]]
+  def parseFreeMultiTransactionFile(
+      x: T,
+      n: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
   def sortPLByITFImpact(
       x: T,
@@ -111,8 +124,8 @@ object PostProcess {
         */
       def interferenceDiff(that: Platform)(using
           ev: PostProcess[T],
-                                           method: Method,
-                                           implm: SolverImplm
+          method: Method,
+          implm: SolverImplm
       ): Seq[File] = ev.interferenceDiff(self, that, method, implm)
 
       /** Try to find and parse itf results for the considered element
@@ -123,8 +136,8 @@ object PostProcess {
         */
       def parseITFMultiTransactionFile()(using
           ev: PostProcess[T],
-                                         method: Option[Method],
-                                         implm: Option[SolverImplm]
+          method: Option[Method],
+          implm: Option[SolverImplm]
       ): Array[Seq[String]] =
         ev.parseITFMultiTransactionFile(self, method, implm)
 
@@ -138,9 +151,10 @@ object PostProcess {
         */
       def parseITFMultiTransactionFile(n: Int)(using
           ev: PostProcess[T],
-                                               method: Option[Method],
-                                               implm: Option[SolverImplm]
-      ): Array[Seq[String]] = ev.parseITFMultiTransactionFile(self, n, method, implm)
+          method: Option[Method],
+          implm: Option[SolverImplm]
+      ): Array[Seq[String]] =
+        ev.parseITFMultiTransactionFile(self, n, method, implm)
 
       /** Try to find and parse the n-itf-free results for the considered
         * element
@@ -151,11 +165,14 @@ object PostProcess {
         * @return
         *   the set of multi-transaction identifiers that are interference free
         */
-      def parseFreeMultiTransactionFile(n: Int,       
-                                        method: Option[Method],
-                                        implm: Option[SolverImplm])(using
+      def parseFreeMultiTransactionFile(
+          n: Int,
+          method: Option[Method],
+          implm: Option[SolverImplm]
+      )(using
           ev: PostProcess[T]
-      ): Array[Seq[String]] = ev.parseFreeMultiTransactionFile(self, n, method, implm)
+      ): Array[Seq[String]] =
+        ev.parseFreeMultiTransactionFile(self, n, method, implm)
 
       /** Compute for each hardware component the number of itf where
         * the component is involved in the interference channel The result is
@@ -212,17 +229,29 @@ object PostProcess {
     */
   given PostProcess[ConfiguredPlatform] with {
 
-    def interferenceDiff(x: ConfiguredPlatform, 
-                         that: Platform,
-                         method: Method, 
-                         implm: SolverImplm): Seq[File] = {
+    def interferenceDiff(
+        x: ConfiguredPlatform,
+        that: Platform,
+        method: Method,
+        implm: SolverImplm
+    ): Seq[File] = {
       for {
         size <- 2 to Math.min(x.initiators.size, that.initiators.size)
         thisITFFile <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(x, size, Some(method), Some(implm))
+          FileManager.getInterferenceAnalysisITFFileName(
+            x,
+            size,
+            Some(method),
+            Some(implm)
+          )
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(that, size, Some(method), Some(implm))
+          FileManager.getInterferenceAnalysisITFFileName(
+            that,
+            size,
+            Some(method),
+            Some(implm)
+          )
         )
       } yield {
         val file = FileManager.analysisDirectory.getFile(
@@ -534,7 +563,11 @@ object PostProcess {
   ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
     for {
       file <- FileManager.analysisDirectory.locate(
-        FileManager.getInterferenceAnalysisSummaryFileName(platform, method, implm)
+        FileManager.getInterferenceAnalysisSummaryFileName(
+          platform,
+          method,
+          implm
+        )
       )
     } yield {
       val source = Source.fromFile(file)
@@ -594,12 +627,17 @@ object PostProcess {
   }
 
   def parseGraphReductionFile(
-                               platform: Platform,
-                               method: Method,
-                               implm: SolverImplm): Option[BigDecimal] = {
+      platform: Platform,
+      method: Method,
+      implm: SolverImplm
+  ): Option[BigDecimal] = {
     for {
       file <- FileManager.exportDirectory.locate(
-        FileManager.getGraphReductionFileName(platform, Some(method), Some(implm))
+        FileManager.getGraphReductionFileName(
+          platform,
+          Some(method),
+          Some(implm)
+        )
       )
     } yield {
       val source = Source.fromFile(file)

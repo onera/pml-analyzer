@@ -70,10 +70,20 @@ object InterferenceTestExtension {
               s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i, None, None)}"
             )
             rITFFile <- resultFiles.find(
-              _.getName == FileManager.getInterferenceAnalysisITFFileName(x, i, Some(method), Some(implm))
+              _.getName == FileManager.getInterferenceAnalysisITFFileName(
+                x,
+                i,
+                Some(method),
+                Some(implm)
+              )
             )
             rFreeFile <- resultFiles.find(
-              _.getName == FileManager.getInterferenceAnalysisFreeFileName(x, i, Some(method), Some(implm))
+              _.getName == FileManager.getInterferenceAnalysisFreeFileName(
+                x,
+                i,
+                Some(method),
+                Some(implm)
+              )
             )
           } yield {
             List((fileITF, false), (fileFree, true))
