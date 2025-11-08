@@ -93,8 +93,8 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       }
       val semanticReduction =
         MySys.computeSemanticReduction(
-          implm = Monosat,
-          method = Default
+          implm,
+          method
         )
       assume(
         semanticReduction != -1,

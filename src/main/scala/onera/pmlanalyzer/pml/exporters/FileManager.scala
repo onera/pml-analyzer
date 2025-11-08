@@ -18,6 +18,8 @@
 package onera.pmlanalyzer.pml.exporters
 
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 
 import java.io.File
 import scala.io.{BufferedSource, Source}
@@ -50,11 +52,7 @@ object FileManager {
     def getFile(s: String): File = {
       new File(directory, s)
     }
-
-    /** remove all the existing files of the directory
-      */
-    def clean(): Unit = ???
-
+    
     /** find recursively a file by its name
       * @param fileName
       *   name of the file to find
@@ -69,8 +67,8 @@ object FileManager {
 
   }
 
-  object OutputDirectory {
-    def recursiveLocateFirstFile(
+  private object OutputDirectory {
+    private def recursiveLocateFirstFile(
         dir: File,
         filter: File => Boolean
     ): Option[File] = {
@@ -108,31 +106,67 @@ object FileManager {
 
   def getInterferenceAnalysisITFFileName(
       platform: Platform,
-      size: Int
-  ): String =
-    s"${platform.fullName}_itf_$size.txt"
+      size: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}itf_$size.txt"
+  }
 
   def getInterferenceAnalysisFreeFileName(
       platform: Platform,
-      size: Int
-  ): String =
-    s"${platform.fullName}_free_$size.txt"
+      size: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}free_$size.txt"
+  }
 
   def getInterferenceAnalysisChannelFileName(
       platform: Platform,
-      size: Int
-  ): String =
-    s"${platform.fullName}_channel_$size.txt"
+      size: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}channel_$size.txt"
+  }
 
-  def getInterferenceAnalysisSummaryFileName(platform: Platform): String =
-    s"${platform.fullName}_itf_calculus_summary.txt"
+  def getInterferenceAnalysisSummaryFileName(
+      platform: Platform,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}itf_calculus_summary.txt"
+  }
 
   def getSemanticSizeFileName(platform: Platform): String =
-    s"${platform.fullName}SemanticsSize.txt"
+    s"${platform.fullName}_semanticsSize.txt"
 
-  def getSemanticsReductionFileName(platform: Platform): String =
-    s"${platform.fullName}SemanticsReduction.txt"
+  def getSemanticsReductionFileName(
+      platform: Platform,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}semantics_reduction.txt"
+  }
 
-  def getGraphReductionFileName(platform: Platform): String =
-    s"${platform.fullName}GraphReduction.txt"
+  def getGraphReductionFileName(
+      platform: Platform,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): String = {
+    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    s"${platform.fullName}_$methodS${implmS}graph_reduction.txt"
+  }
 }

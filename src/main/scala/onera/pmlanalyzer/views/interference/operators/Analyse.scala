@@ -249,7 +249,7 @@ object Analyse {
           1 minute
         )
         (for {
-          (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(self)
+          (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(self, Some(method), Some(implm))
         } yield {
           val nonRed =
             itfResult.filter(_._1 >= 3).values.sum
@@ -298,7 +298,7 @@ object Analyse {
           computeGraphReduction(implm, method)
         else {
           PostProcess
-            .parseGraphReductionFile(self)
+            .parseGraphReductionFile(self, method, implm)
             .getOrElse(computeGraphReduction(implm, method))
         }
 
@@ -401,7 +401,7 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisITFFileName(platform, size)
+                      .getInterferenceAnalysisITFFileName(platform, size, Some(method), Some(implm))
                   )
               )
               .toMap
@@ -417,7 +417,7 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisFreeFileName(platform, size)
+                      .getInterferenceAnalysisFreeFileName(platform, size, Some(method), Some(implm))
                   )
               )
               .toMap
@@ -432,7 +432,7 @@ object Analyse {
                 size -> FileManager.analysisDirectory
                   .getFile(
                     FileManager
-                      .getInterferenceAnalysisChannelFileName(platform, size)
+                      .getInterferenceAnalysisChannelFileName(platform, size, Some(method), Some(implm))
                   )
               )
               .toMap
@@ -445,7 +445,7 @@ object Analyse {
         } yield (iF.values ++ fF.values ++ cF.values).toSet
 
       val summaryFile = FileManager.analysisDirectory.getFile(
-        FileManager.getInterferenceAnalysisSummaryFileName(platform)
+        FileManager.getInterferenceAnalysisSummaryFileName(platform, Some(method), Some(implm))
       )
 
       files match
@@ -508,7 +508,7 @@ object Analyse {
             cW.foreach(kv => writeChannelInfo(kv._2, kv._1))
             fW.foreach(kv => writeFreeInfo(kv._2, kv._1))
             iW.foreach(kv => writeITFInfo(kv._2, kv._1))
-            aW.foreach(w => writeFileInfo(w, platform))
+            aW.foreach(w => writeFileInfo(w, platform, implm, method))
           }
 
           val nbFree = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
@@ -674,7 +674,7 @@ object Analyse {
             }
           }
 
-          writeFileInfo(summaryWriter, platform)
+          writeFileInfo(summaryWriter, platform, implm, method)
           summaryWriter.write("Computed ITF\n")
           summaryWriter.write(
             Message.printMultiTransactionNumber(
@@ -824,10 +824,14 @@ object Analyse {
 
     private def writeFileInfo(
         writer: FileWriter,
-        platform: Platform & InterferenceSpecification
+        platform: Platform & InterferenceSpecification,
+        implm: SolverImplm,
+        method: Method
     ): Unit =
       writer write
         s"""Platform Name: ${platform.name.name}
+           |Computation Method: $method
+           |Solver: $implm
            |File:  ${platform.sourceFile}
            |Date: ${java.time.LocalDateTime.now()}
            |------------------------------------------
