@@ -30,34 +30,34 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       with KeystoneRoutingConstraints
       with RosaceInterferenceSpecification
 
-  val kForFastTest = 4
-
-  for {
-    method <- Method.values
-    implm <- SolverImplm.values
-  } {
-    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference up to $kForFastTest" taggedAs FastTests in {
-      if (implm == Monosat) {
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
-      }
-      Try({
-        Await.result(
-          KeystoneWithRosace
-            .test(kForFastTest, expectedResultsDirectoryPath, implm, method),
-          10 minutes
-        )
-      }) match {
-        case Failure(exception) => assume(false, exception.getMessage)
-        case Success(diff) =>
-          if (diff.exists(_.nonEmpty)) {
-            fail(diff.map(failureMessage).mkString("\n"))
-          }
-      }
-    }
-  }
+//  val kForFastTest = 4
+//
+//  for {
+//    method <- Method.values
+//    implm <- SolverImplm.values
+//  } {
+//    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference up to $kForFastTest" taggedAs FastTests in {
+//      if (implm == Monosat) {
+//        assume(
+//          monosatLibraryLoaded,
+//          Message.monosatLibraryNotLoaded
+//        )
+//      }
+//      Try({
+//        Await.result(
+//          KeystoneWithRosace
+//            .test(kForFastTest, expectedResultsDirectoryPath, implm, method),
+//          10 minutes
+//        )
+//      }) match {
+//        case Failure(exception) => assume(false, exception.getMessage)
+//        case Success(diff) =>
+//          if (diff.exists(_.nonEmpty)) {
+//            fail(diff.map(failureMessage).mkString("\n"))
+//          }
+//      }
+//    }
+//  }
 
   for {
     method <- Method.values
@@ -73,7 +73,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       Try({
         Await.result(
           KeystoneWithRosace
-            .test(kForFastTest, expectedResultsDirectoryPath, implm, method),
+            .test(13, expectedResultsDirectoryPath, implm, method),
           10 minutes
         )
       }) match {
