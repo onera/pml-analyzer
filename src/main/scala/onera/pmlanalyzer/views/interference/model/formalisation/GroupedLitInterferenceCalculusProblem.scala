@@ -183,52 +183,6 @@ final case class GroupedLitInterferenceCalculusProblem(
       )
     )
 
-  private val trivialFreeTransactions =
-    transactionToGroupedLit.values.toSet
-      .filter(
-        groupedLitToNodeSet(_).forall(_.isEmpty)
-      ) // All paths of the transactions are only private ones
-
-  private val contributeToGraph =
-    And(
-      for {
-        (l, ns) <- groupedLitToNodeSet.toSeq
-        nsL = ns.flatten.map(n => nodeVar(n)).toSeq
-      } yield {
-        Implies(l, Or(nsL))
-      }
-    )
-
-  private val nonEmptyGraph = Or(graph.nodes.map(n => nodeVar(n)).toSeq)
-  private val isNotTrivialFree = And(
-    trivialFreeTransactions.map(v => Not(v)).toSeq
-  )
-  private val isConnected = Connected(graph)
-  private val isITF: Set[Expr | Connected] =
-    Seq(
-      nonEmptyGraph,
-      isNotTrivialFree,
-      isConnected,
-      contributeToGraph
-    ).toSet
-
-  // free are only computed when the selected groupedLit
-  // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1
-  private val isFree = And(
-    for {
-      (g, ns) <- groupedLitToNodeSet.toSeq
-      gs = groupedLitToNodeSet
-        .collect({
-          case (k, v) if k != g && v.flatten.intersect(ns.flatten).nonEmpty =>
-            k
-        })
-        .toSeq
-      if gs.nonEmpty
-    } yield {
-      Implies(g, Not(Or(gs)))
-    }
-  )
-
   private val nonExclusiveSn = for {
     (l, trs) <- groupedLitToTransactions
     (l2, trs2) <- groupedLitToTransactions
@@ -239,6 +193,22 @@ final case class GroupedLitInterferenceCalculusProblem(
 
   private val nonExclusive =
     nonExclusiveSn.map(SimpleAssert.apply)
+
+  // if the grouped lit contains only one transaction
+  // then another one must be selected
+  private val atLeastOnePhysicalModel =
+    for {
+      (g,trS) <- groupedLitToTransactions.toSeq
+      if trS.size == 1
+    } yield {
+      SimpleAssert(
+        Implies(
+          g,
+          Or((groupedLitToTransactions.keySet - g).toSeq
+          )
+        )
+      )
+    }
 
   val nodeToTransaction: Map[MNode, Set[PhysicalTransactionId]] =
     (for {
@@ -264,15 +234,58 @@ final case class GroupedLitInterferenceCalculusProblem(
     graph.toLit(s)
     s.assertPB(groupedLitToTransactions.keySet.toSeq, EQ, k)
     if (!computeFree) {
+      val trivialFreeTransactions =
+        transactionToGroupedLit.values.toSet
+          .filter(
+            groupedLitToNodeSet(_).forall(_.isEmpty)
+          ) // All paths of the transactions are only private ones
+
+      val contributeToGraph =
+        And(
+          for {
+            (l, ns) <- groupedLitToNodeSet.toSeq
+            nsL = ns.flatten.map(n => nodeVar(n)).toSeq
+          } yield {
+            Implies(l, Or(nsL))
+          }
+        )
+
+      val nonEmptyGraph = Or(graph.nodes.map(n => nodeVar(n)).toSeq)
+      val isNotTrivialFree = And(
+        trivialFreeTransactions.map(v => Not(v)).toSeq
+      )
+      val isConnected = Connected(graph)
       for {
-        c <- isITF
+        c <- Seq(
+          nonEmptyGraph,
+          isNotTrivialFree,
+          isConnected,
+          contributeToGraph
+        )
       } {
         s.assert(c)
       }
     } else {
+      // free are only computed when the selected groupedLit does not share channel
+      // so for each node n, \sum_{g, n \in \footprint(g)} g <= 1
+      val isFree = And(
+        for {
+          (g, ns) <- groupedLitToNodeSet.toSeq
+          gs = groupedLitToNodeSet
+            .collect({
+              case (k, v)
+                  if k != g && v.flatten.intersect(ns.flatten).nonEmpty =>
+                k
+            })
+            .toSeq
+          if gs.nonEmpty
+        } yield {
+          Implies(g, Not(Or(gs)))
+        }
+      )
       s.assert(isFree)
     }
-    (edgeCst.values.toSeq ++ nonExclusive).foreach(_.assert(s))
+    (edgeCst.values.toSeq ++ nonExclusive ++ atLeastOnePhysicalModel).foreach(_.assert(s))
     s
   }
 }

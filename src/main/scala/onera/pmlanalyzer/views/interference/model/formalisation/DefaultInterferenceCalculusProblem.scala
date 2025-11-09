@@ -162,29 +162,6 @@ final case class DefaultInterferenceCalculusProblem(
       )
     )
 
-  private val isFree =
-    And(
-      nodeVar.values.map(Not.apply).toSeq
-    )
-
-  private val nonEmpty = Or(nodeVar.values.toSeq)
-  private val connected = Connected(graph)
-  private val trContribToGraph = And(
-    for {
-      (tr, n) <- trToNode.toSeq
-    } yield {
-      if (n.isEmpty)
-        Not(transactionVar(tr))
-      else {
-        val nV = n.map(nodeVar).toSeq
-        Implies(
-          transactionVar(tr),
-          Or(nV)
-        )
-      }
-    }
-  )
-
   val transactionVars: Map[MLit, PhysicalTransactionId] =
     transactionVar.toSeq.groupMapReduce(_._2)(_._1)((l, _) => l)
   val nodeToServices: Map[MNode, Set[Service]] = serviceToNodes.toSeq
@@ -207,13 +184,33 @@ final case class DefaultInterferenceCalculusProblem(
     graph.toLit(s)
     s.assertPB(transactionVar.values.toSeq, EQ, k)
     if (!computeFree) {
+      val nonEmpty = Or(nodeVar.values.toSeq)
+      val connected = Connected(graph)
+      val trContribToGraph = And(
+        for {
+          (tr, n) <- trToNode.toSeq
+        } yield {
+          if (n.isEmpty)
+            Not(transactionVar(tr))
+          else {
+            val nV = n.map(nodeVar).toSeq
+            Implies(
+              transactionVar(tr),
+              Or(nV)
+            )
+          }
+        }
+      )
       for {
         c <- Set(connected, trContribToGraph, nonEmpty)
       } {
         s.assert(c)
       }
     } else
-      s.assert(isFree)
+      s.assert(
+        And(
+        nodeVar.values.map(Not.apply).toSeq
+      ))
     (nodeCst ++ edgeCst ++ exclusiveCst).foreach(_.assert(s))
     s
   }

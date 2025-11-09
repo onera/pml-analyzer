@@ -43,6 +43,7 @@ trait GroupedLitDecoder extends Decoder {
     for {
       (k, v) <- litToNode.toSeq
       isFree = v.isEmpty
+      if groupedLitToTransactions(k).size >= 2
       physical = decodeModel(Set(k), isFree, implm)
       if physical.nonEmpty
       userDefined = physical.groupMapReduce(p => p)(

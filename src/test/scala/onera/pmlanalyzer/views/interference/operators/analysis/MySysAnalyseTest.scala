@@ -21,22 +21,13 @@ import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
-import onera.pmlanalyzer.views.interference.model.formalisation.{
-  ChocoSolver,
-  InterferenceCalculusProblem,
-  SolverImplm
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.{ChocoSolver, InterferenceCalculusProblem, SolverImplm}
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.{
-  Default,
-  GroupedLitBased
-}
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
-  Choco,
-  Monosat
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.{Default, GroupedLitBased}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{Choco, Monosat}
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
+import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -74,8 +65,10 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           10 minutes
         )
       }) match {
-        case Failure(exception) =>
+        case Failure(exception: InvalidSolutionException) =>
           assume(false, exception.getMessage)
+        case Failure(exception) =>
+          fail(exception.getMessage)
         case Success(diff) =>
           for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)

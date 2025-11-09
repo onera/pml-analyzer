@@ -22,20 +22,19 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
   Choco,
   Monosat
 }
-import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
-import org.chocosolver.solver.{Settings, Model as ChocoModel}
-import org.chocosolver.solver.constraints.Constraint as ChocoConstraint
-import org.chocosolver.solver.constraints.Operator
+import org.chocosolver.solver.Model as ChocoModel
+import org.chocosolver.solver.constraints.{
+  Operator,
+  Constraint as ChocoConstraint
+}
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
-import org.chocosolver.util.ESat
-import org.chocosolver.util.objects.setDataStructures.SetType
+import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
+import org.chocosolver.util.objects.setDataStructures.SetType
 
 import java.io.{File, FileWriter}
-import scala.collection.immutable.{AbstractSeq, LinearSeq}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
-import scala.xml.NodeSeq
 
 enum SolverImplm {
   case Monosat extends SolverImplm
@@ -80,7 +79,7 @@ class ChocoSolver extends Solver {
 
   private val memoEdges = mutable.Map.empty[String, BoolLit]
   private val memoNodes = mutable.Map.empty[String, BoolLit]
-  private val model: ChocoModel = ChocoModel(Settings.prod())
+  private val model: ChocoModel = ChocoModel()
 
   def assert(lt: Expr | Connected): Unit = lt match {
     case a: Expr      => a.toExpr(this).post()
@@ -216,24 +215,17 @@ class ChocoSolver extends Solver {
     file
   }
 
-  // FIXME Choco can send false solutions that are discarded, so the ananlysis
-  // can be incomplete
+  // WARNING Choco can send false solutions that are discarded
   def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] = {
     val models = mutable.Set.empty[Set[MLit]]
     val solver = model.getSolver
     while (solver.solve()) {
-      if (model.getCstrs.forall(_.isSatisfied == ESat.TRUE)) {
-        models += (for {
-          l <- toGet
-          if l.toLit(this).getValue == 1
-        } yield {
-          l
-        })
-      } else {
-        throw Exception(
-          "[ERROR] incorrect solution computed by Choco, analysis may be incomplete"
-        )
-      }
+      models += (for {
+        l <- toGet
+        if l.toLit(this).getValue == 1
+      } yield {
+        l
+      })
     }
     models
   }

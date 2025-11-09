@@ -1,10 +1,6 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
-import onera.pmlanalyzer.pml.model.instances.keystone.{
-  KeystonePlatform,
-  KeystoneRoutingConstraints,
-  RosaceConfiguration
-}
+import onera.pmlanalyzer.pml.model.instances.keystone.{KeystonePlatform, KeystoneRoutingConstraints, RosaceConfiguration}
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
@@ -12,6 +8,7 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
 import onera.pmlanalyzer.views.interference.model.specification.keystone.RosaceInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
+import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -77,7 +74,10 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
           1 hour
         )
       }) match {
-        case Failure(exception) => assume(false, exception.getMessage)
+        case Failure(exception: InvalidSolutionException) =>
+          assume(false, exception.getMessage)
+        case Failure(exception) =>
+          fail(exception.getMessage)
         case Success(diff) =>
           if (diff.exists(_.nonEmpty)) {
             fail()
