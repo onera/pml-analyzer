@@ -14,7 +14,7 @@ import java.util.*;
 public class MWEChocoError {
 
     public static void main(String[] args) {
-        buildModelAndSolve(9);
+        buildModelAndSolve(5);
     }
 
     /**
@@ -55,33 +55,26 @@ public class MWEChocoError {
                 "KeystoneWithRosace_CorePac1_dsp_store_KeystoneWithRosace_CorePac1_dsram_store_0",
                 "KeystoneWithRosace_CorePac1_dsp_store_KeystoneWithRosace_CorePac1_isram_store_0",
                 "KeystoneWithRosace_CorePac1_dsp_store_KeystoneWithRosace_MSMC_SRAM_Bank1_store_0",
-                "KeystoneWithRosace_CorePac2_dsp_load_KeystoneWithRosace_CorePac2_dsram_load_0",
                 "KeystoneWithRosace_CorePac2_dsp_load_KeystoneWithRosace_CorePac2_isram_load_0",
                 "KeystoneWithRosace_CorePac2_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank0_load_0",
                 "KeystoneWithRosace_CorePac2_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank1_load_0",
                 "KeystoneWithRosace_CorePac2_dsp_store_KeystoneWithRosace_CorePac2_dsram_store_0",
                 "KeystoneWithRosace_CorePac2_dsp_store_KeystoneWithRosace_CorePac2_isram_store_0",
-                "KeystoneWithRosace_CorePac2_dsp_store_KeystoneWithRosace_MSMC_SRAM_Bank0_store_0",
-                "KeystoneWithRosace_CorePac2_dsp_store_KeystoneWithRosace_MSMC_SRAM_Bank1_store_0",
-                "KeystoneWithRosace_CorePac3_dsp_load_KeystoneWithRosace_CorePac3_dsram_load_0",
                 "KeystoneWithRosace_CorePac3_dsp_load_KeystoneWithRosace_CorePac3_isram_load_0",
                 "KeystoneWithRosace_CorePac3_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank0_load_0",
                 "KeystoneWithRosace_CorePac3_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank1_load_0",
                 "KeystoneWithRosace_CorePac3_dsp_store_KeystoneWithRosace_CorePac3_dsram_store_0",
                 "KeystoneWithRosace_CorePac3_dsp_store_KeystoneWithRosace_CorePac3_isram_store_0",
-                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac4_dsram_load_0",
-                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac4_isram_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac2_dsram_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac3_dsram_load_0",
+                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac4_dsram_load_0",
+                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_CorePac4_isram_load_0",
+                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_EDMARegister_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank0_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_MSMC_SRAM_Bank1_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_SPI_load_0",
-                "KeystoneWithRosace_CorePac4_dsp_load_KeystoneWithRosace_EDMARegister_load_0",
                 "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_CorePac4_dsram_store_0",
                 "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_CorePac4_isram_store_0",
-                "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_MSMC_SRAM_Bank0_store_0",
-                "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_MSMC_SRAM_Bank1_store_0",
-                "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_SPI_store_0",
                 "KeystoneWithRosace_CorePac4_dsp_store_KeystoneWithRosace_EDMARegister_store_0",
                 "ioServer_SPI",
                 "spi_CA",
@@ -493,7 +486,7 @@ public class MWEChocoError {
 
         // C² – cardinality constraint
         model.sum(transactionVar.values().toArray(new BoolVar[0]), "=", k).post();
-
+        
         /* ------------------------------------------------------------------ *
          *  3 –  Graph definition (nodes, edges, upper/lower bound)           *
          * ------------------------------------------------------------------ */
@@ -789,8 +782,15 @@ public class MWEChocoError {
          *  8 –  Solve & enumerate                                           *
          * ------------------------------------------------------------------ */
         Solver solver = model.getSolver();
+        int free = 0;
+        int itf = 0;
+        
         while (solver.solve()) {
-            // Here you could print a solution if you want
+            if(isFree.getValue() == 1)
+                free++;
+            else 
+                itf++;
         }
+        System.out.println("free: " + free +" itf: "+ itf);
     }
 }
