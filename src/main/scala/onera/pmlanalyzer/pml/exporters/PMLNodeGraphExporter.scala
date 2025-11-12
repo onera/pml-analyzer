@@ -235,12 +235,14 @@ object PMLNodeGraphExporter {
 
   trait DOTRelationExporter extends RelationExporter {
 
-    final case class DOTAssociation(left: Int, right: Int, name: String)
+    final case class DOTAssociation(left: Int, right: Int, name: String, color:String)
         extends Association {
       override def toString: String =
         s"$left -> $right [${
-            if (name.nonEmpty) s"label=$name, " else ""
-          }arrowhead=none]\n"
+            if (name.nonEmpty) s"label=\"$name\", " else ""
+          }${
+          if (color.nonEmpty) s"color=$color, " else ""
+        }penwidth=3, arrowhead=none]\n"
     }
 
     def getHeader: String =
@@ -366,7 +368,8 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Set[Service],
         to: Set[Service],
-        tyype: String
+        tyype: String,
+        color: String
     ): Option[DOTAssociation]
   }
 
@@ -376,9 +379,10 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Set[Service],
         to: Set[Service],
-        tyype: String
+        tyype: String,
+        color:String
     ): Option[DOTAssociation] = {
-      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype, color)
     }
   }
 
@@ -387,7 +391,8 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Set[Service],
         to: Set[Service],
-        tyype: String
+        tyype: String,
+        color: String
     ): Option[DOTAssociation] = None
   }
 
@@ -431,7 +436,8 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Service,
         to: Service,
-        tyype: String
+        tyype: String,
+        color: String
     ): Option[DOTAssociation]
   }
 
@@ -445,7 +451,8 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Service,
         to: Service,
-        tyype: String
+        tyype: String,
+        color: String
     ): Option[DOTAssociation] =
       None
   }
@@ -469,9 +476,10 @@ object PMLNodeGraphExporter {
     def getAssociation(
         from: Service,
         to: Service,
-        tyype: String
+        tyype: String,
+        color: String
     ): Option[DOTAssociation] = {
-      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype, color)
     }
   }
 
@@ -521,13 +529,21 @@ object PMLNodeGraphExporter {
   }
 
   trait HWExporter extends DOTRelationExporter {
-    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
+    def getAssociation(
+                        from: Hardware, 
+                        to: Hardware, 
+                        tyype: String,
+                        color: String)(using
         pb: Provided[Hardware, Service]
     ): Option[DOTAssociation]
   }
 
   trait NullHWExporter extends HWExporter {
-    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
+    def getAssociation(
+                        from: Hardware, 
+                        to: Hardware, 
+                        tyype: String,
+                        color: String)(using
         pb: Provided[Hardware, Service]
     ): Option[DOTAssociation] = None
   }
@@ -572,10 +588,14 @@ object PMLNodeGraphExporter {
   trait FullHWExporter extends HWExporter {
     self: ServiceNamer with HWNamer with RelationExporter =>
 
-    def getAssociation(from: Hardware, to: Hardware, tyype: String)(using
+    def getAssociation(
+                        from: Hardware, 
+                        to: Hardware, 
+                        tyype: String,
+                        color: String)(using
         pPB: Provided[Hardware, Service]
     ): Option[DOTAssociation] = {
-      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype)
+      for { f <- getId(from); t <- getId(to) } yield DOTAssociation(f, t, tyype, color)
     }
   }
 
@@ -611,7 +631,10 @@ object PMLNodeGraphExporter {
 
   trait SWExporter extends DOTRelationExporter {
 
-    def getAssociation(sw: Application, tyype: String)(implicit
+    def getAssociation(
+                        sw: Application, 
+                        tyype: String,
+                        color: String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
@@ -640,7 +663,7 @@ object PMLNodeGraphExporter {
   trait FullSWExporter extends SWExporter {
     self: ServiceNamer with HWNamer with SWNamer with RelationExporter =>
 
-    def getAssociation(sw: Application, tyype: String)(implicit
+    def getAssociation(sw: Application, tyype: String, color:String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
@@ -649,17 +672,17 @@ object PMLNodeGraphExporter {
       val hosts =
         for {
           c <- sw.hostingInitiators; s <- getId(sw); cs <- getId(c)
-        } yield DOTAssociation(s, cs, tyype)
+        } yield DOTAssociation(s, cs, tyype, color)
       val services = for {
         c <- sw.hostingInitiators; b <- c.services; s <- getId(sw)
         bs <- getId(b)
-      } yield DOTAssociation(s, bs, tyype)
+      } yield DOTAssociation(s, bs, tyype, color)
       hosts ++ services
     }
   }
 
   trait NullSWExporter extends SWExporter {
-    def getAssociation(sw: Application, tyype: String)(implicit
+    def getAssociation(sw: Application, tyype: String, color:String)(implicit
         pI: Provided[Initiator, Service],
         uSI: Used[Application, Initiator],
         uB: Used[Application, Service],
@@ -821,20 +844,20 @@ object PMLNodeGraphExporter {
         for {
           (k, v) <- context.PLLinkableToPL.edges
           x <- v
-          as <- getAssociation(k, x, "")
+          as <- getAssociation(k, x, tyype="", color="")
         } yield as
 
       val applicationAssociations =
         for {
           a <- platform.applications
-          as <- getAssociation(a, "")
+          as <- getAssociation(a, tyype="", color="")
         } yield as
 
       val serviceAssociations =
         for {
           (k, v) <- context.ServiceLinkableToService.edges
           x <- v
-          as <- getAssociation(k, x, "")
+          as <- getAssociation(k, x, tyype="", color="")
         } yield as
 
       val serviceSetGraph = platform.fullServiceGraphWithInterfere()
@@ -843,7 +866,7 @@ object PMLNodeGraphExporter {
       val serviceSetAssociations =
         for {
           p <- serviceSetLinks
-          as <- getAssociation(p.head, p.last, "")
+          as <- getAssociation(p.head, p.last, tyype="", color="")
         } yield as
 
       exportGraph(
@@ -894,12 +917,12 @@ object PMLNodeGraphExporter {
 
       val hardwareAssociations = for {
         p <- hwLinks
-        as <- getAssociation(p.head, p.last, "")
+        as <- getAssociation(p.head, p.last, tyype="", color="")
       } yield as
 
       val applicationAssociations = for {
         a <- platform.applications
-        as <- getAssociation(a, "")
+        as <- getAssociation(a, tyype="", color="")
       } yield as
 
       val serviceGraph = platform.serviceGraph()
@@ -908,7 +931,7 @@ object PMLNodeGraphExporter {
       }
       val serviceAssociations = for {
         p <- serviceLinks
-        as <- getAssociation(p.head, p.last, "")
+        as <- getAssociation(p.head, p.last, tyype="", color="")
       } yield as
 
       val serviceSetGraph = platform.serviceGraphWithInterfere()
@@ -917,7 +940,7 @@ object PMLNodeGraphExporter {
 
       val serviceSetAssociations = for {
         p <- serviceSetLinks
-        as <- getAssociation(p.head, p.last, "")
+        as <- getAssociation(p.head, p.last, tyype="", color="")
       } yield as
 
       exportGraph(
@@ -951,19 +974,19 @@ object PMLNodeGraphExporter {
 
       val applicationAssociations =
         for {
-          x <- getAssociation(toPrint, "")
+          x <- getAssociation(toPrint, tyype="", color="")
         } yield x
 
       val hardwareAssociations = for {
         p <- platform.hardwareGraphOf(toPrint)
         x <- p._2
-        as <- getAssociation(p._1, x, "")
+        as <- getAssociation(p._1, x, tyype="", color="")
       } yield as
 
       val serviceAssociations = for {
         p <- platform.serviceGraphOf(toPrint)
         x <- p._2
-        as <- getAssociation(p._1, x, "")
+        as <- getAssociation(p._1, x, tyype="", color="")
       } yield as
 
       exportGraph(

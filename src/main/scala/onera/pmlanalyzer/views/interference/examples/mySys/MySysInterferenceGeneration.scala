@@ -19,6 +19,7 @@ package onera.pmlanalyzer.views.interference.examples.mySys
 
 import onera.pmlanalyzer.pml.examples.mySys.MySysExport.*
 import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.exporters.*
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
@@ -27,6 +28,14 @@ import scala.language.postfixOps
   * [[pml.examples.mySys.MySysExport]]
   */
 object MySysInterferenceGeneration extends App {
+
+  //Exporting the graph of all pairs of transactions
+  for {
+    ss <- MySys.purifiedTransactions.keySet.subsets(2)
+    if !MySys.finalExclusive(ss.head, ss.last)
+  }
+  MySys.exportInterferenceGraph(ss)
+
   // Compute only up to 2-ite and 2-free
   MySys.computeKInterference(2, 2 hours)
 

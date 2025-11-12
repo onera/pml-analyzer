@@ -22,24 +22,39 @@ import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransactionId,
-  multiTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransactionId, PhysicalTransactionId, multiTransactionId}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}
 
 object GraphExporter {
+  
+  private val colorMap = Map(
+    0 -> "\"#D6EBA0\"",
+    1 -> "\"#EBBFA0\"",
+    2 -> "\"#A0E3EB\"",
+    3 -> "\"#D4A0EB\"",
+    4 -> "\"#769296\"",
+    5 -> "\"#606B42\""
+  ).withDefaultValue("")
+
+  private def assignColor(s: Set[PhysicalTransactionId]): Map[PhysicalTransactionId, String] = {
+    (for {
+      (tr, i) <- s.toSeq.sortBy(_.id.name).zipWithIndex
+    } yield
+      tr -> colorMap(i)).toMap
+  }
+  
   trait Ops {
     extension [T <: Platform with InterferenceSpecification](self: T) {
-
+      
       def exportGraphReduction(
           implm: SolverImplm = Monosat,
           method: Method = Default
@@ -66,7 +81,9 @@ object GraphExporter {
 
       def exportInterferenceGraphFromString(
           it: Set[String],
-          additionalName: Option[String] = None
+          additionalName: Option[String] = None,
+          colored:Boolean= true,
+          trIdOnLabel:Boolean= true
       ): Option[File] = {
         val fromPhyTr =
           for {
@@ -87,18 +104,33 @@ object GraphExporter {
           }
         val found = fromPhyTr.flatten
         if (found.size == fromPhyTr.size)
-          Some(exportInterferenceGraph(found, additionalName))
+          Some(exportInterferenceGraph(found, additionalName, colored, trIdOnLabel))
         else
           None
       }
-
-      // FIXME Add two versions one with coloring of edge per transaction, the other with transaction labelled to edges
-      // remove interfere on service from the same initiation
-      // add edge labelled with plus for non-atomic multi-transaction
+      
       def exportInterferenceGraph(
           it: Set[PhysicalTransactionId],
-          additionalName: Option[String] = None
+          additionalName: Option[String] = None,
+          colored:Boolean= true,
+          trIdOnLabel:Boolean= true
       ): File = {
+        val colorMap = assignColor(it)
+        val nameMap =
+          self match {
+            case lib: TransactionLibrary =>
+              (for {
+                tr <- it
+                uIds = lib.transactionUserName.get(self.purifiedTransactions(tr))
+              } yield {
+                tr -> (uIds match {
+                  case Some(value) if value.nonEmpty => value.map(_.id.name)
+                  case _ => Set(tr.id.name)
+                })
+              }).toMap
+            case _ => (for {tr <- it} yield tr -> Set(tr.id.name)).toMap
+          }
+        
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))
         )
@@ -114,8 +146,8 @@ object GraphExporter {
         writer.write(DOTServiceOnly.getHeader)
 
         val serviceAssociations = for {
-          s <- it
-          t <- self.purifiedTransactions(s)
+          tr <- it
+          t <- self.purifiedTransactions(tr)
           l = self
             .purifiedAtomicTransactions(t)
             .sliding(2)
@@ -123,26 +155,50 @@ object GraphExporter {
             .toList
           if l.nonEmpty
           (l, r) <- l
-          as <- DOTServiceOnly.getAssociation(l, r, "")
+          as <- DOTServiceOnly.getAssociation(
+            l, 
+            r, 
+            tyype = if(trIdOnLabel) nameMap(tr).mkString(", ") else "",
+            color= if(colored) colorMap(tr) else "")
         } yield as
-
-        val services = it
-          .flatMap(self.purifiedTransactions)
-          .flatMap(self.purifiedAtomicTransactions)
+        
+        val nonAtomicTrAssociations =
+          for {
+            tr <- it
+            atIds <- self.purifiedTransactions(tr)
+              .subsets(2)
+            a <- DOTServiceOnly.getAssociation(
+              self.purifiedAtomicTransactions(atIds.head).head,
+              self.purifiedAtomicTransactions(atIds.last).head,
+              tyype = "+",
+              color = if(colored) colorMap(tr) else ""
+            )
+          } yield a
+            
+        val servicesWOHead = { 
+          for {
+            tr <- it
+            atId <- self.purifiedTransactions(tr)
+            s <- self.purifiedAtomicTransactions(atId).tail
+          } yield
+            s
+        }
 
         val interfereAssociations =
           (for {
-            s <- services.subsets(2) if self.finalInterfereWith(s.head, s.last)
+            s <- servicesWOHead.subsets(2)
+            if self.finalInterfereWith(s.head, s.last)
             as <- DOTServiceOnly.getAssociation(
               s.head,
               s.last,
-              "interfere"
+              tyype= "interfere",
+              color=""
             )
           } yield as).toSeq
 
         DOTServiceOnly.exportGraph(
           self,
-          interfereAssociations ++ serviceAssociations
+          interfereAssociations ++ serviceAssociations ++ nonAtomicTrAssociations
         )
         writer.write(DOTServiceOnly.getFooter)
         writer.close()

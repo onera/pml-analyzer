@@ -14,7 +14,9 @@ import java.util.*;
 public class MWEChocoError {
 
     public static void main(String[] args) {
-        buildModelAndSolve(5);
+        for (int k = 2; k < 13; k ++) {
+            buildModelAndSolve(k);
+        }
     }
 
     /**
