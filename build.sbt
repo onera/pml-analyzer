@@ -12,6 +12,13 @@ val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
 val choco = "org.choco-solver" % "choco-solver" % "5.0.0-beta.1"
+val chocoDep = Seq(
+  "net.sf.trove4j" % "trove4j" % "3.0.3",
+  "dk.brics.automaton" % "automaton" % "1.11-8",
+  "org.jgrapht" % "jgrapht-core" % "1.4.0",
+  "org.ehcache" % "sizeof" % "0.4.3"
+)
+
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
@@ -143,8 +150,7 @@ lazy val docSetting =
 lazy val assemblySettings = Seq(
   assembly / assemblyJarName := s"PMLAnalyzer_${version.value}.jar",
   assembly / assemblyMergeStrategy := {
-    case PathList(ps@_*) if ps.contains("patterns") => MergeStrategy.discard
-    case PathList(ps@_*) if ps.contains("examples") => MergeStrategy.discard
+    case PathList(ps@_*) if ps.contains("patterns") || ps.contains("examples") => MergeStrategy.discard
     case x =>
       (ThisBuild / assemblyMergeStrategy).value(x)
   }
@@ -196,6 +202,7 @@ lazy val commonSettings = Seq(
     parallel,
     choco
   ),
+//  libraryDependencies ++= chocoDep,
   docSetting
 ) ++ dockerSettings ++ assemblySettings ++ testSettings
 
@@ -203,9 +210,9 @@ lazy val commonSettings = Seq(
 // PML modelling and analysis
 lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
-  .settings(commonSettings: _*)
-  .settings(name := "pml_analyzer")
   .settings(
+    commonSettings,
+    name := "pml_analyzer",
     addCommandAlias("testPerf", "; set Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, \"-n\", \"PerfTests\", \"-l\", \"UnitTests\", \"-l\", \"FastTests\") ; test")
   )
 

@@ -37,12 +37,12 @@ import java.io.{File, FileWriter}
 object GraphExporter {
   
   private val colorMap = Map(
-    0 -> "\"#D6EBA0\"",
-    1 -> "\"#EBBFA0\"",
-    2 -> "\"#A0E3EB\"",
-    3 -> "\"#D4A0EB\"",
-    4 -> "\"#769296\"",
-    5 -> "\"#606B42\""
+    0 -> "#8E5A68",
+    1 -> "#7541A5",
+    2 -> "#FAAD62",
+    3 -> "#FFF07E",
+    4 -> "#C8D75F",
+    5 -> "#99AE55"
   ).withDefaultValue("")
 
   private def assignColor(s: Set[PhysicalTransactionId]): Map[PhysicalTransactionId, String] = {
@@ -162,6 +162,28 @@ object GraphExporter {
             color= if(colored) colorMap(tr) else "")
         } yield as
         
+        val mergedServiceAssociations = for {
+          (ss, as) <- serviceAssociations.groupBy(a => Set(a.left,a.right)) 
+          l = ss.head
+          r = ss.last
+          names = as.map(_.name)
+          colors = as.map(_.color)
+        } yield {
+          val color =
+            if(colored && colors.size >= 2) {
+              val proportion = "%.1f".format(BigDecimal(1)/colors.size)
+              colors.mkString("\"",":",s";$proportion\"")
+            } else if(colored && colors.size == 1)
+              s"\"${colors.head}\""
+            else
+              ""
+          DOTServiceOnly.DOTAssociation(
+            l,
+            r,
+            name = if(trIdOnLabel) names.mkString(" ", ", ","") else "",
+            color= color)
+        }
+        
         val nonAtomicTrAssociations =
           for {
             tr <- it
@@ -171,7 +193,7 @@ object GraphExporter {
               self.purifiedAtomicTransactions(atIds.head).head,
               self.purifiedAtomicTransactions(atIds.last).head,
               tyype = "+",
-              color = if(colored) colorMap(tr) else ""
+              color = if(colored) s"\"${colorMap(tr)}\"" else ""
             )
           } yield a
             
@@ -198,7 +220,7 @@ object GraphExporter {
 
         DOTServiceOnly.exportGraph(
           self,
-          interfereAssociations ++ serviceAssociations ++ nonAtomicTrAssociations
+          interfereAssociations ++ mergedServiceAssociations ++ nonAtomicTrAssociations
         )
         writer.write(DOTServiceOnly.getFooter)
         writer.close()

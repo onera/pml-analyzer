@@ -235,14 +235,14 @@ object PMLNodeGraphExporter {
 
   trait DOTRelationExporter extends RelationExporter {
 
-    final case class DOTAssociation(left: Int, right: Int, name: String, color:String)
+    final case class DOTAssociation(left: Int, right: Int, name: String, color:String, width:Int=3)
         extends Association {
       override def toString: String =
         s"$left -> $right [${
             if (name.nonEmpty) s"label=\"$name\", " else ""
           }${
           if (color.nonEmpty) s"color=$color, " else ""
-        }penwidth=3, arrowhead=none]\n"
+        }penwidth=$width, arrowhead=none]\n"
     }
 
     def getHeader: String =
