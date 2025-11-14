@@ -50,7 +50,7 @@ trait FU740TransactionLibrary extends TransactionLibrary {
    */
 
   private val t0_rd_dtim = Transaction(app0 read ds)
-  private val t0_wr_dtim = Transaction(app0 read ds)
+  private val t0_wr_dtim = Transaction(app0 write ds)
   private val t0_rd_mem = Transaction(app0 read d0.Mem)
   private val t0_wr_mem = Transaction(app0 write d0.Mem)
   private val t0_rd_l2 = Transaction(app0 read d0.L2Cache)

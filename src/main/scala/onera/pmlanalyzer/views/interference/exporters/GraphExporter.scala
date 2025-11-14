@@ -65,7 +65,7 @@ object GraphExporter {
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")
         writer.write(
-          self.computeGraphReduction(implm, method).toString()
+          self.computeGraphReduction(implm, method, ignoreExistingFile = true).toString()
         )
         writer.close()
         file
@@ -93,9 +93,8 @@ object GraphExporter {
             id.orElse(
               self match {
                 case lib: TransactionLibrary =>
-                  val atomic =
-                    lib.transactionByUserName(UserTransactionId(Symbol(tr)))
-                  for {
+                  for { 
+                    atomic <- lib.transactionByUserName.get(UserTransactionId(Symbol(tr)))
                     (id, _) <- self.purifiedTransactions.find(_._2 == atomic)
                   } yield id
                 case _ => None
@@ -189,9 +188,12 @@ object GraphExporter {
             tr <- it
             atIds <- self.purifiedTransactions(tr)
               .subsets(2)
+            l = self.purifiedAtomicTransactions(atIds.head).head
+            r = self.purifiedAtomicTransactions(atIds.last).head 
+            if l != r
             a <- DOTServiceOnly.getAssociation(
-              self.purifiedAtomicTransactions(atIds.head).head,
-              self.purifiedAtomicTransactions(atIds.last).head,
+              l,
+              r,
               tyype = "+",
               color = if(colored) s"\"${colorMap(tr)}\"" else ""
             )
