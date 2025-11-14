@@ -1,13 +1,3 @@
-* PML Analyzer Authors and contributors:
-**************************************************
-Main authors:
-  Kevin DELMAS     : Kevin DOT Delmas AT onera DOT fr
-  Claire PAGETTI   : Claire DOT Pagetti AT onera DOT fr
-  Frédéric BONIOL  : Frederic DOT Boniol AT onera DOT fr
-  Julien BRUNEL    : Julien DOT Brunel AT onera DOT fr
-  Thomas POLACSEK  : Thomas DOT Polacsek AT onera DOT fr
-  Youcef BOUCHEBABA: Youcef DOT Bouchebaba AT onera DOT fr
-
-Contributors:
-  Nathanael SENSFELDER : Nathanael DOT Sensfelder AT onera DOT fr
-**************************************************
+version https://git-lfs.github.com/spec/v1
+oid sha256:63271a82551142f170ba9c5a94af5dda86a289b072e52a89c96cfd7d66363ddd
+size 589

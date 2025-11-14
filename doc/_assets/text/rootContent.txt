@@ -1,4 +1,3 @@
-The PML analyzer is an open source API providing a simple DSL to build
-a description of the architecture of your chip based on the PHYLOG Model Language (PML).
-From this representation a set of safety and interference model templates can be generated to perfom safety and
-interference analyses of your platform.
+version https://git-lfs.github.com/spec/v1
+oid sha256:dc62d418462bba357c2baf7763ac52fe285174a381e498b1bca7b4769df31377
+size 314

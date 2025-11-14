@@ -1,10 +1,3 @@
-------------------------------------------
-8-ary interference free transactions
-Platform Name: Keystone
-File:  /home/kevin/svn/phylog/code/trunk/src/main/scala/pml/examples/keystone/KeystonePlatform.scala
-Date: 2021-08-19T16:23:44.652
-------------------------------------------
-------------------------------------------
-Total: 0
-Computation time: 138.9s
--------------------------------------------
+version https://git-lfs.github.com/spec/v1
+oid sha256:fdc75b74277568e76866478bdad2dd56b226f2b2619baf6007cc7804d2bfa94b
+size 407

@@ -1,12 +1,3 @@
-< t14 || t23 >
-< t12 || t24 >
-< t21 || t31 >
-< t31 || t41 >
-< t22 || t41 >
-< t14 || t41 >
-< t23 || t41 >
-< t25 || t41 >
-< t14 || t25 >
-< t12 || t22 >
-< t14 || t24 >
-< t12 || t23 >
+version https://git-lfs.github.com/spec/v1
+oid sha256:251b48f4a66434aa873d0d1eb17a29b71b66f4b8adee554a544c7a85fbd3a21d
+size 192
