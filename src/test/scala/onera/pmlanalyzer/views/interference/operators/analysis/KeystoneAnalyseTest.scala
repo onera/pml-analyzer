@@ -33,7 +33,11 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   val kForFastTest = 4
 
-  private def compareWithExpected(k:Int, implm: SolverImplm, method: Method) = {
+  private def compareWithExpected(
+      k: Int,
+      implm: SolverImplm,
+      method: Method
+  ) = {
     if (implm == Monosat) {
       assume(
         monosatLibraryLoaded,
@@ -62,7 +66,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     method <- Method.values
     implm <- SolverImplm.values
   } {
-    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference up to $kForFastTest" taggedAs FastTests in {
+    s"For ${KeystoneWithRosace.fullName} limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
       compareWithExpected(kForFastTest, implm, method)
     }
   }

@@ -341,7 +341,9 @@ object Analyse {
       val problem =
         computeProblem(platform, platform.initiators.size, method)
       val result =
-        FileManager.exportDirectory.getFile(s"${platform.fullName}_${method}_method_${implm}_solver_graph.dot")
+        FileManager.exportDirectory.getFile(
+          s"${platform.fullName}_${method}_method_${implm}_solver_graph.dot"
+        )
       val emptySolver = Solver(implm)
       problem.graph.exportGraph(emptySolver, result)
       emptySolver.close()
