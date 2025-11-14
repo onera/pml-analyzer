@@ -28,14 +28,20 @@ import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalc
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransactionId, PhysicalTransactionId, multiTransactionId}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
+  AtomicTransactionId,
+  PhysicalTransactionId,
+  multiTransactionId
+}
 import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}
+import java.text.NumberFormat
+import java.util.Locale
 
 object GraphExporter {
-  
+
   private val colorMap = Map(
     0 -> "#8E5A68",
     1 -> "#7541A5",
@@ -45,16 +51,17 @@ object GraphExporter {
     5 -> "#99AE55"
   ).withDefaultValue("")
 
-  private def assignColor(s: Set[PhysicalTransactionId]): Map[PhysicalTransactionId, String] = {
+  private def assignColor(
+      s: Set[PhysicalTransactionId]
+  ): Map[PhysicalTransactionId, String] = {
     (for {
       (tr, i) <- s.toSeq.sortBy(_.id.name).zipWithIndex
-    } yield
-      tr -> colorMap(i)).toMap
+    } yield tr -> colorMap(i)).toMap
   }
-  
+
   trait Ops {
     extension [T <: Platform with InterferenceSpecification](self: T) {
-      
+
       def exportGraphReduction(
           implm: SolverImplm = Monosat,
           method: Method = Default
@@ -65,7 +72,9 @@ object GraphExporter {
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")
         writer.write(
-          self.computeGraphReduction(implm, method, ignoreExistingFile = true).toString()
+          self
+            .computeGraphReduction(implm, method, ignoreExistingFile = true)
+            .toString()
         )
         writer.close()
         file
@@ -82,8 +91,8 @@ object GraphExporter {
       def exportInterferenceGraphFromString(
           it: Set[String],
           additionalName: Option[String] = None,
-          colored:Boolean= true,
-          trIdOnLabel:Boolean= true
+          colored: Boolean = true,
+          trIdOnLabel: Boolean = true
       ): Option[File] = {
         val fromPhyTr =
           for {
@@ -93,8 +102,10 @@ object GraphExporter {
             id.orElse(
               self match {
                 case lib: TransactionLibrary =>
-                  for { 
-                    atomic <- lib.transactionByUserName.get(UserTransactionId(Symbol(tr)))
+                  for {
+                    atomic <- lib.transactionByUserName.get(
+                      UserTransactionId(Symbol(tr))
+                    )
                     (id, _) <- self.purifiedTransactions.find(_._2 == atomic)
                   } yield id
                 case _ => None
@@ -103,33 +114,37 @@ object GraphExporter {
           }
         val found = fromPhyTr.flatten
         if (found.size == fromPhyTr.size)
-          Some(exportInterferenceGraph(found, additionalName, colored, trIdOnLabel))
+          Some(
+            exportInterferenceGraph(found, additionalName, colored, trIdOnLabel)
+          )
         else
           None
       }
-      
+
       def exportInterferenceGraph(
           it: Set[PhysicalTransactionId],
           additionalName: Option[String] = None,
-          colored:Boolean= true,
-          trIdOnLabel:Boolean= true
+          colored: Boolean = true,
+          trIdOnLabel: Boolean = true
       ): File = {
-        val colorMap = assignColor(it)
+        val assignedColorMap = assignColor(it)
         val nameMap =
           self match {
             case lib: TransactionLibrary =>
               (for {
                 tr <- it
-                uIds = lib.transactionUserName.get(self.purifiedTransactions(tr))
+                uIds = lib.transactionUserName.get(
+                  self.purifiedTransactions(tr)
+                )
               } yield {
                 tr -> (uIds match {
                   case Some(value) if value.nonEmpty => value.map(_.id.name)
-                  case _ => Set(tr.id.name)
+                  case _                             => Set(tr.id.name)
                 })
               }).toMap
-            case _ => (for {tr <- it} yield tr -> Set(tr.id.name)).toMap
+            case _ => (for { tr <- it } yield tr -> Set(tr.id.name)).toMap
           }
-        
+
         val multiTransactionName = multiTransactionId(
           it.map(x => PhysicalTransactionId(x.id))
         )
@@ -155,57 +170,62 @@ object GraphExporter {
           if l.nonEmpty
           (l, r) <- l
           as <- DOTServiceOnly.getAssociation(
-            l, 
-            r, 
-            tyype = if(trIdOnLabel) nameMap(tr).mkString(", ") else "",
-            color= if(colored) colorMap(tr) else "")
+            l,
+            r,
+            tyype = if (trIdOnLabel) nameMap(tr).mkString(", ") else "",
+            color = if (colored) assignedColorMap(tr) else ""
+          )
         } yield as
-        
+
         val mergedServiceAssociations = for {
-          (ss, as) <- serviceAssociations.groupBy(a => Set(a.left,a.right)) 
+          (ss, as) <- serviceAssociations.groupBy(a => Set(a.left, a.right))
           l = ss.head
           r = ss.last
           names = as.map(_.name)
           colors = as.map(_.color)
         } yield {
           val color =
-            if(colored && colors.size >= 2) {
-              val proportion = "%.1f".format(BigDecimal(1)/colors.size)
-              colors.mkString("\"",":",s";$proportion\"")
-            } else if(colored && colors.size == 1)
+            if (colored && colors.size >= 2) {
+              val nf = NumberFormat.getNumberInstance(Locale.ENGLISH)
+              nf.setMinimumFractionDigits(1)
+              nf.setMaximumFractionDigits(1)
+              val proportion = nf.format(BigDecimal(1) / colors.size)
+              colors.mkString("\"", ":", s";$proportion\"")
+            } else if (colored && colors.size == 1)
               s"\"${colors.head}\""
             else
               ""
           DOTServiceOnly.DOTAssociation(
             l,
             r,
-            name = if(trIdOnLabel) names.mkString(" ", ", ","") else "",
-            color= color)
+            name = if (trIdOnLabel) names.mkString(" ", ", ", "") else "",
+            color = color
+          )
         }
-        
+
         val nonAtomicTrAssociations =
           for {
             tr <- it
-            atIds <- self.purifiedTransactions(tr)
+            atIds <- self
+              .purifiedTransactions(tr)
               .subsets(2)
             l = self.purifiedAtomicTransactions(atIds.head).head
-            r = self.purifiedAtomicTransactions(atIds.last).head 
+            r = self.purifiedAtomicTransactions(atIds.last).head
             if l != r
             a <- DOTServiceOnly.getAssociation(
               l,
               r,
               tyype = "+",
-              color = if(colored) s"\"${colorMap(tr)}\"" else ""
+              color = if (colored) s"\"${assignedColorMap(tr)}\"" else ""
             )
           } yield a
-            
-        val servicesWOHead = { 
+
+        val servicesWOHead = {
           for {
             tr <- it
             atId <- self.purifiedTransactions(tr)
             s <- self.purifiedAtomicTransactions(atId).tail
-          } yield
-            s
+          } yield s
         }
 
         val interfereAssociations =
@@ -215,8 +235,8 @@ object GraphExporter {
             as <- DOTServiceOnly.getAssociation(
               s.head,
               s.last,
-              tyype= "interfere",
-              color=""
+              tyype = "interfere",
+              color = ""
             )
           } yield as).toSeq
 

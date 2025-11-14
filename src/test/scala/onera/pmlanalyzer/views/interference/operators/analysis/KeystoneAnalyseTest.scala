@@ -1,6 +1,10 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
-import onera.pmlanalyzer.pml.model.instances.keystone.{KeystonePlatform, KeystoneRoutingConstraints, RosaceConfiguration}
+import onera.pmlanalyzer.pml.model.instances.keystone.{
+  KeystonePlatform,
+  KeystoneRoutingConstraints,
+  RosaceConfiguration
+}
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method

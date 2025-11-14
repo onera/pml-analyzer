@@ -198,14 +198,13 @@ final case class GroupedLitInterferenceCalculusProblem(
   // then another one must be selected
   private val atLeastOnePhysicalModel =
     for {
-      (g,trS) <- groupedLitToTransactions.toSeq
+      (g, trS) <- groupedLitToTransactions.toSeq
       if trS.size == 1
     } yield {
       SimpleAssert(
         Implies(
           g,
-          Or((groupedLitToTransactions.keySet - g).toSeq
-          )
+          Or((groupedLitToTransactions.keySet - g).toSeq)
         )
       )
     }
@@ -285,7 +284,8 @@ final case class GroupedLitInterferenceCalculusProblem(
       )
       s.assert(isFree)
     }
-    (edgeCst.values.toSeq ++ nonExclusive ++ atLeastOnePhysicalModel).foreach(_.assert(s))
+    (edgeCst.values.toSeq ++ nonExclusive ++ atLeastOnePhysicalModel)
+      .foreach(_.assert(s))
     s
   }
 }

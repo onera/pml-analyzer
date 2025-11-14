@@ -131,9 +131,9 @@ object FU740Export extends App {
     // Export the service graph taking into account service interference
     p.exportRestrictedServiceGraphWithInterfere()
 
-    p.exportInterferenceGraphFromString(Set("t0_2","t1_2"))
-    p.exportInterferenceGraphFromString(Set("t0_2","t2_6"))
-    p.exportInterferenceGraphFromString(Set("t0_0","t1_2"))
+    p.exportInterferenceGraphFromString(Set("t0_2", "t1_2"))
+    p.exportInterferenceGraphFromString(Set("t0_2", "t2_6"))
+    p.exportInterferenceGraphFromString(Set("t0_0", "t1_2"))
   }
 
 }

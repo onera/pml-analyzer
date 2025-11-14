@@ -29,12 +29,12 @@ import scala.language.postfixOps
   */
 object MySysInterferenceGeneration extends App {
 
-  //Exporting the graph of all pairs of transactions
+  // Exporting the graph of all pairs of transactions
   for {
     ss <- MySys.purifiedTransactions.keySet.subsets(2)
     if !MySys.finalExclusive(ss.head, ss.last)
   }
-  MySys.exportInterferenceGraph(ss)
+    MySys.exportInterferenceGraph(ss)
 
   // Compute only up to 2-ite and 2-free
   MySys.computeKInterference(2, 2 hours)

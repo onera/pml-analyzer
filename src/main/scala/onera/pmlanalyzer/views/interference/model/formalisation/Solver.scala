@@ -210,7 +210,7 @@ class ChocoSolver extends Solver {
 
   def exportGraph(g: MGraph, file: File): File = {
     val graphWriter = new FileWriter(file)
-    graphWriter.write(g.toLit(this).getValue.graphVizExport())
+    graphWriter.write(g.toLit(this).getUB.graphVizExport())
     graphWriter.close()
     file
   }

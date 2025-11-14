@@ -209,8 +209,9 @@ final case class DefaultInterferenceCalculusProblem(
     } else
       s.assert(
         And(
-        nodeVar.values.map(Not.apply).toSeq
-      ))
+          nodeVar.values.map(Not.apply).toSeq
+        )
+      )
     (nodeCst ++ edgeCst ++ exclusiveCst).foreach(_.assert(s))
     s
   }
