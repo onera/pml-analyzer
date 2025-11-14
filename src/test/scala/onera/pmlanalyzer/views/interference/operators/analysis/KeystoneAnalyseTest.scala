@@ -31,62 +31,48 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       with KeystoneRoutingConstraints
       with RosaceInterferenceSpecification
 
-//  val kForFastTest = 4
-//
-//  for {
-//    method <- Method.values
-//    implm <- SolverImplm.values
-//  } {
-//    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference up to $kForFastTest" taggedAs FastTests in {
-//      if (implm == Monosat) {
-//        assume(
-//          monosatLibraryLoaded,
-//          Message.monosatLibraryNotLoaded
-//        )
-//      }
-//      Try({
-//        Await.result(
-//          KeystoneWithRosace
-//            .test(kForFastTest, expectedResultsDirectoryPath, implm, method),
-//          10 minutes
-//        )
-//      }) match {
-//        case Failure(exception) => assume(false, exception.getMessage)
-//        case Success(diff) =>
-//          if (diff.exists(_.nonEmpty)) {
-//            fail(diff.map(failureMessage).mkString("\n"))
-//          }
-//      }
-//    }
-//  }
+  val kForFastTest = 4
+
+  private def compareWithExpected(k:Int, implm: SolverImplm, method: Method) = {
+    if (implm == Monosat) {
+      assume(
+        monosatLibraryLoaded,
+        Message.monosatLibraryNotLoaded
+      )
+    }
+    Try({
+      Await.result(
+        KeystoneWithRosace
+          .test(k, expectedResultsDirectoryPath, implm, method),
+        1 hour
+      )
+    }) match {
+      case Failure(exception: InvalidSolutionException) =>
+        assume(false, exception.getMessage)
+      case Failure(exception) =>
+        fail(exception.getMessage)
+      case Success(diff) =>
+        if (diff.exists(_.nonEmpty)) {
+          fail()
+        }
+    }
+  }
 
   for {
     method <- Method.values
     implm <- SolverImplm.values
   } {
-    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      if (implm == Monosat) {
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
-      }
-      Try({
-        Await.result(
-          KeystoneWithRosace
-            .test(13, expectedResultsDirectoryPath, implm, method),
-          1 hour
-        )
-      }) match {
-        case Failure(exception: InvalidSolutionException) =>
-          assume(false, exception.getMessage)
-        case Failure(exception) =>
-          fail(exception.getMessage)
-        case Success(diff) =>
-          if (diff.exists(_.nonEmpty)) {
-            fail()
-          }
-      }
+    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should s"find the verified interference up to $kForFastTest" taggedAs FastTests in {
+      compareWithExpected(kForFastTest, implm, method)
+    }
+  }
+
+  for {
+    method <- Method.values
+    implm <- SolverImplm.values
+  } {
+    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs PerfTests in {
+      compareWithExpected(13, implm, method)
     }
   }
 }
