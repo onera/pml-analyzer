@@ -28,10 +28,11 @@ jobs:
         run: git lfs install
 
       - name: Force LFS Download
-        run: |
+        run:
           git fetch --all
-          git lfs checkout
-          git lfs pull
+
+      - run: git lfs checkout
+      - run: git lfs pull
 
       - name: Test LFS Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
