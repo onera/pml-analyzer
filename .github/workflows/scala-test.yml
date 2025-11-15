@@ -31,7 +31,7 @@ jobs:
         run: |
           git fetch --all
           git lfs checkout
-          git lfg pull
+          git lfs pull
 
       - name: Test LFS Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
