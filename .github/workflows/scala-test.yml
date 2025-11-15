@@ -18,13 +18,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch repo
-        uses: actions/checkout@v4
-        with:
-          lfs: true
+      - name: install LFS
+        run: git lfs install --system
 
-      - name: Pull files
-        run: git lfs pull
+      - name: Fetch repo
+        run: |
+          git clone https://github.com/${{ github.repository }} pml-analyzer
+          cd pml-analyzer
+          git checkout --progress --force ${{ github.reference }} 
+          git lfs fetch 
+          git lfs pull
 
       - name: Test LFS Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
