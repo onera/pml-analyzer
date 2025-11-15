@@ -21,14 +21,13 @@ jobs:
       - name: Fetch repo
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
       - name: Fetch LFS files
         run: |
           git lfs install
-          git lfs pull
-          git lfs env
-          git lfs ls-files
+          git lfs fetch --all
+          git lfs checkout
 
       - name: Test LFST Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
