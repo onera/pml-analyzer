@@ -24,7 +24,9 @@ jobs:
           lfs: true
 
       - name: Fetch LFS files
-        run: git lfs checkout
+        run: |
+          git lfs fetch
+          git lfs checkout
 
       - name: Test LFST Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
