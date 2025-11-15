@@ -23,7 +23,10 @@ jobs:
         with:
           lfs: true
 
-      - name: Test LFST Checkout
+      - name: Pull files
+        run: git lfs pull
+
+      - name: Test LFS Checkout
         run: cat src/test/resources/mySys/MySys_itf_2.txt
 
       - name: Setup JDK
