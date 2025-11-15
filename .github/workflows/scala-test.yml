@@ -24,7 +24,8 @@ jobs:
           lfs: true
 
       - name: Fetch LFS files
-        run: git lfs pull
+        run: |
+          git lfs pull
           git lfs env
           git lfs ls-files
 
