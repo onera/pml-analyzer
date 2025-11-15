@@ -18,16 +18,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Fetch repo
+        uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Fetch LFS files
+        run: git lfs pull
+
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 8
           cache: sbt
-      - uses: sbt/setup-sbt@v1
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
 
       # Since monosat compilation is time-consuming try first to find the binaries in cache
       - name: Cache Monosat JAR and SO
