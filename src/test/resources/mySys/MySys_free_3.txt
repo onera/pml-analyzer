@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:067eba2d64000e928da59dc84c4cc8659898fdb5a594250af67344b0b90ef7ce
-size 184
+< t11 || t26 || t41 >
+< t13 || t26 || t41 >
+< t13 || t21 || t41 >
+< t11 || t21 || t41 >
+< t12 || t26 || t41 >
+< t11 || t24 || t41 >
+< t13 || t24 || t41 >
+< t12 || t21 || t41 >
