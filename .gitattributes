@@ -2,3 +2,4 @@
 AUTHORS.txt filter= diff= merge= text
 lesser.txt filter= diff= merge= text
 minimalBuildSBT.txt filter= diff= merge= text
+src/test/resouces/keystone/*.txt filter= diff= merge= text
