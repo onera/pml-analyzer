@@ -12,13 +12,6 @@ val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
 val choco = "org.choco-solver" % "choco-solver" % "5.0.0-beta.1"
-val chocoDep = Seq(
-  "net.sf.trove4j" % "trove4j" % "3.0.3",
-  "dk.brics.automaton" % "automaton" % "1.11-8",
-  "org.jgrapht" % "jgrapht-core" % "1.4.0",
-  "org.ehcache" % "sizeof" % "0.4.3"
-)
-
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
@@ -156,12 +149,31 @@ lazy val assemblySettings = Seq(
   }
 )
 
+lazy val versionSettings = Seq(
+  scalaVersion := "3.3.5",
+  sbtVersion := "1.11.2"
+)
+
 lazy val testSettings = Seq(
   Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-n", "UnitTests", "-n", "FastTests")
 )
 
+lazy val compileSettings = Seq(
+  resolvers += Resolver.sonatypeCentralSnapshots,
+  libraryDependencies ++= Seq(
+    scalaz,
+    scala_xml,
+    sourceCode,
+    scalatest,
+    scalactic,
+    scalaplus,
+    parallel,
+    choco
+  )
+)
+
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
-lazy val commonSettings = Seq(
+lazy val publishSettings = Seq(
   organization := "io.github.onera",
   homepage := Some(url("https://github.com/onera/pml-analyzer")),
   scmInfo := Some(
@@ -182,8 +194,6 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  scalaVersion := "3.3.5",
-  sbtVersion := "1.11.2",
   versionScheme := Some("early-semver"),
   scalafixOnCompile := true,
   semanticdbEnabled := true,
@@ -191,26 +201,12 @@ lazy val commonSettings = Seq(
   scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
   semanticdbVersion := scalafixSemanticdb.revision,
   scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
-  resolvers += Resolver.sonatypeCentralSnapshots,
-  libraryDependencies ++= Seq(
-    scalaz,
-    scala_xml,
-    sourceCode,
-    scalatest,
-    scalactic,
-    scalaplus,
-    parallel,
-    choco
-  ),
-//  libraryDependencies ++= chocoDep,
-  docSetting
-) ++ dockerSettings ++ assemblySettings ++ testSettings
+)
 
 lazy val examples = (project in file("examples"))
   .dependsOn(PMLAnalyzer)
   .settings(
-    scalaVersion := "3.3.5",
-    sbtVersion := "1.11.2",
+    versionSettings,
     name := "examples",
     publish / skip := true
   )
@@ -221,7 +217,13 @@ lazy val examples = (project in file("examples"))
 lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(
-    commonSettings,
+    versionSettings,
+    compileSettings,
+    docSetting,
+    publishSettings,
+    dockerSettings,
+    assemblySettings,
+    testSettings,
     name := "pml_analyzer",
     addCommandAlias("testPerf", "; set Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, \"-n\", \"PerfTests\", \"-l\", \"UnitTests\", \"-l\", \"FastTests\") ; test")
   )
