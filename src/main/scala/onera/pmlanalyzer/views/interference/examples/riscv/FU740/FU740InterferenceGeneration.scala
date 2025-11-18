@@ -21,6 +21,8 @@ import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.*
 import onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Export.*
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Choco
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
@@ -30,27 +32,31 @@ import scala.language.postfixOps
   */
 object FU740InterferenceGeneration extends App {
 
-  for (
+  for {
     p <- Seq(
       FU740ConfiguredFull,
-      FU740BenchmarkConfiguredInclusiveFull,
-      FU740BenchmarkConfiguredFull,
       FU740PartitionedConfiguredFull
     )
-  ) {
-    // Export the interference channel graph used by MONOSAT
-    p.exportAnalysisGraph()
+    method <- Method.values
+  } {
+    // Export the interference channel graph used by Choco
+    p.exportAnalysisGraph(method = method, implm = Choco)
 
     // Export the size of the semantics
     p.exportSemanticsSize()
 
+    // Compute all ite and itf for benchmarks
+    p.computeAllInterference(
+      5 hours,
+      ignoreExistingAnalysisFiles = true,
+      method = method,
+      implm = Choco
+    )
+
     // Export the graph reduction ratio (AnalysisGraph vs RestrictedServiceGraphWithInterfere)
-    p.exportGraphReduction()
+    p.exportGraphReduction(method = method, implm = Choco)
 
     // Export the semantics reduction ratio used to estimate proportion of k-redundant multi-transactions
-    p.exportSemanticReduction()
-
-    // Compute all ite and itf for benchmarks
-    p.computeAllInterference(5 hours, ignoreExistingAnalysisFiles = true)
+    p.exportSemanticReduction(method = method, implm = Choco)
   }
 }

@@ -319,7 +319,7 @@ trait InterferenceSpecification {
     */
   protected def interfereWith(l: Hardware, r: Hardware): Boolean
 
-  protected def relationToMap[T](
+  def relationToMap[T](
       all: => Set[T],
       r: (T, T) => Boolean
   ): Map[T, Set[T]] =

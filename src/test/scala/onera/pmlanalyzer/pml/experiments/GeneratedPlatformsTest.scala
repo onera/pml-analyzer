@@ -41,6 +41,8 @@ import scala.concurrent.{Await, Future, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 import InterferenceTestExtension.PerfTests
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 
 class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
 
@@ -314,14 +316,17 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       } yield {
         val semanticsDistribution = p.getSemanticsSize()
 
-        val (itf, free, analysisTime) = PostProcess.parseSummaryFile(p) match
-          case Some(value) => (value._1, value._2, Some(value._3))
-          case None => (Map.empty[Int, BigInt], Map.empty[Int, BigInt], None)
+        val (itf, free, analysisTime) =
+          PostProcess.parseSummaryFile(p, Some(Default), Some(Monosat)) match
+            case Some(value) => (value._1, value._2, Some(value._3))
+            case None => (Map.empty[Int, BigInt], Map.empty[Int, BigInt], None)
 
         val semanticsReduction =
-          if (itf.nonEmpty) Some(p.computeSemanticReduction()) else None
+          if (itf.nonEmpty) Some(p.computeSemanticReduction(Monosat, Default))
+          else None
         val graphReduction =
-          if (itf.nonEmpty) Some(p.computeGraphReduction()) else None
+          if (itf.nonEmpty) Some(p.computeGraphReduction(Monosat, Default))
+          else None
 
         p.fullName -> ExperimentResults(
           p.initiators.size,

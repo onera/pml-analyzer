@@ -20,6 +20,10 @@ package onera.pmlanalyzer.views.interference.exporters
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}
@@ -49,16 +53,23 @@ object SemanticsExporter {
         file
       }
 
-      def exportSemanticReduction()(using
+      def exportSemanticReduction(
+          implm: SolverImplm = Monosat,
+          method: Method = Default
+      )(using
           ev: Analyse[T],
           p: Provided[T, Hardware]
       ): File = {
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticsReductionFileName(self)
+          FileManager.getSemanticsReductionFileName(
+            self,
+            Some(method),
+            Some(implm)
+          )
         )
         val writer = new FileWriter(file)
         writer.write("Semantics Reduction is\n")
-        writer.write(self.computeSemanticReduction().toString())
+        writer.write(self.computeSemanticReduction(implm, method).toString())
         writer.close()
         file
       }

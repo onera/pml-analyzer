@@ -1,0 +1,4 @@
+*.txt filter=lfs diff=lfs merge=lfs -text
+AUTHORS.txt filter= diff= merge= text
+lesser.txt filter= diff= merge= text
+minimalBuildSBT.txt filter= diff= merge= text

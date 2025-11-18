@@ -19,6 +19,8 @@ package onera.pmlanalyzer.views.interference
 
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
@@ -45,40 +47,54 @@ object InterferenceTestExtension {
 
     def test(
         max: Int,
-        expectedResultsDirectoryPath: String
+        expectedResultsDirectoryPath: String,
+        implm: SolverImplm,
+        method: Method
     ): Future[Seq[Seq[MultiTransactionComparison]]] = {
       x.computeKInterference(
         List(max, x.initiators.size).min,
         ignoreExistingAnalysisFiles = true,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm,
+        method
       ) map { resultFiles =>
         {
           for {
             i <- 2 to List(max, x.initiators.size).min
             fileITF <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x, i)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x, i, None, None)}"
             )
             fileFree <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i, None, None)}"
             )
             rITFFile <- resultFiles.find(
-              _.getName == FileManager.getInterferenceAnalysisITFFileName(x, i)
+              _.getName == FileManager.getInterferenceAnalysisITFFileName(
+                x,
+                i,
+                Some(method),
+                Some(implm)
+              )
             )
             rFreeFile <- resultFiles.find(
-              _.getName == FileManager.getInterferenceAnalysisFreeFileName(x, i)
+              _.getName == FileManager.getInterferenceAnalysisFreeFileName(
+                x,
+                i,
+                Some(method),
+                Some(implm)
+              )
             )
           } yield {
-            List(fileITF, fileFree)
+            List((fileITF, false), (fileFree, true))
               .zip(List(rITFFile, rFreeFile))
               .flatMap(p => {
-                val expected = PostProcess.parseMultiTransactionFile(p._1)
+                val expected = PostProcess.parseMultiTransactionFile(p._1._1)
                 val found =
                   PostProcess.parseMultiTransactionFile(Source.fromFile(p._2))
-                expected.diff(found).map(s => Missing(s)) ++ found
+                expected.diff(found).map(s => Missing(s, p._1._2)) ++ found
                   .diff(expected)
-                  .map(s => Unknown(s))
+                  .map(s => Unknown(s, p._1._2))
               })
           }
         }
@@ -98,13 +114,18 @@ object InterferenceTestExtension {
 }
 
 sealed trait MultiTransactionComparison {
+  val isFree: Boolean
   val s: Seq[String]
 }
 
-final case class Missing(s: Seq[String]) extends MultiTransactionComparison {
-  override def toString: String = s.mkString("||") + " not found"
+final case class Missing(s: Seq[String], isFree: Boolean)
+    extends MultiTransactionComparison {
+  override def toString: String =
+    s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not found"
 }
 
-final case class Unknown(s: Seq[String]) extends MultiTransactionComparison {
-  override def toString: String = s.mkString("||") + " not expected"
+final case class Unknown(s: Seq[String], isFree: Boolean)
+    extends MultiTransactionComparison {
+  override def toString: String =
+    s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not expected"
 }

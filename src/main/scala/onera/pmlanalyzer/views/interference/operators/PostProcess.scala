@@ -22,32 +22,65 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
 import java.io.{File, FileWriter}
-import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.io.{BufferedSource, Source}
-import scala.math.Ordering.Implicits._
+import scala.math.Ordering.Implicits.*
 
 /** Base trait providing proof that an element is post processable
   * @tparam T
   *   the type of the component (contravariant)
   */
 private[operators] trait PostProcess[-T] {
-  def interferenceDiff(x: T, that: Platform): Seq[File]
+  def interferenceDiff(
+      x: T,
+      that: Platform,
+      method: Method,
+      implm: SolverImplm
+  ): Seq[File]
 
-  def parseITFMultiTransactionFile(x: T): Array[Seq[String]]
+  def parseITFMultiTransactionFile(
+      x: T,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
-  def parseITFMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
+  def parseITFMultiTransactionFile(
+      x: T,
+      n: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
-  def parseFreeMultiTransactionFile(x: T, n: Int): Array[Seq[String]]
+  def parseFreeMultiTransactionFile(
+      x: T,
+      n: Int,
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 
-  def sortPLByITFImpact(x: T, max: Option[Int]): Future[Set[File]]
+  def sortPLByITFImpact(
+      x: T,
+      max: Option[Int],
+      implm: SolverImplm,
+      method: Method
+  ): Future[Set[File]]
 
-  def sortMultiPathByITFImpact(x: T, max: Option[Int]): Future[Set[File]]
+  def sortMultiPathByITFImpact(
+      x: T,
+      max: Option[Int],
+      implm: SolverImplm,
+      method: Method
+  ): Future[Set[File]]
 
 }
 
@@ -90,8 +123,10 @@ object PostProcess {
         *   the location of the result files
         */
       def interferenceDiff(that: Platform)(using
-          ev: PostProcess[T]
-      ): Seq[File] = ev.interferenceDiff(self, that)
+          ev: PostProcess[T],
+          method: Method,
+          implm: SolverImplm
+      ): Seq[File] = ev.interferenceDiff(self, that, method, implm)
 
       /** Try to find and parse itf results for the considered element
         * @param ev
@@ -100,9 +135,11 @@ object PostProcess {
         *   the set of multi-transaction identifiers that are n-itf
         */
       def parseITFMultiTransactionFile()(using
-          ev: PostProcess[T]
+          ev: PostProcess[T],
+          method: Option[Method],
+          implm: Option[SolverImplm]
       ): Array[Seq[String]] =
-        ev.parseITFMultiTransactionFile(self)
+        ev.parseITFMultiTransactionFile(self, method, implm)
 
       /** Try to find and parse the n-itf results for the considered element
         * @param n
@@ -113,8 +150,11 @@ object PostProcess {
         *   the set of multi-transaction identifiers that are n-itf
         */
       def parseITFMultiTransactionFile(n: Int)(using
-          ev: PostProcess[T]
-      ): Array[Seq[String]] = ev.parseITFMultiTransactionFile(self, n)
+          ev: PostProcess[T],
+          method: Option[Method],
+          implm: Option[SolverImplm]
+      ): Array[Seq[String]] =
+        ev.parseITFMultiTransactionFile(self, n, method, implm)
 
       /** Try to find and parse the n-itf-free results for the considered
         * element
@@ -125,9 +165,14 @@ object PostProcess {
         * @return
         *   the set of multi-transaction identifiers that are interference free
         */
-      def parseFreeMultiTransactionFile(n: Int)(using
+      def parseFreeMultiTransactionFile(
+          n: Int,
+          method: Option[Method],
+          implm: Option[SolverImplm]
+      )(using
           ev: PostProcess[T]
-      ): Array[Seq[String]] = ev.parseFreeMultiTransactionFile(self, n)
+      ): Array[Seq[String]] =
+        ev.parseFreeMultiTransactionFile(self, n, method, implm)
 
       /** Compute for each hardware component the number of itf where
         * the component is involved in the interference channel The result is
@@ -139,10 +184,17 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortPLByITFImpact(max: Option[Int])(using
+      def sortPLByITFImpact(
+          max: Option[Int],
+          implm: SolverImplm,
+          method: Method
+      )(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortPLByITFImpact(self, max), Duration.Inf)
+        Await.result(
+          ev.sortPLByITFImpact(self, max, implm, method),
+          Duration.Inf
+        )
 
       /** Compute for each multi path transaction the number of itf
         * involving at least one of its branches The result is provided in a
@@ -154,10 +206,17 @@ object PostProcess {
         * @return
         *   the location of the result files
         */
-      def sortMultiPathByITFImpact(max: Option[Int])(using
+      def sortMultiPathByITFImpact(
+          max: Option[Int],
+          implm: SolverImplm = Monosat,
+          method: Method = Default
+      )(using
           ev: PostProcess[T]
       ): Set[File] =
-        Await.result(ev.sortMultiPathByITFImpact(self, max), Duration.Inf)
+        Await.result(
+          ev.sortMultiPathByITFImpact(self, max, implm, method),
+          Duration.Inf
+        )
     }
   }
 
@@ -170,14 +229,29 @@ object PostProcess {
     */
   given PostProcess[ConfiguredPlatform] with {
 
-    def interferenceDiff(x: ConfiguredPlatform, that: Platform): Seq[File] = {
+    def interferenceDiff(
+        x: ConfiguredPlatform,
+        that: Platform,
+        method: Method,
+        implm: SolverImplm
+    ): Seq[File] = {
       for {
         size <- 2 to Math.min(x.initiators.size, that.initiators.size)
         thisITFFile <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(x, size)
+          FileManager.getInterferenceAnalysisITFFileName(
+            x,
+            size,
+            Some(method),
+            Some(implm)
+          )
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(that, size)
+          FileManager.getInterferenceAnalysisITFFileName(
+            that,
+            size,
+            Some(method),
+            Some(implm)
+          )
         )
       } yield {
         val file = FileManager.analysisDirectory.getFile(
@@ -223,20 +297,24 @@ object PostProcess {
     }
 
     def parseITFMultiTransactionFile(
-        x: ConfiguredPlatform
+        x: ConfiguredPlatform,
+        method: Option[Method],
+        implm: Option[SolverImplm]
     ): Array[Seq[String]] =
       for {
         k <- (2 to x.initiators.size).toArray
-        sc <- parseITFMultiTransactionFile(x, k)
+        sc <- parseITFMultiTransactionFile(x, k, method, implm)
       } yield sc
 
     def parseITFMultiTransactionFile(
         x: ConfiguredPlatform,
-        n: Int
+        n: Int,
+        method: Option[Method],
+        implm: Option[SolverImplm]
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(x, n)
+          FileManager.getInterferenceAnalysisITFFileName(x, n, method, implm)
         )
       } yield {
         val s = Source.fromFile(file)
@@ -247,20 +325,24 @@ object PostProcess {
     } getOrElse Array.empty
 
     def parseFreeMultiTransactionFile(
-        x: ConfiguredPlatform
+        x: ConfiguredPlatform,
+        method: Option[Method],
+        implm: Option[SolverImplm]
     ): Array[Seq[String]] =
       for {
         k <- (2 to x.initiators.size).toArray
-        sc <- parseFreeMultiTransactionFile(x, k)
+        sc <- parseFreeMultiTransactionFile(x, k, method, implm)
       } yield sc
 
     def parseFreeMultiTransactionFile(
         x: ConfiguredPlatform,
-        n: Int
+        n: Int,
+        method: Option[Method],
+        implm: Option[SolverImplm]
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisFreeFileName(x, n)
+          FileManager.getInterferenceAnalysisFreeFileName(x, n, method, implm)
         )
       } yield {
         val s = Source.fromFile(file)
@@ -272,14 +354,18 @@ object PostProcess {
 
     def sortPLByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[Set[File]] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm,
+        method
       ) map { resultFiles =>
         resultFiles
           .filter(_.getName.contains("channel"))
@@ -344,14 +430,18 @@ object PostProcess {
 
     def sortMultiPathByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[Set[File]] =
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm,
+        method
       ) map { resultFiles =>
         {
           val multiPathsTransactions = x match {
@@ -402,14 +492,18 @@ object PostProcess {
     @deprecated("this indicator should not be used for now, not useful info")
     def sortSWByITFImpact(
         x: ConfiguredPlatform,
-        max: Option[Int]
+        max: Option[Int],
+        implm: SolverImplm = Monosat,
+        method: Method = Default
     ): Future[File] = {
       x.computeKInterference(
         max.getOrElse(x.initiators.size),
         ignoreExistingAnalysisFiles = false,
         computeSemantics = false,
         verboseResultFile = false,
-        onlySummary = false
+        onlySummary = false,
+        implm,
+        method
       ) map { resultFiles =>
         {
           val file = FileManager.analysisDirectory.getFile(
@@ -463,11 +557,17 @@ object PostProcess {
       .toMap
 
   def parseSummaryFile(
-      platform: Platform
+      platform: Platform,
+      method: Option[Method],
+      implm: Option[SolverImplm]
   ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
     for {
       file <- FileManager.analysisDirectory.locate(
-        FileManager.getInterferenceAnalysisSummaryFileName(platform)
+        FileManager.getInterferenceAnalysisSummaryFileName(
+          platform,
+          method,
+          implm
+        )
       )
     } yield {
       val source = Source.fromFile(file)
@@ -526,10 +626,18 @@ object PostProcess {
     res
   }
 
-  def parseGraphReductionFile(platform: Platform): Option[BigDecimal] = {
+  def parseGraphReductionFile(
+      platform: Platform,
+      method: Method,
+      implm: SolverImplm
+  ): Option[BigDecimal] = {
     for {
       file <- FileManager.exportDirectory.locate(
-        FileManager.getGraphReductionFileName(platform)
+        FileManager.getGraphReductionFileName(
+          platform,
+          Some(method),
+          Some(implm)
+        )
       )
     } yield {
       val source = Source.fromFile(file)
