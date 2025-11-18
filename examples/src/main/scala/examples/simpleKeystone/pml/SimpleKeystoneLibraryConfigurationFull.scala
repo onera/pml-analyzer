@@ -15,22 +15,20 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.simpleKeystone.pml
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+/** All transaction are used
+  */
+trait SimpleKeystoneLibraryConfigurationFull
+    extends SimpleKeystoneLibraryConfiguration {
+  self: SimpleKeystonePlatform =>
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
-
+  t41_app4_wr_input_d.used
+  t211_app21_rd_input_d.used
+  t14_app1_rd_wr_L1.used
+  t212_app21_wr_d1.used
+  t221_app22_rd_d2.used
+  t222_app22_wr_output_d.used
+  t223_app22_st_dma_reg.used
+  app3_transfer.used
 }

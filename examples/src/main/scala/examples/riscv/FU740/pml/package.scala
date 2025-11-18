@@ -15,22 +15,16 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.riscv.FU740
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
-
-}
+/**
+  * Package containing an example on a simplification of a TI Keystone platform
+ *
+  * @see [[FU740Platform]] for examples of [[pml.model.hardware.Hardware]] modelling features
+  *      [[FU740SoftwareAllocation]] for examples of [[pml.model.software.Application]] modelling features
+  *      [[FU740TransactionLibrary]] for examples of transaction modelling features
+  *      [[FU740LibraryConfiguration]] for example of transaction library configuration
+  *      [[FU740LibraryConfigurationFull]] for examples of specialisation of library configurations
+  *      [[FU740Export]] for examples of platform instantiation and [[pml.exporters]] usage
+  */
+package object pml

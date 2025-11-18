@@ -15,22 +15,23 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.simpleKeystone.pml
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+/** Transaction that are always used. A user transaction is considered during
+  * the analyses if identified as so. For instance to indicate that the t11
+  * transaction defined in [[SimpleKeystoneTransactionLibrary]] is used
+  * {{{t11_app1_rd_interrupt1.used}}}
+ *
+  * @see
+  *   [[pml.operators.Use.Ops]] for operator definition
+  */
+trait SimpleKeystoneLibraryConfiguration
+    extends SimpleKeystoneTransactionLibrary
+    with SimpleSoftwareAllocation {
+  self: SimpleKeystonePlatform =>
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
+  t11_app1_rd_interrupt1.used
+  t12_app1_rd_d1.used
+  t13_app1_wr_d2.used
 
 }

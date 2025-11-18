@@ -15,22 +15,32 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.simpleKeystone.views.interference
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import examples.simpleKeystone.pml.SimpleKeystoneExport.*
+import onera.pmlanalyzer.views.interference.operators.*
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+import scala.concurrent.duration.*
+import scala.language.postfixOps
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
+/** Compute the interference of the SimpleKeystone defined in
+  * [[pml.examples.simpleKeystone.SimpleKeystoneExport]]
+  */
+object SimpleKeystoneInterferenceGeneration extends App {
+
+  for (
+    p <- Set(
+      SimpleKeystoneConfiguredFull,
+      SimpleKeystoneConfiguredNoL1,
+      SimpleKeystoneConfiguredPlanApp21,
+      SimpleKeystoneConfiguredPlanApp22
+    )
+  ) {
+
+    // Compute only up to 2-ite and 2-free
+    p.computeKInterference(2, 2 hours)
+
+    // Compute all ite and itf for benchmarks
+    p.computeAllInterference(2 hours, ignoreExistingAnalysisFiles = true)
   }
-
 }

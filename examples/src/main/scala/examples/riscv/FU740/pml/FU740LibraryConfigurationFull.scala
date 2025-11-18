@@ -15,22 +15,49 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+/**
+  * All transactions are used
+  */
+trait FU740LibraryConfigurationFull extends FU740LibraryConfiguration {
+  self: FU740Platform =>
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+  t0_0.used
+  t0_1.used
+  t0_2.used
+  t0_3.used
+  t0_4.used
+  t0_5.used
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
+  t1_0.used
+  t1_1.used
+  t1_2.used
+  t1_3.used
+  t1_6.used
+  t1_7.used
+  t1_4.used
+  t1_5.used
 
+  t2_0.used
+  t2_1.used
+  t2_2.used
+  t2_3.used
+  t2_4.used
+  t2_5.used
+  t2_6.used
+
+  t3_0.used
+  t3_1.used
+  t3_2.used
+  t3_3.used
+  t3_4.used
+  t3_5.used
+
+  t4_0.used
+  t4_1.used
+  t4_2.used
+  t4_3.used
+  t4_4.used
+  t4_5.used
 }

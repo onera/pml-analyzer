@@ -206,6 +206,16 @@ lazy val commonSettings = Seq(
   docSetting
 ) ++ dockerSettings ++ assemblySettings ++ testSettings
 
+lazy val examples = (project in file("examples"))
+  .dependsOn(PMLAnalyzer)
+  .settings(
+    scalaVersion := "3.3.5",
+    sbtVersion := "1.11.2",
+    name := "examples",
+    publish / skip := true
+  )
+
+
 // The service project is the main project containing all the sources for
 // PML modelling and analysis
 lazy val PMLAnalyzer = (project in file("."))

@@ -15,22 +15,30 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.mySys.views.interference
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import examples.mySys.pml.MySysExport.MySys
+import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.views.interference.operators.*
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+import scala.concurrent.duration.*
+import scala.language.postfixOps
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
+/** Compute the interference of the SimpleKeystone defined in
+  * [[pml.examples.mySys.MySysExport]]
+  */
+object MySysInterferenceGeneration extends App {
+
+  // Exporting the graph of all pairs of transactions
+  for {
+    ss <- MySys.purifiedTransactions.keySet.subsets(2)
+    if !MySys.finalExclusive(ss.head, ss.last)
   }
+    MySys.exportInterferenceGraph(ss)
 
+  // Compute only up to 2-ite and 2-free
+  MySys.computeKInterference(2, 2 hours)
+
+  // Compute all ite and itf for benchmarks
+  MySys.computeAllInterference(2 hours, ignoreExistingAnalysisFiles = true)
 }

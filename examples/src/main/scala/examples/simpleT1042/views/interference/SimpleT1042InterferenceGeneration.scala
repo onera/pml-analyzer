@@ -15,22 +15,30 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.simpleT1042.views.interference
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import examples.simpleT1042.pml.SimpleT1042Export.*
+import onera.pmlanalyzer.views.interference.operators.*
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+import scala.concurrent.duration.*
+import scala.language.postfixOps
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
+object SimpleT1042InterferenceGeneration extends App {
+
+  for (
+    p <- Set(
+      SimpleT1042ConfiguredFull,
+      SimpleT1042ConfiguredNoL1,
+      SimpleT1042ConfiguredPlanApp21,
+      SimpleT1042ConfiguredPlanApp22
+    )
+  ) {
+
+    // Compute only up to 2-ite and 2-free
+    p.computeKInterference(2, 2 hours)
+
+    // Compute all ite and itf for benchmarks
+    p.computeAllInterference(2 hours)
   }
 
 }

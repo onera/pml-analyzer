@@ -15,22 +15,25 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.riscv.FU740.views.interference
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import examples.riscv.FU740.pml.{FU740LibraryConfiguration, FU740Platform}
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
+import onera.pmlanalyzer.views.interference.operators.*
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+trait FU740InclusiveCacheInterferenceSpecification
+    extends PhysicalTableBasedInterferenceSpecification {
+  self: FU740Platform with FU740LibraryConfiguration =>
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
+  for {
+    (core, partition) <- u74_cluster.coreToL2Partition
+    core_complex <- u74_cluster.U74.filter(_.core == core)
+
+    s <- partition.services
+    t <- core_complex.dl1_cache.services ++ core_complex.il1_cache.services
+  } {
+    s interfereWith t
   }
 
 }

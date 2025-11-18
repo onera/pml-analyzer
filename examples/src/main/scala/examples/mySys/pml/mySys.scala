@@ -15,22 +15,17 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.mySys
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
-
-}
+/** Package containing an example on a simplification of a TI Keystone platform
+ *
+  * @see
+  *   [[MyProcPlatform]] for examples of [[pml.model.hardware.Hardware]]
+  *   modelling features [[MySysSoftwareAllocation]] for examples of
+  *   [[pml.model.software.Application]] modelling features
+  *   [[MySysTransactionLibrary]] for examples of transaction modelling
+  *   features [[MySysLibraryConfiguration]] for example of transaction library
+  *   configuration [[MySysExport]] for examples of platform instantiation and
+  *   [[pml.exporters]] usage
+  */
+package object pml

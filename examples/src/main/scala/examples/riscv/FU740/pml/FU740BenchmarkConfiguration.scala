@@ -15,22 +15,43 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+trait FU740BenchmarkConfiguration
+    extends FU740LibraryConfiguration
+    with FU740BenchmarkLibrary {
+  self: FU740Platform =>
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
-
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
-
+  Hart_0_Load_L1D.used
+  Hart_0_Store_L1D.used
+  Hart_0_Load_L2.used
+  Hart_0_Store_L2.used
+  Hart_0_Load_DDR_b0.used
+  Hart_0_Store_DDR_b0.used
+  Hart_1_Load_L1D.used
+  Hart_1_Store_L1D.used
+  Hart_1_Load_LIM.used
+  Hart_1_Store_LIM.used
+  Hart_1_Load_L2.used
+  Hart_1_Store_L2.used
+  Hart_1_Store_DDR_b0.used
+  Hart_1_Load_DDR_b0.used
+  Hart_2_Load_L1D.used
+  Hart_2_Store_L1D.used
+  Hart_2_Load_L2.used
+  Hart_2_Store_L2.used
+  Hart_2_Load_DDR_b0.used
+  Hart_2_Store_DDR_b0.used
+  Hart_3_Load_L1D.used
+  Hart_3_Store_L1D.used
+  Hart_3_Load_L2.used
+  Hart_3_Store_L2.used
+  Hart_3_Load_DDR_b0.used
+  Hart_3_Store_DDR_b0.used
+  Hart_4_Load_L1D.used
+  Hart_4_Store_L1D.used
+  Hart_4_Load_L2.used
+  Hart_4_Store_L2.used
+  Hart_4_Load_DDR_b0.used
+  Hart_4_Store_DDR_b0.used
 }

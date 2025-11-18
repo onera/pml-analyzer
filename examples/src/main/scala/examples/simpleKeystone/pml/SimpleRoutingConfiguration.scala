@@ -15,22 +15,18 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.configuration
+package examples.simpleKeystone.pml
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import onera.pmlanalyzer.pml.operators.*
 
-class MySysTransactionLibraryTest
-    extends AnyFlatSpec
-    with ScalaCheckPropertyChecks
-    with should.Matchers {
+/** Routing constraints considered for simple Keystone
+  */
+trait SimpleRoutingConfiguration {
+  self: SimpleKeystonePlatform =>
 
-  MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-    MySys.transactionByUserName.size should be(12)
-    MySys.atomicTransactions.size should be(14)
-  }
-
+  // Arm cores, ethernet and dma cannot use the periph_bus from msmc
+  ARM0.core cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
+  ARM1.core cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
+  eth cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
+  dma cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
 }
