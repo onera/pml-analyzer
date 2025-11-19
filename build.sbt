@@ -50,16 +50,13 @@ writeMinimalBuildSBT := {
 lazy val modelCode =
   taskKey[Seq[(File, String)]]("files to be embedded in docker")
 
-modelCode := {
-  val result = Seq(
+modelCode := Seq(
     (examples / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
     (examples / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
     (examples / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
     (PMLAnalyzer / Compile / baseDirectory).value / "src" / "test" -> "src/test"
   )
-  println(result)
-  result
-}
+
 
 lazy val dockerProxySetting = (for {
   httpProxy <- sys.env.get("http_proxy")
