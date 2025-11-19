@@ -71,11 +71,9 @@ lazy val dockerSettings = Seq(
     )
   ),
   modelCode := Seq(
-    "src/main/scala/onera/pmlanalyzer/pml/examples/generic" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "generic",
-    "src/main/scala/onera/pmlanalyzer/pml/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "riscv",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "riscv",
-    "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
+    "examples/src/main/scala/generic" -> (Compile / scalaSource).value / "generic",
+    "examples/src/main/scala/riscv" -> (Compile / scalaSource).value / "riscv",
+    "examples/src/main/scala/mySys" -> (Compile / scalaSource).value / "mySys",
     "src/test" -> (Compile / baseDirectory).value / "src" / "test"
   ),
   docker / dockerfile := {
