@@ -20,12 +20,14 @@ package onera.pmlanalyzer.pml.model.instances.mySys
 import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.model.specification.mySys.{MyProcInterferenceSpecification, MySysInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.mySys.{
+  MyProcInterferenceSpecification,
+  MySysInterferenceSpecification
+}
 
 object MySys
-  extends MyProcPlatform
+    extends MyProcPlatform
     with MySysLibraryConfiguration
     with MyProcRoutingConfiguration
     with MyProcInterferenceSpecification
     with MySysInterferenceSpecification
-

@@ -147,16 +147,22 @@ lazy val assemblySettings = Seq(
   }
 )
 
-lazy val versionSettings = Seq(
+lazy val compileSettings = Seq(
   scalaVersion := "3.3.5",
-  sbtVersion := "1.11.2"
+  sbtVersion := "1.11.2",
+  scalafixOnCompile := true,
+  semanticdbEnabled := true,
+  scalafmtOnCompile := true,
+  scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
+  semanticdbVersion := scalafixSemanticdb.revision,
+  scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror")
 )
 
 lazy val testSettings = Seq(
   Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-n", "UnitTests", "-n", "FastTests")
 )
 
-lazy val compileSettings = Seq(
+lazy val dependencySettings = Seq(
   resolvers += Resolver.sonatypeCentralSnapshots,
   libraryDependencies ++= Seq(
     scalaz,
@@ -192,19 +198,13 @@ lazy val publishSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  versionScheme := Some("early-semver"),
-  scalafixOnCompile := true,
-  semanticdbEnabled := true,
-  scalafmtOnCompile := true,
-  scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
-  semanticdbVersion := scalafixSemanticdb.revision,
-  scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
+  versionScheme := Some("early-semver")
 )
 
 lazy val examples = (project in file("examples"))
   .dependsOn(PMLAnalyzer)
   .settings(
-    versionSettings,
+    compileSettings,
     name := "examples",
     publish / skip := true
   )
@@ -215,8 +215,8 @@ lazy val examples = (project in file("examples"))
 lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(
-    versionSettings,
     compileSettings,
+    dependencySettings,
     docSetting,
     publishSettings,
     dockerSettings,

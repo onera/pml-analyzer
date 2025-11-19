@@ -37,7 +37,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       k: Int,
       implm: SolverImplm,
       method: Method
-  ) = {
+  ): Unit = {
     if (implm == Monosat) {
       assume(
         monosatLibraryLoaded,
