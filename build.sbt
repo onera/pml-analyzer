@@ -48,7 +48,18 @@ writeMinimalBuildSBT := {
 }
 
 lazy val modelCode =
-  taskKey[Seq[(String, File)]]("files to be embedded in docker")
+  taskKey[Seq[(File, String)]]("files to be embedded in docker")
+
+modelCode := {
+  val result = Seq(
+    (examples / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
+    (examples / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
+    (examples / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
+    (PMLAnalyzer / Compile / baseDirectory).value / "src" / "test" -> "src/test"
+  )
+  println(result)
+  result
+}
 
 lazy val dockerProxySetting = (for {
   httpProxy <- sys.env.get("http_proxy")
@@ -69,12 +80,6 @@ lazy val dockerSettings = Seq(
       repository = name.value,
       tag = Some("v" + version.value.split("\\+").head)
     )
-  ),
-  modelCode := Seq(
-    "examples/src/main/scala/generic" -> (Compile / scalaSource).value / "generic",
-    "examples/src/main/scala/riscv" -> (Compile / scalaSource).value / "riscv",
-    "examples/src/main/scala/mySys" -> (Compile / scalaSource).value / "mySys",
-    "src/test" -> (Compile / baseDirectory).value / "src" / "test"
   ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
@@ -107,7 +112,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "make")
       customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
       workDir("/home/user/code")
-      for ((to, from) <- modelCode.value)
+      for ((from, to) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
       copy(artifact, artifactTargetPath)
