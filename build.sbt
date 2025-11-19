@@ -88,7 +88,7 @@ lazy val dockerSettings = Seq(
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
     new Dockerfile {
-      from("openjdk:8")
+      from("openjdk:17")
       customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
       env("SBT_VERSION", sbtVersion.value)
       customInstruction(
