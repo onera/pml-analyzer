@@ -89,7 +89,7 @@ lazy val dockerSettings = Seq(
     val base = (Compile / baseDirectory).value
     new Dockerfile {
       from("ubuntu:latest")
-      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y openjdk-17 git graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
+      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y openjdk-17-jdk git graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
       env("SBT_VERSION", sbtVersion.value)
       customInstruction(
         "RUN",
