@@ -53,6 +53,7 @@ lazy val modelCode =
 
 modelCode := Seq(
     (examples / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
+    (examples / Compile / scalaSource).value / "keystone" -> "src/main/scala/keystone",
     (examples / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
     (examples / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
     (PMLAnalyzer / Compile / baseDirectory).value / "src" / "test" -> "src/test"
