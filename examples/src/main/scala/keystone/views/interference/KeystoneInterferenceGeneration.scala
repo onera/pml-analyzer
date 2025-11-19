@@ -11,10 +11,11 @@ import scala.language.postfixOps
 
 object KeystoneInterferenceGeneration extends App {
 
-  object KeystoneWithRosace extends KeystonePlatform
-    with RosaceConfiguration
-    with KeystoneRoutingConstraints
-    with RosaceInterferenceSpecification
-  
+  object KeystoneWithRosace
+      extends KeystonePlatform
+      with RosaceConfiguration
+      with KeystoneRoutingConstraints
+      with RosaceInterferenceSpecification
+
   KeystoneWithRosace.computeAllInterference(2 hours)
 }

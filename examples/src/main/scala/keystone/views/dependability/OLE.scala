@@ -6,7 +6,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-enum OLE(i:Int, n:String) extends BaseEnumeration(i,n) {
+enum OLE(i: Int, n: String) extends BaseEnumeration(i, n) {
 
   case Erroneous extends OLE(3, "erroneous")
   case Lost extends OLE(2, "lost")
@@ -16,11 +16,12 @@ enum OLE(i:Int, n:String) extends BaseEnumeration(i,n) {
 
 object OLE {
 
-  def containerShadow(init: OLE, containerFM: OLE): OLE = (init, containerFM) match {
-    case (Lost, _) | (_, Lost) => Lost
-    case (Erroneous, _) | (_, Erroneous) => Erroneous
-    case _ => OK
-  }
+  def containerShadow(init: OLE, containerFM: OLE): OLE =
+    (init, containerFM) match {
+      case (Lost, _) | (_, Lost)           => Lost
+      case (Erroneous, _) | (_, Erroneous) => Erroneous
+      case _                               => OK
+    }
 
   def corruptingFM(fm: OLE): Boolean = fm == Erroneous
 
