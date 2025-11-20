@@ -18,15 +18,11 @@
 package onera.pmlanalyzer.views.interference.model.formalisation
 
 import monosat.Lit
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
-  Choco,
-  Monosat
-}
+import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.views.interference.model.formalisation
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{CPSat, Choco, GCode, Monosat}
 import org.chocosolver.solver.Model as ChocoModel
-import org.chocosolver.solver.constraints.{
-  Operator,
-  Constraint as ChocoConstraint
-}
+import org.chocosolver.solver.constraints.{Operator, Constraint as ChocoConstraint}
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
 import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
@@ -39,6 +35,8 @@ import scala.jdk.CollectionConverters.*
 enum SolverImplm {
   case Monosat extends SolverImplm
   case Choco extends SolverImplm
+  case GCode extends SolverImplm
+  case CPSat extends SolverImplm
 }
 
 sealed trait Solver {
@@ -69,7 +67,7 @@ sealed trait Solver {
   def close(): Unit
 }
 
-class ChocoSolver extends Solver {
+final class ChocoSolver extends Solver {
   type BoolLit = BoolVar
   type GraphLit = UndirectedGraphVar
   type Constraint = ChocoConstraint
@@ -233,7 +231,7 @@ class ChocoSolver extends Solver {
   def close(): Unit = {}
 }
 
-class MonoSatSolver extends Solver {
+final class MonoSatSolver extends Solver {
   type BoolLit = monosat.Lit
   type GraphLit = monosat.Graph
   type Constraint = monosat.Lit
@@ -365,11 +363,100 @@ class MonoSatSolver extends Solver {
   def close(): Unit = solver.close()
 }
 
+abstract class MiniZinc extends Solver {
+  type Expression = String
+  type BoolLit = String
+  type GraphLit = this.type
+  type Constraint = String
+
+  private val boolLitCache = mutable.Map.empty[MLit, String]
+
+  //FIXME First step with file, but consider Stream from terminal
+  private val miniZincFile: File =
+    FileManager.analysisDirectory.getFile("exportMiniZinc.mzn")
+  protected val fileWriter = FileWriter(miniZincFile)
+
+  def assert(lt: Expr | Connected): Unit =
+    fileWriter.write(
+      s"constraint(${lt match {
+          case e: Expr      => e.toExpr(this)
+          case c: Connected => c.toConstraint(this)
+        }});\n"
+    )
+
+  def assertPB(l: Seq[ALit], c: Comparator, k: Int): Unit =
+    fileWriter.write(
+      s"constraint(${l.mkString("(", " + ", ")")}${c match {
+          case Comparator.LT => "<"
+          case Comparator.LE => "<="
+          case Comparator.EQ => "="
+          case Comparator.GE => ">="
+          case Comparator.GT => ">"
+        }});\n"
+    )
+
+  def graphLit(g: MGraph): GraphLit = ???
+
+  def boolLit(a: MLit): BoolLit =
+    boolLitCache.getOrElseUpdate(
+      a, {
+        fileWriter.write(s"var bool: ${a.id.name};\n")
+        a.id.name
+      }
+    )
+
+  def getEdge(g: MGraph, id: String): Option[BoolLit] = ???
+
+  def getNode(g: MGraph, id: String): Option[BoolLit] = ???
+
+  def and(l: Seq[Expr]): Expression =
+    l.mkString("(", "/\\",")")
+
+  def or(l: Seq[Expr]): Expression = ???
+
+  def implies(l: Expr, r: Expr): Expression = ???
+
+  def eq(l: Expr, r: Expr): Expression = ???
+
+  def not(l: Expr): Expression = ???
+
+  def connected(g: MGraph): Constraint = ???
+
+  def exportGraph(g: MGraph, file: File): File = ???
+
+  def close(): Unit = ???
+
+  protected def enumerateSolution(toGet: Set[MLit], implm:SolverImplm): mutable.Set[Set[MLit]] = {
+    fileWriter.flush()
+    fileWriter.close()
+    ???
+  }
+}
+
+final class GCode extends MiniZinc {
+
+  val implm: SolverImplm = GCode
+
+  def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] =
+    enumerateSolution(toGet, GCode)
+
+}
+
+final class CPSat extends MiniZinc {
+
+  val implm: SolverImplm = CPSat
+
+  def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] =
+    enumerateSolution(toGet, CPSat)
+}
+
 object Solver {
   def apply(implm: SolverImplm): Solver = {
     implm match {
-      case SolverImplm.Monosat => MonoSatSolver()
-      case SolverImplm.Choco   => ChocoSolver()
+      case SolverImplm.Monosat  => MonoSatSolver()
+      case SolverImplm.Choco    => ChocoSolver()
+      case SolverImplm.GCode => GCode()
+      case SolverImplm.CPSat => CPSat()
     }
   }
 }
