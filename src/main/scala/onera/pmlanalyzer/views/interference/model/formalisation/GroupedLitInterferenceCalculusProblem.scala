@@ -30,22 +30,8 @@ import scalaz.Memo.immutableHashMapMemo
 
 import scala.collection.immutable.SortedMap
 
-final case class GroupedLitInterferenceCalculusProblem(
-    atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
-    idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
-    exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
-    exclusiveWithTr: Map[PhysicalTransactionId, Set[
-      PhysicalTransactionId
-    ]],
-    interfereWith: Map[Service, Set[Service]],
-    maxSize: Option[Int],
-    finalUserTransactionExclusiveOpt: Option[
-      Map[UserTransactionId, Set[UserTransactionId]]
-    ],
-    transactionUserNameOpt: Option[
-      Map[Set[AtomicTransactionId], Set[UserTransactionId]]
-    ]
-) extends InterferenceCalculusProblem
+final case class GroupedLitInterferenceCalculusProblem(system:TopologicalInterferenceSystem) 
+  extends InterferenceCalculusProblem
     with GroupedLitDecoder {
 
   private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
@@ -70,7 +56,7 @@ final case class GroupedLitInterferenceCalculusProblem(
   // DEFINITION OF VARIABLES
 
   // association of the simple transaction path to its formatted name
-  private val initialPathT = idToTransaction.to(SortedMap)
+  private val initialPathT = system.idToTransaction.to(SortedMap)
 
   // the actual path will be the service that can be a channel, ie
   // a service that is a service (or exclusive to a service) of a different and non exclusive transaction
@@ -81,12 +67,12 @@ final case class GroupedLitInterferenceCalculusProblem(
     initialPathT.view
       .mapValues(s =>
         s.map(t =>
-          atomicTransactions(t).filter(s =>
-            atomicTransactions.keySet.exists(t2 =>
+          system.atomicTransactions(t).filter(s =>
+            system.atomicTransactions.keySet.exists(t2 =>
               t != t2 &&
-                !exclusiveWithATr(t).contains(t2) &&
-                atomicTransactions(t2)
-                  .exists(s2 => s2 == s || interfereWith(s2).contains(s))
+                !system.exclusiveWithATr(t).contains(t2) &&
+                system.atomicTransactions(t2)
+                  .exists(s2 => s2 == s || system.interfereWith(s2).contains(s))
             )
           )
         )
@@ -94,7 +80,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       .toMap
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
-  private val serviceToNodes = interfereWith.transform((k, v) =>
+  private val serviceToNodes = system.interfereWith.transform((k, v) =>
     if (v.isEmpty)
       Set(addNode(Set(k)))
     else
@@ -187,8 +173,8 @@ final case class GroupedLitInterferenceCalculusProblem(
     (l, trs) <- groupedLitToTransactions
     (l2, trs2) <- groupedLitToTransactions
     if l != l2
-    if trs.forall(t => trs2.subsetOf(exclusiveWithTr(t)))
-      || trs2.forall(t => trs.subsetOf(exclusiveWithTr(t)))
+    if trs.forall(t => trs2.subsetOf(system.exclusiveWithTr(t)))
+      || trs2.forall(t => trs.subsetOf(system.exclusiveWithTr(t)))
   } yield Not(And(Seq(l, l2)))
 
   private val nonExclusive =

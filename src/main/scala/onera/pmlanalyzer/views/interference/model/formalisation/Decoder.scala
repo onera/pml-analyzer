@@ -22,16 +22,11 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
 trait Decoder {
+  val system:TopologicalInterferenceSystem
   val variables: Set[MLit]
   val graph: MGraph
-  val maxSize: Option[Int]
   val nodeToTransaction: Map[MNode, Set[PhysicalTransactionId]]
   val nodeToServices: Map[MNode, Set[Service]]
-  val idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction]
-  val finalUserTransactionExclusiveOpt
-      : Option[Map[UserTransactionId, Set[UserTransactionId]]]
-  val transactionUserNameOpt
-      : Option[Map[Set[AtomicTransactionId], Set[UserTransactionId]]]
   val litToNode: Map[MLit, Set[MNode]]
 
   def decodeTrivialSolutions(implm: SolverImplm): Seq[
@@ -49,7 +44,7 @@ trait Decoder {
   ): Set[Set[PhysicalTransactionId]]
 
   def decodeChannel(model: Set[PhysicalTransactionId]): Channel = {
-    if (maxSize.exists(model.size > _))
+    if (system.maxSize.exists(model.size > _))
       Set.empty
     else
       nodeToTransaction.keySet
@@ -62,12 +57,12 @@ trait Decoder {
   ): Set[Set[UserTransactionId]] = {
     if (physicalModel.isEmpty)
       Set.empty
-    else if (maxSize.exists(physicalModel.size > _))
+    else if (system.maxSize.exists(physicalModel.size > _))
       Set.empty
     else {
-      transactionUserNameOpt match {
+      system.transactionUserNameOpt match {
         case Some(transactionUserName) => {
-          val transaction = idToTransaction.view
+          val transaction = system.idToTransaction.view
             .filterKeys(physicalModel)
             .toMap
 
@@ -82,7 +77,7 @@ trait Decoder {
             .foldLeft(userNames.values.head.map(n => Set(n)))((acc, names) =>
               for {
                 p <- acc
-                last <- finalUserTransactionExclusiveOpt match {
+                last <- system.finalUserTransactionExclusiveOpt match {
                   case Some(finalUserTransactionExclusive) =>
                     val x = names.filter(id =>
                       finalUserTransactionExclusive(id).intersect(p).isEmpty

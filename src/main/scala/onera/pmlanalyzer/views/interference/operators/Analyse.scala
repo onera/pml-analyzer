@@ -17,7 +17,6 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
-import monosat.Logic.*
 import com.github.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
@@ -28,10 +27,8 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
-import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
-import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
+import onera.pmlanalyzer.views.interference.model.formalisation.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
@@ -39,14 +36,11 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 }
 
 import java.io.{File, FileWriter}
-import scala.collection.immutable.SortedMap
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.*
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.io.Source
-import scala.jdk.CollectionConverters.*
 import scala.concurrent.duration.*
+import scala.concurrent.{Await, Future}
+import scala.jdk.CollectionConverters.*
 import scala.language.postfixOps
 
 /** Base trait providing proof that an element is analysable with monosat
@@ -736,27 +730,10 @@ object Analyse {
         }
     }
 
-    private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
-      List(l, r).map(_.id.name).sorted.mkString("--")
-    )
-
-    private def nodeId(s: Set[Service]): NodeId = Symbol(
-      s.toList.map(_.toString).sorted.mkString("<", "$", ">")
-    )
-
-    /** Definition of the core problem without cardinality constraints on
-      * interference sets
-      *
-      * @param platform
-      *   the platform on which the interference analysis is performed
-      * @return
-      *   the variables and constraints to be instantiated in a MONOSAT Solver
-      */
-    private def computeProblem(
+    private def computeSystem(
         platform: ConfiguredPlatform,
-        maxSize: Int,
-        method: Method
-    ): InterferenceCalculusProblem with Decoder = {
+        maxSize: Int
+    ): TopologicalInterferenceSystem = {
       val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
         platform.relationToMap(
           platform.purifiedAtomicTransactions.keySet,
@@ -787,34 +764,46 @@ object Analyse {
             Some(lib.transactionUserName)
           case _ => None
         }
+      TopologicalInterferenceSystem(
+        platform.purifiedAtomicTransactions,
+        platform.purifiedTransactions,
+        exclusiveWithATr,
+        exclusiveWithTr,
+        interfereWith: Map[Service, Set[Service]],
+        Some(maxSize),
+        finalUserTransactionExclusiveOpt: Option[
+          Map[UserTransactionId, Set[UserTransactionId]]
+        ],
+        transactionUserNameOpt,
+        platform.fullName
+      )
+    }
+
+    /** Definition of the core problem without cardinality constraints on
+      * interference sets
+      *
+      * @param platform
+      *   the platform on which the interference analysis is performed
+      * @return
+      *   the variables and constraints to be instantiated in a MONOSAT Solver
+      */
+    private def computeProblem(
+        platform: ConfiguredPlatform,
+        maxSize: Int,
+        method: Method
+    ): InterferenceCalculusProblem with Decoder =
+      computeProblem(computeSystem(platform, maxSize), method)
+
+    private def computeProblem(
+        system: TopologicalInterferenceSystem,
+        method: Method
+    ): InterferenceCalculusProblem with Decoder = {
 
       method match {
         case Method.GroupedLitBased =>
-          GroupedLitInterferenceCalculusProblem(
-            platform.purifiedAtomicTransactions,
-            platform.purifiedTransactions,
-            exclusiveWithATr,
-            exclusiveWithTr,
-            interfereWith: Map[Service, Set[Service]],
-            Some(maxSize),
-            finalUserTransactionExclusiveOpt: Option[
-              Map[UserTransactionId, Set[UserTransactionId]]
-            ],
-            transactionUserNameOpt
-          )
+          GroupedLitInterferenceCalculusProblem(system)
         case Method.Default =>
-          DefaultInterferenceCalculusProblem(
-            platform.purifiedAtomicTransactions,
-            platform.purifiedTransactions,
-            exclusiveWithATr,
-            exclusiveWithTr,
-            interfereWith: Map[Service, Set[Service]],
-            Some(maxSize),
-            finalUserTransactionExclusiveOpt: Option[
-              Map[UserTransactionId, Set[UserTransactionId]]
-            ],
-            transactionUserNameOpt
-          )
+          DefaultInterferenceCalculusProblem(system)
       }
     }
 

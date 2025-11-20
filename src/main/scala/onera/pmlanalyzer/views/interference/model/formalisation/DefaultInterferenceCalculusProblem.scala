@@ -32,22 +32,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 import scalaz.Memo.immutableHashMapMemo
 
-final case class DefaultInterferenceCalculusProblem(
-    atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
-    idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
-    exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
-    exclusiveWithTr: Map[PhysicalTransactionId, Set[
-      PhysicalTransactionId
-    ]],
-    interfereWith: Map[Service, Set[Service]],
-    maxSize: Option[Int],
-    finalUserTransactionExclusiveOpt: Option[
-      Map[UserTransactionId, Set[UserTransactionId]]
-    ],
-    transactionUserNameOpt: Option[
-      Map[Set[AtomicTransactionId], Set[UserTransactionId]]
-    ]
-) extends InterferenceCalculusProblem
+final case class DefaultInterferenceCalculusProblem(system:TopologicalInterferenceSystem) extends InterferenceCalculusProblem
     with DefaultDecoder {
 
   private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
@@ -68,13 +53,13 @@ final case class DefaultInterferenceCalculusProblem(
 
   private val transactionVar =
     (for {
-      id <- idToTransaction.keySet
+      id <- system.idToTransaction.keySet
     } yield id -> MLit(id.id)).toMap
 
   // Add constraint C^1_{\Sys} i.e. transactions should not be exclusive
   private val exclusiveCst =
     for {
-      (tr, exTrS) <- exclusiveWithTr.toSeq
+      (tr, exTrS) <- system.exclusiveWithTr.toSeq
       ex = exTrS - tr // removing tr to avoid var => not var
       if ex.nonEmpty
     } yield {
@@ -85,10 +70,10 @@ final case class DefaultInterferenceCalculusProblem(
   // Add constraint C^2_{\Sys} cardinality constraint
 
   // association of the simple transaction path to its formatted name
-  private val initialPathT = idToTransaction
+  private val initialPathT = system.idToTransaction
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
-  private val serviceToNodes = interfereWith.transform((k, v) =>
+  private val serviceToNodes = system.interfereWith.transform((k, v) =>
     if (v.isEmpty)
       Set(addNode(Set(k)))
     else
@@ -101,11 +86,11 @@ final case class DefaultInterferenceCalculusProblem(
     } yield {
       t -> (for {
         at <- atSet
-        t2 <- initialPathT.keySet -- exclusiveWithTr(t) - t
-        at2 <- initialPathT(t2) -- exclusiveWithATr(at) - at
-        s <- atomicTransactions(at)
-        s2 <- atomicTransactions(at2)
-        if s == s2 || interfereWith(s2).contains(s)
+        t2 <- initialPathT.keySet -- system.exclusiveWithTr(t) - t
+        at2 <- initialPathT(t2) -- system.exclusiveWithATr(at) - at
+        s <- system.atomicTransactions(at)
+        s2 <- system.atomicTransactions(at2)
+        if s == s2 || system.interfereWith(s2).contains(s)
         n <- serviceToNodes(s)
       } yield n)
     }).toMap

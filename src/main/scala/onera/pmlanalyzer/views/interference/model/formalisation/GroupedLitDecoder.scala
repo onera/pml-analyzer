@@ -27,11 +27,9 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 trait GroupedLitDecoder extends Decoder {
 
+  val system: TopologicalInterferenceSystem
   val groupedLitToTransactions: Map[MLit, Set[PhysicalTransactionId]]
   val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]]
-  val exclusiveWithTr: Map[PhysicalTransactionId, Set[
-    PhysicalTransactionId
-  ]]
 
   def decodeTrivialSolutions(implm: SolverImplm): Seq[
     (
@@ -57,7 +55,7 @@ trait GroupedLitDecoder extends Decoder {
       implm: SolverImplm
   ): Set[Set[PhysicalTransactionId]] = {
     // Do not consider models that are above the max size
-    if (maxSize.exists(model.size > _))
+    if (system.maxSize.exists(model.size > _))
       Set.empty
     // if the model is a single group of transactions containing only one physical transaction
     // then it cannot be a model (at least two transactions are needed)
@@ -84,7 +82,7 @@ trait GroupedLitDecoder extends Decoder {
           Implies(
             kv._2,
             And(
-              exclusiveWithTr(kv._1)
+              system.exclusiveWithTr(kv._1)
                 .intersect(trVariables.keySet)
                 .map(trVariables)
                 .map(Not.apply)
@@ -103,7 +101,7 @@ trait GroupedLitDecoder extends Decoder {
         )
       )
       // the model cannot contain more that maxSize transaction
-      for { m <- maxSize } yield s.assertPB(
+      for { m <- system.maxSize } yield s.assertPB(
         trVariables.values.toSeq,
         LE,
         m
