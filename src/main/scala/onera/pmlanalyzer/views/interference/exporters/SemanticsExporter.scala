@@ -43,7 +43,7 @@ object SemanticsExporter {
         val semantics =
           self.getSemanticsSize(ignoreExistingFiles).toSeq.sortBy(_._1)
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getSemanticSizeFileName(self)
+          FileManager.getSemanticSizeFileName(self.fullName)
         )
         val writer = new FileWriter(file)
         writer.write("Multi-transaction cardinal, Number\n")
@@ -62,7 +62,7 @@ object SemanticsExporter {
       ): File = {
         val file = FileManager.exportDirectory.getFile(
           FileManager.getSemanticsReductionFileName(
-            self,
+            self.fullName,
             Some(method),
             Some(implm)
           )

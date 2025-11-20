@@ -105,68 +105,68 @@ object FileManager {
   }
 
   def getInterferenceAnalysisITFFileName(
-      platform: Platform,
+      platformName: String,
       size: Int,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}itf_$size.txt"
+    s"${platformName}_$methodS${implmS}itf_$size.txt"
   }
 
   def getInterferenceAnalysisFreeFileName(
-      platform: Platform,
+      platformName: String,
       size: Int,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}free_$size.txt"
+    s"${platformName}_$methodS${implmS}free_$size.txt"
   }
 
   def getInterferenceAnalysisChannelFileName(
-      platform: Platform,
+      platformName: String,
       size: Int,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}channel_$size.txt"
+    s"${platformName}_$methodS${implmS}channel_$size.txt"
   }
 
   def getInterferenceAnalysisSummaryFileName(
-      platform: Platform,
+      platformName: String,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}itf_calculus_summary.txt"
+    s"${platformName}_$methodS${implmS}itf_calculus_summary.txt"
   }
 
-  def getSemanticSizeFileName(platform: Platform): String =
-    s"${platform.fullName}_semanticsSize.txt"
+  def getSemanticSizeFileName(platformName: String): String =
+    s"${platformName}_semanticsSize.txt"
 
   def getSemanticsReductionFileName(
-      platform: Platform,
+      platformName: String,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}semantics_reduction.txt"
+    s"${platformName}_$methodS${implmS}semantics_reduction.txt"
   }
 
   def getGraphReductionFileName(
-      platform: Platform,
+      platformName: String,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
     val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
-    s"${platform.fullName}_$methodS${implmS}graph_reduction.txt"
+    s"${platformName}_$methodS${implmS}graph_reduction.txt"
   }
 }

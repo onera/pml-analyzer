@@ -64,14 +64,14 @@ object InterferenceTestExtension {
           for {
             i <- 2 to List(max, x.initiators.size).min
             fileITF <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x.fullName, i, None, None)}"
             )
             fileFree <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x.fullName, i, None, None)}"
             )
             rITFFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisITFFileName(
-                x,
+                x.fullName,
                 i,
                 Some(method),
                 Some(implm)
@@ -79,7 +79,7 @@ object InterferenceTestExtension {
             )
             rFreeFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisFreeFileName(
-                x,
+                x.fullName,
                 i,
                 Some(method),
                 Some(implm)

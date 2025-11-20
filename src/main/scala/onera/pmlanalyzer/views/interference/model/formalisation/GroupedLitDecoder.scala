@@ -55,7 +55,7 @@ trait GroupedLitDecoder extends Decoder {
       implm: SolverImplm
   ): Set[Set[PhysicalTransactionId]] = {
     // Do not consider models that are above the max size
-    if (system.maxSize.exists(model.size > _))
+    if (model.size > system.maxSize)
       Set.empty
     // if the model is a single group of transactions containing only one physical transaction
     // then it cannot be a model (at least two transactions are needed)
@@ -82,7 +82,8 @@ trait GroupedLitDecoder extends Decoder {
           Implies(
             kv._2,
             And(
-              system.exclusiveWithTr(kv._1)
+              system
+                .exclusiveWithTr(kv._1)
                 .intersect(trVariables.keySet)
                 .map(trVariables)
                 .map(Not.apply)
@@ -100,11 +101,10 @@ trait GroupedLitDecoder extends Decoder {
             .toSeq
         )
       )
-      // the model cannot contain more that maxSize transaction
-      for { m <- system.maxSize } yield s.assertPB(
+      s.assertPB(
         trVariables.values.toSeq,
         LE,
-        m
+        system.maxSize
       )
       // if considering only one group, at least two transactions must be selected
       if (model.size == 1)

@@ -210,7 +210,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
     for {
       p <- platforms
       if FileManager.exportDirectory
-        .locate(FileManager.getSemanticSizeFileName(p))
+        .locate(FileManager.getSemanticSizeFileName(p.fullName))
         .isDefined
     } {
       p.exportGraphReduction()
@@ -311,13 +311,17 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       (for {
         p <- platforms
         if FileManager.exportDirectory
-          .locate(FileManager.getSemanticSizeFileName(p))
+          .locate(FileManager.getSemanticSizeFileName(p.fullName))
           .isDefined
       } yield {
         val semanticsDistribution = p.getSemanticsSize()
 
         val (itf, free, analysisTime) =
-          PostProcess.parseSummaryFile(p, Some(Default), Some(Monosat)) match
+          PostProcess.parseSummaryFile(
+            p.fullName,
+            Some(Default),
+            Some(Monosat)
+          ) match
             case Some(value) => (value._1, value._2, Some(value._3))
             case None => (Map.empty[Int, BigInt], Map.empty[Int, BigInt], None)
 

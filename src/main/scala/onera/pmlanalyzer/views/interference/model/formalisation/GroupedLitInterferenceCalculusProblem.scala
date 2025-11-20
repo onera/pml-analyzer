@@ -30,8 +30,9 @@ import scalaz.Memo.immutableHashMapMemo
 
 import scala.collection.immutable.SortedMap
 
-final case class GroupedLitInterferenceCalculusProblem(system:TopologicalInterferenceSystem) 
-  extends InterferenceCalculusProblem
+final case class GroupedLitInterferenceCalculusProblem(
+    system: TopologicalInterferenceSystem
+) extends InterferenceCalculusProblem
     with GroupedLitDecoder {
 
   private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
@@ -67,14 +68,19 @@ final case class GroupedLitInterferenceCalculusProblem(system:TopologicalInterfe
     initialPathT.view
       .mapValues(s =>
         s.map(t =>
-          system.atomicTransactions(t).filter(s =>
-            system.atomicTransactions.keySet.exists(t2 =>
-              t != t2 &&
-                !system.exclusiveWithATr(t).contains(t2) &&
-                system.atomicTransactions(t2)
-                  .exists(s2 => s2 == s || system.interfereWith(s2).contains(s))
+          system
+            .atomicTransactions(t)
+            .filter(s =>
+              system.atomicTransactions.keySet.exists(t2 =>
+                t != t2 &&
+                  !system.exclusiveWithATr(t).contains(t2) &&
+                  system
+                    .atomicTransactions(t2)
+                    .exists(s2 =>
+                      s2 == s || system.interfereWith(s2).contains(s)
+                    )
+              )
             )
-          )
         )
       )
       .toMap

@@ -239,7 +239,7 @@ object PostProcess {
         size <- 2 to Math.min(x.initiators.size, that.initiators.size)
         thisITFFile <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisITFFileName(
-            x,
+            x.fullName,
             size,
             Some(method),
             Some(implm)
@@ -247,7 +247,7 @@ object PostProcess {
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisITFFileName(
-            that,
+            that.fullName,
             size,
             Some(method),
             Some(implm)
@@ -314,7 +314,12 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisITFFileName(x, n, method, implm)
+          FileManager.getInterferenceAnalysisITFFileName(
+            x.fullName,
+            n,
+            method,
+            implm
+          )
         )
       } yield {
         val s = Source.fromFile(file)
@@ -342,7 +347,12 @@ object PostProcess {
     ): Array[Seq[String]] = {
       for {
         file <- FileManager.analysisDirectory.locate(
-          FileManager.getInterferenceAnalysisFreeFileName(x, n, method, implm)
+          FileManager.getInterferenceAnalysisFreeFileName(
+            x.fullName,
+            n,
+            method,
+            implm
+          )
         )
       } yield {
         val s = Source.fromFile(file)
@@ -557,14 +567,14 @@ object PostProcess {
       .toMap
 
   def parseSummaryFile(
-      platform: Platform,
+      platformName: String,
       method: Option[Method],
       implm: Option[SolverImplm]
   ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
     for {
       file <- FileManager.analysisDirectory.locate(
         FileManager.getInterferenceAnalysisSummaryFileName(
-          platform,
+          platformName,
           method,
           implm
         )
@@ -591,10 +601,10 @@ object PostProcess {
       (itfSizes, freeSizes, analysisTime)
     }
 
-  def parseSemanticsSizeFile(platform: Platform): Option[Map[Int, BigInt]] = {
+  def parseSemanticsSizeFile(platformName: String): Option[Map[Int, BigInt]] = {
     for {
       file <- FileManager.exportDirectory.locate(
-        FileManager.getSemanticSizeFileName(platform)
+        FileManager.getSemanticSizeFileName(platformName)
       )
     } yield {
       val source = Source.fromFile(file)
@@ -627,14 +637,14 @@ object PostProcess {
   }
 
   def parseGraphReductionFile(
-      platform: Platform,
+      platformName: String,
       method: Method,
       implm: SolverImplm
   ): Option[BigDecimal] = {
     for {
       file <- FileManager.exportDirectory.locate(
         FileManager.getGraphReductionFileName(
-          platform,
+          platformName,
           Some(method),
           Some(implm)
         )

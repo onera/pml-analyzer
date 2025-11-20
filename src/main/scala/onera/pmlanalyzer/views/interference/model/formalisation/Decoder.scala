@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
 trait Decoder {
-  val system:TopologicalInterferenceSystem
+  val system: TopologicalInterferenceSystem
   val variables: Set[MLit]
   val graph: MGraph
   val nodeToTransaction: Map[MNode, Set[PhysicalTransactionId]]
@@ -44,7 +44,7 @@ trait Decoder {
   ): Set[Set[PhysicalTransactionId]]
 
   def decodeChannel(model: Set[PhysicalTransactionId]): Channel = {
-    if (system.maxSize.exists(model.size > _))
+    if (model.size > system.maxSize)
       Set.empty
     else
       nodeToTransaction.keySet
@@ -57,7 +57,7 @@ trait Decoder {
   ): Set[Set[UserTransactionId]] = {
     if (physicalModel.isEmpty)
       Set.empty
-    else if (system.maxSize.exists(physicalModel.size > _))
+    else if (physicalModel.size > system.maxSize)
       Set.empty
     else {
       system.transactionUserNameOpt match {

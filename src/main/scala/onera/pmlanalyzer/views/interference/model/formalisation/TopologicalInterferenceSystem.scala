@@ -25,8 +25,9 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransaction,
   PhysicalTransactionId
 }
+import sourcecode.File
 
-case class TopologicalInterferenceSystem(
+final case class TopologicalInterferenceSystem(
     atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
     idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
     exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
@@ -34,12 +35,13 @@ case class TopologicalInterferenceSystem(
       PhysicalTransactionId
     ]],
     interfereWith: Map[Service, Set[Service]],
-    maxSize: Option[Int],
+    maxSize: Int,
     finalUserTransactionExclusiveOpt: Option[
       Map[UserTransactionId, Set[UserTransactionId]]
     ],
     transactionUserNameOpt: Option[
       Map[Set[AtomicTransactionId], Set[UserTransactionId]]
     ],
-    platformName: String
+    platformName: String,
+    platformSourceFile: Option[String]
 )

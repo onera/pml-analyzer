@@ -32,7 +32,9 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 import scalaz.Memo.immutableHashMapMemo
 
-final case class DefaultInterferenceCalculusProblem(system:TopologicalInterferenceSystem) extends InterferenceCalculusProblem
+final case class DefaultInterferenceCalculusProblem(
+    system: TopologicalInterferenceSystem
+) extends InterferenceCalculusProblem
     with DefaultDecoder {
 
   private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
