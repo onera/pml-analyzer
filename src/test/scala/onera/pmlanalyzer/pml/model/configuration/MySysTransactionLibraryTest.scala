@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
+import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -29,7 +29,6 @@ class MySysTransactionLibraryTest
     with should.Matchers {
 
   MySys.fullName should "contain the expected numbers of transactions" taggedAs FastTests in {
-//    MySys.transactionByUserName.size should be(10)
     MySys.transactionByUserName.size should be(12)
     MySys.atomicTransactions.size should be(14)
   }

@@ -12,13 +12,7 @@ val scalatest = "org.scalatest" %% "scalatest" % "3.2.15" % "test"
 val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
 val choco = "org.choco-solver" % "choco-solver" % "5.0.0-beta.1"
-val chocoDep = Seq(
-  "net.sf.trove4j" % "trove4j" % "3.0.3",
-  "dk.brics.automaton" % "automaton" % "1.11-8",
-  "org.jgrapht" % "jgrapht-core" % "1.4.0",
-  "org.ehcache" % "sizeof" % "0.4.3"
-)
-
+val javaBdd = "com.github.com-github-javabdd" % "com.github.javabdd" % "10.0.0"
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
@@ -55,7 +49,16 @@ writeMinimalBuildSBT := {
 }
 
 lazy val modelCode =
-  taskKey[Seq[(String, File)]]("files to be embedded in docker")
+  taskKey[Seq[(File, String)]]("files to be embedded in docker")
+
+modelCode := Seq(
+    (examples / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
+    (examples / Compile / scalaSource).value / "keystone" -> "src/main/scala/keystone",
+    (examples / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
+    (examples / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
+    (PMLAnalyzer / Compile / baseDirectory).value / "src" / "test" -> "src/test"
+  )
+
 
 lazy val dockerProxySetting = (for {
   httpProxy <- sys.env.get("http_proxy")
@@ -77,14 +80,6 @@ lazy val dockerSettings = Seq(
       tag = Some("v" + version.value.split("\\+").head)
     )
   ),
-  modelCode := Seq(
-    "src/main/scala/onera/pmlanalyzer/pml/examples/generic" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "generic",
-    "src/main/scala/onera/pmlanalyzer/pml/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "riscv",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/riscv" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "riscv",
-    "src/main/scala/onera/pmlanalyzer/pml/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "pml" / "examples" / "mySys",
-    "src/main/scala/onera/pmlanalyzer/views/interference/examples/mySys" -> (Compile / scalaSource).value / "onera" / "pmlanalyzer" / "views" / "interference" / "examples" / "mySys",
-    "src/test" -> (Compile / baseDirectory).value / "src" / "test"
-  ),
   docker / dockerfile := {
     // The assembly task generates a fat JAR file
     val artifact: File = assembly.value
@@ -93,8 +88,8 @@ lazy val dockerSettings = Seq(
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
     new Dockerfile {
-      from("openjdk:8")
-      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
+      from("ubuntu:latest")
+      customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y curl openjdk-17-jdk git graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
       env("SBT_VERSION", sbtVersion.value)
       customInstruction(
         "RUN",
@@ -107,8 +102,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "mkdir -p /home/user/code")
       customInstruction("RUN", "mkdir -p /home/user/code/lib")
       customInstruction("RUN", "mkdir -p /home/user/code/binlib")
-      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/pml")
-      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala/onera/pmlanalyzer/views/interference")
+      customInstruction("RUN", "mkdir -p /home/user/code/src/main/scala")
       customInstruction("RUN", "mkdir -p /home/user/code/src/test")
       workDir("/home/user")
       customInstruction("RUN", "git clone https://github.com/sambayless/monosat.git")
@@ -117,7 +111,7 @@ lazy val dockerSettings = Seq(
       customInstruction("RUN", "make")
       customInstruction("RUN", "cp libmonosat.so /home/user/code/binlib")
       workDir("/home/user/code")
-      for ((to, from) <- modelCode.value)
+      for ((from, to) <- modelCode.value)
         copy(from, to)
       copy((Compile / doc / target).value, "doc")
       copy(artifact, artifactTargetPath)
@@ -156,12 +150,38 @@ lazy val assemblySettings = Seq(
   }
 )
 
+lazy val compileSettings = Seq(
+  scalaVersion := "3.3.5",
+  sbtVersion := "1.11.2",
+  scalafixOnCompile := true,
+  semanticdbEnabled := true,
+  scalafmtOnCompile := true,
+  scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
+  semanticdbVersion := scalafixSemanticdb.revision,
+  scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror")
+)
+
 lazy val testSettings = Seq(
   Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-n", "UnitTests", "-n", "FastTests")
 )
 
+lazy val dependencySettings = Seq(
+  resolvers += Resolver.sonatypeCentralSnapshots,
+  libraryDependencies ++= Seq(
+    scalaz,
+    scala_xml,
+    sourceCode,
+    scalatest,
+    scalactic,
+    scalaplus,
+    parallel,
+    choco,
+    javaBdd
+  )
+)
+
 //Definition of the common settings for the projects (ie the scala version, compilation options and library resolvers)
-lazy val commonSettings = Seq(
+lazy val publishSettings = Seq(
   organization := "io.github.onera",
   homepage := Some(url("https://github.com/onera/pml-analyzer")),
   scmInfo := Some(
@@ -182,36 +202,30 @@ lazy val commonSettings = Seq(
     "LGPL-2.1",
     url("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html")
   ),
-  scalaVersion := "3.3.5",
-  sbtVersion := "1.11.2",
-  versionScheme := Some("early-semver"),
-  scalafixOnCompile := true,
-  semanticdbEnabled := true,
-  scalafmtOnCompile := true,
-  scalafixDependencies += "io.github.dedis" %% "scapegoat-scalafix" % "1.1.4",
-  semanticdbVersion := scalafixSemanticdb.revision,
-  scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Werror"),
-  resolvers += Resolver.sonatypeCentralSnapshots,
-  libraryDependencies ++= Seq(
-    scalaz,
-    scala_xml,
-    sourceCode,
-    scalatest,
-    scalactic,
-    scalaplus,
-    parallel,
-    choco
-  ),
-//  libraryDependencies ++= chocoDep,
-  docSetting
-) ++ dockerSettings ++ assemblySettings ++ testSettings
+  versionScheme := Some("early-semver")
+)
+
+lazy val examples = (project in file("examples"))
+  .dependsOn(PMLAnalyzer)
+  .settings(
+    compileSettings,
+    name := "examples",
+    publish / skip := true
+  )
+
 
 // The service project is the main project containing all the sources for
 // PML modelling and analysis
 lazy val PMLAnalyzer = (project in file("."))
   .enablePlugins(DockerPlugin)
   .settings(
-    commonSettings,
+    compileSettings,
+    dependencySettings,
+    docSetting,
+    publishSettings,
+    dockerSettings,
+    assemblySettings,
+    testSettings,
     name := "pml_analyzer",
     addCommandAlias("testPerf", "; set Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, \"-n\", \"PerfTests\", \"-l\", \"UnitTests\", \"-l\", \"FastTests\") ; test")
   )

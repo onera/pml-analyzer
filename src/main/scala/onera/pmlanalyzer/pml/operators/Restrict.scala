@@ -17,9 +17,6 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.examples.mySys.MyProcPlatform
-import onera.pmlanalyzer.pml.examples.simpleKeystone.SimpleKeystonePlatform
-import onera.pmlanalyzer.pml.examples.simpleT1042.SimpleT1042Platform
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
 import onera.pmlanalyzer.pml.model.relations.{
   AuthorizeRelation,

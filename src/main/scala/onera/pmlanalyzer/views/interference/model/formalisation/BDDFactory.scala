@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-import net.sf.javabdd.{BDD => JavaBDD, BDDFactory => JavaBDDFactory}
+import com.github.javabdd.{BDD => JavaBDD, BDDFactory => JavaBDDFactory}
 
 import scala.collection.mutable
 
@@ -608,7 +608,7 @@ trait GenBDDFactory[Var] extends BaseBDDFactory[Var, JavaBDD] {
 
   def getPathCount(bdd: JavaBDD, weights: Map[Var, Int] = Map.empty): BigInt = {
     if (weights.isEmpty)
-      BigInt(bdd.pathCount().toLong)
+      bdd.pathCount()
     else {
       val _memo = mutable.HashMap.empty[JavaBDD, BigInt]
 

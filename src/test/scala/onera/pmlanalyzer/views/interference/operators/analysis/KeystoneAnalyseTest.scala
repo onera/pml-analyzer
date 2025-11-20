@@ -31,13 +31,30 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       with KeystoneRoutingConstraints
       with RosaceInterferenceSpecification
 
+  KeystoneWithRosace.fullName should "contain the expected semantics distribution" taggedAs FastTests in {
+    val semanticsDistribution =
+      KeystoneWithRosace.getSemanticsSize(ignoreExistingFile = true)
+    semanticsDistribution(2) should be(1194)
+    semanticsDistribution(3) should be(15984)
+    semanticsDistribution(4) should be(138417)
+    semanticsDistribution(5) should be(811356)
+    semanticsDistribution(6) should be(3263780)
+    semanticsDistribution(7) should be(8904128)
+    semanticsDistribution(8) should be(15777408)
+    semanticsDistribution(9) should be(16404480)
+    semanticsDistribution(10) should be(7603200)
+    semanticsDistribution(11) should be(0)
+    semanticsDistribution(12) should be(0)
+    semanticsDistribution(13) should be(0)
+  }
+
   val kForFastTest = 4
 
   private def compareWithExpected(
       k: Int,
       implm: SolverImplm,
       method: Method
-  ) = {
+  ): Unit = {
     if (implm == Monosat) {
       assume(
         monosatLibraryLoaded,

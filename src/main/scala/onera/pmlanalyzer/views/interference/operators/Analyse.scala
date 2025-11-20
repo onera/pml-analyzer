@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import monosat.Logic.*
-import net.sf.javabdd.BDD
+import com.github.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
