@@ -18,46 +18,46 @@
 package onera.pmlanalyzer.views.interference.exporters
 
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.configuration.{Transaction, TransactionLibrary}
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.interference.model.specification.{InterferenceSpecification, TableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification
+}
 
 import java.io.FileWriter
 
 object RelationExporter {
-  
+
+  private def getWriter(name: String): FileWriter = {
+    val file = FileManager.exportDirectory.getFile(name)
+    new FileWriter(file)
+  }
+
   trait Ops {
 
     /** Implicit class used for method extension of platform to provide export
      * features
      *
-     * @param platform
+     * @param self
      * the platform providing the export features
      */
-    implicit class Ops(platform: Platform & InterferenceSpecification) {
-
-      import platform.*
-
-      private def getWriter(name: String): FileWriter = {
-        val file = FileManager.exportDirectory.getFile(name)
-        new FileWriter(file)
-      }
+    extension (self: Platform & InterferenceSpecification) {
 
       def exportServiceInterfereTable(): Unit = {
-        val writer = getWriter(s"${platform.fullName}ServiceInterfere.txt")
-        val table = platform.relationToMap(platform.services, platform.finalInterfereWith)
+        import self.*
+        val writer = getWriter(s"${fullName}ServiceInterfere.txt")
+        val table = relationToMap(self.services, finalInterfereWith)
         writer.write(
           "Service, Service(s)\n"
         )
         val toWrite = for {
           (k, v) <- table
         } yield {
-          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(",")}\n"
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
         }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -66,17 +66,21 @@ object RelationExporter {
       }
 
       def exportAtomicTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(s"${platform.fullName}AtomicTransactionExclusive.txt")
-        val table = platform.relationToMap(
-          platform.purifiedAtomicTransactions.keySet,
-          (l: AtomicTransactionId, r: AtomicTransactionId) => finalExclusive(l, r))
+        val writer = getWriter(
+          s"${self.fullName}AtomicTransactionExclusive.txt"
+        )
+        val table = self.relationToMap(
+          self.purifiedAtomicTransactions.keySet,
+          (l: AtomicTransactionId, r: AtomicTransactionId) =>
+            self.finalExclusive(l, r)
+        )
         writer.write(
           "AtomicTransactionId, AtomicTransactionId(s)\n"
         )
         val toWrite = for {
           (k, v) <- table
         } yield {
-          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(",")}\n"
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
         }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -85,15 +89,15 @@ object RelationExporter {
       }
 
       def exportTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(s"${platform.fullName}TransactionExclusive.txt")
-        val table = platform.finalExclusive(platform.purifiedTransactions.keySet)
+        val writer = getWriter(s"${self.fullName}TransactionExclusive.txt")
+        val table = self.finalExclusive(self.purifiedTransactions.keySet)
         writer.write(
-          "PhysicalTransactionId, PhysicalTransactionId(s)\n"
+          "PhysicalTransactionId, AtomicTransactionId(s)\n"
         )
         val toWrite = for {
           (k, v) <- table
         } yield {
-          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(",")}\n"
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
         }
         toWrite.toSeq.sorted
           .foreach(writer.write)
@@ -101,24 +105,72 @@ object RelationExporter {
         writer.close()
       }
 
-      def exportTransactionTable(): Unit = {
-        val writer = getWriter(s"${platform.fullName}TransactionTable.txt")
+      def exportAtomicTransactionTable(): Unit = {
+        val writer = getWriter(s"${self.fullName}AtomicTransactionTable.txt")
         writer.write(
-          "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
+          "AtomicTransactionId, Path\n"
         )
         val toWrite = for {
-          (sc,s) <- platform.purifiedTransactions
-          t = s
-            .map(purifiedAtomicTransactions)
-            .map(x =>
-              if (s.size <= 1)
-                x.mkString("::")
-              else
-                x.mkString("(", "::", ")")
-            )
-            .toSeq
-            .sorted
-        } yield s"$sc, ${t.mkString("+")}\n"
+          (a, p) <- self.purifiedAtomicTransactions
+        } yield s"$a, ${p.mkString(" :: ")}\n"
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
+        writer.flush()
+        writer.close()
+      }
+
+      def exportPhysicalTransactionTable(): Unit = {
+        val writer = getWriter(s"${self.fullName}PhysicalTransactionTable.txt")
+        writer.write(
+          "PhysicalTransactionId, AtomicTransactionId(s)\n"
+        )
+        val toWrite = for {
+          (k, v) <- self.purifiedTransactions
+        } yield {
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
+        }
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
+        writer.flush()
+        writer.close()
+      }
+    }
+
+    extension (
+        self: Platform & TransactionLibrary & InterferenceSpecification
+    ) {
+      def exportUserTransactionTable(): Unit = {
+        val writer = getWriter(s"${self.fullName}UserTransactionTable.txt")
+        writer.write(
+          "UserTransactionId, AtomicTransactionId(s)\n"
+        )
+        val purifiedAtomicTransactions = self.purifiedAtomicTransactions.keySet
+        val toWrite = for {
+          (k, v) <- self.transactionUserName
+          if k.subsetOf(purifiedAtomicTransactions)
+        } yield {
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
+        }
+        toWrite.toSeq.sorted
+          .foreach(writer.write)
+        writer.flush()
+        writer.close()
+      }
+    }
+
+    extension (
+        self: Platform & ApplicativeTableBasedInterferenceSpecification
+    ) {
+      def exportUserTransactionExclusiveTable(): Unit = {
+        val writer = getWriter(s"${self.fullName}UserTransactionExclusive.txt")
+        writer.write(
+          "UserTransactionId, UserTransactionId(s)\n"
+        )
+        val toWrite = for {
+          (k, v) <- self.finalUserTransactionExclusive
+        } yield {
+          s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
+        }
         toWrite.toSeq.sorted
           .foreach(writer.write)
         writer.flush()

@@ -196,7 +196,7 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
       p <- platforms
     } {
       p.exportRestrictedHWAndSWGraph()
-      p.exportUserTransactions()
+      p.exportUserTransactionPaths()
     }
   }
 

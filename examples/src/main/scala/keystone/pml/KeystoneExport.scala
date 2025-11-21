@@ -58,6 +58,5 @@ object KeystoneExport extends App {
   KeystoneWithRosace.exportSWTargetUsageTable()
   KeystoneWithRosace.exportRouteTable()
   KeystoneWithRosace.exportDeactivatedComponents()
-  KeystoneWithRosace.exportPhysicalTransactions()
-  KeystoneWithRosace.exportUserTransactions()
+  KeystoneWithRosace.exportUserTransactionPaths()
 }

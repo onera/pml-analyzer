@@ -17,7 +17,10 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.{Transaction, TransactionLibrary}
+import onera.pmlanalyzer.pml.model.configuration.{
+  Transaction,
+  TransactionLibrary
+}
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.software.*
@@ -26,6 +29,26 @@ import onera.pmlanalyzer.pml.operators.*
 import java.io.FileWriter
 
 object RelationExporter {
+
+  private def componentStatus(platformName: String): String =
+    s"${platformName}ComponentStatusTable.txt"
+
+  private def exportRelationFileName(
+      platformName: String,
+      r: Relation[_, _]
+  ): String =
+    s"$platformName${r.name}.txt"
+
+  private def getWriter(name: String): FileWriter = {
+    val file = FileManager.exportDirectory.getFile(name)
+    new FileWriter(file)
+  }
+
+  private def usedTransactionTable(platformName: String): String =
+    s"${platformName}UsedTransactionTable.txt"
+
+  private def userTransactionTable(platformName: String): String =
+    s"${platformName}UserTransactionTable.txt"
 
   /** If an element x contains relations then these relations can be exported.
     *
@@ -59,22 +82,8 @@ object RelationExporter {
 
     /** Implicit class used for method extension of platform to provide export
       * features
-      *
-      * @param platform
-      *   the platform providing the export features
       */
-    implicit class Ops(platform: Platform) {
-      import platform._
-      
-      private val componentStatus: String =
-        platform.fullName + "ComponentStatusTable.txt"
-      private def exportRelationFileName (r:Relation[_,_]): String =
-        s"${platform.fullName}${r.name}.txt"
-
-      private def getWriter(name: String): FileWriter = {
-        val file = FileManager.exportDirectory.getFile(name)
-        new FileWriter(file)
-      }
+    extension (self: Platform) {
 
       /** Export the table providing for each service the select next service(s)
         * w.r.t. the initiator and the target service FORMAT: Initiator,
@@ -82,14 +91,16 @@ object RelationExporter {
        * (initiator_name, target_service_name, next_service_name, source_codefilename, source_codeline )+
         */
       def exportRouteTable(): Unit = {
-        val writer = getWriter(exportRelationFileName(context.InitiatorRouting))
+        val writer = getWriter(
+          exportRelationFileName(self.fullName, self.context.InitiatorRouting)
+        )
         writer.write(
           "Initiator, TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite = for {
-          ((ini, target, router), next) <- context.InitiatorRouting.edges
+          ((ini, target, router), next) <- self.context.InitiatorRouting.edges
           n <- next
-          c <- context.InitiatorRouting.getModificationsFor(
+          c <- self.context.InitiatorRouting.getModificationsFor(
             (ini, target, router),
             Some(n)
           )
@@ -106,13 +117,15 @@ object RelationExporter {
         * FORMAT: Software, Initiator(s) (software_name(, initiator_name )+)+
         */
       def exportAllocationTable(): Unit = {
-        val writer = getWriter(exportRelationFileName(context.SWUseInitiator))
+        val writer = getWriter(
+          exportRelationFileName(self.fullName, self.context.SWUseInitiator)
+        )
         writer.write("Software, Initiator(s), SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
-            (sw, initiators) <- context.SWUseInitiator.edges
+            (sw, initiators) <- self.context.SWUseInitiator.edges
             ini <- initiators
-            c <- context.SWUseInitiator.getModificationsFor(sw, Some(ini))
+            c <- self.context.SWUseInitiator.getModificationsFor(sw, Some(ini))
           } yield {
             s"$sw, $ini, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -126,7 +139,10 @@ object RelationExporter {
         * Data, Target (data_name, target_name)+
         */
       def exportDataAllocationTable(): Unit = {
-        val writer = getWriter(exportRelationFileName(context.DataUseTarget))
+        import self.*
+        val writer = getWriter(
+          exportRelationFileName(fullName, context.DataUseTarget)
+        )
         writer.write("Data, Target, SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
@@ -146,15 +162,17 @@ object RelationExporter {
         * Service(s) (software_name(, service_name )+)+
         */
       def exportSWTargetUsageTable(): Unit = {
-        val writer = getWriter(exportRelationFileName(context.SWUseService))
+        val writer = getWriter(
+          exportRelationFileName(self.fullName, self.context.SWUseService)
+        )
         writer.write(
           "Software, Target Service(s), SourceCodeFile, SourceCodeLine\n"
         )
         val toWrite =
           for {
-            (sw, services) <- context.SWUseService.edges
+            (sw, services) <- self.context.SWUseService.edges
             s <- services
-            c <- context.SWUseService.getModificationsFor(sw, Some(s))
+            c <- self.context.SWUseService.getModificationsFor(sw, Some(s))
           } yield {
             s"$sw, $s, ${c.sourceFile}, ${c.lineInFile}\n"
           }
@@ -173,12 +191,13 @@ object RelationExporter {
         *     (Yes|No), (Yes|No))+
         */
       def exportDeactivatedComponents(): Unit = {
-        val writer = getWriter(componentStatus)
+        import self.*
+        val writer = getWriter(componentStatus(fullName))
         writer.write("Component, Activated, Used\n")
-        val restricted = platform.hardwareGraph()
+        val restricted = self.hardwareGraph()
         val hwLinks = restricted flatMap { p => p._2 map { x => (p._1, x) } }
         val used = hwLinks.flatMap { p => Set(p._1, p._2) }.toSet
-        for (c <- platform.directHardware.toSeq.sortBy(_.name.name)) {
+        for (c <- self.directHardware.toSeq.sortBy(_.name.name)) {
           if (c.services.isEmpty)
             writer.write(s"$c, No, No\n")
           else if (used.contains(c))
@@ -192,58 +211,15 @@ object RelationExporter {
     }
 
     /** Extension export methods for configured platform
-      *
-      * @param platform
-      *   the configured platforms
       */
-    implicit class OpsConfig(platform: Platform) {
-
-      private def getWriter(name: String): FileWriter = {
-        val file = FileManager.exportDirectory.getFile(name)
-        new FileWriter(file)
-      }
-
-      private val transactionTable: String =
-        platform.fullName + "UsedTransactionTable.txt"
+    extension (self: Platform with TransactionLibrary) {
 
       /** Export the transactions used by a platform FORMAT: Transaction Name,
         * Transaction Path (transaction_name, service_name(.service_name)*)+
         */
-      def exportPhysicalTransactions(): Unit = {
-        val writer = getWriter(transactionTable)
-        writer.write("Transaction Name, Transaction Path\n")
-        import platform._
-        for {
-          (n, t) <- atomicTransactionsByName.toSeq.sortBy(_.toString())
-        }
-          writer.write(s"$n, ${t.mkString("::")}\n")
-        writer.flush()
-        writer.close()
-      }
-    }
-
-    /** Extension export methods for configured platform
-      *
-      * @param platform
-      *   the configured platform with a library
-      */
-    implicit class OpsLibrary(platform: Platform with TransactionLibrary) {
-
-      import platform._
-
-      private def getWriter(name: String): FileWriter = {
-        val file = FileManager.exportDirectory.getFile(name)
-        new FileWriter(file)
-      }
-
-      private val transactionTable: String =
-        platform.fullName + "UserTransactionTable.txt"
-
-      /** Export the transactions used by a platform FORMAT: Transaction Name,
-        * Transaction Path (transaction_name, service_name(.service_name)*)+
-        */
-      def exportUserTransactions(): Unit = {
-        val writer = getWriter(transactionTable)
+      def exportUserTransactionPaths(): Unit = {
+        import self.*
+        val writer = getWriter(userTransactionTable(fullName))
         writer.write(
           "Transaction Name, Transaction Path, SourceCodeFile, SourceCodeLine\n"
         )

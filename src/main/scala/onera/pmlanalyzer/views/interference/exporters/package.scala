@@ -29,3 +29,5 @@ package object exporters
     extends IDPExporter.Ops
     with GraphExporter.Ops
     with SemanticsExporter.Ops
+    with RelationExporter.Ops
+    with TopologicalInterferenceSystemExporter.Ops
