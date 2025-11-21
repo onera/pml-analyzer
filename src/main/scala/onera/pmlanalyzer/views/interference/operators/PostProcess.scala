@@ -29,6 +29,8 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
+import fastparse._
+import fastparse.SingleLineWhitespace._
 import java.io.{File, FileWriter}
 import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.Duration
@@ -630,16 +632,43 @@ object PostProcess {
     }
   }
 
+//  def parseMultiTransactionFile(source: BufferedSource): Array[Seq[String]] = {
+//    val res = source
+//      .getLines()
+//      .filter(_.head == '<')
+//      .map(_.replaceAll("[<> ]*", ""))
+//      .map(_.split("\\|\\|").toSeq.sorted)
+//      .toArray
+//      .sortBy(_.mkString("||"))
+//    source.close()
+//    res
+//  }
+
+  private def parseAtomicTransaction[$:P] =
+    P(CharPred(x => !"\\|<> ".contains(x)).rep(min= 1).!)
+
+  private def parseTransaction[$:P] =
+    P(parseAtomicTransaction.!.rep(min= 1, sep="|"))
+      .map(_.mkString("|"))
+
+  private def parseMultiTransaction[$:P] =
+    P("<" ~ parseTransaction.!.rep(min= 2, sep="||") ~ ">")
+      .map(_.sorted)
+
+  private def parseMultiTransactions[$:P] =
+    P(parseMultiTransaction.rep)
+      .map(_.sorted)
+
   def parseMultiTransactionFile(source: BufferedSource): Array[Seq[String]] = {
-    val res = source
-      .getLines()
-      .filter(_.head == '<')
-      .map(_.replaceAll("[<> ]*", ""))
-      .map(_.split("\\|\\|").toSeq.sorted)
-      .toArray
-      .sortBy(_.mkString("||"))
-    source.close()
-    res
+    parse(source.getLines(),parseMultiTransactions) match {
+      case Parsed.Success(res,_) =>
+        source.close()
+        res.toArray
+      case f:Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Array.empty[Seq[String]]
+    }
   }
 
   def parseGraphReductionFile(

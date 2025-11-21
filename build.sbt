@@ -13,6 +13,7 @@ val scalaplus = "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0" % "test"
 val parallel = "org.scala-lang.modules" %% "scala-parallel-collections" % "1.1.0"
 val choco = "org.choco-solver" % "choco-solver" % "5.0.0-beta.1"
 val javaBdd = "com.github.com-github-javabdd" % "com.github.javabdd" % "10.0.0"
+val fastParse = "com.lihaoyi" %% "fastparse" % "3.1.1"
 
 lazy val writeMinimalBuildSBT = taskKey[File]("Write minimal build.sbt for Docker usage")
 
@@ -176,7 +177,8 @@ lazy val dependencySettings = Seq(
     scalaplus,
     parallel,
     choco,
-    javaBdd
+    javaBdd,
+    fastParse
   )
 )
 
