@@ -27,20 +27,20 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 
 final case class TopologicalInterferenceSystem(
-                                                atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
-                                                idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
-                                                exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
-                                                exclusiveWithTr: Map[PhysicalTransactionId, Set[
+    atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
+    idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
+    exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
+    exclusiveWithTr: Map[PhysicalTransactionId, Set[
       PhysicalTransactionId
     ]],
-                                                interfereWith: Map[Service, Set[Service]],
-                                                maxSize: Int,
-                                                finalUserTransactionExclusiveOpt: Option[
+    interfereWith: Map[Service, Set[Service]],
+    maxSize: Int,
+    finalUserTransactionExclusiveOpt: Option[
       Map[UserTransactionId, Set[UserTransactionId]]
     ],
-                                                transactionUserNameOpt: Option[
+    transactionUserNameOpt: Option[
       Map[Set[AtomicTransactionId], Set[UserTransactionId]]
     ],
-                                                name: String,
-                                                sourceFile: String
+    name: String,
+    sourceFile: String
 )

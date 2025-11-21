@@ -41,7 +41,7 @@ import scala.math.Ordering.Implicits.*
   *   the type of the component (contravariant)
   */
 private[operators] trait PostProcess[-T] {
-  
+
   def interferenceDiff(
       x: T,
       that: T,

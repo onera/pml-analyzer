@@ -64,9 +64,9 @@ trait Analyse[-T] {
   def getSemanticsSize(x: T, max: Int): Map[Int, BigInt]
 
   def getGraphSize(
-                    x: T,
-                    implm: SolverImplm,
-                    method: Method
+      x: T,
+      implm: SolverImplm,
+      method: Method
   ): (BigInt, BigInt)
 
   def getName(x: T): String
@@ -395,9 +395,9 @@ object Analyse {
     )
 
     def printGraph(
-                    x: ConfiguredPlatform,
-                    implm: SolverImplm,
-                    method: Method
+        x: ConfiguredPlatform,
+        implm: SolverImplm,
+        method: Method
     ): File = ev.printGraph(
       computeSystem(x, x.initiators.size),
       implm,
@@ -405,17 +405,17 @@ object Analyse {
     )
 
     def getSemanticsSize(
-                          x: ConfiguredPlatform,
-                          max: Int
+        x: ConfiguredPlatform,
+        max: Int
     ): Map[Int, BigInt] = ev.getSemanticsSize(
       computeSystem(x, max),
       max
     )
 
     def getGraphSize(
-                      x: ConfiguredPlatform,
-                      implm: SolverImplm,
-                      method: Method
+        x: ConfiguredPlatform,
+        implm: SolverImplm,
+        method: Method
     ): (BigInt, BigInt) = ev.getGraphSize(
       computeSystem(x, x.initiators.size),
       implm,
@@ -434,9 +434,9 @@ object Analyse {
       x.maxSize
 
     def getGraphSize(
-                      x: TopologicalInterferenceSystem,
-                      implm: SolverImplm,
-                      method: Method
+        x: TopologicalInterferenceSystem,
+        implm: SolverImplm,
+        method: Method
     ): (BigInt, BigInt) = {
       val problem =
         computeProblem(x, method)
@@ -446,9 +446,9 @@ object Analyse {
     }
 
     def printGraph(
-                    x: TopologicalInterferenceSystem,
-                    implm: SolverImplm,
-                    method: Method
+        x: TopologicalInterferenceSystem,
+        implm: SolverImplm,
+        method: Method
     ): File = {
       val problem =
         computeProblem(x, method)
@@ -992,8 +992,8 @@ object Analyse {
       *   the number of multi-transactions per size
       */
     def getSemanticsSize(
-                          x: TopologicalInterferenceSystem,
-                          max: Int
+        x: TopologicalInterferenceSystem,
+        max: Int
     ): Map[Int, BigInt] = {
       val transactions = x.idToTransaction
       val exclusive = x.exclusiveWithTr
