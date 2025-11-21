@@ -59,19 +59,19 @@ trait Analyse[-T] {
       method: Method
   ): Future[Set[File]]
 
-  def printGraph(platform: T, implm: SolverImplm, method: Method): File
+  def printGraph(x: T, implm: SolverImplm, method: Method): File
 
-  def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
+  def getSemanticsSize(x: T, max: Int): Map[Int, BigInt]
 
   def getGraphSize(
-      platform: T,
-      implm: SolverImplm,
-      method: Method
+                    x: T,
+                    implm: SolverImplm,
+                    method: Method
   ): (BigInt, BigInt)
 
-  def getName(platform: T): String
+  def getName(x: T): String
 
-  def getMaxSize(platform: T): Int
+  def getMaxSize(x: T): Int
 }
 
 object Analyse {
@@ -320,9 +320,9 @@ object Analyse {
     ConfiguredPlatform
   ] with {
 
-    def getName(platform: ConfiguredPlatform): String = platform.fullName
+    def getName(x: ConfiguredPlatform): String = x.fullName
 
-    def getMaxSize(platform: ConfiguredPlatform): Int = platform.initiators.size
+    def getMaxSize(x: ConfiguredPlatform): Int = x.initiators.size
 
     private def computeSystem(
         platform: ConfiguredPlatform,
@@ -370,7 +370,7 @@ object Analyse {
         ],
         transactionUserNameOpt,
         platform.fullName,
-        Some(platform.sourceFile)
+        platform.sourceFile
       )
     }
 
@@ -395,29 +395,29 @@ object Analyse {
     )
 
     def printGraph(
-        platform: ConfiguredPlatform,
-        implm: SolverImplm,
-        method: Method
+                    x: ConfiguredPlatform,
+                    implm: SolverImplm,
+                    method: Method
     ): File = ev.printGraph(
-      computeSystem(platform, platform.initiators.size),
+      computeSystem(x, x.initiators.size),
       implm,
       method
     )
 
     def getSemanticsSize(
-        platform: ConfiguredPlatform,
-        max: Int
+                          x: ConfiguredPlatform,
+                          max: Int
     ): Map[Int, BigInt] = ev.getSemanticsSize(
-      computeSystem(platform, max),
+      computeSystem(x, max),
       max
     )
 
     def getGraphSize(
-        platform: ConfiguredPlatform,
-        implm: SolverImplm,
-        method: Method
+                      x: ConfiguredPlatform,
+                      implm: SolverImplm,
+                      method: Method
     ): (BigInt, BigInt) = ev.getGraphSize(
-      computeSystem(platform, platform.initiators.size),
+      computeSystem(x, x.initiators.size),
       implm,
       method
     )
@@ -427,34 +427,34 @@ object Analyse {
     */
   given Analyse[TopologicalInterferenceSystem] with {
 
-    def getName(platform: TopologicalInterferenceSystem): String =
-      platform.platformName
+    def getName(x: TopologicalInterferenceSystem): String =
+      x.name
 
-    def getMaxSize(platform: TopologicalInterferenceSystem): Int =
-      platform.maxSize
+    def getMaxSize(x: TopologicalInterferenceSystem): Int =
+      x.maxSize
 
     def getGraphSize(
-        platform: TopologicalInterferenceSystem,
-        implm: SolverImplm,
-        method: Method
+                      x: TopologicalInterferenceSystem,
+                      implm: SolverImplm,
+                      method: Method
     ): (BigInt, BigInt) = {
       val problem =
-        computeProblem(platform, method)
+        computeProblem(x, method)
       val graph = problem.graph
       val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
     }
 
     def printGraph(
-        platform: TopologicalInterferenceSystem,
-        implm: SolverImplm,
-        method: Method
+                    x: TopologicalInterferenceSystem,
+                    implm: SolverImplm,
+                    method: Method
     ): File = {
       val problem =
-        computeProblem(platform, method)
+        computeProblem(x, method)
       val result =
         FileManager.exportDirectory.getFile(
-          s"${platform.platformName}_${method}_method_${implm}_solver_graph.dot"
+          s"${x.name}_${method}_method_${implm}_solver_graph.dot"
         )
       val emptySolver = Solver(implm)
       problem.graph.exportGraph(emptySolver, result)
@@ -520,7 +520,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisITFFileName(
-                        platform.platformName,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -541,7 +541,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisFreeFileName(
-                        platform.platformName,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -561,7 +561,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisChannelFileName(
-                        platform.platformName,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -579,7 +579,7 @@ object Analyse {
 
       val summaryFile = FileManager.analysisDirectory.getFile(
         FileManager.getInterferenceAnalysisSummaryFileName(
-          platform.platformName,
+          platform.name,
           Some(method),
           Some(implm)
         )
@@ -594,7 +594,7 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.platformName,
+              platform.name,
               "interference analysis"
             )
           )
@@ -607,7 +607,7 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.platformName,
+              platform.name,
               "interference analysis"
             )
           )
@@ -648,8 +648,8 @@ object Analyse {
             aW.foreach(w =>
               writeFileInfo(
                 w,
-                platform.platformName,
-                platform.platformSourceFile,
+                platform.name,
+                platform.sourceFile,
                 implm,
                 method
               )
@@ -681,7 +681,7 @@ object Analyse {
 
           println(
             Message.successfulModelBuildInfo(
-              platform.platformName,
+              platform.name,
               ((System
                 .currentTimeMillis() millis) - generateModelStart).toSeconds
             )
@@ -689,7 +689,7 @@ object Analyse {
 
           println(
             Message.startingNonExclusiveTransactionEstimationInfo(
-              platform.platformName
+              platform.name
             )
           )
           val estimateNonExclusiveMultiTransactionsStart =
@@ -704,7 +704,7 @@ object Analyse {
             else None
           println(
             Message.successfulNonExclusiveMultiTransactionEstimationInfo(
-              platform.platformName,
+              platform.name,
               ((System
                 .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
             )
@@ -821,8 +821,8 @@ object Analyse {
 
           writeFileInfo(
             summaryWriter,
-            platform.platformName,
-            platform.platformSourceFile,
+            platform.name,
+            platform.sourceFile,
             implm,
             method
           )
@@ -915,7 +915,7 @@ object Analyse {
     private def writeFileInfo(
         writer: FileWriter,
         platformName: String,
-        sourceFile: Option[String],
+        sourceFile: String,
         implm: SolverImplm,
         method: Method
     ): Unit =
@@ -923,7 +923,7 @@ object Analyse {
         s"""Platform Name: $platformName
            |Computation Method: $method
            |Solver: $implm
-           |File:  ${sourceFile.getOrElse("unknown")}
+           |File:  $sourceFile
            |Date: ${java.time.LocalDateTime.now()}
            |------------------------------------------
            |""".stripMargin
@@ -986,24 +986,24 @@ object Analyse {
       * 2-non-exclusive (for higher cardinalities, the estimation of k-redundant
       * is needed)
       *
-      * @param platform
+      * @param x
       *   the studied platform
       * @return
       *   the number of multi-transactions per size
       */
     def getSemanticsSize(
-        platform: TopologicalInterferenceSystem,
-        max: Int
+                          x: TopologicalInterferenceSystem,
+                          max: Int
     ): Map[Int, BigInt] = {
-      val transactions = platform.idToTransaction
-      val exclusive = platform.exclusiveWithTr
+      val transactions = x.idToTransaction
+      val exclusive = x.exclusiveWithTr
       val factory = new SymbolBDDFactory()
       val bdd =
         getNonExclusiveKBDD(transactions.keySet.toSeq, exclusive, max, factory)
 
       // for each cardinality, compute the number of satisfying assignments of the BDD encoding transactions sets
       // containing exactly k non-exclusive transactions
-      val result = platform.transactionUserNameOpt match {
+      val result = x.transactionUserNameOpt match {
         case Some(transactionUserName) =>
           val weightMap = transactions
             .transform((_, v) => transactionUserName(v))

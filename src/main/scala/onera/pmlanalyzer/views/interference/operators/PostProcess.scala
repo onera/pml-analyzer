@@ -41,9 +41,10 @@ import scala.math.Ordering.Implicits.*
   *   the type of the component (contravariant)
   */
 private[operators] trait PostProcess[-T] {
+  
   def interferenceDiff(
       x: T,
-      that: Platform,
+      that: T,
       method: Method,
       implm: SolverImplm
   ): Seq[File]
@@ -68,20 +69,11 @@ private[operators] trait PostProcess[-T] {
       implm: Option[SolverImplm]
   ): Array[Seq[String]]
 
-  def sortPLByITFImpact(
+  def parseFreeMultiTransactionFile(
       x: T,
-      max: Option[Int],
-      implm: SolverImplm,
-      method: Method
-  ): Future[Set[File]]
-
-  def sortMultiPathByITFImpact(
-      x: T,
-      max: Option[Int],
-      implm: SolverImplm,
-      method: Method
-  ): Future[Set[File]]
-
+      method: Option[Method],
+      implm: Option[SolverImplm]
+  ): Array[Seq[String]]
 }
 
 object PostProcess {
@@ -114,57 +106,62 @@ object PostProcess {
     extension [T](self: T) {
 
       /** Compare the interference results with another element and store the
-        * result in a dedicated file in the analysis folder
-        * @param that
-        *   the other element
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the location of the result files
-        */
-      def interferenceDiff(that: Platform)(using
-          ev: PostProcess[T],
-          method: Method,
-          implm: SolverImplm
+       * result in a dedicated file in the analysis folder
+       *
+       * @param that
+       * the other element
+       * @param ev
+       * the proof that any element of T is analysable
+       * @return
+       * the location of the result files
+       */
+      def interferenceDiff(that: T, method: Method, implm: SolverImplm)(using
+          ev: PostProcess[T]
       ): Seq[File] = ev.interferenceDiff(self, that, method, implm)
 
       /** Try to find and parse itf results for the considered element
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the set of multi-transaction identifiers that are n-itf
-        */
-      def parseITFMultiTransactionFile()(using
-          ev: PostProcess[T],
+       *
+       * @param ev
+       * the proof that any element of T is analysable
+       * @return
+       * the set of multi-transaction identifiers that are n-itf
+       */
+      def parseITFMultiTransactionFile(
           method: Option[Method],
           implm: Option[SolverImplm]
+      )(using
+          ev: PostProcess[T]
       ): Array[Seq[String]] =
         ev.parseITFMultiTransactionFile(self, method, implm)
 
       /** Try to find and parse the n-itf results for the considered element
-        * @param n
-        *   the maximal size of transaction per itf
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the set of multi-transaction identifiers that are n-itf
-        */
-      def parseITFMultiTransactionFile(n: Int)(using
-          ev: PostProcess[T],
+       *
+       * @param n
+       * the maximal size of transaction per itf
+       * @param ev
+       * the proof that any element of T is analysable
+       * @return
+       * the set of multi-transaction identifiers that are n-itf
+       */
+      def parseITFMultiTransactionFile(
+          n: Int,
           method: Option[Method],
           implm: Option[SolverImplm]
+      )(using
+          ev: PostProcess[T]
       ): Array[Seq[String]] =
         ev.parseITFMultiTransactionFile(self, n, method, implm)
 
       /** Try to find and parse the n-itf-free results for the considered
-        * element
-        * @param n
-        *   the maximal size of transaction per itf-free
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the set of multi-transaction identifiers that are interference free
-        */
+       * element
+       *
+       * @param n
+       * the maximal size of transaction per itf-free
+       * @param ev
+       * the proof that any element of T is analysable
+       * @return
+       * the set of multi-transaction identifiers that are interference free
+       */
       def parseFreeMultiTransactionFile(
           n: Int,
           method: Option[Method],
@@ -173,17 +170,21 @@ object PostProcess {
           ev: PostProcess[T]
       ): Array[Seq[String]] =
         ev.parseFreeMultiTransactionFile(self, n, method, implm)
+    }
+
+    extension [T <: ConfiguredPlatform](self: T) {
 
       /** Compute for each hardware component the number of itf where
-        * the component is involved in the interference channel The result is
-        * provided in a file of the analysis directory
-        * @param max
-        *   the optional maximal size of the considered itf
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the location of the result files
-        */
+         * the component is involved in the interference channel The result is
+         * provided in a file of the analysis directory
+         *
+         * @param max
+         * the optional maximal size of the considered itf
+         * @param ev
+         * the proof that any element of T is analysable
+         * @return
+         * the location of the result files
+         */
       def sortPLByITFImpact(
           max: Option[Int],
           implm: SolverImplm,
@@ -192,20 +193,21 @@ object PostProcess {
           ev: PostProcess[T]
       ): Set[File] =
         Await.result(
-          ev.sortPLByITFImpact(self, max, implm, method),
+          PostProcess.sortPLByITFImpact(self, max, implm, method),
           Duration.Inf
         )
 
       /** Compute for each multi path transaction the number of itf
-        * involving at least one of its branches The result is provided in a
-        * file of the analysis directory
-        * @param max
-        *   the optional maximal size of the considered itf
-        * @param ev
-        *   the proof that any element of T is analysable
-        * @return
-        *   the location of the result files
-        */
+         * involving at least one of its branches The result is provided in a
+         * file of the analysis directory
+         *
+         * @param max
+         * the optional maximal size of the considered itf
+         * @param ev
+         * the proof that any element of T is analysable
+         * @return
+         * the location of the result files
+         */
       def sortMultiPathByITFImpact(
           max: Option[Int],
           implm: SolverImplm = Monosat,
@@ -214,7 +216,7 @@ object PostProcess {
           ev: PostProcess[T]
       ): Set[File] =
         Await.result(
-          ev.sortMultiPathByITFImpact(self, max, implm, method),
+          PostProcess.sortMultiPathByITFImpact(self, max, implm, method),
           Duration.Inf
         )
     }
@@ -227,19 +229,19 @@ object PostProcess {
 
   /** A platform is post processable
     */
-  given PostProcess[ConfiguredPlatform] with {
+  given [T](using ev: Analyse[T]): PostProcess[T] with {
 
     def interferenceDiff(
-        x: ConfiguredPlatform,
-        that: Platform,
+        x: T,
+        that: T,
         method: Method,
         implm: SolverImplm
     ): Seq[File] = {
       for {
-        size <- 2 to Math.min(x.initiators.size, that.initiators.size)
+        size <- 2 to Math.min(ev.getMaxSize(x), ev.getMaxSize(that))
         thisITFFile <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisITFFileName(
-            x.fullName,
+            ev.getName(x),
             size,
             Some(method),
             Some(implm)
@@ -247,7 +249,7 @@ object PostProcess {
         )
         thatITFFile <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisITFFileName(
-            that.fullName,
+            ev.getName(that),
             size,
             Some(method),
             Some(implm)
@@ -255,7 +257,7 @@ object PostProcess {
         )
       } yield {
         val file = FileManager.analysisDirectory.getFile(
-          s"${x.fullName}_diff_${that.fullName}_itf_$size.txt"
+          s"${ev.getName(x)}_diff_${ev.getName(that)}_itf_$size.txt"
         )
         val sThisITF = Source.fromFile(thisITFFile)
         val sThatITF = Source.fromFile(thatITFFile)
@@ -267,18 +269,22 @@ object PostProcess {
         val thatDiffThis = thatITF.diff(thisITF).sorted
         val writer = new FileWriter(file)
         if (thisDiffThat.isEmpty)
-          writer.write(s"All itf of ${x.fullName} are in ${that.fullName}\n")
+          writer.write(
+            s"All itf of ${ev.getName(x)} are in ${ev.getName(that)}\n"
+          )
         else {
           writer.write(
-            s"The following ${thisDiffThat.length} itf of ${x.fullName} are not in ${that.fullName}\n"
+            s"The following ${thisDiffThat.length} itf of ${ev.getName(x)} are not in ${ev.getName(that)}\n"
           )
           thisDiffThat.foreach(d => writer.write(s"$d\n"))
         }
         if (thatDiffThis.isEmpty)
-          writer.write(s"All itf of ${that.fullName} are in ${x.fullName}\n")
+          writer.write(
+            s"All itf of ${ev.getName(that)} are in ${ev.getName(x)}\n"
+          )
         else {
           writer.write(
-            s"The following ${thatDiffThis.length} itf in ${that.fullName} are not in ${x.fullName}\n"
+            s"The following ${thatDiffThis.length} itf in ${ev.getName(that)} are not in ${ev.getName(x)}\n"
           )
           thatDiffThis.foreach(d => writer.write(s"$d\n"))
         }
@@ -287,8 +293,8 @@ object PostProcess {
         println(
           Message.successfulITFDifferenceExportInfo(
             size,
-            x.fullName,
-            that.fullName,
+            ev.getName(x),
+            ev.getName(that),
             file.getAbsolutePath
           )
         )
@@ -297,17 +303,17 @@ object PostProcess {
     }
 
     def parseITFMultiTransactionFile(
-        x: ConfiguredPlatform,
+        x: T,
         method: Option[Method],
         implm: Option[SolverImplm]
     ): Array[Seq[String]] =
       for {
-        k <- (2 to x.initiators.size).toArray
+        k <- (2 to ev.getMaxSize(x)).toArray
         sc <- parseITFMultiTransactionFile(x, k, method, implm)
       } yield sc
 
     def parseITFMultiTransactionFile(
-        x: ConfiguredPlatform,
+        x: T,
         n: Int,
         method: Option[Method],
         implm: Option[SolverImplm]
@@ -315,7 +321,7 @@ object PostProcess {
       for {
         file <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisITFFileName(
-            x.fullName,
+            ev.getName(x),
             n,
             method,
             implm
@@ -330,17 +336,17 @@ object PostProcess {
     } getOrElse Array.empty
 
     def parseFreeMultiTransactionFile(
-        x: ConfiguredPlatform,
+        x: T,
         method: Option[Method],
         implm: Option[SolverImplm]
     ): Array[Seq[String]] =
       for {
-        k <- (2 to x.initiators.size).toArray
+        k <- (2 to ev.getMaxSize(x)).toArray
         sc <- parseFreeMultiTransactionFile(x, k, method, implm)
       } yield sc
 
     def parseFreeMultiTransactionFile(
-        x: ConfiguredPlatform,
+        x: T,
         n: Int,
         method: Option[Method],
         implm: Option[SolverImplm]
@@ -348,7 +354,7 @@ object PostProcess {
       for {
         file <- FileManager.analysisDirectory.locate(
           FileManager.getInterferenceAnalysisFreeFileName(
-            x.fullName,
+            ev.getName(x),
             n,
             method,
             implm
@@ -361,200 +367,200 @@ object PostProcess {
         result
       }
     } getOrElse Array.empty
+  }
 
-    def sortPLByITFImpact(
-        x: ConfiguredPlatform,
-        max: Option[Int],
-        implm: SolverImplm = Monosat,
-        method: Method = Default
-    ): Future[Set[File]] = {
-      x.computeKInterference(
-        max.getOrElse(x.initiators.size),
-        ignoreExistingAnalysisFiles = false,
-        computeSemantics = false,
-        verboseResultFile = false,
-        onlySummary = false,
-        implm,
-        method
-      ) map { resultFiles =>
+  def sortPLByITFImpact(
+      x: ConfiguredPlatform,
+      max: Option[Int],
+      implm: SolverImplm = Monosat,
+      method: Method = Default
+  ): Future[Set[File]] = {
+    x.computeKInterference(
+      max.getOrElse(x.initiators.size),
+      ignoreExistingAnalysisFiles = false,
+      computeSemantics = false,
+      verboseResultFile = false,
+      onlySummary = false,
+      implm,
+      method
+    ) map { resultFiles =>
+      resultFiles
+        .filter(_.getName.contains("channel"))
+        .map(resultFile => {
+          val size =
+            resultFile.getName.split("\\D+").filter(_.nonEmpty).last.toInt
+          val file = FileManager.analysisDirectory
+            .getFile(s"${x.fullName}_HW_importance_factor_itf_$size.txt")
+          val writer = new FileWriter(file)
+          writer.write(
+            PLInvolvedInITF(x, resultFile).toSeq
+              .sortBy(-_._2)
+              .map(p => s"${p._1},${p._2}")
+              .mkString("\n")
+          )
+          writer.close()
+          file
+        })
+    }
+  }
+
+  private def PLInvolvedInITF(
+      x: ConfiguredPlatform,
+      file: File
+  ): Map[Hardware, Int] = {
+    import x._
+    val results = parseChannel(Source.fromFile(file))
+    val plByMultiTransaction = results
+      .map(p =>
+        p._1
+          .flatMap(s =>
+            x.directHardware.filter(_.services.exists(s2 => s2.toString == s))
+          )
+          .toSet -> p._2
+      )
+    x.directHardware.foldLeft(Map.empty[Hardware, Int])((localMap, pl) => {
+      val impacted =
+        plByMultiTransaction.filter(_._1.contains(pl)).map(_._2).sum
+      if (impacted > 0)
+        localMap.updated(pl, localMap.getOrElse(pl, 0) + impacted)
+      else
+        localMap
+    })
+  }
+
+  def parseChannel(source: BufferedSource): Seq[(Seq[String], Int)] = {
+    val res = source
+      .getLines()
+      .filter(_.head == '{')
+      .map(s => {
+        val split = s.split(":")
+        val services = split.head.split("[{, }]").filter(_.nonEmpty).toSeq
+        val size = (for {
+          s <- split.last.split(" ").find(_.nonEmpty)
+        } yield s.toInt).getOrElse(-1)
+        services -> size
+      })
+      .toSeq
+    source.close()
+    res
+  }
+
+  def sortMultiPathByITFImpact(
+      x: ConfiguredPlatform,
+      max: Option[Int],
+      implm: SolverImplm = Monosat,
+      method: Method = Default
+  ): Future[Set[File]] =
+    x.computeKInterference(
+      max.getOrElse(x.initiators.size),
+      ignoreExistingAnalysisFiles = false,
+      computeSemantics = false,
+      verboseResultFile = false,
+      onlySummary = false,
+      implm,
+      method
+    ) map { resultFiles =>
+      {
+        val multiPathsTransactions = x match {
+          case c: TransactionLibrary =>
+            x.multiPathsTransactions.flatMap(s => {
+              val transactionNames = s.map(x.atomicTransactionsName)
+              (for {
+                userTransactionIds <- c.transactionUserName
+                  .get(transactionNames)
+                if userTransactionIds.nonEmpty
+              } yield {
+                userTransactionIds.map(x => Set(x.toString))
+              }) getOrElse Set(transactionNames.map(_.toString))
+            })
+          case _ =>
+            x.multiPathsTransactions.map(
+              _.map(x.atomicTransactionsName).map(_.toString)
+            )
+        }
         resultFiles
-          .filter(_.getName.contains("channel"))
+          .filter(_.getName.contains("itf"))
           .map(resultFile => {
             val size =
               resultFile.getName.split("\\D+").filter(_.nonEmpty).last.toInt
-            val file = FileManager.analysisDirectory
-              .getFile(s"${x.fullName}_HW_importance_factor_itf_$size.txt")
-            val writer = new FileWriter(file)
-            writer.write(
-              PLInvolvedInITF(x, resultFile).toSeq
-                .sortBy(-_._2)
-                .map(p => s"${p._1},${p._2}")
-                .mkString("\n")
+            val file = FileManager.analysisDirectory.getFile(
+              s"${x.fullName}_Routing_importance_factor_itf_$size.txt"
             )
+            val writer = new FileWriter(file)
+            writer.write({
+              val source = Source.fromFile(file)
+              val itf = parseMultiTransactionFile(source)
+              source.close()
+              multiPathsTransactions
+                .groupMapReduce(k => k)(k =>
+                  itf.count(sc => sc.exists(s => k.contains(s)))
+                )(_ + _)
+                .toSeq
+                .sortBy(-_._2)
+                .map(p => s"${p._1.mkString("{", ",", "}")},${p._2}")
+                .mkString("\n")
+            })
             writer.close()
             file
           })
       }
     }
 
-    private def PLInvolvedInITF(
-        x: ConfiguredPlatform,
-        file: File
-    ): Map[Hardware, Int] = {
-      import x._
-      val results = parseChannel(Source.fromFile(file))
-      val plByMultiTransaction = results
-        .map(p =>
-          p._1
-            .flatMap(s =>
-              x.directHardware.filter(_.services.exists(s2 => s2.toString == s))
-            )
-            .toSet -> p._2
+  @deprecated("this indicator should not be used for now, not useful info")
+  def sortSWByITFImpact(
+      x: ConfiguredPlatform,
+      max: Option[Int],
+      implm: SolverImplm = Monosat,
+      method: Method = Default
+  ): Future[File] = {
+    x.computeKInterference(
+      max.getOrElse(x.initiators.size),
+      ignoreExistingAnalysisFiles = false,
+      computeSemantics = false,
+      verboseResultFile = false,
+      onlySummary = false,
+      implm,
+      method
+    ) map { resultFiles =>
+      {
+        val file = FileManager.analysisDirectory.getFile(
+          s"${x.fullName}_SW_importance_factor.txt"
         )
-      x.directHardware.foldLeft(Map.empty[Hardware, Int])((localMap, pl) => {
-        val impacted =
-          plByMultiTransaction.filter(_._1.contains(pl)).map(_._2).sum
-        if (impacted > 0)
-          localMap.updated(pl, localMap.getOrElse(pl, 0) + impacted)
-        else
-          localMap
-      })
-    }
-
-    def parseChannel(source: BufferedSource): Seq[(Seq[String], Int)] = {
-      val res = source
-        .getLines()
-        .filter(_.head == '{')
-        .map(s => {
-          val split = s.split(":")
-          val services = split.head.split("[{, }]").filter(_.nonEmpty).toSeq
-          val size = (for {
-            s <- split.last.split(" ").find(_.nonEmpty)
-          } yield s.toInt).getOrElse(-1)
-          services -> size
-        })
-        .toSeq
-      source.close()
-      res
-    }
-
-    def sortMultiPathByITFImpact(
-        x: ConfiguredPlatform,
-        max: Option[Int],
-        implm: SolverImplm = Monosat,
-        method: Method = Default
-    ): Future[Set[File]] =
-      x.computeKInterference(
-        max.getOrElse(x.initiators.size),
-        ignoreExistingAnalysisFiles = false,
-        computeSemantics = false,
-        verboseResultFile = false,
-        onlySummary = false,
-        implm,
-        method
-      ) map { resultFiles =>
-        {
-          val multiPathsTransactions = x match {
-            case c: TransactionLibrary =>
-              x.multiPathsTransactions.flatMap(s => {
-                val transactionNames = s.map(x.atomicTransactionsName)
-                (for {
-                  userTransactionIds <- c.transactionUserName
-                    .get(transactionNames)
-                  if userTransactionIds.nonEmpty
-                } yield {
-                  userTransactionIds.map(x => Set(x.toString))
-                }) getOrElse Set(transactionNames.map(_.toString))
-              })
-            case _ =>
-              x.multiPathsTransactions.map(
-                _.map(x.atomicTransactionsName).map(_.toString)
-              )
-          }
+        val writer = new FileWriter(file)
+        writer.write(
           resultFiles
             .filter(_.getName.contains("itf"))
-            .map(resultFile => {
-              val size =
-                resultFile.getName.split("\\D+").filter(_.nonEmpty).last.toInt
-              val file = FileManager.analysisDirectory.getFile(
-                s"${x.fullName}_Routing_importance_factor_itf_$size.txt"
-              )
-              val writer = new FileWriter(file)
-              writer.write({
-                val source = Source.fromFile(file)
-                val itf = parseMultiTransactionFile(source)
-                source.close()
-                multiPathsTransactions
-                  .groupMapReduce(k => k)(k =>
-                    itf.count(sc => sc.exists(s => k.contains(s)))
-                  )(_ + _)
-                  .toSeq
-                  .sortBy(-_._2)
-                  .map(p => s"${p._1.mkString("{", ",", "}")},${p._2}")
-                  .mkString("\n")
-              })
-              writer.close()
-              file
+            .foldLeft(Map.empty[Set[Application], Int])((acc, file) => {
+              val involved = SWInvolvedInITF(x, file)
+              (acc.toSeq ++ involved.toSeq).groupMapReduce(_._1)(_._2)(_ + _)
             })
-        }
-      }
-
-    @deprecated("this indicator should not be used for now, not useful info")
-    def sortSWByITFImpact(
-        x: ConfiguredPlatform,
-        max: Option[Int],
-        implm: SolverImplm = Monosat,
-        method: Method = Default
-    ): Future[File] = {
-      x.computeKInterference(
-        max.getOrElse(x.initiators.size),
-        ignoreExistingAnalysisFiles = false,
-        computeSemantics = false,
-        verboseResultFile = false,
-        onlySummary = false,
-        implm,
-        method
-      ) map { resultFiles =>
-        {
-          val file = FileManager.analysisDirectory.getFile(
-            s"${x.fullName}_SW_importance_factor.txt"
-          )
-          val writer = new FileWriter(file)
-          writer.write(
-            resultFiles
-              .filter(_.getName.contains("itf"))
-              .foldLeft(Map.empty[Set[Application], Int])((acc, file) => {
-                val involved = SWInvolvedInITF(x, file)
-                (acc.toSeq ++ involved.toSeq).groupMapReduce(_._1)(_._2)(_ + _)
-              })
-              .toSeq
-              .sortBy(-_._2)
-              .map(p => s"${p._1.mkString("{", ",", "}")},${p._2}")
-              .mkString("\n")
-          )
-          writer.close()
-          file
-        }
-      }
-    }
-
-    // FIXME If using a transaction library, the ids are UserTransaction and not PhysicalTransaction, need to know the difference
-    // to retrieve the transactions used by a sw
-    private def SWInvolvedInITF(
-        x: ConfiguredPlatform,
-        file: File
-    ): Map[Set[Application], Int] = {
-      val results = parseMultiTransactionFile(Source.fromFile(file))
-      val swByMultiTransaction = results
-        .map(
-          _.flatMap(s =>
-            x.applications.filter(sw =>
-              x.atomicTransactionsBySW(sw).exists(s2 => s2.toString == s)
-            )
-          ).toSet
+            .toSeq
+            .sortBy(-_._2)
+            .map(p => s"${p._1.mkString("{", ",", "}")},${p._2}")
+            .mkString("\n")
         )
-      swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
+        writer.close()
+        file
+      }
     }
+  }
+
+  // FIXME If using a transaction library, the ids are UserTransaction and not PhysicalTransaction, need to know the difference
+  // to retrieve the transactions used by a sw
+  private def SWInvolvedInITF(
+      x: ConfiguredPlatform,
+      file: File
+  ): Map[Set[Application], Int] = {
+    val results = parseMultiTransactionFile(Source.fromFile(file))
+    val swByMultiTransaction = results
+      .map(
+        _.flatMap(s =>
+          x.applications.filter(sw =>
+            x.atomicTransactionsBySW(sw).exists(s2 => s2.toString == s)
+          )
+        ).toSet
+      )
+    swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
   }
 
   private def extractSize(in: Iterable[String]): Map[Int, BigInt] =
