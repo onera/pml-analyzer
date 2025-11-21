@@ -44,3 +44,10 @@ final case class TopologicalInterferenceSystem(
     name: String,
     sourceFile: String
 )
+
+object TopologicalInterferenceSystem {
+  //FIXME should use transactionExportFormat to retrieve atomicTransactions, atomicTransactions, transactionUserNameOpt
+  // should use relationExportFormat to retrieve exclusiveWithATr, exclusiveWithTr, interfereWith, finalUserTransactionExclusiveOpt
+  
+  def apply(): TopologicalInterferenceSystem = ???
+}

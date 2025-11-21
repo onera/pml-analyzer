@@ -17,11 +17,9 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.{
-  Transaction,
-  TransactionLibrary
-}
+import onera.pmlanalyzer.pml.model.configuration.{Transaction, TransactionLibrary}
 import onera.pmlanalyzer.pml.model.hardware.Platform
+import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.operators.*
 
@@ -67,17 +65,11 @@ object RelationExporter {
       */
     implicit class Ops(platform: Platform) {
       import platform._
-
-      private val routingExportName: String =
-        platform.fullName + "RouteTable.txt"
-      private val swAllocationExportName: String =
-        platform.fullName + "AllocationTable.txt"
-      private val dataAllocationExportName: String =
-        platform.fullName + "DataTable.txt"
-      private val swTargetUsage: String =
-        platform.fullName + "TargetedServiceTable.txt"
+      
       private val componentStatus: String =
         platform.fullName + "ComponentStatusTable.txt"
+      private def exportRelationFileName (r:Relation[_,_]): String =
+        s"${platform.fullName}${r.name}.txt"
 
       private def getWriter(name: String): FileWriter = {
         val file = FileManager.exportDirectory.getFile(name)
@@ -90,7 +82,7 @@ object RelationExporter {
        * (initiator_name, target_service_name, next_service_name, source_codefilename, source_codeline )+
         */
       def exportRouteTable(): Unit = {
-        val writer = getWriter(routingExportName)
+        val writer = getWriter(exportRelationFileName(context.InitiatorRouting))
         writer.write(
           "Initiator, TargetService, Router, NextService(s), SourceCodeFile, SourceCodeLine\n"
         )
@@ -114,7 +106,7 @@ object RelationExporter {
         * FORMAT: Software, Initiator(s) (software_name(, initiator_name )+)+
         */
       def exportAllocationTable(): Unit = {
-        val writer = getWriter(swAllocationExportName)
+        val writer = getWriter(exportRelationFileName(context.SWUseInitiator))
         writer.write("Software, Initiator(s), SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
@@ -134,7 +126,7 @@ object RelationExporter {
         * Data, Target (data_name, target_name)+
         */
       def exportDataAllocationTable(): Unit = {
-        val writer = getWriter(dataAllocationExportName)
+        val writer = getWriter(exportRelationFileName(context.DataUseTarget))
         writer.write("Data, Target, SourceCodeFile, SourceCodeLine\n")
         val toWrite =
           for {
@@ -154,7 +146,7 @@ object RelationExporter {
         * Service(s) (software_name(, service_name )+)+
         */
       def exportSWTargetUsageTable(): Unit = {
-        val writer = getWriter(swTargetUsage)
+        val writer = getWriter(exportRelationFileName(context.SWUseService))
         writer.write(
           "Software, Target Service(s), SourceCodeFile, SourceCodeLine\n"
         )
