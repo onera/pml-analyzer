@@ -565,14 +565,64 @@ object PostProcess {
     swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
   }
 
-  private def extractSize(in: Iterable[String]): Map[Int, BigInt] =
-    in.filter(_.startsWith("[INFO] size "))
-      .map(_.split("over").head)
-      .map(s => {
-        val data = s.split(':')
-        data.head.filter(_.isDigit).toInt -> BigInt(data.last.filter(_.isDigit))
-      })
-      .toMap
+  private def parseWord [$:P] =
+    CharsWhile(c => c !=' ' && c!='\n')
+
+  private def parsePlatformName [$:P] =
+    P("Platform" ~/ "Name" ~ ":" ~ parseWord ~ "\n")
+
+  private def parseComputationMethod[$:P] =
+    P("Computation" ~/ "Method" ~ ":" ~ parseWord ~ "\n")
+
+  private def parseSolver[$: P] =
+    P("Solver" ~/ ":" ~ parseWord ~ "\n")
+
+  private def parseFilePath[$: P] =
+    P("File" ~/ ":" ~ parseWord ~ "\n")
+
+  private def parseDate[$: P] =
+    P("Date" ~/ ":" ~ parseWord ~ "\n")
+
+  private def parseHeader[$: P] =
+    P(parsePlatformName ~ parseComputationMethod ~ parseSolver ~ parseFilePath ~ parseDate)
+
+  private def parseSectionSep[$:P] =
+    P(CharsWhile(_ != '\n') ~ "\n")
+
+  private def parseITFHeader[$:P] =
+    P("Computed" ~ "ITF" ~ "\n")
+
+  private def parseFreeHeader[$: P] =
+    P("Computed" ~ "ITF-free" ~ "\n")
+
+  private def parseSize[$:P] =
+    P("[INFO]" ~/ "size" ~ digit.rep(min=1).! ~ ":" ~ digit.rep(min=1).!
+      ~ CharsWhile(c => c!=' ' && c!='\n').? ~ "\n")
+      .map(
+        (l,r) => l.toInt -> BigInt(r)
+      )
+
+  private def parseTotal[$: P] =
+    P("Total" ~ ":" ~ digit.rep(min = 1) ~ "\n")
+
+  private def parseComputationTime[$: P] =
+    P("Computation" ~ "time" ~ ":" ~ digit.rep(min = 1).! ~ ("." ~ digit.rep(min = 1).!).? ~ "s" ~ "\n")
+      .map(
+        (l, r) => s"$l${r.getOrElse("")}".toDouble
+      )
+
+  private def parseComputationTimeSection[$:P]=
+    P(parseTotal ~ parseComputationTime)
+
+  private def parseSizes[$:P] =
+    P(parseSize.rep).map(_.toMap)
+
+  private def parseSizeSection[$:P] =
+    P(parseITFHeader ~ parseSizes ~ parseFreeHeader ~ parseSizes)
+
+  private def parseSummaryFile[$:P]=
+    P(Start ~ parseHeader ~ parseSectionSep ~ parseSizeSection
+      ~ parseSectionSep ~ parseComputationTimeSection ~ parseSectionSep ~ End)
 
   def parseSummaryFile(
       platformName: String,
@@ -589,25 +639,28 @@ object PostProcess {
       )
     } yield {
       val source = Source.fromFile(file)
-      val lines = source
-        .getLines()
-        .toSeq
-
-      val indexBeginItf =
-        lines.indexWhere(_.contains("Computed ITF"))
-      val indexBeginFree =
-        lines.indexWhere(_.contains("Computed ITF-free"))
-      val analysisTime: Double =
-        (for {
-          s <- lines.find(_.startsWith("Computation time"))
-        } yield {
-          s.replaceAll("[^\\d.]", "").toDouble
-        }).getOrElse(-1.0)
-      val itfSizes = extractSize(lines.slice(indexBeginItf, indexBeginFree))
-      val freeSizes = extractSize(lines.slice(indexBeginFree, lines.length))
-      source.close()
-      (itfSizes, freeSizes, analysisTime)
+      parse(source.getLines().mkString("","\n","\n"), parseSummaryFile(using _)) match {
+        case Parsed.Success(res, _) =>
+          source.close()
+          res
+        case f: Parsed.Failure =>
+          println(f.trace().longAggregateMsg)
+          source.close()
+          (Map.empty,Map.empty,-1)
+      }
     }
+
+  private def digit[$: P] = CharIn("0-9")
+
+  private def parseSemanticsSizeFileHeader[$:P] =
+    P("Multi-transaction cardinal" ~ "," ~ "Number" ~ "\n")
+
+  private def parseValues[$:P] =
+    P((digit.rep(min= 1).! ~ "," ~ digit.rep(min= 1).!).rep(sep="\n"))
+      .map(_.map((l,r) => l.toInt -> BigInt(r)).toMap)
+
+  private def parseSemanticsSizeFile[$:P] =
+    P(Start ~ parseSemanticsSizeFileHeader ~ parseValues ~ End)
 
   def parseSemanticsSizeFile(platformName: String): Option[Map[Int, BigInt]] = {
     for {
@@ -616,33 +669,17 @@ object PostProcess {
       )
     } yield {
       val source = Source.fromFile(file)
-      val res = source
-        .getLines()
-        .toSeq
-        .drop(1)
-        .map(_.split(","))
-        .map(s =>
-          s.head.filter(_.isDigit).toInt -> BigInt(
-            s.last.filter(_.isDigit)
-          )
-        )
-        .toMap
-      source.close()
-      res
+      parse(source.getLines().mkString("\n"), parseSemanticsSizeFile(using _)) match {
+        case Parsed.Success(res, _) =>
+          source.close()
+          res
+        case f: Parsed.Failure =>
+          println(f.trace().longAggregateMsg)
+          source.close()
+          Map.empty
+      }
     }
   }
-
-//  def parseMultiTransactionFile(source: BufferedSource): Array[Seq[String]] = {
-//    val res = source
-//      .getLines()
-//      .filter(_.head == '<')
-//      .map(_.replaceAll("[<> ]*", ""))
-//      .map(_.split("\\|\\|").toSeq.sorted)
-//      .toArray
-//      .sortBy(_.mkString("||"))
-//    source.close()
-//    res
-//  }
 
   private def parseAtomicTransaction[$:P] =
     P(CharPred(x => !"\\|<> ".contains(x)).rep(min= 1).!)
@@ -656,11 +693,11 @@ object PostProcess {
       .map(_.sorted)
 
   private def parseMultiTransactions[$:P] =
-    P(parseMultiTransaction.rep)
+    P(Start ~ parseMultiTransaction.rep ~ End)
       .map(_.sorted)
 
   def parseMultiTransactionFile(source: BufferedSource): Array[Seq[String]] = {
-    parse(source.getLines(),parseMultiTransactions) match {
+    parse(source.getLines(),parseMultiTransactions(using _)) match {
       case Parsed.Success(res,_) =>
         source.close()
         res.toArray

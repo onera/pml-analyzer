@@ -840,7 +840,7 @@ object Analyse {
               nonExclusiveMultiTransactions
             )
           )
-          writeFooter(summaryWriter, computationTime)
+          writeFooter(summaryWriter, computationTime, nbFree.values.sum + nbITF.values.sum)
 
           summaryWriter.flush()
           summaryWriter.close()
@@ -886,13 +886,14 @@ object Analyse {
     private def writeFooter(
         writer: FileWriter,
         computationTime: Long,
-        size: BigInt = -1
+        size: BigInt
     ): Unit =
       writer write
         s"""------------------------------------------
-           ${if (size > -1) s"|Total: $size\n" else ""}
+           |Total: $size
            |Computation time: ${computationTime}s
-           |-------------------------------------------""".stripMargin
+           |-------------------------------------------
+           |""".stripMargin
 
     private def writeChannelInfo(writer: FileWriter, size: Int): Unit =
       writer write
