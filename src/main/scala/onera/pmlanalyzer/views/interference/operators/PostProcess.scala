@@ -23,14 +23,19 @@ import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
+import fastparse.*
+import fastparse.SingleLineWhitespace.*
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
+import onera.pmlanalyzer.pml.model.service.Load
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransactionId, Path, PhysicalTransactionId}
 
-import fastparse._
-import fastparse.SingleLineWhitespace._
 import java.io.{File, FileWriter}
 import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.duration.Duration
@@ -566,7 +571,7 @@ object PostProcess {
   }
 
   private def parseWord [$:P] =
-    CharsWhile(c => c !=' ' && c!='\n')
+    CharsWhile(c => !" \n,".contains(c))
 
   private def parsePlatformName [$:P] =
     P("Platform" ~/ "Name" ~ ":" ~ parseWord ~ "\n")
@@ -681,15 +686,15 @@ object PostProcess {
     }
   }
 
-  private def parseAtomicTransaction[$:P] =
-    P(CharPred(x => !"\\|<> ".contains(x)).rep(min= 1).!)
+  private def parseAtomicTransactionId[$:P] =
+    P(CharPred(x => !"\\|<> \n,".contains(x)).rep(min= 1).!)
 
-  private def parseTransaction[$:P] =
-    P(parseAtomicTransaction.!.rep(min= 1, sep="|"))
+  private def parseTransactionId[$:P] =
+    P(parseAtomicTransactionId.!.rep(min= 1, sep="|"))
       .map(_.mkString("|"))
 
   private def parseMultiTransaction[$:P] =
-    P("<" ~ parseTransaction.!.rep(min= 2, sep="||") ~ ">")
+    P("<" ~ parseTransactionId.!.rep(min= 2, sep="||") ~ ">")
       .map(_.sorted)
 
   private def parseMultiTransactions[$:P] =
@@ -708,6 +713,237 @@ object PostProcess {
     }
   }
 
+  private def parseAtomicTransactionTableHeader[$:P] =
+    P("AtomicTransactionId" ~ "," ~ "Path" ~ "\n")
+
+  private def parseAtomicTransactionPath[$:P] =
+    P(parseAtomicTransactionId ~/ "," ~ parseWord.!.rep(sep= "::") ~ "\n")
+      .map((id,path) => AtomicTransactionId(Symbol(id)) -> path.map(s => Symbol(s)).toList)
+
+  private def parseAtomicTransactionTable[$:P] =
+    P(Start ~ parseAtomicTransactionTableHeader ~ parseAtomicTransactionPath.rep ~ End)
+      .map(_.toMap)
+
+  def parseAtomicTransactionTable(source: BufferedSource): Map[AtomicTransactionId, Path[Symbol]] = {
+    parse(source.getLines().mkString("","\n","\n"), parseAtomicTransactionTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseAtomicTransactionTable(platformName: String): Option[Map[AtomicTransactionId, Path[Symbol]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getAtomicTransactionTableName(platformName)
+      )
+    } yield {
+      parseAtomicTransactionTable(Source.fromFile(file))
+    }
+  }
+  
+  private def parseTransactionTableHeader[$:P] =
+    P("PhysicalTransactionId" ~ "," ~ "AtomicTransactionId(s)" ~ "\n")
+    
+  private def parseAtomicTransactionIds[$:P] =
+    P(parseTransactionId ~ "," ~ parseAtomicTransactionId.rep(sep=",") ~ "\n")
+      .map((l,aIds) => PhysicalTransactionId(Symbol(l)) -> aIds.toSet.map(id => AtomicTransactionId(Symbol(id))))
+
+  private def parseTransactionTable[$: P] =
+    P(Start ~ parseTransactionTableHeader ~ parseAtomicTransactionIds.rep ~ End)
+      .map(_.toMap)
+
+  def parseTransactionTable(source: BufferedSource): Map[PhysicalTransactionId, Set[AtomicTransactionId]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseTransactionTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+  
+  def parseTransactionTable(platformName: String): Option[Map[PhysicalTransactionId, Set[AtomicTransactionId]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getPhysicalTransactionTableName(platformName)
+      )
+    } yield {
+      parseTransactionTable(Source.fromFile(file))
+    }
+  }
+  
+  private def parseServiceInterfereTableHeader[$: P] =
+    P("Service" ~ "," ~ "Service(s)" ~ "\n")
+
+  private def parseServiceInterfereValue[$: P] =
+    P(parseWord.! ~/ "," ~ parseWord.!.rep(sep = ",") ~ "\n")
+      .map((s, ss) => Symbol(s) -> ss.map(Symbol.apply).toSet)
+
+  private def parseServiceInterfereTable[$: P] =
+    P(Start ~ parseServiceInterfereTableHeader ~ parseServiceInterfereValue.rep ~ End)
+      .map(_.toMap)
+
+  def parseServiceInterfereTable(source: BufferedSource): Map[Symbol, Set[Symbol]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseServiceInterfereTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseServiceInterfereTable(platformName: String): Option[Map[Symbol, Set[Symbol]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getServiceInterfereTableName(platformName)
+      )
+    } yield {
+      parseServiceInterfereTable(Source.fromFile(file))
+    }
+  }
+
+  private def parseATrInterfereTableHeader[$: P] =
+    P("AtomicTransactionId" ~ "," ~ "AtomicTransactionId(s)" ~ "\n")
+
+  private def parseATrInterfereValue[$: P] =
+    P(parseAtomicTransactionId ~/ "," ~ parseAtomicTransactionId.!.rep(sep = ",") ~ "\n")
+      .map((s, ss) => AtomicTransactionId(Symbol(s)) -> ss.map(x => AtomicTransactionId(Symbol(x))).toSet)
+
+  private def parseAtomicTransactionInterfereTable[$: P] =
+    P(Start ~ parseATrInterfereTableHeader ~ parseATrInterfereValue.rep ~ End)
+      .map(_.toMap)
+
+  def parseAtomicTransactionInterfereTable(source: BufferedSource): Map[AtomicTransactionId, Set[AtomicTransactionId]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseAtomicTransactionInterfereTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseAtomicTransactionInterfereTable(platformName: String): Option[Map[AtomicTransactionId, Set[AtomicTransactionId]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getAtomicTransactionExclusiveTableName(platformName)
+      )
+    } yield {
+      parseAtomicTransactionInterfereTable(Source.fromFile(file))
+    }
+  }
+
+  private def parseTrInterfereTableHeader[$: P] =
+    P("PhysicalTransactionId" ~ "," ~ "PhysicalTransactionId(s)" ~ "\n")
+
+  private def parseTrInterfereValue[$: P] =
+    P(parseTransactionId ~/ "," ~ parseTransactionId.!.rep(sep = ",") ~ "\n")
+      .map((s, ss) => PhysicalTransactionId(Symbol(s)) -> ss.map(x => PhysicalTransactionId(Symbol(x))).toSet)
+
+  private def parseTransactionInterfereTable[$: P] =
+    P(Start ~ parseTrInterfereTableHeader ~ parseTrInterfereValue.rep ~ End)
+      .map(_.toMap)
+
+  def parseTransactionInterfereTable(source: BufferedSource): Map[PhysicalTransactionId, Set[PhysicalTransactionId]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseTransactionInterfereTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseTransactionInterfereTable(platformName: String): Option[Map[PhysicalTransactionId, Set[PhysicalTransactionId]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getTransactionExclusiveTableName(platformName)
+      )
+    } yield {
+      parseTransactionInterfereTable(Source.fromFile(file))
+    }
+  }
+
+  private def parseUserTransactionTableHeader[$: P] =
+    P("UserTransactionId" ~ "," ~ "AtomicTransactionId(s)" ~ "\n")
+
+  private def parseUserTransactionValue[$: P] =
+    P(parseTransactionId ~/ "," ~ parseAtomicTransactionId.rep(sep = ",") ~ "\n")
+      .map((s, ss) => UserTransactionId(Symbol(s)) -> ss.map(x => AtomicTransactionId(Symbol(x))).toSet)
+
+  private def parseUserTransactionTable[$: P] =
+    P(Start ~ parseUserTransactionTableHeader ~ parseUserTransactionValue.rep ~ End)
+      .map(_.toMap)
+
+  def parseUserTransactionTable(source: BufferedSource): Map[UserTransactionId, Set[AtomicTransactionId]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseUserTransactionTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseUserTransactionTable(platformName: String): Option[Map[UserTransactionId, Set[AtomicTransactionId]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getUserTransactionTableName(platformName)
+      )
+    } yield {
+      parseUserTransactionTable(Source.fromFile(file))
+    }
+  }
+
+  private def parseUserExclusiveTransactionTableHeader[$: P] =
+    P("UserTransactionId" ~ "," ~ "UserTransactionId(s)" ~ "\n")
+
+  private def parseUserExclusiveTransactionValue[$: P] =
+    P(parseTransactionId ~/ "," ~ parseTransactionId.rep(sep = ",") ~ "\n")
+      .map((s, ss) => UserTransactionId(Symbol(s)) -> ss.map(x => UserTransactionId(Symbol(x))).toSet)
+
+  private def parseUserExclusiveTransactionTable[$: P] =
+    P(Start ~ parseUserExclusiveTransactionTableHeader ~ parseUserExclusiveTransactionValue.rep ~ End)
+      .map(_.toMap)
+
+  def parseUserExclusiveTransactionTable(source: BufferedSource): Map[UserTransactionId, Set[UserTransactionId]] = {
+    parse(source.getLines().mkString("", "\n", "\n"), parseUserExclusiveTransactionTable(using _)) match {
+      case Parsed.Success(res, _) =>
+        source.close()
+        res
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        source.close()
+        Map.empty
+    }
+  }
+
+  def parseUserExclusiveTransactionTable(platformName: String): Option[Map[UserTransactionId, Set[UserTransactionId]]] = {
+    for {
+      file <- FileManager.exportDirectory.locate(
+        FileManager.getUserTransactionExclusiveTableName(platformName)
+      )
+    } yield {
+      parseUserExclusiveTransactionTable(Source.fromFile(file))
+    }
+  }
+  
   def parseGraphReductionFile(
       platformName: String,
       method: Method,

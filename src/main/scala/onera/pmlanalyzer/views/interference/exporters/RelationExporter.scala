@@ -46,10 +46,10 @@ object RelationExporter {
      * the platform providing the export features
      */
     extension (self: Platform & InterferenceSpecification) {
-
+      
       def exportServiceInterfereTable(): Unit = {
         import self.*
-        val writer = getWriter(s"${fullName}ServiceInterfere.txt")
+        val writer = getWriter(FileManager.getServiceInterfereTableName(self.fullName))
         val table = relationToMap(self.services, finalInterfereWith)
         writer.write(
           "Service, Service(s)\n"
@@ -67,7 +67,7 @@ object RelationExporter {
 
       def exportAtomicTransactionExclusiveTable(): Unit = {
         val writer = getWriter(
-          s"${self.fullName}AtomicTransactionExclusive.txt"
+          FileManager.getAtomicTransactionExclusiveTableName(self.fullName)
         )
         val table = self.relationToMap(
           self.purifiedAtomicTransactions.keySet,
@@ -89,10 +89,10 @@ object RelationExporter {
       }
 
       def exportTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(s"${self.fullName}TransactionExclusive.txt")
+        val writer = getWriter(FileManager.getTransactionExclusiveTableName(self.fullName))
         val table = self.finalExclusive(self.purifiedTransactions.keySet)
         writer.write(
-          "PhysicalTransactionId, AtomicTransactionId(s)\n"
+          "PhysicalTransactionId, PhysicalTransactionId(s)\n"
         )
         val toWrite = for {
           (k, v) <- table
@@ -106,7 +106,7 @@ object RelationExporter {
       }
 
       def exportAtomicTransactionTable(): Unit = {
-        val writer = getWriter(s"${self.fullName}AtomicTransactionTable.txt")
+        val writer = getWriter(FileManager.getAtomicTransactionTableName(self.fullName))
         writer.write(
           "AtomicTransactionId, Path\n"
         )
@@ -120,7 +120,7 @@ object RelationExporter {
       }
 
       def exportPhysicalTransactionTable(): Unit = {
-        val writer = getWriter(s"${self.fullName}PhysicalTransactionTable.txt")
+        val writer = getWriter(FileManager.getPhysicalTransactionTableName(self.fullName))
         writer.write(
           "PhysicalTransactionId, AtomicTransactionId(s)\n"
         )
@@ -140,14 +140,14 @@ object RelationExporter {
         self: Platform & TransactionLibrary & InterferenceSpecification
     ) {
       def exportUserTransactionTable(): Unit = {
-        val writer = getWriter(s"${self.fullName}UserTransactionTable.txt")
+        val writer = getWriter(FileManager.getUserTransactionTableName(self.fullName))
         writer.write(
           "UserTransactionId, AtomicTransactionId(s)\n"
         )
         val purifiedAtomicTransactions = self.purifiedAtomicTransactions.keySet
         val toWrite = for {
-          (k, v) <- self.transactionUserName
-          if k.subsetOf(purifiedAtomicTransactions)
+          (k, v) <- self.transactionByUserName
+          if v.subsetOf(purifiedAtomicTransactions)
         } yield {
           s"$k, ${v.map(_.toString).toSeq.sorted.mkString(", ")}\n"
         }
@@ -162,7 +162,7 @@ object RelationExporter {
         self: Platform & ApplicativeTableBasedInterferenceSpecification
     ) {
       def exportUserTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(s"${self.fullName}UserTransactionExclusive.txt")
+        val writer = getWriter(FileManager.getUserTransactionExclusiveTableName(self.fullName))
         writer.write(
           "UserTransactionId, UserTransactionId(s)\n"
         )

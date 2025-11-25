@@ -437,9 +437,9 @@ object InterferenceSpecification {
       Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >"))
     )
 
-  def channelId(t: Set[Service]): ChannelId =
+  def channelId(t: Set[Symbol]): ChannelId =
     ChannelId(
-      Symbol(t.map(_.toString).toArray.sorted.mkString("{ ", ", ", " }"))
+      Symbol(t.map(_.name).toArray.sorted.mkString("{ ", ", ", " }"))
     )
 
   def groupedTransactionsLitId(

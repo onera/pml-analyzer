@@ -39,11 +39,11 @@ final case class GroupedLitInterferenceCalculusProblem(
     List(l, r).map(_.id.name).sorted.mkString("--")
   )
 
-  private def nodeId(s: Set[Service]): NodeId = Symbol(
-    s.toList.map(_.toString).sorted.mkString("<", "$", ">")
+  private def nodeId(s: Set[Symbol]): NodeId = Symbol(
+    s.toList.map(_.name).sorted.mkString("<", "$", ">")
   )
 
-  private val addNode: Set[Service] => MNode = immutableHashMapMemo { ss =>
+  private val addNode: Set[Symbol] => MNode = immutableHashMapMemo { ss =>
     MNode(nodeId(ss))
   }
 
@@ -64,7 +64,7 @@ final case class GroupedLitInterferenceCalculusProblem(
   // FIXME If a multi-path transaction, the following computation consider that one of the services used by
   // several atomic atomicTransactions could be an interference channel that is obviously false
   // and complexify the graph for no reason
-  private val pathT: Map[PhysicalTransactionId, Set[AtomicTransaction]] =
+  private val pathT: Map[PhysicalTransactionId, Set[Path[Symbol]]] =
     initialPathT.view
       .mapValues(s =>
         s.map(t =>
@@ -93,7 +93,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       v.map(k2 => addNode(Set(k, k2)))
   )
 
-  val nodeToServices: Map[MNode, Set[Service]] = serviceToNodes.keySet
+  val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.keySet
     .flatMap(k => serviceToNodes(k).map(_ -> k))
     .groupMap(_._1)(_._2)
 
@@ -124,7 +124,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
   }
 
-  private val addUndirectedEdge = (lr: Set[Service]) => {
+  private val addUndirectedEdge = (lr: Set[Symbol]) => {
     if (lr.size == 1) {
       for {
         ns <- serviceToNodes(lr.head).subsets(2).toSet

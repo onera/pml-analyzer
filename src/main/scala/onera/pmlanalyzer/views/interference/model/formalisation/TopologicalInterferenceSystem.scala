@@ -19,21 +19,17 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  AtomicTransaction,
-  AtomicTransactionId,
-  PhysicalTransaction,
-  PhysicalTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{AtomicTransaction, AtomicTransactionId, Path, PhysicalTransaction, PhysicalTransactionId}
+import onera.pmlanalyzer.views.interference.operators.PostProcess
 
 final case class TopologicalInterferenceSystem(
-    atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
+    atomicTransactions: Map[AtomicTransactionId, Path[Symbol]],
     idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
     exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
     exclusiveWithTr: Map[PhysicalTransactionId, Set[
       PhysicalTransactionId
     ]],
-    interfereWith: Map[Service, Set[Service]],
+    interfereWith: Map[Symbol, Set[Symbol]],
     maxSize: Int,
     finalUserTransactionExclusiveOpt: Option[
       Map[UserTransactionId, Set[UserTransactionId]]
@@ -46,8 +42,33 @@ final case class TopologicalInterferenceSystem(
 )
 
 object TopologicalInterferenceSystem {
-  // FIXME should use transactionExportFormat to retrieve atomicTransactions, atomicTransactions, transactionUserNameOpt
-  // should use relationExportFormat to retrieve exclusiveWithATr, exclusiveWithTr, interfereWith, finalUserTransactionExclusiveOpt
 
-  def apply(): TopologicalInterferenceSystem = ???
+  def apply(platformName:String, maxSize:Int, sourceFile:String): Option[TopologicalInterferenceSystem] = 
+    for {
+    atomicTransactions <- PostProcess.parseAtomicTransactionTable(platformName)
+    idToTransaction <- PostProcess.parseTransactionTable(platformName)
+    exclusiveWithATr <- PostProcess.parseAtomicTransactionInterfereTable(platformName)
+    exclusiveWithTr <- PostProcess.parseTransactionInterfereTable(platformName)
+    interfereWith <- PostProcess.parseServiceInterfereTable(platformName)
+  } yield {
+    val userTable = 
+      for {
+        m <- PostProcess.parseUserTransactionTable(platformName)
+      } yield {
+        m.groupMapReduce(_._2)((k,_) => Set(k))(_ ++ _)
+      }
+    
+    TopologicalInterferenceSystem(
+      atomicTransactions,
+      idToTransaction,
+      exclusiveWithATr,
+      exclusiveWithTr,
+      interfereWith,
+      maxSize,
+      PostProcess.parseUserExclusiveTransactionTable(platformName),
+      userTable,
+      platformName,
+      sourceFile
+    )
+  }
 }

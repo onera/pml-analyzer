@@ -359,15 +359,13 @@ object Analyse {
           case _ => None
         }
       TopologicalInterferenceSystem(
-        platform.purifiedAtomicTransactions,
+        platform.purifiedAtomicTransactions.transform((_,v) => v.map(_.name)),
         platform.purifiedTransactions,
         exclusiveWithATr,
         exclusiveWithTr,
-        interfereWith: Map[Service, Set[Service]],
+        interfereWith.map((k,v) => k.name -> v.map(_.name)),
         maxSize,
-        finalUserTransactionExclusiveOpt: Option[
-          Map[UserTransactionId, Set[UserTransactionId]]
-        ],
+        finalUserTransactionExclusiveOpt,
         transactionUserNameOpt,
         platform.fullName,
         platform.sourceFile
@@ -658,7 +656,7 @@ object Analyse {
 
           val nbFree = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
           val nbITF = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
-          val channels = mutable.Map.empty[Int, Map[Channel, Int]]
+          val channels = mutable.Map.empty[Int, Map[Set[Symbol], Int]]
 
           val update = (
               isFree: Boolean,
@@ -931,7 +929,7 @@ object Analyse {
 
     private def updateChannelFile(
         writer: Map[Int, FileWriter],
-        channels: mutable.Map[Int, Map[Channel, Int]]
+        channels: mutable.Map[Int, Map[Set[Symbol], Int]]
     ): Unit = {
       for ((k, v) <- channels)
         writer(k)
@@ -963,7 +961,7 @@ object Analyse {
 
     private def updateChannelNumber(
         calculusProblem: InterferenceCalculusProblem with Decoder,
-        channels: mutable.Map[Int, Map[Channel, Int]],
+        channels: mutable.Map[Int, Map[Set[Symbol], Int]],
         physical: Set[Set[PhysicalTransactionId]],
         user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
     ): Unit = {

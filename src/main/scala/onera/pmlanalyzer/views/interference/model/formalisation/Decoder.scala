@@ -26,7 +26,7 @@ trait Decoder {
   val variables: Set[MLit]
   val graph: MGraph
   val nodeToTransaction: Map[MNode, Set[PhysicalTransactionId]]
-  val nodeToServices: Map[MNode, Set[Service]]
+  val nodeToServices: Map[MNode, Set[Symbol]]
   val litToNode: Map[MLit, Set[MNode]]
 
   def decodeTrivialSolutions(implm: SolverImplm): Seq[
@@ -43,7 +43,7 @@ trait Decoder {
       implm: SolverImplm
   ): Set[Set[PhysicalTransactionId]]
 
-  def decodeChannel(model: Set[PhysicalTransactionId]): Channel = {
+  def decodeChannel(model: Set[PhysicalTransactionId]): Set[Symbol] = {
     if (model.size > system.maxSize)
       Set.empty
     else

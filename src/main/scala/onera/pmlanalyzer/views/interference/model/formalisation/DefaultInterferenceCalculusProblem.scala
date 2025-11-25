@@ -41,11 +41,11 @@ final case class DefaultInterferenceCalculusProblem(
     List(l, r).map(_.id.name).sorted.mkString("--")
   )
 
-  private def nodeId(s: Set[Service]): NodeId = Symbol(
-    s.toList.map(_.toString).sorted.mkString("<", "$", ">")
+  private def nodeId(s: Set[Symbol]): NodeId = Symbol(
+    s.toList.map(_.name).sorted.mkString("<", "$", ">")
   )
 
-  private val addNode: Set[Service] => MNode = immutableHashMapMemo { ss =>
+  private val addNode: Set[Symbol] => MNode = immutableHashMapMemo { ss =>
     MNode(nodeId(ss))
   }
 
@@ -151,7 +151,7 @@ final case class DefaultInterferenceCalculusProblem(
 
   val transactionVars: Map[MLit, PhysicalTransactionId] =
     transactionVar.toSeq.groupMapReduce(_._2)(_._1)((l, _) => l)
-  val nodeToServices: Map[MNode, Set[Service]] = serviceToNodes.toSeq
+  val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.toSeq
     .flatMap((k, v) => v.map(k -> _))
     .groupMapReduce(_._2)((k, _) => Set(k))(_ ++ _)
 

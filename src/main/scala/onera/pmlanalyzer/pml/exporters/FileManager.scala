@@ -169,4 +169,25 @@ object FileManager {
     val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
     s"${platformName}_$methodS${implmS}graph_reduction.txt"
   }
+
+  def getServiceInterfereTableName(platformName: String): String =
+    s"${platformName}ServiceInterfere.txt"
+
+  def getAtomicTransactionExclusiveTableName(platformName: String): String =
+    s"${platformName}AtomicTransactionExclusive.txt"
+
+  def getTransactionExclusiveTableName(platformName: String): String =
+    s"${platformName}TransactionExclusive.txt"
+
+  def getAtomicTransactionTableName(platformName: String): String =
+    s"${platformName}AtomicTransactionTable.txt"
+
+  def getPhysicalTransactionTableName(platformName: String): String =
+    s"${platformName}PhysicalTransactionTable.txt"
+    
+  def getUserTransactionTableName(platformName: String): String =
+    s"${platformName}UserTransactionTable.txt"
+    
+  def getUserTransactionExclusiveTableName(platformName: String): String =
+    s"${platformName}UserTransactionExclusive.txt"
 }
