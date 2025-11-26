@@ -184,10 +184,10 @@ object FileManager {
 
   def getPhysicalTransactionTableName(platformName: String): String =
     s"${platformName}PhysicalTransactionTable.txt"
-    
+
   def getUserTransactionTableName(platformName: String): String =
     s"${platformName}UserTransactionTable.txt"
-    
+
   def getUserTransactionExclusiveTableName(platformName: String): String =
     s"${platformName}UserTransactionExclusive.txt"
 }

@@ -273,9 +273,15 @@ object Analyse {
             BigDecimal(1)
         }) getOrElse BigDecimal(-1)
       }
+
+      def getName(using ev: Analyse[T]): String =
+        ev.getName(self)
+
+      def getMaxSize(using ev: Analyse[T]): Int =
+        ev.getMaxSize(self)
     }
 
-    extension [T <: Platform](self: T) {
+    extension [T <: ConfiguredPlatform](self: T) {
       private def computeGraphReduction(
           implm: SolverImplm,
           method: Method
@@ -309,6 +315,12 @@ object Analyse {
             .parseGraphReductionFile(ev.getName(self), method, implm)
             .getOrElse(computeGraphReduction(implm, method))
         }
+
+      def computeTopologicalInterferenceSystem(
+          maxSize: Int
+      )(using ev: Analyse[T]): TopologicalInterferenceSystem = {
+        Analyse.computeSystem(self, maxSize)
+      }
     }
   }
 
@@ -323,54 +335,6 @@ object Analyse {
     def getName(x: ConfiguredPlatform): String = x.fullName
 
     def getMaxSize(x: ConfiguredPlatform): Int = x.initiators.size
-
-    private def computeSystem(
-        platform: ConfiguredPlatform,
-        maxSize: Int
-    ): TopologicalInterferenceSystem = {
-      val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedAtomicTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val exclusiveWithTr
-          : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val interfereWith: Map[Service, Set[Service]] =
-        platform.relationToMap(
-          platform.services,
-          (l, r) => platform.finalInterfereWith(l, r)
-        )
-
-      val finalUserTransactionExclusiveOpt =
-        platform match {
-          case appSpec: ApplicativeTableBasedInterferenceSpecification =>
-            Some(appSpec.finalUserTransactionExclusive)
-          case _ => None
-        }
-
-      val transactionUserNameOpt =
-        platform match {
-          case lib: TransactionLibrary =>
-            Some(lib.transactionUserName)
-          case _ => None
-        }
-      TopologicalInterferenceSystem(
-        platform.purifiedAtomicTransactions.transform((_,v) => v.map(_.name)),
-        platform.purifiedTransactions,
-        exclusiveWithATr,
-        exclusiveWithTr,
-        interfereWith.map((k,v) => k.name -> v.map(_.name)),
-        maxSize,
-        finalUserTransactionExclusiveOpt,
-        transactionUserNameOpt,
-        platform.fullName,
-        platform.sourceFile
-      )
-    }
 
     def computeInterference(
         x: ConfiguredPlatform,
@@ -838,7 +802,11 @@ object Analyse {
               nonExclusiveMultiTransactions
             )
           )
-          writeFooter(summaryWriter, computationTime, nbFree.values.sum + nbITF.values.sum)
+          writeFooter(
+            summaryWriter,
+            computationTime,
+            nbFree.values.sum + nbITF.values.sum
+          )
 
           summaryWriter.flush()
           summaryWriter.close()
@@ -1163,5 +1131,53 @@ object Analyse {
         )
         .toMap
     }
+  }
+
+  private def computeSystem(
+      platform: ConfiguredPlatform,
+      maxSize: Int
+  ): TopologicalInterferenceSystem = {
+    val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
+      platform.relationToMap(
+        platform.purifiedAtomicTransactions.keySet,
+        (l, r) => platform.finalExclusive(l, r)
+      )
+    val exclusiveWithTr
+        : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
+      platform.relationToMap(
+        platform.purifiedTransactions.keySet,
+        (l, r) => platform.finalExclusive(l, r)
+      )
+    val interfereWith: Map[Service, Set[Service]] =
+      platform.relationToMap(
+        platform.services,
+        (l, r) => platform.finalInterfereWith(l, r)
+      )
+
+    val finalUserTransactionExclusiveOpt =
+      platform match {
+        case appSpec: ApplicativeTableBasedInterferenceSpecification =>
+          Some(appSpec.finalUserTransactionExclusive)
+        case _ => None
+      }
+
+    val transactionUserNameOpt =
+      platform match {
+        case lib: TransactionLibrary =>
+          Some(lib.transactionUserName)
+        case _ => None
+      }
+    TopologicalInterferenceSystem(
+      platform.purifiedAtomicTransactions.transform((_, v) => v.map(_.name)),
+      platform.purifiedTransactions,
+      exclusiveWithATr,
+      exclusiveWithTr,
+      interfereWith.map((k, v) => k.name -> v.map(_.name)),
+      maxSize,
+      finalUserTransactionExclusiveOpt,
+      transactionUserNameOpt,
+      platform.fullName,
+      platform.sourceFile
+    )
   }
 }

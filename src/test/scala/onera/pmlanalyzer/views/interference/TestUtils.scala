@@ -43,7 +43,7 @@ object InterferenceTestExtension {
     case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
   }
 
-  extension (x: ConfiguredPlatform) {
+  extension [T: Analyse](x: T) {
 
     def test(
         max: Int,
@@ -52,7 +52,7 @@ object InterferenceTestExtension {
         method: Method
     ): Future[Seq[Seq[MultiTransactionComparison]]] = {
       x.computeKInterference(
-        List(max, x.initiators.size).min,
+        List(max, x.getMaxSize).min,
         ignoreExistingAnalysisFiles = true,
         computeSemantics = false,
         verboseResultFile = false,
@@ -62,16 +62,16 @@ object InterferenceTestExtension {
       ) map { resultFiles =>
         {
           for {
-            i <- 2 to List(max, x.initiators.size).min
+            i <- 2 to List(max, x.getMaxSize).min
             fileITF <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x.fullName, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x.getName, i, None, None)}"
             )
             fileFree <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x.fullName, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x.getName, i, None, None)}"
             )
             rITFFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisITFFileName(
-                x.fullName,
+                x.getName,
                 i,
                 Some(method),
                 Some(implm)
@@ -79,7 +79,7 @@ object InterferenceTestExtension {
             )
             rFreeFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisFreeFileName(
-                x.fullName,
+                x.getName,
                 i,
                 Some(method),
                 Some(implm)

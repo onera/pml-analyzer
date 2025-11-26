@@ -46,10 +46,12 @@ object RelationExporter {
      * the platform providing the export features
      */
     extension (self: Platform & InterferenceSpecification) {
-      
+
       def exportServiceInterfereTable(): Unit = {
         import self.*
-        val writer = getWriter(FileManager.getServiceInterfereTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getServiceInterfereTableName(self.fullName)
+        )
         val table = relationToMap(self.services, finalInterfereWith)
         writer.write(
           "Service, Service(s)\n"
@@ -89,7 +91,9 @@ object RelationExporter {
       }
 
       def exportTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(FileManager.getTransactionExclusiveTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getTransactionExclusiveTableName(self.fullName)
+        )
         val table = self.finalExclusive(self.purifiedTransactions.keySet)
         writer.write(
           "PhysicalTransactionId, PhysicalTransactionId(s)\n"
@@ -106,7 +110,9 @@ object RelationExporter {
       }
 
       def exportAtomicTransactionTable(): Unit = {
-        val writer = getWriter(FileManager.getAtomicTransactionTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getAtomicTransactionTableName(self.fullName)
+        )
         writer.write(
           "AtomicTransactionId, Path\n"
         )
@@ -120,7 +126,9 @@ object RelationExporter {
       }
 
       def exportPhysicalTransactionTable(): Unit = {
-        val writer = getWriter(FileManager.getPhysicalTransactionTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getPhysicalTransactionTableName(self.fullName)
+        )
         writer.write(
           "PhysicalTransactionId, AtomicTransactionId(s)\n"
         )
@@ -140,7 +148,9 @@ object RelationExporter {
         self: Platform & TransactionLibrary & InterferenceSpecification
     ) {
       def exportUserTransactionTable(): Unit = {
-        val writer = getWriter(FileManager.getUserTransactionTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getUserTransactionTableName(self.fullName)
+        )
         writer.write(
           "UserTransactionId, AtomicTransactionId(s)\n"
         )
@@ -162,7 +172,9 @@ object RelationExporter {
         self: Platform & ApplicativeTableBasedInterferenceSpecification
     ) {
       def exportUserTransactionExclusiveTable(): Unit = {
-        val writer = getWriter(FileManager.getUserTransactionExclusiveTableName(self.fullName))
+        val writer = getWriter(
+          FileManager.getUserTransactionExclusiveTableName(self.fullName)
+        )
         writer.write(
           "UserTransactionId, UserTransactionId(s)\n"
         )

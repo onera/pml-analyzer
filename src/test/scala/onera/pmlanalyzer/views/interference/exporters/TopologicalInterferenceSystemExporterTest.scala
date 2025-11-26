@@ -17,49 +17,96 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
+import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import onera.pmlanalyzer.views.interference.model.formalisation.TopologicalInterferenceSystem
-import onera.pmlanalyzer.views.interference.operators.PostProcess
+import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-class TopologicalInterferenceSystemExporterTest extends AnyFlatSpec with should.Matchers {
+class TopologicalInterferenceSystemExporterTest
+    extends AnyFlatSpec
+    with should.Matchers {
 
-  MySys.fullName should "be able to export the corresponding topological interference system" taggedAs FastTests in {
-    MySys.exportTopologicalInterferenceSystem()
-    val TIS = TopologicalInterferenceSystem(MySys.fullName, MySys.initiators.size, MySys.sourceFile)
-    TIS should be (defined)
-    for {
-      importedTIS <- TIS
-    } yield {
-      val expectedExclusiveWithATr =
-        MySys.relationToMap(
-          MySys.purifiedAtomicTransactions.keySet,
-          (l, r) => MySys.finalExclusive(l, r)
-        )
-      val expectedExclusiveWithTr =
-        MySys.relationToMap(
-          MySys.purifiedTransactions.keySet,
-          (l, r) => MySys.finalExclusive(l, r)
-        )
-      val expectedInterfereWith =
-        MySys.relationToMap(
-          MySys.services,
-          (l, r) => MySys.finalInterfereWith(l, r)
-        ).map((k,v) => k.name -> v.map(_.name))
+  for {
+    (platform, expectedResultFileName) <- List(
+      MySys -> "mySys",
+      KeystoneWithRosace -> "keystone"
+    )
+  } yield {
 
-      importedTIS.atomicTransactions should equal (MySys.purifiedAtomicTransactions.transform((_, v) => v.map(_.name)))
-      importedTIS.idToTransaction should equal (MySys.purifiedTransactions)
-      importedTIS.exclusiveWithATr should equal (expectedExclusiveWithATr)
-      importedTIS.exclusiveWithTr should equal (expectedExclusiveWithTr)
-      importedTIS.interfereWith should equal (expectedInterfereWith)
-      importedTIS.maxSize should equal (MySys.initiators.size)
-      importedTIS.finalUserTransactionExclusiveOpt should equal (Some(MySys.finalUserTransactionExclusive))
-      importedTIS.transactionUserNameOpt should equal (Some(MySys.transactionUserName))
-      importedTIS.name should equal (MySys.fullName)
-      importedTIS.sourceFile should equal (MySys.sourceFile)
+    s"The topological interference system of ${platform.fullName}" should "be exportable and consistent with platform info" taggedAs FastTests in {
+      platform.exportTopologicalInterferenceSystem()
+      val TIS = TopologicalInterferenceSystem(
+        platform.fullName,
+        platform.initiators.size,
+        platform.sourceFile
+      )
+      TIS should be(defined)
+      for {
+        importedTIS <- TIS
+      } yield {
+        importedTIS should equal(
+          platform.computeTopologicalInterferenceSystem(
+            platform.initiators.size
+          )
+        )
+      }
+    }
+
+    it should "be consistent with expected tables" taggedAs FastTests in {
+      val expectedTIS =
+        for {
+          atomicTransactionsS <- FileManager.extractResource(
+            s"$expectedResultFileName/${FileManager.getAtomicTransactionTableName(platform.fullName)}"
+          )
+          idToTransactionS <- FileManager.extractResource(
+            s"$expectedResultFileName/${FileManager.getPhysicalTransactionTableName(platform.fullName)}"
+          )
+          exclusiveWithATrS <- FileManager.extractResource(
+            s"$expectedResultFileName/${FileManager.getAtomicTransactionExclusiveTableName(platform.fullName)}"
+          )
+          exclusiveWithTrS <- FileManager.extractResource(
+            s"$expectedResultFileName/${FileManager.getTransactionExclusiveTableName(platform.fullName)}"
+          )
+          interfereWithS <- FileManager.extractResource(
+            s"$expectedResultFileName/${FileManager.getServiceInterfereTableName(platform.fullName)}"
+          )
+        } yield {
+          TopologicalInterferenceSystem(
+            platform.fullName,
+            platform.initiators.size,
+            platform.sourceFile,
+            atomicTransactionsS,
+            idToTransactionS,
+            exclusiveWithATrS,
+            exclusiveWithTrS,
+            interfereWithS,
+            platform match {
+              case _: ApplicativeTableBasedInterferenceSpecification =>
+                FileManager.extractResource(
+                  s"$expectedResultFileName/${FileManager.getUserTransactionExclusiveTableName(platform.fullName)}"
+                )
+              case _ => None
+            },
+            FileManager.extractResource(
+              s"$expectedResultFileName/${FileManager.getUserTransactionTableName(platform.fullName)}"
+            )
+          )
+        }
+      platform.exportTopologicalInterferenceSystem()
+      val foundTIS = TopologicalInterferenceSystem(
+        platform.fullName,
+        platform.initiators.size,
+        platform.sourceFile
+      )
+      foundTIS should be(defined)
+      expectedTIS should be(defined)
+      foundTIS should equal(expectedTIS)
     }
   }
 

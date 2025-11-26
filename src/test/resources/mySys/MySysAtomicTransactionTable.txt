@@ -1,0 +1,15 @@
+AtomicTransactionId, Path
+MySys_ARM0_core_load_MySys_ARM0_cache_load_0, MySys_ARM0_core_load :: MySys_ARM0_cache_load
+MySys_ARM0_core_load_MySys_ddr_load_0, MySys_ARM0_core_load :: MySys_axi_bus_load :: MySys_MemorySubSystem_msmc_load :: MySys_MemorySubSystem_ddr_ctrl_load :: MySys_ddr_load
+MySys_ARM0_core_load_MySys_mpic_load_0, MySys_ARM0_core_load :: MySys_mpic_load
+MySys_ARM0_core_store_MySys_ARM0_cache_store_0, MySys_ARM0_core_store :: MySys_ARM0_cache_store
+MySys_ARM0_core_store_MySys_ddr_store_0, MySys_ARM0_core_store :: MySys_axi_bus_store :: MySys_MemorySubSystem_msmc_store :: MySys_MemorySubSystem_ddr_ctrl_store :: MySys_ddr_store
+MySys_ARM1_core_load_MySys_MemorySubSystem_sram_load_0, MySys_ARM1_core_load :: MySys_axi_bus_load :: MySys_MemorySubSystem_msmc_load :: MySys_MemorySubSystem_sram_load
+MySys_ARM1_core_load_MySys_ddr_load_0, MySys_ARM1_core_load :: MySys_axi_bus_load :: MySys_MemorySubSystem_msmc_load :: MySys_MemorySubSystem_ddr_ctrl_load :: MySys_ddr_load
+MySys_ARM1_core_load_MySys_dma_reg_load_0, MySys_ARM1_core_load :: MySys_TeraNet_config_bus_load :: MySys_dma_reg_load
+MySys_ARM1_core_store_MySys_MemorySubSystem_sram_store_0, MySys_ARM1_core_store :: MySys_axi_bus_store :: MySys_MemorySubSystem_msmc_store :: MySys_MemorySubSystem_sram_store
+MySys_ARM1_core_store_MySys_ddr_store_0, MySys_ARM1_core_store :: MySys_axi_bus_store :: MySys_MemorySubSystem_msmc_store :: MySys_MemorySubSystem_ddr_ctrl_store :: MySys_ddr_store
+MySys_ARM1_core_store_MySys_dma_reg_store_0, MySys_ARM1_core_store :: MySys_TeraNet_config_bus_store :: MySys_dma_reg_store
+MySys_dma_load_MySys_MemorySubSystem_sram_load_0, MySys_dma_load :: MySys_MemorySubSystem_sram_load
+MySys_dma_store_MySys_spi_store_0, MySys_dma_store :: MySys_spi_store
+MySys_eth_store_MySys_MemorySubSystem_sram_store_0, MySys_eth_store :: MySys_TeraNet_periph_bus_store :: MySys_MemorySubSystem_msmc_store :: MySys_MemorySubSystem_sram_store

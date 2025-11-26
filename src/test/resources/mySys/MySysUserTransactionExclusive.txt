@@ -1,0 +1,13 @@
+UserTransactionId, UserTransactionId(s)
+t11, t12, t13, t14
+t12, t11, t13, t14
+t13, t11, t12, t14
+t14, t11, t12, t13
+t21, t22, t23, t24, t25, t26
+t22, t21, t23, t24, t25, t26, t31
+t23, t21, t22, t24, t25, t26, t31
+t24, t21, t22, t23, t25, t26, t31
+t25, t21, t22, t23, t24, t26, t31
+t26, t21, t22, t23, t24, t25, t31
+t31, t22, t23, t24, t25, t26
+t41, 
