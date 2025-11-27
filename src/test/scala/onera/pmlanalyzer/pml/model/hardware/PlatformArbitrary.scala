@@ -31,7 +31,7 @@ import onera.pmlanalyzer.pml.model.relations.{
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 

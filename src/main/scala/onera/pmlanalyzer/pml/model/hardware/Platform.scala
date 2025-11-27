@@ -26,7 +26,8 @@ import onera.pmlanalyzer.pml.model.utils.{
   Owner,
   ReflexiveInfo
 }
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
   AtomicTransactionId,

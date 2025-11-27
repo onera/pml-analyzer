@@ -3,7 +3,7 @@ package keystone.views.interference
 import onera.pmlanalyzer.pml.model.hardware.Hardware
 import keystone.pml.{KeystonePlatform, RosaceConfiguration}
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 
 trait RosaceInterferenceSpecification

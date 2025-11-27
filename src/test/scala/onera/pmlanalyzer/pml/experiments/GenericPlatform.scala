@@ -2,7 +2,7 @@ package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.*
 
 /*******************************************************************************

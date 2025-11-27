@@ -23,7 +23,7 @@ package simpleKeystone.pml
   * {{{t11_app1_rd_interrupt1.used}}}
  *
   * @see
-  *   [[pml.operators.Use.Ops]] for operator definition
+  *   [[Use.Ops]] for operator definition
   */
 trait SimpleKeystoneLibraryConfiguration
     extends SimpleKeystoneTransactionLibrary

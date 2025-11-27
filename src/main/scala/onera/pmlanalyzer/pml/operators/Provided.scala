@@ -22,6 +22,7 @@ import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Data
 import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.*
 
 import scala.reflect.*
 

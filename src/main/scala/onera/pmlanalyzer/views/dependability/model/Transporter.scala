@@ -17,7 +17,8 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.exporters.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.exporters.SubComponent
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.{
   Request,
   TargetStatus

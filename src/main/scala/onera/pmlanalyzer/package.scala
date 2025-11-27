@@ -15,17 +15,12 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package mySys
+package onera
 
-/** Package containing an example on a simplification of a TI Keystone platform
- *
-  * @see
-  *   [[MyProcPlatform]] for examples of [[pml.model.hardware.Hardware]]
-  *   modelling features [[MySysSoftwareAllocation]] for examples of
-  *   [[pml.model.software.Application]] modelling features
-  *   [[MySysTransactionLibrary]] for examples of transaction modelling
-  *   features [[MySysLibraryConfiguration]] for example of transaction library
-  *   configuration [[MySysExport]] for examples of platform instantiation and
-  *   [[pml.exporters]] usage
-  */
-package object pml
+package object pmlanalyzer
+    extends pml.exporters.All
+    with pml.operators.All
+    with views.dependability.exporters.All
+    with views.dependability.operators.All
+    with views.interference.exporters.All
+    with views.interference.operators.All

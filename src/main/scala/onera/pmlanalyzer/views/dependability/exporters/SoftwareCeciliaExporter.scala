@@ -25,7 +25,12 @@ import onera.pmlanalyzer.views.dependability.model.{
   Descriptor,
   TargetId
 }
-import onera.pmlanalyzer.views.dependability.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 
 trait SoftwareCeciliaExporter {
   self: TypeCeciliaExporter

@@ -19,7 +19,7 @@ package mySys.pml
 
 import mySys.pml
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import scala.language.postfixOps
 
@@ -32,7 +32,7 @@ import scala.language.postfixOps
   * [[MyProcPlatform.MemorySubsystem.sram]]
   * {{{input_d hostedBy MemorySubsystem.sram}}}
   * @see
-  *   [[pml.operators.Use.Ops]] for hostedBy operator definition
+  *   [[Use.Ops]] for hostedBy operator definition
   */
 trait MySysSoftwareAllocation {
   self: MyProcPlatform =>

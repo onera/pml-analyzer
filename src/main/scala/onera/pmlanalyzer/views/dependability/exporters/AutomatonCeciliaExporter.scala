@@ -26,7 +26,12 @@ import onera.pmlanalyzer.views.dependability.model.{
   InputFMAutomaton,
   SimpleFMAutomaton
 }
-import onera.pmlanalyzer.views.dependability.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 
 trait AutomatonCeciliaExporter {
   self: TypeCeciliaExporter =>

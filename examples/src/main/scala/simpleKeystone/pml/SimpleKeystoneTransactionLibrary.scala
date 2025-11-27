@@ -19,7 +19,7 @@ package simpleKeystone.pml
 
 import simpleKeystone.pml.SimpleSoftwareAllocation
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import scala.language.postfixOps
 
@@ -45,7 +45,7 @@ import scala.language.postfixOps
   *   should be a path from an initiator to a target, if several paths are
   *   possible a warning will be raised.
   * @see
-  *   [[pml.operators.Use.Ops]] for read/write operator definitions
+  *   [[Use.Ops]] for read/write operator definitions
   */
 trait SimpleKeystoneTransactionLibrary extends TransactionLibrary {
   self: SimpleKeystonePlatform with SimpleSoftwareAllocation =>

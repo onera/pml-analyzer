@@ -19,11 +19,11 @@ package onera.pmlanalyzer.views.interference.exporters
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
   InterferenceSpecification
 }
+import onera.pmlanalyzer.*
 
 object TopologicalInterferenceSystemExporter {
 

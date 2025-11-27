@@ -29,7 +29,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
 }
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 import onera.pmlanalyzer.views.dependability.model.{

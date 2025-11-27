@@ -17,9 +17,9 @@
 
 package mySys.pml
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
-import onera.pmlanalyzer.pml.operators.*
 import sourcecode.{File, Line, Name}
 
 /** Simple model of the Keystone platform illustrating the main features of PML.
@@ -49,7 +49,7 @@ import sourcecode.{File, Line, Name}
   * a [[pml.model.hardware.Composite]] to another component.
  *
  * @see
-  *   [[pml.operators.Link.Ops]] for link operator definition
+  *   [[Link.Ops]] for link operator definition
   * @see
   *   [[pml.model.hardware.BaseHardwareNodeBuilder]] for component instantiation
  * @note

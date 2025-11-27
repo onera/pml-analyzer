@@ -18,7 +18,7 @@
 package simpleKeystone.pml
 
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import scala.language.postfixOps
 
@@ -31,7 +31,7 @@ import scala.language.postfixOps
   * [[pml.examples.simpleKeystone.SimpleKeystonePlatform.MemorySubsystem.sram]]
   * {{{input_d hostedBy MemorySubsystem.sram}}}
   * @see
-  *   [[pml.operators.Use.Ops]] for hostedBy operator definition
+  *   [[Use.Ops]] for hostedBy operator definition
   */
 trait SimpleSoftwareAllocation {
   self: SimpleKeystonePlatform =>

@@ -6,10 +6,11 @@ import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
-import onera.pmlanalyzer.views.interference.operators.*
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.interference.operators.Analyse
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

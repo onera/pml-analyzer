@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
+import onera.pmlanalyzer.allOf
 import onera.pmlanalyzer.views.dependability.model.BaseEnumeration
 
 trait IsCriticityOrdering[T] extends Ordering[T]

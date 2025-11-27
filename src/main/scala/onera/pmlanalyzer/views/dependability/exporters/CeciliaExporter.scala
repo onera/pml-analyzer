@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.*
 
 import scala.xml.{Elem, XML}
 

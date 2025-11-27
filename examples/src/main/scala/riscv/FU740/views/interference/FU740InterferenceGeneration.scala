@@ -21,10 +21,9 @@ import riscv.FU740.pml.FU740Export.{
   FU740ConfiguredFull,
   FU740PartitionedConfiguredFull
 }
-import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Choco
-import onera.pmlanalyzer.views.interference.operators.*
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps

@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
@@ -33,7 +33,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransactionId,
   multiTransactionId
 }
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.operators.Analyse
 
 import java.io.{File, FileWriter}
 import java.text.NumberFormat

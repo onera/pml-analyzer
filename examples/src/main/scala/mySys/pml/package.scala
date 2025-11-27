@@ -15,18 +15,18 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package simpleKeystone.pml
+package mySys
 
-import onera.pmlanalyzer.*
-
-/** Routing constraints considered for simple Keystone
+/** Package containing an example on a simplification of a TI Keystone platform
+ *
+  * @see
+  *   [[MyProcPlatform]] for examples of [[pml.model.hardware.Hardware]]
+  *   modelling features [[MySysSoftwareAllocation]] for examples of
+  *   [[pml.model.software.Application]] modelling features
+  *   [[MySysTransactionLibrary]] for examples of transaction modelling
+  *   features [[MySysLibraryConfiguration]] for example of transaction library
+  *   configuration [[MySysExport]] for examples of platform instantiation and
+  *   [[pml.exporters]] usage
   */
-trait SimpleRoutingConfiguration {
-  self: SimpleKeystonePlatform =>
 
-  // Arm cores, ethernet and dma cannot use the periph_bus from msmc
-  ARM0.core cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
-  ARM1.core cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
-  eth cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
-  dma cannotUseLink MemorySubsystem.msmc to TeraNet.periph_bus
-}
+package object pml

@@ -20,9 +20,17 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.model.formalisation
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{CPSat, Choco, GCode, Monosat}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  CPSat,
+  Choco,
+  GCode,
+  Monosat
+}
 import org.chocosolver.solver.Model as ChocoModel
-import org.chocosolver.solver.constraints.{Operator, Constraint as ChocoConstraint}
+import org.chocosolver.solver.constraints.{
+  Operator,
+  Constraint as ChocoConstraint
+}
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
 import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
@@ -371,7 +379,7 @@ abstract class MiniZinc extends Solver {
 
   private val boolLitCache = mutable.Map.empty[MLit, String]
 
-  //FIXME First step with file, but consider Stream from terminal
+  // FIXME First step with file, but consider Stream from terminal
   private val miniZincFile: File =
     FileManager.analysisDirectory.getFile("exportMiniZinc.mzn")
   protected val fileWriter = FileWriter(miniZincFile)
@@ -410,7 +418,7 @@ abstract class MiniZinc extends Solver {
   def getNode(g: MGraph, id: String): Option[BoolLit] = ???
 
   def and(l: Seq[Expr]): Expression =
-    l.mkString("(", "/\\",")")
+    l.mkString("(", "/\\", ")")
 
   def or(l: Seq[Expr]): Expression = ???
 
@@ -426,7 +434,10 @@ abstract class MiniZinc extends Solver {
 
   def close(): Unit = ???
 
-  protected def enumerateSolution(toGet: Set[MLit], implm:SolverImplm): mutable.Set[Set[MLit]] = {
+  protected def enumerateSolution(
+      toGet: Set[MLit],
+      implm: SolverImplm
+  ): mutable.Set[Set[MLit]] = {
     fileWriter.flush()
     fileWriter.close()
     ???
@@ -453,10 +464,10 @@ final class CPSat extends MiniZinc {
 object Solver {
   def apply(implm: SolverImplm): Solver = {
     implm match {
-      case SolverImplm.Monosat  => MonoSatSolver()
-      case SolverImplm.Choco    => ChocoSolver()
-      case SolverImplm.GCode => GCode()
-      case SolverImplm.CPSat => CPSat()
+      case SolverImplm.Monosat => MonoSatSolver()
+      case SolverImplm.Choco   => ChocoSolver()
+      case SolverImplm.GCode   => GCode()
+      case SolverImplm.CPSat   => CPSat()
     }
   }
 }

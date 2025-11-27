@@ -22,7 +22,8 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.DelayedTransform
 import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import sourcecode.Name
 

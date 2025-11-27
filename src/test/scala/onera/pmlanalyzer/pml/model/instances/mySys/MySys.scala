@@ -17,9 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.instances.mySys
 
-import onera.pmlanalyzer.pml.exporters.*
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.specification.mySys.{
   MyProcInterferenceSpecification,
   MySysInterferenceSpecification

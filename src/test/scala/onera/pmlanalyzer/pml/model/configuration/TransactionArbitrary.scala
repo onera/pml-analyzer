@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.Endomorphism
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName

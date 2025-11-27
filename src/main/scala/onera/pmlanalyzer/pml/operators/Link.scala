@@ -26,6 +26,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
 import onera.pmlanalyzer.pml.model.relations.LinkRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import sourcecode.{File, Line}
+import onera.pmlanalyzer.*
 
 import scala.reflect.{ClassTag, classTag}
 

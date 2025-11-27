@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.configuration.{
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import java.io.FileWriter
 

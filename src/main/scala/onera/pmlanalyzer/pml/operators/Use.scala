@@ -21,6 +21,7 @@ import onera.pmlanalyzer.pml.model.hardware.{Initiator, Target}
 import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, UseRelation}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.*
 import sourcecode.{File, Line}
 
 /** Base trait for use operator

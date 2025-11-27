@@ -17,9 +17,14 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.exporters.{SubComponent, *}
+import onera.pmlanalyzer.views.dependability.exporters.SubComponent
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.Request
-import onera.pmlanalyzer.views.dependability.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 
 trait Target[FM] extends Component {
   val id: TargetId

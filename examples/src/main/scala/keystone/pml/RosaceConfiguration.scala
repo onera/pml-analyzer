@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.configuration.{
   TransactionLibrary
 }
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.{File, Line}
 
 import scala.language.postfixOps

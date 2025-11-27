@@ -17,7 +17,12 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
-import onera.pmlanalyzer.views.dependability.operators.{IsFinite, *}
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
+import onera.pmlanalyzer.*
 
 trait TypeCeciliaExporter {
   def typeModel[T: IsFinite]: EnumeratedType = {

@@ -22,9 +22,8 @@ import simpleKeystone.views.interference.{
   SimpleKeystoneApplicativeTableBasedInterferenceSpecification,
   SimpleKeystonePhysicalTableBasedInterferenceSpecification
 }
-import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 /** Program entry point to export several version of Keystone
   */

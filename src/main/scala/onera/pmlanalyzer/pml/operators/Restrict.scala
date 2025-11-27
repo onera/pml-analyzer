@@ -24,6 +24,7 @@ import onera.pmlanalyzer.pml.model.relations.{
   RoutingRelation,
   UseRelation
 }
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message

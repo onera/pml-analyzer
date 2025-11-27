@@ -19,7 +19,7 @@ package riscv.FU740.pml
 
 import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.hardware.Target
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.Name
 
 import scala.language.postfixOps
@@ -33,7 +33,7 @@ import scala.language.postfixOps
   * @note A transaction is only '''declared''' here, it will be considered during the interference analysis if it is
   *      actually used. This is done in the [[FU740LibraryConfiguration]] files.
   *      A transaction should be a path from an initiator to a target, if several paths are possible a warning will be raised.
-  * @see [[pml.operators.Use.Ops]] for read/write operator definitions
+  * @see [[Use.Ops]] for read/write operator definitions
   * */
 trait FU740TransactionLibrary extends TransactionLibrary {
   self: FU740Platform with FU740SoftwareAllocation =>

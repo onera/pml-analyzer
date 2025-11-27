@@ -17,14 +17,17 @@
 
 package onera.pmlanalyzer.views.dependability
 
-package object exporters
-    extends TypeCeciliaExporter
-    with BasicOperationCeciliaExporter
-    with AutomatonCeciliaExporter
-    with TargetCeciliaExporter
-    with TransporterCeciliaExporter
-    with SoftwareCeciliaExporter
-    with SystemCeciliaExporter
-    with PlatformCeciliaExporter
-    with CeciliaExporterOps
-    with ExprCeciliaExporter
+package object exporters {
+
+  trait All
+      extends TypeCeciliaExporter
+      with BasicOperationCeciliaExporter
+      with AutomatonCeciliaExporter
+      with TargetCeciliaExporter
+      with TransporterCeciliaExporter
+      with SoftwareCeciliaExporter
+      with SystemCeciliaExporter
+      with PlatformCeciliaExporter
+      with CeciliaExporterOps
+      with ExprCeciliaExporter
+}

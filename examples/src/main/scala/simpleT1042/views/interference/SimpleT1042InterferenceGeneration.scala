@@ -18,8 +18,7 @@
 package simpleT1042.views.interference
 
 import simpleT1042.pml.SimpleT1042Export.*
-import onera.pmlanalyzer.views.interference.operators.*
-
+import onera.pmlanalyzer.*
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 

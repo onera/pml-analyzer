@@ -21,8 +21,7 @@ import simpleT1042.views.interference.{
   SimpleT1042ApplicativeTableBasedInterferenceSpecification,
   SimpleT1042PhysicalTableBasedInterferenceSpecification
 }
-import onera.pmlanalyzer.pml.exporters.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 object SimpleT1042Export extends App {
 

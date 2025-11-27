@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo, c: Context)
     extends Composite(n, clusterInfo, c) {
