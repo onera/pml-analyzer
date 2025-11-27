@@ -38,7 +38,8 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
   }
 
   private val kForFastTest = 4
-  private val TIS = KeystoneWithRosace.computeTopologicalInterferenceSystem(kForFastTest)
+  private val TIS =
+    KeystoneWithRosace.computeTopologicalInterferenceSystem(kForFastTest)
 
   private def compareWithExpected[T: Analyse](
       x: T,
