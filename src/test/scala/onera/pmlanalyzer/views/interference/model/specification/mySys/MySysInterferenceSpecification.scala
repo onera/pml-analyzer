@@ -18,10 +18,10 @@
 package onera.pmlanalyzer.views.interference.model.specification.mySys
 
 import onera.pmlanalyzer.pml.model.instances.mySys.{
-  MySysLibraryConfiguration,
   MyProcPlatform,
-  MySysTransactionLibrary,
-  MySysSoftwareAllocation
+  MySysLibraryConfiguration,
+  MySysSoftwareAllocation,
+  MySysTransactionLibrary
 }
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification

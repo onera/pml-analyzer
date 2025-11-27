@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.patterns.exporters
 
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.views.patterns.model._
+import onera.pmlanalyzer.views.patterns.model.*
 
 import java.io.{File, FileWriter}
 import java.nio.file.Paths

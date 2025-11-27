@@ -24,8 +24,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
   SimpleTransporter,
   Target
 }
-import onera.pmlanalyzer.pml.model.utils.Context
-import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

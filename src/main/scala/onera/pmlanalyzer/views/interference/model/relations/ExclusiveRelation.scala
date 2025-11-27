@@ -23,8 +23,8 @@ import onera.pmlanalyzer.pml.model.relations.{
   Endomorphism
 }
 import onera.pmlanalyzer.pml.model.software.Application
-import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
+import sourcecode.Name
 
 final case class ExclusiveRelation[A] private (iniValues: Map[A, Set[A]])(using
     n: Name

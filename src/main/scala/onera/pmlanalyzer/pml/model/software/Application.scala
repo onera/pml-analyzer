@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.pml.model.software
 
-import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder}
 import sourcecode.{File, Line}
 
 /** Class for the application executed on initiators

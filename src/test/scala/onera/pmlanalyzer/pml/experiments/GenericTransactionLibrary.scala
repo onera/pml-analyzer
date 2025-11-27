@@ -17,10 +17,9 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.{Target, Initiator}
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.configuration.*
+import onera.pmlanalyzer.pml.model.hardware.{Initiator, Target}
+import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
 

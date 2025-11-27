@@ -20,8 +20,8 @@ package onera.pmlanalyzer.views.interference.model.relations
 import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.service.Service
-import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
+import sourcecode.Name
 
 final case class NotInterfereRelation[L, R] private (iniValues: Map[L, Set[R]])(
     using n: Name

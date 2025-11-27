@@ -232,7 +232,7 @@ object Restrict {
         *   its service graph
         */
       def serviceGraphOf(s: Application): Map[Service, Set[Service]] = {
-        import self._
+        import self.*
         val ev = implicitly[
           Restrict[(Map[Service, Set[Service]], Set[String]), Application]
         ]
@@ -343,7 +343,7 @@ object Restrict {
         *   its hardware graph
         */
       def hardwareGraphOf(s: Application): Map[Hardware, Set[Hardware]] = {
-        import self._
+        import self.*
         val ev = implicitly[
           Restrict[(Map[Hardware, Set[Hardware]], Set[String]), Application]
         ]
@@ -364,7 +364,7 @@ object Restrict {
           s: Application,
           tgt: Service
       ): Map[Service, Set[Service]] = {
-        import self._
+        import self.*
         val ev = implicitly[
           Restrict[
             (Map[Service, Set[Service]], Set[String]),
@@ -388,7 +388,7 @@ object Restrict {
           s: Application,
           tgt: Service
       ): Map[Hardware, Set[Hardware]] = {
-        import self._
+        import self.*
         val ev = implicitly[
           Restrict[
             (Map[Hardware, Set[Hardware]], Set[String]),

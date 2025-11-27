@@ -1,25 +1,15 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
-import onera.pmlanalyzer.pml.model.instances.keystone.{
-  KeystonePlatform,
-  KeystoneRoutingConstraints,
-  KeystoneWithRosace,
-  RosaceConfiguration
-}
+import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.{
-  SolverImplm,
-  TopologicalInterferenceSystem
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
-import onera.pmlanalyzer.views.interference.model.specification.keystone.RosaceInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.views.interference.exporters.*
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

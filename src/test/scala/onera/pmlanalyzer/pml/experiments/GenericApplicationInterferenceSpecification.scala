@@ -2,8 +2,8 @@ package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.hardware.Transporter
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 
 trait GenericApplicationInterferenceSpecification

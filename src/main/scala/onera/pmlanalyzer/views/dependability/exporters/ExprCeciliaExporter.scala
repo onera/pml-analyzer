@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
-import onera.pmlanalyzer.views.dependability.model._
+import onera.pmlanalyzer.views.dependability.model.*
 import onera.pmlanalyzer.views.dependability.operators.allOf
 
 trait ExprCeciliaExporter {

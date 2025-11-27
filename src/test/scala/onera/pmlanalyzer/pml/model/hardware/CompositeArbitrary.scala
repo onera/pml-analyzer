@@ -17,7 +17,6 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeSetArbitrary, utils}
 import onera.pmlanalyzer.pml.model.relations.{
   LinkRelationArbitrary,
   RoutingRelationArbitrary,
@@ -25,13 +24,8 @@ import onera.pmlanalyzer.pml.model.relations.{
 }
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.model.utils.{
-  All,
-  ArbitraryConfiguration,
-  Context,
-  Owner,
-  ReflexiveInfo
-}
+import onera.pmlanalyzer.pml.model.utils.*
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeSetArbitrary, utils}
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 

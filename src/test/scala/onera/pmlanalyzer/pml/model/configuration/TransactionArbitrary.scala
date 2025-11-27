@@ -21,16 +21,9 @@ import onera.pmlanalyzer.pml.model.PMLNodeBuilder
 import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
 import onera.pmlanalyzer.pml.model.relations.Endomorphism
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.model.utils.{Context, Owner, ReflexiveInfo}
-import org.scalacheck.{Arbitrary, Gen}
-import onera.pmlanalyzer.pml.model.utils.{
-  All,
-  ArbitraryConfiguration,
-  Context,
-  Owner,
-  ReflexiveInfo
-}
+import onera.pmlanalyzer.pml.model.utils.*
 import onera.pmlanalyzer.pml.operators.*
+import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName
 

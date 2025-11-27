@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
-import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder._
+import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.*
 
 object GenericImage {
 

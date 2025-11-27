@@ -18,17 +18,15 @@
 package onera.pmlanalyzer.views.interference
 
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
+import org.scalatest.Tag
 
 import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.Future
 import scala.io.Source
 import scala.language.postfixOps
-import org.scalatest.Tag
 
 object InterferenceTestExtension {
 

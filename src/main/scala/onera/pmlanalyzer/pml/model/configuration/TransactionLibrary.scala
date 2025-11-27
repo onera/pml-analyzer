@@ -24,10 +24,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  AtomicTransaction,
-  AtomicTransactionId
-}
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 /** Base trait for library of transactions
   */

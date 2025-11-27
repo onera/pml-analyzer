@@ -17,28 +17,26 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
+import fastparse.*
+import fastparse.SingleLineWhitespace.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
-import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
-import fastparse.*
-import fastparse.SingleLineWhitespace.*
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.service.Load
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransactionId,
   Path,
   PhysicalTransactionId
 }
+import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
 
 import java.io.{File, FileWriter}
 import scala.concurrent.ExecutionContext.Implicits.*
@@ -419,7 +417,7 @@ object PostProcess {
       x: ConfiguredPlatform,
       file: File
   ): Map[Hardware, Int] = {
-    import x._
+    import x.*
     val results = parseChannel(Source.fromFile(file))
     val plByMultiTransaction = results
       .map(p =>

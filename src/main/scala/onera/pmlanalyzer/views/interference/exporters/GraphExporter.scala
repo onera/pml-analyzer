@@ -33,7 +33,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransactionId,
   multiTransactionId
 }
-import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}

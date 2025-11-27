@@ -17,11 +17,11 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{Message, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
   AtomicTransactionId

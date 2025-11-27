@@ -18,7 +18,6 @@
 package onera.pmlanalyzer.views.interference.model.formalisation
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
 trait Decoder {

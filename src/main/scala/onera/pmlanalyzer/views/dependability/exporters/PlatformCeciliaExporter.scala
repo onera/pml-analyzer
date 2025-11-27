@@ -55,7 +55,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-import scala.reflect._
+import scala.reflect.*
 import scala.xml.XML
 
 trait PlatformCeciliaExporter {
@@ -109,7 +109,7 @@ trait PlatformCeciliaExporter {
     type R = SystemModel
 
     def toCecilia(x: T): SystemModel = {
-      import x._
+      import x.*
       object TempSystem extends DepSystem(x.name) {
 
         def getTargetId(b: Service): Set[TargetId] = {

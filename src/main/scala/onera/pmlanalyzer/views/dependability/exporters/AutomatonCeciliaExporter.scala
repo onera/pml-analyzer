@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
-import onera.pmlanalyzer.views.dependability.exporters.GenericImage._
+import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.automatonFamilyFolder
 import onera.pmlanalyzer.views.dependability.model.{
   Direction,
@@ -26,7 +26,7 @@ import onera.pmlanalyzer.views.dependability.model.{
   InputFMAutomaton,
   SimpleFMAutomaton
 }
-import onera.pmlanalyzer.views.dependability.operators._
+import onera.pmlanalyzer.views.dependability.operators.*
 
 trait AutomatonCeciliaExporter {
   self: TypeCeciliaExporter =>

@@ -27,9 +27,9 @@ import onera.pmlanalyzer.pml.model.hardware.{
 }
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
-import scalaz.Memo.immutableHashMapMemo
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
+import scalaz.Memo.immutableHashMapMemo
 
 import java.io.{FileWriter, Writer}
 import scala.collection.mutable.HashMap as MHashMap
@@ -109,7 +109,7 @@ object IDPExporter {
     def exportIDP(
         platform: Platform with InterferenceSpecification
     )(implicit writer: Writer): Unit = {
-      import platform._
+      import platform.*
 
       writer.write(s"""|/* --------------------------------------------- */
            |// PIA MODEL GENERATED FOR ${platform.name.name}

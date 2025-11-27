@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.operators._
+import onera.pmlanalyzer.views.dependability.operators.*
 
 object CustomTypes {
 

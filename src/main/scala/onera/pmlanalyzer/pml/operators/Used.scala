@@ -23,14 +23,14 @@ import onera.pmlanalyzer.pml.model.relations.UseRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
-import scalaz.Memo.immutableHashMapMemo
+import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
   AtomicTransactionId,
   Path
 }
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
+import scalaz.Memo.immutableHashMapMemo
 
 import scala.collection.mutable
 import scala.reflect.*
@@ -316,7 +316,7 @@ object Used {
   // derivations
   given [P <: Platform: Typeable]: Used[P, AtomicTransaction] with {
     def apply(a: P): Set[AtomicTransaction] = {
-      import a._
+      import a.*
 
       val (appPaths, appWarnings) = a.applications.map(usedTransactionsBy).unzip
       val (iniPaths, iniWarnings) = a.initiators.map(usedTransactionsBy).unzip
