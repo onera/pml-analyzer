@@ -17,12 +17,12 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{*, given}
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -48,8 +48,7 @@ class UseRelationTest
 
   "UseRelation" should "encode properly the use of services by initiators" taggedAs UnitTests in {
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
-      import p.given
-      import p.*
+      import p.{*, given}
       implicit val conf: ArbitraryConfiguration = ArbitraryConfiguration.default
         .copy(forceTotalHosting = true)
       forAll(minSuccessful(20)) { (use: Map[Initiator, Set[Service]]) =>
@@ -64,8 +63,7 @@ class UseRelationTest
 
   it should "encode properly the use of services by applications" taggedAs UnitTests in {
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
-      import p.given
-      import p.*
+      import p.{*, given}
       forAll(minSuccessful(20)) { (use: Map[Application, Set[Service]]) =>
         applyAllUses(use, undo = false)
         checkUseRelation(use)
@@ -78,8 +76,7 @@ class UseRelationTest
 
   it should "encode properly the hosting of applications on initiators" taggedAs UnitTests in {
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
-      import p.given
-      import p.*
+      import p.{*, given}
       forAll(minSuccessful(20)) { (use: Map[Application, Set[Initiator]]) =>
         applyAllUses(use, undo = false)
         checkUseRelation(use)
@@ -92,8 +89,7 @@ class UseRelationTest
 
   it should "encode properly the hosting of data on targets" taggedAs UnitTests in {
     forAll(minSuccessful(20)) { (p: PopulatedPlatform) =>
-      import p.given
-      import p.*
+      import p.{*, given}
       forAll(minSuccessful(20)) { (use: Map[Data, Set[Target]]) =>
         applyAllUses(use, undo = false)
         checkUseRelation(use)

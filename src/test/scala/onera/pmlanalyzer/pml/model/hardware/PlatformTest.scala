@@ -18,17 +18,17 @@
 package onera.pmlanalyzer.pml.model.hardware
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import scala.reflect.*
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 
 class PlatformTest
     extends AnyFlatSpec
@@ -47,8 +47,7 @@ class PlatformTest
       with SimpleTransporterArbitrary
       with InitiatorArbitrary
 
-  import PlatformTestFixture.*
-  import PlatformTestFixture.given
+  import PlatformTestFixture.{*, given}
 
   private def testBasics[T <: Hardware: Typeable](
       x: T,

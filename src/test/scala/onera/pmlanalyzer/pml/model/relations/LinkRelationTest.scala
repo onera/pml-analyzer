@@ -17,7 +17,6 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
   PopulatedPlatform,
@@ -25,7 +24,7 @@ import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
 }
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.pml.operators.Linked
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -53,8 +52,7 @@ class LinkRelationTest
       p: PopulatedPlatform,
       expected: Map[Hardware, Set[Hardware]]
   ): Unit = {
-    import p.*
-    import p.given
+    import p.{*, given}
 
     applyAllLinks(expected, undo = false)
     checkLinkRelation(expected)

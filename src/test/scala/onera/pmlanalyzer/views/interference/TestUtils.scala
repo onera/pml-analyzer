@@ -18,17 +18,15 @@
 package onera.pmlanalyzer.views.interference
 
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.views.interference.operators.Analyse.ConfiguredPlatform
+import org.scalatest.Tag
 
 import scala.concurrent.ExecutionContext.Implicits.*
 import scala.concurrent.Future
 import scala.io.Source
 import scala.language.postfixOps
-import org.scalatest.Tag
 
 object InterferenceTestExtension {
 
@@ -43,7 +41,7 @@ object InterferenceTestExtension {
     case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
   }
 
-  extension (x: ConfiguredPlatform) {
+  extension [T: Analyse](x: T) {
 
     def test(
         max: Int,
@@ -52,7 +50,7 @@ object InterferenceTestExtension {
         method: Method
     ): Future[Seq[Seq[MultiTransactionComparison]]] = {
       x.computeKInterference(
-        List(max, x.initiators.size).min,
+        List(max, x.getMaxSize).min,
         ignoreExistingAnalysisFiles = true,
         computeSemantics = false,
         verboseResultFile = false,
@@ -62,16 +60,16 @@ object InterferenceTestExtension {
       ) map { resultFiles =>
         {
           for {
-            i <- 2 to List(max, x.initiators.size).min
+            i <- 2 to List(max, x.getMaxSize).min
             fileITF <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisITFFileName(x.getName, i, None, None)}"
             )
             fileFree <- FileManager.extractResource(
-              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x, i, None, None)}"
+              s"$expectedResultsDirectoryPath/${FileManager.getInterferenceAnalysisFreeFileName(x.getName, i, None, None)}"
             )
             rITFFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisITFFileName(
-                x,
+                x.getName,
                 i,
                 Some(method),
                 Some(implm)
@@ -79,7 +77,7 @@ object InterferenceTestExtension {
             )
             rFreeFile <- resultFiles.find(
               _.getName == FileManager.getInterferenceAnalysisFreeFileName(
-                x,
+                x.getName,
                 i,
                 Some(method),
                 Some(implm)

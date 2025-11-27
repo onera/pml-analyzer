@@ -17,21 +17,20 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
+import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
+  PopulatedPlatform,
+  given
+}
 import onera.pmlanalyzer.pml.model.hardware.{
   Hardware,
   Initiator,
   Platform,
   Target
 }
-import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.PopulatedPlatform
-import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.given
 import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
 import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.operators.Used.{checkImpossible, checkMultiPaths}
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.{
@@ -39,6 +38,9 @@ import onera.pmlanalyzer.views.interference.InterferenceTestExtension.{
   UnitTests
 }
 import org.scalacheck.Shrink
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class TransactionTest
     extends AnyFlatSpec

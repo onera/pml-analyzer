@@ -19,10 +19,10 @@ package onera.pmlanalyzer.views.interference.model.specification
 
 import onera.pmlanalyzer.pml.model.instances.DbusC2D2B8.DbusC2D2B8
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import InterferenceTestExtension.FastTests
 
 class DbusC2D2B8InterferenceSpecificationTest
     extends AnyFlatSpec

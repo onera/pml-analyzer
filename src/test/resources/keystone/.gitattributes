@@ -1,3 +1,9 @@
 KeystoneWithRosace_free_[2-5].txt filter= diff= merge= text
 KeystoneWithRosace_itf_[2-5].txt filter= diff= merge= text
 KeystoneRosaceWithRosaceUsedTransactionTable.txt filter= diff= merge= text
+KeystoneWithRosaceAtomicTransactionExclusive.txt filter= diff= merge= text
+KeystoneWithRosaceAtomicTransactionTable.txt filter= diff= merge= text
+KeystoneWithRosacePhysicalTransactionTable.txt filter= diff= merge= text
+KeystoneWithRosaceServiceInterfere.txt filter= diff= merge= text
+KeystoneWithRosaceTransactionExclusive.txt filter= diff= merge= text
+KeystoneWithRosaceUserTransactionTable.txt filter= diff= merge= text

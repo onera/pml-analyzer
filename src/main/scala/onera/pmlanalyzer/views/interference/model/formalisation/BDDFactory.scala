@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-import com.github.javabdd.{BDD => JavaBDD, BDDFactory => JavaBDDFactory}
+import com.github.javabdd.{BDD as JavaBDD, BDDFactory as JavaBDDFactory}
 
 import scala.collection.mutable
 

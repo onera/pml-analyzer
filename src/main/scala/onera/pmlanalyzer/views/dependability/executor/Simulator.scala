@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.executor
 
-import onera.pmlanalyzer.views.dependability.model._
+import onera.pmlanalyzer.views.dependability.model.*
 
 import scala.collection.mutable
 

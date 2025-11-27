@@ -17,14 +17,8 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{
-  Composite,
-  Hardware,
-  Initiator,
-  SimpleTransporter,
-  Target
-}
-import onera.pmlanalyzer.pml.model.relations.{ProvideRelation}
+import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.pml.operators.*

@@ -1,16 +1,11 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
-import onera.pmlanalyzer.pml.model.instances.keystone.{
-  KeystonePlatform,
-  KeystoneRoutingConstraints,
-  RosaceConfiguration
-}
+import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
-import onera.pmlanalyzer.views.interference.model.specification.keystone.RosaceInterferenceSpecification
 import onera.pmlanalyzer.views.interference.operators.*
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
@@ -24,12 +19,6 @@ import scala.util.{Failure, Success, Try}
 class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
 
   private val expectedResultsDirectoryPath = "keystone"
-
-  object KeystoneWithRosace
-      extends KeystonePlatform
-      with RosaceConfiguration
-      with KeystoneRoutingConstraints
-      with RosaceInterferenceSpecification
 
   KeystoneWithRosace.fullName should "contain the expected semantics distribution" taggedAs FastTests in {
     val semanticsDistribution =
@@ -48,9 +37,12 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     semanticsDistribution(13) should be(0)
   }
 
-  val kForFastTest = 4
+  private val kForFastTest = 4
+  private val TIS =
+    KeystoneWithRosace.computeTopologicalInterferenceSystem(kForFastTest)
 
-  private def compareWithExpected(
+  private def compareWithExpected[T: Analyse](
+      x: T,
       k: Int,
       implm: SolverImplm,
       method: Method
@@ -63,8 +55,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     }
     Try({
       Await.result(
-        KeystoneWithRosace
-          .test(k, expectedResultsDirectoryPath, implm, method),
+        x.test(k, expectedResultsDirectoryPath, implm, method),
         1 hour
       )
     }) match {
@@ -83,8 +74,8 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     method <- Method.values
     implm <- SolverImplm.values
   } {
-    s"For ${KeystoneWithRosace.fullName} limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      compareWithExpected(kForFastTest, implm, method)
+    s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
+      compareWithExpected(KeystoneWithRosace, kForFastTest, implm, method)
     }
   }
 
@@ -92,8 +83,18 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     method <- Method.values
     implm <- SolverImplm.values
   } {
-    s"For ${KeystoneWithRosace.fullName}, the $method method implemented with $implm" should "find the verified interference" taggedAs PerfTests in {
-      compareWithExpected(13, implm, method)
+
+    s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference based on the topological interference system export" taggedAs FastTests in {
+      compareWithExpected(TIS, kForFastTest, implm, method)
+    }
+  }
+
+  for {
+    method <- Method.values
+    implm <- SolverImplm.values
+  } {
+    s"For ${KeystoneWithRosace.fullName}, the analysis operator with the $method method implemented with $implm" should "find the verified interference" taggedAs PerfTests in {
+      compareWithExpected(KeystoneWithRosace, 13, implm, method)
     }
   }
 }

@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import sourcecode.{Line, File}
+import sourcecode.{File, Line}
 
 final case class ReflexiveInfo private (line: Line, file: File, owner: Owner)
 

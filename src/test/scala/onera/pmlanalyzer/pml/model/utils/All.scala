@@ -17,19 +17,10 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeMap}
-import onera.pmlanalyzer.pml.model.hardware.{
-  ContainerLike,
-  Hardware,
-  Initiator,
-  Platform,
-  SimpleTransporter,
-  Target,
-  Transporter,
-  Virtualizer
-}
+import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeMap}
 
 import scala.reflect.Typeable
 

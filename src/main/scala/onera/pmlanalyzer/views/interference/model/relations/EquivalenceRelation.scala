@@ -18,8 +18,8 @@
 package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.relations.{
-  ReflexiveSymmetricEndomorphism,
-  Endomorphism
+  Endomorphism,
+  ReflexiveSymmetricEndomorphism
 }
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message

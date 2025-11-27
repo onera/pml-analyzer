@@ -18,9 +18,9 @@
 package onera.pmlanalyzer.pml.model.service
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.{Composite, ContainerLike, Platform}
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
+import org.scalacheck.{Arbitrary, Gen}
 trait StoreArbitrary {
   self: ContainerLike =>
 

@@ -19,10 +19,10 @@
 package onera.pmlanalyzer.pml.model.configuration
 
 import onera.pmlanalyzer.pml.model.instances.Cyclotron.CyclotronInstances
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 
 import scala.language.postfixOps
 

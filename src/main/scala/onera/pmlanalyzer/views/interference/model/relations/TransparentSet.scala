@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.views.interference.model.relations
 
-import sourcecode.Name
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
+import sourcecode.Name
 
 import scala.collection.mutable.Set as MSet
 

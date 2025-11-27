@@ -18,14 +18,14 @@
 package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
-import onera.pmlanalyzer.views.dependability.exporters.GenericImage._
+import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogInitiatorFolder
 import onera.pmlanalyzer.views.dependability.model.{
   Application,
   Descriptor,
   TargetId
 }
-import onera.pmlanalyzer.views.dependability.operators._
+import onera.pmlanalyzer.views.dependability.operators.*
 
 trait SoftwareCeciliaExporter {
   self: TypeCeciliaExporter

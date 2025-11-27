@@ -17,20 +17,17 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
-import monosat.Logic.*
 import com.github.javabdd.BDD
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
+import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.views.interference.model.formalisation.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
-import scalaz.Memo.immutableHashMapMemo
-import onera.pmlanalyzer.views.interference.model.formalisation.{Comparator, *}
-import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import onera.pmlanalyzer.views.interference.model.specification.{
@@ -39,14 +36,11 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 }
 
 import java.io.{File, FileWriter}
-import scala.collection.immutable.SortedMap
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.*
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.io.Source
-import scala.jdk.CollectionConverters.*
 import scala.concurrent.duration.*
+import scala.concurrent.{Await, Future}
+import scala.jdk.CollectionConverters.*
 import scala.language.postfixOps
 
 /** Base trait providing proof that an element is analysable with monosat
@@ -65,15 +59,19 @@ trait Analyse[-T] {
       method: Method
   ): Future[Set[File]]
 
-  def printGraph(platform: T, implm: SolverImplm, method: Method): File
+  def printGraph(x: T, implm: SolverImplm, method: Method): File
 
-  def getSemanticsSize(platform: T, max: Int): Map[Int, BigInt]
+  def getSemanticsSize(x: T, max: Int): Map[Int, BigInt]
 
   def getGraphSize(
-      platform: T,
+      x: T,
       implm: SolverImplm,
       method: Method
   ): (BigInt, BigInt)
+
+  def getName(x: T): String
+
+  def getMaxSize(x: T): Int
 }
 
 object Analyse {
@@ -98,7 +96,7 @@ object Analyse {
 
     /** Extension method
       */
-    extension [T <: Platform](self: T) {
+    extension [T](self: T) {
 
       /** Provide a computation future (computation is not executed yet) of all
         * interference up to maxsize
@@ -178,21 +176,27 @@ object Analyse {
           timeout
         )
 
+      def getAnalysisGraphSize(implm: SolverImplm, method: Method)(using
+          ev: Analyse[T]
+      ): (BigInt, BigInt) =
+        ev.getGraphSize(self, implm, method)
+
       /** Perform the interference analysis considering that all the initiators
-        * can execute a transaction
-        * @param timeout
-        *   the maximal duration that is allowed to perform the interference
-        *   computation.
-        * @param ignoreExistingAnalysisFiles
-        *   do the analysis only even if result files for the considered
-        *   platform can be found in the analysis directory (false by default)
-        * @param verboseResultFile
-        *   add extra information on analysis files (false by default)
-        * @param ev
-        *   the proof that the component is analysable
-        * @return
-        *   the computation future
-        */
+       * can execute a transaction
+       *
+       * @param timeout
+       * the maximal duration that is allowed to perform the interference
+       * computation.
+       * @param ignoreExistingAnalysisFiles
+       * do the analysis only even if result files for the considered
+       * platform can be found in the analysis directory (false by default)
+       * @param verboseResultFile
+       * add extra information on analysis files (false by default)
+       * @param ev
+       * the proof that the component is analysable
+       * @return
+       * the computation future
+       */
       def computeAllInterference(
           timeout: Duration,
           ignoreExistingAnalysisFiles: Boolean = false,
@@ -201,11 +205,11 @@ object Analyse {
           onlySummary: Boolean = false,
           implm: SolverImplm = Monosat,
           method: Method = Default
-      )(using ev: Analyse[T], p: Provided[T, Hardware]): Set[File] =
+      )(using ev: Analyse[T]): Set[File] =
         Await.result(
           ev.computeInterference(
             self,
-            self.initiators.size,
+            ev.getMaxSize(self),
             ignoreExistingAnalysisFiles,
             computeSemantics,
             verboseResultFile,
@@ -217,28 +221,26 @@ object Analyse {
         )
 
       def getSemanticsSize(ignoreExistingFile: Boolean = false)(using
-          ev: Analyse[T],
-          p: Provided[T, Hardware]
+          ev: Analyse[T]
       ): Map[Int, BigInt] =
         if (!ignoreExistingFile)
           PostProcess
-            .parseSemanticsSizeFile(self)
-            .getOrElse(ev.getSemanticsSize(self, self.initiators.size))
+            .parseSemanticsSizeFile(ev.getName(self))
+            .getOrElse(ev.getSemanticsSize(self, ev.getMaxSize(self)))
         else
-          ev.getSemanticsSize(self, self.initiators.size)
+          ev.getSemanticsSize(self, ev.getMaxSize(self))
 
       def computeSemanticReduction(
           implm: SolverImplm,
           method: Method,
           ignoreExistingFiles: Boolean = false
       )(using
-          ev: Analyse[T],
-          p: Provided[T, Hardware]
+          ev: Analyse[T]
       ): BigDecimal = {
         Await.result(
           ev.computeInterference(
             self,
-            self.initiators.size,
+            ev.getMaxSize(self),
             ignoreExistingAnalysisFiles = ignoreExistingFiles,
             computeSemantics = true,
             verboseResultFile = false,
@@ -250,7 +252,7 @@ object Analyse {
         )
         (for {
           (itfResult, freeResult, _) <- PostProcess.parseSummaryFile(
-            self,
+            ev.getName(self),
             Some(method),
             Some(implm)
           )
@@ -272,6 +274,14 @@ object Analyse {
         }) getOrElse BigDecimal(-1)
       }
 
+      def getName(using ev: Analyse[T]): String =
+        ev.getName(self)
+
+      def getMaxSize(using ev: Analyse[T]): Int =
+        ev.getMaxSize(self)
+    }
+
+    extension [T <: ConfiguredPlatform](self: T) {
       private def computeGraphReduction(
           implm: SolverImplm,
           method: Method
@@ -302,14 +312,15 @@ object Analyse {
           computeGraphReduction(implm, method)
         else {
           PostProcess
-            .parseGraphReductionFile(self, method, implm)
+            .parseGraphReductionFile(ev.getName(self), method, implm)
             .getOrElse(computeGraphReduction(implm, method))
         }
 
-      def getAnalysisGraphSize(implm: SolverImplm, method: Method)(using
-          ev: Analyse[T]
-      ): (BigInt, BigInt) =
-        ev.getGraphSize(self, implm, method)
+      def computeTopologicalInterferenceSystem(
+          maxSize: Int
+      )(using ev: Analyse[T]): TopologicalInterferenceSystem = {
+        Analyse.computeSystem(self, maxSize)
+      }
     }
   }
 
@@ -317,32 +328,95 @@ object Analyse {
    * INFERENCE RULES
    * --------------------------------------------------------------------------------------------------------------- */
 
-  /** A platform is analysable
-    */
-  given Analyse[ConfiguredPlatform] with {
+  given (using ev: Analyse[TopologicalInterferenceSystem]): Analyse[
+    ConfiguredPlatform
+  ] with {
+
+    def getName(x: ConfiguredPlatform): String = x.fullName
+
+    def getMaxSize(x: ConfiguredPlatform): Int = x.initiators.size
+
+    def computeInterference(
+        x: ConfiguredPlatform,
+        maxSize: Int,
+        ignoreExistingAnalysisFiles: Boolean,
+        computeSemantics: Boolean,
+        verboseResultFile: Boolean,
+        onlySummary: Boolean,
+        implm: SolverImplm,
+        method: Method
+    ): Future[Set[File]] = ev.computeInterference(
+      computeSystem(x, maxSize),
+      maxSize,
+      ignoreExistingAnalysisFiles,
+      computeSemantics,
+      verboseResultFile,
+      onlySummary,
+      implm,
+      method
+    )
+
+    def printGraph(
+        x: ConfiguredPlatform,
+        implm: SolverImplm,
+        method: Method
+    ): File = ev.printGraph(
+      computeSystem(x, x.initiators.size),
+      implm,
+      method
+    )
+
+    def getSemanticsSize(
+        x: ConfiguredPlatform,
+        max: Int
+    ): Map[Int, BigInt] = ev.getSemanticsSize(
+      computeSystem(x, max),
+      max
+    )
 
     def getGraphSize(
-        platform: ConfiguredPlatform,
+        x: ConfiguredPlatform,
+        implm: SolverImplm,
+        method: Method
+    ): (BigInt, BigInt) = ev.getGraphSize(
+      computeSystem(x, x.initiators.size),
+      implm,
+      method
+    )
+  }
+
+  /** A platform is analysable
+    */
+  given Analyse[TopologicalInterferenceSystem] with {
+
+    def getName(x: TopologicalInterferenceSystem): String =
+      x.name
+
+    def getMaxSize(x: TopologicalInterferenceSystem): Int =
+      x.maxSize
+
+    def getGraphSize(
+        x: TopologicalInterferenceSystem,
         implm: SolverImplm,
         method: Method
     ): (BigInt, BigInt) = {
       val problem =
-        computeProblem(platform, platform.initiators.size, method)
+        computeProblem(x, method)
       val graph = problem.graph
       val result = (BigInt(graph.nodes.size), BigInt(graph.edges.size))
       result
     }
 
     def printGraph(
-        platform: ConfiguredPlatform,
+        x: TopologicalInterferenceSystem,
         implm: SolverImplm,
         method: Method
     ): File = {
       val problem =
-        computeProblem(platform, platform.initiators.size, method)
+        computeProblem(x, method)
       val result =
         FileManager.exportDirectory.getFile(
-          s"${platform.fullName}_${method}_method_${implm}_solver_graph.dot"
+          s"${x.name}_${method}_method_${implm}_solver_graph.dot"
         )
       val emptySolver = Solver(implm)
       problem.graph.exportGraph(emptySolver, result)
@@ -387,7 +461,7 @@ object Analyse {
       *   the files containing the results of the interference calculus
       */
     def computeInterference(
-        platform: ConfiguredPlatform,
+        platform: TopologicalInterferenceSystem,
         maxSize: Int,
         ignoreExistingAnalysisFiles: Boolean,
         computeSemantics: Boolean,
@@ -408,7 +482,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisITFFileName(
-                        platform,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -429,7 +503,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisFreeFileName(
-                        platform,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -449,7 +523,7 @@ object Analyse {
                   .getFile(
                     FileManager
                       .getInterferenceAnalysisChannelFileName(
-                        platform,
+                        platform.name,
                         size,
                         Some(method),
                         Some(implm)
@@ -467,7 +541,7 @@ object Analyse {
 
       val summaryFile = FileManager.analysisDirectory.getFile(
         FileManager.getInterferenceAnalysisSummaryFileName(
-          platform,
+          platform.name,
           Some(method),
           Some(implm)
         )
@@ -482,7 +556,7 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.fullName,
+              platform.name,
               "interference analysis"
             )
           )
@@ -495,14 +569,14 @@ object Analyse {
           println(
             Message.analysisResultFoundInfo(
               FileManager.analysisDirectory.name,
-              platform.fullName,
+              platform.name,
               "interference analysis"
             )
           )
           Set.empty
         case _ => {
           val generateModelStart = System.currentTimeMillis() millis
-          val calculusProblem = computeProblem(platform, maxSize, method)
+          val calculusProblem = computeProblem(platform, method)
           val summaryWriter = new FileWriter(summaryFile)
           val interferenceWriters =
             for { iF <- interferenceFiles } yield iF.transform((_, v) =>
@@ -533,12 +607,20 @@ object Analyse {
             cW.foreach(kv => writeChannelInfo(kv._2, kv._1))
             fW.foreach(kv => writeFreeInfo(kv._2, kv._1))
             iW.foreach(kv => writeITFInfo(kv._2, kv._1))
-            aW.foreach(w => writeFileInfo(w, platform, implm, method))
+            aW.foreach(w =>
+              writeFileInfo(
+                w,
+                platform.name,
+                platform.sourceFile,
+                implm,
+                method
+              )
+            )
           }
 
           val nbFree = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
           val nbITF = mutable.Map.empty[Int, BigInt].withDefaultValue(0)
-          val channels = mutable.Map.empty[Int, Map[Channel, Int]]
+          val channels = mutable.Map.empty[Int, Map[Set[Symbol], Int]]
 
           val update = (
               isFree: Boolean,
@@ -561,7 +643,7 @@ object Analyse {
 
           println(
             Message.successfulModelBuildInfo(
-              platform.fullName,
+              platform.name,
               ((System
                 .currentTimeMillis() millis) - generateModelStart).toSeconds
             )
@@ -569,7 +651,7 @@ object Analyse {
 
           println(
             Message.startingNonExclusiveTransactionEstimationInfo(
-              platform.fullName
+              platform.name
             )
           )
           val estimateNonExclusiveMultiTransactionsStart =
@@ -584,7 +666,7 @@ object Analyse {
             else None
           println(
             Message.successfulNonExclusiveMultiTransactionEstimationInfo(
-              platform.fullName,
+              platform.name,
               ((System
                 .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
             )
@@ -699,7 +781,13 @@ object Analyse {
             }
           }
 
-          writeFileInfo(summaryWriter, platform, implm, method)
+          writeFileInfo(
+            summaryWriter,
+            platform.name,
+            platform.sourceFile,
+            implm,
+            method
+          )
           summaryWriter.write("Computed ITF\n")
           summaryWriter.write(
             Message.printMultiTransactionNumber(
@@ -714,7 +802,11 @@ object Analyse {
               nonExclusiveMultiTransactions
             )
           )
-          writeFooter(summaryWriter, computationTime)
+          writeFooter(
+            summaryWriter,
+            computationTime,
+            nbFree.values.sum + nbITF.values.sum
+          )
 
           summaryWriter.flush()
           summaryWriter.close()
@@ -736,14 +828,6 @@ object Analyse {
         }
     }
 
-    private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
-      List(l, r).map(_.id.name).sorted.mkString("--")
-    )
-
-    private def nodeId(s: Set[Service]): NodeId = Symbol(
-      s.toList.map(_.toString).sorted.mkString("<", "$", ">")
-    )
-
     /** Definition of the core problem without cardinality constraints on
       * interference sets
       *
@@ -753,81 +837,29 @@ object Analyse {
       *   the variables and constraints to be instantiated in a MONOSAT Solver
       */
     private def computeProblem(
-        platform: ConfiguredPlatform,
-        maxSize: Int,
+        system: TopologicalInterferenceSystem,
         method: Method
     ): InterferenceCalculusProblem with Decoder = {
-      val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedAtomicTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val exclusiveWithTr
-          : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
-        platform.relationToMap(
-          platform.purifiedTransactions.keySet,
-          (l, r) => platform.finalExclusive(l, r)
-        )
-      val interfereWith: Map[Service, Set[Service]] =
-        platform.relationToMap(
-          platform.services,
-          (l, r) => platform.finalInterfereWith(l, r)
-        )
-
-      val finalUserTransactionExclusiveOpt =
-        platform match {
-          case appSpec: ApplicativeTableBasedInterferenceSpecification =>
-            Some(appSpec.finalUserTransactionExclusive)
-          case _ => None
-        }
-
-      val transactionUserNameOpt =
-        platform match {
-          case lib: TransactionLibrary =>
-            Some(lib.transactionUserName)
-          case _ => None
-        }
 
       method match {
         case Method.GroupedLitBased =>
-          GroupedLitInterferenceCalculusProblem(
-            platform.purifiedAtomicTransactions,
-            platform.purifiedTransactions,
-            exclusiveWithATr,
-            exclusiveWithTr,
-            interfereWith: Map[Service, Set[Service]],
-            Some(maxSize),
-            finalUserTransactionExclusiveOpt: Option[
-              Map[UserTransactionId, Set[UserTransactionId]]
-            ],
-            transactionUserNameOpt
-          )
+          GroupedLitInterferenceCalculusProblem(system)
         case Method.Default =>
-          DefaultInterferenceCalculusProblem(
-            platform.purifiedAtomicTransactions,
-            platform.purifiedTransactions,
-            exclusiveWithATr,
-            exclusiveWithTr,
-            interfereWith: Map[Service, Set[Service]],
-            Some(maxSize),
-            finalUserTransactionExclusiveOpt: Option[
-              Map[UserTransactionId, Set[UserTransactionId]]
-            ],
-            transactionUserNameOpt
-          )
+          DefaultInterferenceCalculusProblem(system)
       }
     }
 
     private def writeFooter(
         writer: FileWriter,
         computationTime: Long,
-        size: BigInt = -1
+        size: BigInt
     ): Unit =
       writer write
         s"""------------------------------------------
-           ${if (size > -1) s"|Total: $size\n" else ""}
+           |Total: $size
            |Computation time: ${computationTime}s
-           |-------------------------------------------""".stripMargin
+           |-------------------------------------------
+           |""".stripMargin
 
     private def writeChannelInfo(writer: FileWriter, size: Int): Unit =
       writer write
@@ -849,22 +881,23 @@ object Analyse {
 
     private def writeFileInfo(
         writer: FileWriter,
-        platform: Platform & InterferenceSpecification,
+        platformName: String,
+        sourceFile: String,
         implm: SolverImplm,
         method: Method
     ): Unit =
       writer write
-        s"""Platform Name: ${platform.name.name}
+        s"""Platform Name: $platformName
            |Computation Method: $method
            |Solver: $implm
-           |File:  ${platform.sourceFile}
+           |File:  $sourceFile
            |Date: ${java.time.LocalDateTime.now()}
            |------------------------------------------
            |""".stripMargin
 
     private def updateChannelFile(
         writer: Map[Int, FileWriter],
-        channels: mutable.Map[Int, Map[Channel, Int]]
+        channels: mutable.Map[Int, Map[Set[Symbol], Int]]
     ): Unit = {
       for ((k, v) <- channels)
         writer(k)
@@ -896,7 +929,7 @@ object Analyse {
 
     private def updateChannelNumber(
         calculusProblem: InterferenceCalculusProblem with Decoder,
-        channels: mutable.Map[Int, Map[Channel, Int]],
+        channels: mutable.Map[Int, Map[Set[Symbol], Int]],
         physical: Set[Set[PhysicalTransactionId]],
         user: Map[Set[PhysicalTransactionId], Set[Set[UserTransactionId]]]
     ): Unit = {
@@ -920,42 +953,31 @@ object Analyse {
       * 2-non-exclusive (for higher cardinalities, the estimation of k-redundant
       * is needed)
       *
-      * @param platform
+      * @param x
       *   the studied platform
       * @return
       *   the number of multi-transactions per size
       */
     def getSemanticsSize(
-        platform: ConfiguredPlatform,
-        max: Int
-    ): Map[Int, BigInt] = platform match {
-      case app: (ApplicativeTableBasedInterferenceSpecification &
-            TransactionLibrary) =>
-        getSemanticsSizeWithApp(app, max)
-      case _ =>
-        getSemanticsSizeWithoutApp(platform, max)
-    }
-
-    private def getSemanticsSizeWithoutApp(
-        platform: ConfiguredPlatform,
+        x: TopologicalInterferenceSystem,
         max: Int
     ): Map[Int, BigInt] = {
-      val transactions = platform.purifiedTransactions
-      val exclusive = platform.finalExclusive(transactions.keySet)
+      val transactions = x.idToTransaction
+      val exclusive = x.exclusiveWithTr
       val factory = new SymbolBDDFactory()
       val bdd =
         getNonExclusiveKBDD(transactions.keySet.toSeq, exclusive, max, factory)
 
       // for each cardinality, compute the number of satisfying assignments of the BDD encoding transactions sets
       // containing exactly k non-exclusive transactions
-      val result = platform match {
-        case l: TransactionLibrary =>
+      val result = x.transactionUserNameOpt match {
+        case Some(transactionUserName) =>
           val weightMap = transactions
-            .transform((_, v) => l.transactionUserName(v))
+            .transform((_, v) => transactionUserName(v))
             .map(kv => kv._1.id -> kv._2.size)
             .filter(_._2 >= 1)
           bdd.transform((_, v) => factory.getPathCount(v, weightMap))
-        case _ =>
+        case None =>
           bdd.transform((_, v) => factory.getPathCount(v))
       }
       factory.dispose()
@@ -986,21 +1008,6 @@ object Analyse {
             .and(isExclusive)
         )
         .toMap
-    }
-
-    private def getSemanticsSizeWithApp(
-        platform: ConfiguredLibraryBasedPlatform,
-        max: Int
-    ): Map[Int, BigInt] = {
-      val factory = new SymbolBDDFactory()
-      val result = getNonExclusiveKBDD(
-        platform.transactionByUserName.keys.toSeq,
-        platform.finalUserTransactionExclusive,
-        max,
-        factory
-      ).transform((_, v) => factory.getPathCount(v))
-      factory.dispose()
-      result
     }
 
     /** Compute the number of k-redundant multi-transactions for a given platform, it
@@ -1124,5 +1131,53 @@ object Analyse {
         )
         .toMap
     }
+  }
+
+  private def computeSystem(
+      platform: ConfiguredPlatform,
+      maxSize: Int
+  ): TopologicalInterferenceSystem = {
+    val exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]] =
+      platform.relationToMap(
+        platform.purifiedAtomicTransactions.keySet,
+        (l, r) => platform.finalExclusive(l, r)
+      )
+    val exclusiveWithTr
+        : Map[PhysicalTransactionId, Set[PhysicalTransactionId]] =
+      platform.relationToMap(
+        platform.purifiedTransactions.keySet,
+        (l, r) => platform.finalExclusive(l, r)
+      )
+    val interfereWith: Map[Service, Set[Service]] =
+      platform.relationToMap(
+        platform.services,
+        (l, r) => platform.finalInterfereWith(l, r)
+      )
+
+    val finalUserTransactionExclusiveOpt =
+      platform match {
+        case appSpec: ApplicativeTableBasedInterferenceSpecification =>
+          Some(appSpec.finalUserTransactionExclusive)
+        case _ => None
+      }
+
+    val transactionUserNameOpt =
+      platform match {
+        case lib: TransactionLibrary =>
+          Some(lib.transactionUserName)
+        case _ => None
+      }
+    TopologicalInterferenceSystem(
+      platform.purifiedAtomicTransactions.transform((_, v) => v.map(_.name)),
+      platform.purifiedTransactions,
+      exclusiveWithATr,
+      exclusiveWithTr,
+      interfereWith.map((k, v) => k.name -> v.map(_.name)),
+      maxSize,
+      finalUserTransactionExclusiveOpt,
+      transactionUserNameOpt,
+      platform.fullName,
+      platform.sourceFile
+    )
   }
 }

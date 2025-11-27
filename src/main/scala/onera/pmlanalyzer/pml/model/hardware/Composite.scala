@@ -17,10 +17,14 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.hardware.Composite.formatName
-import onera.pmlanalyzer.pml.model.utils.Context
-import onera.pmlanalyzer.pml.model.utils.{Message, Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.utils.{
+  Context,
+  Message,
+  Owner,
+  ReflexiveInfo
+}
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import sourcecode.{File, Line, Name}
 
 /** Base class of sub-systems containing themselves hardware components

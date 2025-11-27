@@ -33,7 +33,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   PhysicalTransactionId,
   multiTransactionId
 }
-import onera.pmlanalyzer.views.interference.operators.Analyse
 import onera.pmlanalyzer.views.interference.operators.*
 
 import java.io.{File, FileWriter}
@@ -67,7 +66,11 @@ object GraphExporter {
           method: Method = Default
       )(using ev: Analyse[T]): File = {
         val file = FileManager.exportDirectory.getFile(
-          FileManager.getGraphReductionFileName(self, Some(method), Some(implm))
+          FileManager.getGraphReductionFileName(
+            self.fullName,
+            Some(method),
+            Some(implm)
+          )
         )
         val writer = new FileWriter(file)
         writer.write("Graph Reduction is\n")

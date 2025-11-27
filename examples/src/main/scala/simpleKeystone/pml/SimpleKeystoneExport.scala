@@ -102,7 +102,7 @@ object SimpleKeystoneExport extends App {
     p.exportDeactivatedComponents()
 
     // Export the transactions defined by the user
-    p.exportUserTransactions()
+    p.exportUserTransactionPaths()
   }
 
 }

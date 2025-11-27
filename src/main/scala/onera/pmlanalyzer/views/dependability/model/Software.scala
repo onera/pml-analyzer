@@ -17,9 +17,9 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.exporters._
+import onera.pmlanalyzer.views.dependability.exporters.*
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
-import onera.pmlanalyzer.views.dependability.operators._
+import onera.pmlanalyzer.views.dependability.operators.*
 
 trait Software[FM] extends Component {
   val id: SoftwareId

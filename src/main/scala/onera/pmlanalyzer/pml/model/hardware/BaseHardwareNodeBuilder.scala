@@ -17,10 +17,10 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is

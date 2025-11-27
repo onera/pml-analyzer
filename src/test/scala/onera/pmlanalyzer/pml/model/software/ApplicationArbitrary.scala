@@ -18,8 +18,8 @@
 package onera.pmlanalyzer.pml.model.software
 
 import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import org.scalacheck.{Arbitrary, Gen}
 import onera.pmlanalyzer.pml.model.hardware.{ContainerLike, Platform}
+import org.scalacheck.{Arbitrary, Gen}
 
 trait ApplicationArbitrary {
   self: Platform =>

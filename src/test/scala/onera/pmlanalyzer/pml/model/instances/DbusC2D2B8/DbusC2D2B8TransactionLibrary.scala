@@ -18,9 +18,8 @@
 
 package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.pml.model.configuration.*
+import onera.pmlanalyzer.pml.operators.*
 
 import scala.language.postfixOps
 

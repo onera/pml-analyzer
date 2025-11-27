@@ -31,20 +31,7 @@ import scalaz.Memo.immutableHashMapMemo
 import scala.collection.immutable.SortedMap
 
 final case class GroupedLitInterferenceCalculusProblem(
-    atomicTransactions: Map[AtomicTransactionId, AtomicTransaction],
-    idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
-    exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
-    exclusiveWithTr: Map[PhysicalTransactionId, Set[
-      PhysicalTransactionId
-    ]],
-    interfereWith: Map[Service, Set[Service]],
-    maxSize: Option[Int],
-    finalUserTransactionExclusiveOpt: Option[
-      Map[UserTransactionId, Set[UserTransactionId]]
-    ],
-    transactionUserNameOpt: Option[
-      Map[Set[AtomicTransactionId], Set[UserTransactionId]]
-    ]
+    system: TopologicalInterferenceSystem
 ) extends InterferenceCalculusProblem
     with GroupedLitDecoder {
 
@@ -52,11 +39,11 @@ final case class GroupedLitInterferenceCalculusProblem(
     List(l, r).map(_.id.name).sorted.mkString("--")
   )
 
-  private def nodeId(s: Set[Service]): NodeId = Symbol(
-    s.toList.map(_.toString).sorted.mkString("<", "$", ">")
+  private def nodeId(s: Set[Symbol]): NodeId = Symbol(
+    s.toList.map(_.name).sorted.mkString("<", "$", ">")
   )
 
-  private val addNode: Set[Service] => MNode = immutableHashMapMemo { ss =>
+  private val addNode: Set[Symbol] => MNode = immutableHashMapMemo { ss =>
     MNode(nodeId(ss))
   }
 
@@ -70,38 +57,43 @@ final case class GroupedLitInterferenceCalculusProblem(
   // DEFINITION OF VARIABLES
 
   // association of the simple transaction path to its formatted name
-  private val initialPathT = idToTransaction.to(SortedMap)
+  private val initialPathT = system.idToTransaction.to(SortedMap)
 
   // the actual path will be the service that can be a channel, ie
   // a service that is a service (or exclusive to a service) of a different and non exclusive transaction
   // FIXME If a multi-path transaction, the following computation consider that one of the services used by
   // several atomic atomicTransactions could be an interference channel that is obviously false
   // and complexify the graph for no reason
-  private val pathT: Map[PhysicalTransactionId, Set[AtomicTransaction]] =
+  private val pathT: Map[PhysicalTransactionId, Set[Path[Symbol]]] =
     initialPathT.view
       .mapValues(s =>
         s.map(t =>
-          atomicTransactions(t).filter(s =>
-            atomicTransactions.keySet.exists(t2 =>
-              t != t2 &&
-                !exclusiveWithATr(t).contains(t2) &&
-                atomicTransactions(t2)
-                  .exists(s2 => s2 == s || interfereWith(s2).contains(s))
+          system
+            .atomicTransactions(t)
+            .filter(s =>
+              system.atomicTransactions.keySet.exists(t2 =>
+                t != t2 &&
+                  !system.exclusiveWithATr(t).contains(t2) &&
+                  system
+                    .atomicTransactions(t2)
+                    .exists(s2 =>
+                      s2 == s || system.interfereWith(s2).contains(s)
+                    )
+              )
             )
-          )
         )
       )
       .toMap
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
-  private val serviceToNodes = interfereWith.transform((k, v) =>
+  private val serviceToNodes = system.interfereWith.transform((k, v) =>
     if (v.isEmpty)
       Set(addNode(Set(k)))
     else
       v.map(k2 => addNode(Set(k, k2)))
   )
 
-  val nodeToServices: Map[MNode, Set[Service]] = serviceToNodes.keySet
+  val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.keySet
     .flatMap(k => serviceToNodes(k).map(_ -> k))
     .groupMap(_._1)(_._2)
 
@@ -132,7 +124,7 @@ final case class GroupedLitInterferenceCalculusProblem(
       MEdge(lr.head, lr.last, undirectedEdgeId(lr.head, lr.last))
   }
 
-  private val addUndirectedEdge = (lr: Set[Service]) => {
+  private val addUndirectedEdge = (lr: Set[Symbol]) => {
     if (lr.size == 1) {
       for {
         ns <- serviceToNodes(lr.head).subsets(2).toSet
@@ -187,8 +179,8 @@ final case class GroupedLitInterferenceCalculusProblem(
     (l, trs) <- groupedLitToTransactions
     (l2, trs2) <- groupedLitToTransactions
     if l != l2
-    if trs.forall(t => trs2.subsetOf(exclusiveWithTr(t)))
-      || trs2.forall(t => trs.subsetOf(exclusiveWithTr(t)))
+    if trs.forall(t => trs2.subsetOf(system.exclusiveWithTr(t)))
+      || trs2.forall(t => trs.subsetOf(system.exclusiveWithTr(t)))
   } yield Not(And(Seq(l, l2)))
 
   private val nonExclusive =

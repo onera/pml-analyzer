@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.pml.model.service
 
-import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
+import onera.pmlanalyzer.pml.model.{PMLNodeBuilder, PMLNodeMap}
 import sourcecode.{File, Line, Name}
 
 /** Base trait for all hardware node builder the name of the transporter is

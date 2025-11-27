@@ -20,14 +20,13 @@ package onera.pmlanalyzer.views.interference.model.specification
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.operators._
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  PhysicalTransaction,
-  PhysicalTransactionId,
   AtomicTransaction,
-  AtomicTransactionId
+  AtomicTransactionId,
+  PhysicalTransaction,
+  PhysicalTransactionId
 }
-import onera.pmlanalyzer.pml.operators.Transform
 
 /** Base trait for all interference specification
   */
@@ -437,9 +436,9 @@ object InterferenceSpecification {
       Symbol(t.map(_.id.name).toArray.sorted.mkString("< ", " || ", " >"))
     )
 
-  def channelId(t: Set[Service]): ChannelId =
+  def channelId(t: Set[Symbol]): ChannelId =
     ChannelId(
-      Symbol(t.map(_.toString).toArray.sorted.mkString("{ ", ", ", " }"))
+      Symbol(t.map(_.name).toArray.sorted.mkString("{ ", ", ", " }"))
     )
 
   def groupedTransactionsLitId(

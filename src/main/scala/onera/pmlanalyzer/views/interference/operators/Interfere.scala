@@ -17,9 +17,9 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.hardware.Hardware
+import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.operators.*
 import onera.pmlanalyzer.views.interference.model.relations.{
   InterfereRelation,
   NotInterfereRelation

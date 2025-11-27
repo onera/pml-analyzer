@@ -854,7 +854,7 @@ object PMLNodeGraphExporter {
       *   the implicit writer
      */
     def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
-      import platform._
+      import platform.*
       reset()
       writer.write(getHeader)
 
@@ -925,7 +925,7 @@ object PMLNodeGraphExporter {
       *   the implicit writer
      */
     def exportGraph(platform: Platform)(implicit writer: Writer): Unit = {
-      import platform._
+      import platform.*
       reset()
       writer.write(getHeader)
       val hwGraph = platform.hardwareGraph()
@@ -986,7 +986,7 @@ object PMLNodeGraphExporter {
     def exportGraphSW(platform: Platform, toPrint: Application)(implicit
         writer: Writer
     ): Unit = {
-      import platform._
+      import platform.*
       reset()
       writer.write(getHeader)
 

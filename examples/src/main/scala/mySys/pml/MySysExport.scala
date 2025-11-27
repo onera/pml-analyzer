@@ -74,9 +74,11 @@ object MySysExport extends App {
   MySys.exportDeactivatedComponents()
 
   // Export the transactions defined by the user
-  MySys.exportUserTransactions()
+  MySys.exportUserTransactionPaths()
 
   MySys.exportSemanticsSize()
 
-  MySys.exportAnalysisGraph()
+//  MySys.exportAnalysisGraph()
+
+  MySys.exportTopologicalInterferenceSystem()
 }
