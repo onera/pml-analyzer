@@ -24,7 +24,6 @@ import simpleKeystone.pml.{
   SimpleSoftwareAllocation
 }
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 
 /** The interference calculus assumptions for the SimpleKeystone's applications
   * are gathered here. For instance app22 and app3 cannot execute simultaneously

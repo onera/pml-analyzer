@@ -22,7 +22,6 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 
 import java.io.File
 import scala.io.{BufferedSource, Source}
-//import scala.reflect.io.Path
 
 object FileManager {
 

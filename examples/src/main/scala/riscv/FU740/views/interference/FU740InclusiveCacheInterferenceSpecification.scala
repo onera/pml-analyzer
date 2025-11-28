@@ -19,7 +19,6 @@ package riscv.FU740.views.interference
 
 import riscv.FU740.pml.{FU740LibraryConfiguration, FU740Platform}
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 
 trait FU740InclusiveCacheInterferenceSpecification
     extends PhysicalTableBasedInterferenceSpecification {

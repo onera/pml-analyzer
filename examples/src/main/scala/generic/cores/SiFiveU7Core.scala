@@ -17,9 +17,6 @@
 
 package generic.cores
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.*
-import onera.pmlanalyzer.pml.model.utils.*
 import onera.pmlanalyzer.*
 import sourcecode.Name
 

@@ -18,10 +18,7 @@
 package riscv.FU740.views.interference
 
 import riscv.FU740.pml.{FU740LibraryConfiguration, FU740Platform}
-import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 
 import scala.language.postfixOps
 

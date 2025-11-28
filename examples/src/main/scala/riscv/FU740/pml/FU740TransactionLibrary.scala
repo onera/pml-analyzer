@@ -17,8 +17,6 @@
 
 package riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.hardware.Target
 import onera.pmlanalyzer.*
 import sourcecode.Name
 

@@ -19,8 +19,6 @@ package riscv.FU740.pml
 
 import generic.cores.{SiFiveS7Core, SiFiveU7Core}
 import riscv.FU740.pml
-import onera.pmlanalyzer.pml.model.hardware.Target
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
 
 import scala.language.postfixOps

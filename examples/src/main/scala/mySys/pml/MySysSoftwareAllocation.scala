@@ -17,8 +17,6 @@
 
 package mySys.pml
 
-import mySys.pml
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
 
 import scala.language.postfixOps

@@ -17,7 +17,6 @@
 
 package riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.*
 
 import scala.language.postfixOps

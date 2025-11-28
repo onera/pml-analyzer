@@ -19,8 +19,6 @@ package simpleKeystone.views.interference
 
 import simpleKeystone.pml.SimpleKeystonePlatform
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 
 /** The interference calculus assumptions for the hardware components of the
   * SimpleKeystone are gathered here. For instance to specify that two service l

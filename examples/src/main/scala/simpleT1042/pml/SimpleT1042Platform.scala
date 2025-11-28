@@ -17,7 +17,6 @@
 
 package simpleT1042.pml
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
 import sourcecode.Name
 

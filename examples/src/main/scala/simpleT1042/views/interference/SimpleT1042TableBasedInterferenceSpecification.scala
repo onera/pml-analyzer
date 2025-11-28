@@ -24,10 +24,6 @@ import simpleT1042.pml.{
   SimpleT1042TransactionLibrary
 }
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification
-}
 
 trait SimpleT1042PhysicalTableBasedInterferenceSpecification
     extends PhysicalTableBasedInterferenceSpecification {

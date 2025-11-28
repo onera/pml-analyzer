@@ -17,9 +17,7 @@
 
 package mySys.pml
 
-import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.*
-
 import scala.language.postfixOps
 
 /** This trait contains a library of all transactions that can occur on the

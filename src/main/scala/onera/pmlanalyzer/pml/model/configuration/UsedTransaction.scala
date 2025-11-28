@@ -74,7 +74,7 @@ final class UsedTransaction private (
  *
  * @group transaction_class
     */
-object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
+private [pmlanalyzer] object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
 
   /** Build a used transaction from its attributes
       * @param name

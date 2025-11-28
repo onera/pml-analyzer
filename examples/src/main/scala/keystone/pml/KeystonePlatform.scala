@@ -17,7 +17,6 @@
 
 package keystone.pml
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
 
 /**

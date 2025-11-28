@@ -22,9 +22,6 @@ import riscv.FU740.pml.FU740Export.{
   FU740PartitionedConfiguredFull
 }
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Choco
-
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 
@@ -41,7 +38,7 @@ object FU740InterferenceGeneration extends App {
     method <- Method.values
   } {
     // Export the interference channel graph used by Choco
-    p.exportAnalysisGraph(method = method, implm = Choco)
+    p.exportAnalysisGraph(method = method, implm = SolverImplm.Choco)
 
     // Export the size of the semantics
     p.exportSemanticsSize()
@@ -51,13 +48,13 @@ object FU740InterferenceGeneration extends App {
       5 hours,
       ignoreExistingAnalysisFiles = true,
       method = method,
-      implm = Choco
+      implm = SolverImplm.Choco
     )
 
     // Export the graph reduction ratio (AnalysisGraph vs RestrictedServiceGraphWithInterfere)
-    p.exportGraphReduction(method = method, implm = Choco)
+    p.exportGraphReduction(method = method, implm = SolverImplm.Choco)
 
     // Export the semantics reduction ratio used to estimate proportion of k-redundant multi-transactions
-    p.exportSemanticReduction(method = method, implm = Choco)
+    p.exportSemanticReduction(method = method, implm = SolverImplm.Choco)
   }
 }

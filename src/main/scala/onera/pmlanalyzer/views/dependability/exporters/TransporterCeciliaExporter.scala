@@ -20,7 +20,13 @@ package onera.pmlanalyzer.views.dependability.exporters
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTransporterFolder
-import onera.pmlanalyzer.*
+import onera.pmlanalyzer.{
+  SimpleTransporter => PMLSimpleTransporter,
+  Initiator => PMLInitiator,
+  Target => PMLTarget,
+  Virtualizer => PMLVirtualizer,
+  *
+}
 import onera.pmlanalyzer.views.dependability.operators.{
   IsCriticityOrdering,
   IsFinite,

@@ -67,7 +67,7 @@ final class Transaction private (
  *
  * @group transaction_class
     */
-object Transaction extends PMLNodeBuilder[Transaction] {
+private[pmlanalyzer] object Transaction extends PMLNodeBuilder[Transaction] {
 
   /** A transaction can be built from an application targeting a load or a
    * store service

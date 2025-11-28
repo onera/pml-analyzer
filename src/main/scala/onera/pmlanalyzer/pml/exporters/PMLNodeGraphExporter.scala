@@ -18,14 +18,11 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.{ArtificialService, Service}
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.hardware.Transporter
 import onera.pmlanalyzer.pml.operators.{Provided, Used}
 
 import java.io.{FileWriter, Writer}
-import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable.HashMap as MHashMap
 
 object PMLNodeGraphExporter {

@@ -20,8 +20,6 @@ package riscv.FU740.pml
 import generic.io.Uart
 import generic.memory.{CadenceDdrSdramController, DdrSdram}
 import riscv.FU740.pml.components.U74CoreComplex
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.*
 import sourcecode.Name
 

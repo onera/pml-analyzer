@@ -5,9 +5,9 @@ import keystone.pml.{
   KeystoneRoutingConstraints,
   RosaceConfiguration
 }
+import onera.pmlanalyzer.*
 import scala.concurrent.duration.*
 import scala.language.postfixOps
-import onera.pmlanalyzer.*
 
 object KeystoneInterferenceGeneration extends App {
 

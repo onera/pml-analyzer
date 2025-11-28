@@ -17,12 +17,6 @@
 
 package keystone.pml
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.configuration.{
-  Transaction,
-  TransactionLibrary
-}
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
 import sourcecode.{File, Line}
 
