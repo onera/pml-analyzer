@@ -22,12 +22,12 @@ package onera.pmlanalyzer.pml.model.utils
   * @param path
   *   the owner's name
   */
-final case class Owner private (path: List[Symbol]) {
+private[pmlanalyzer] final case class Owner private (path: List[Symbol]) {
   override def toString: String = path.map(_.name).mkString("_")
   def add(id: Symbol): Owner = Owner(path :+ id)
 }
 
-object Owner {
+private[pmlanalyzer] object Owner {
   val empty: Owner = Owner(List.empty)
 
   def apply(s: Symbol): Owner = Owner(List(s))

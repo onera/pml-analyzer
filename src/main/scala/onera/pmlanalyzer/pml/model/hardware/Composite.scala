@@ -96,7 +96,7 @@ abstract class Composite(n: Symbol, info: ReflexiveInfo, c: Context)
 /** Static methods of Composite
   * @group utilFun
   */
-object Composite extends PMLNodeBuilder[Composite] {
+private[pmlanalyzer] object Composite extends PMLNodeBuilder[Composite] {
 
   /** Reuse same formatting rule as [[BaseHardwareNodeBuilder]]
     * @param name

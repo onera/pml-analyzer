@@ -27,7 +27,7 @@ final case class InterfereRelation[L, R] private (iniValues: Map[L, Set[R]])
 
 //FIXME TO ENSURE CORRECTNESS THE INTERFERE ENDOMORPHISMS SHOULD BE ANTI-REFLEXIVE AND SYMMETRIC TO BE
 //  CONSISTENT WITH INTERFERENCE SPECIFICATION BASE TRAIT
-object InterfereRelation {
+private[pmlanalyzer] object InterfereRelation {
   trait Instances {
 
     /** Relation gathering user defined service interferences caused by a

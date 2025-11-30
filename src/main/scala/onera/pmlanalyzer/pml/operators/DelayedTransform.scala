@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.*
 
-trait DelayedTransform[L, R] {
+private[pmlanalyzer] sealed trait DelayedTransform[L, R] private {
 
   /**
    * By-name implementation of transform
@@ -35,7 +35,7 @@ trait DelayedTransform[L, R] {
   def apply(l: => L): R
 }
 
-object DelayedTransform {
+private[pmlanalyzer] object DelayedTransform {
   type TransactionParam =
     (() => Set[(Service, Service)], () => Set[Application])
 

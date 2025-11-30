@@ -29,7 +29,8 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 /** Base trait for library of transactions
   */
-trait TransactionLibrary private[pmlanalyzer] extends Transform.TransactionLibraryInstances {
+private[pmlanalyzer] trait TransactionLibrary
+    extends Transform.TransactionLibraryInstances {
   self: Platform =>
 
   /** Map from the user defined transaction to the physical transaction id WARNING:

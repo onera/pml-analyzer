@@ -27,7 +27,7 @@ final case class NotInterfereRelation[L, R] private (iniValues: Map[L, Set[R]])(
     using n: Name
 ) extends Relation[L, R](iniValues)
 
-object NotInterfereRelation {
+private[pmlanalyzer] object NotInterfereRelation {
   trait Instances {
 
     /** Relation gathering user defined service non-interference caused by a

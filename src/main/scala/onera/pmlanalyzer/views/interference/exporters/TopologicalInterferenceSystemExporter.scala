@@ -25,7 +25,7 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 }
 import onera.pmlanalyzer.*
 
-object TopologicalInterferenceSystemExporter {
+private[exporters] object TopologicalInterferenceSystemExporter {
 
   trait Ops {
     extension (self: Platform & InterferenceSpecification) {

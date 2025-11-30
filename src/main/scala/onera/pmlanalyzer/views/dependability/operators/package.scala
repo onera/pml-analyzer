@@ -22,5 +22,5 @@ package object operators {
       extends IsFinite.Ops
       with IsMergeableOps
       with IsShadowOrderingOps
-      with IsCriticityOrdering.Ops
+      with IsCriticalityOrdering.Ops
 }

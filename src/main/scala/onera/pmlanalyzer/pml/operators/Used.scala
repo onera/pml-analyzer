@@ -42,11 +42,11 @@ import scala.reflect.*
   * @tparam R
   *   the right type
   */
-trait Used[L, R] {
+private[pmlanalyzer] sealed trait Used[L, R] private {
   def apply(a: L): Set[R]
 }
 
-object Used {
+private[pmlanalyzer] object Used {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS

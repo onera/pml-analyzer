@@ -28,7 +28,7 @@ import onera.pmlanalyzer.views.interference.operators.PostProcess
 
 import scala.io.BufferedSource
 
-final case class TopologicalInterferenceSystem(
+private[pmlanalyzer] final case class TopologicalInterferenceSystem(
     atomicTransactions: Map[AtomicTransactionId, Path[Symbol]],
     idToTransaction: Map[PhysicalTransactionId, PhysicalTransaction],
     exclusiveWithATr: Map[AtomicTransactionId, Set[AtomicTransactionId]],
@@ -47,7 +47,7 @@ final case class TopologicalInterferenceSystem(
     sourceFile: String
 )
 
-object TopologicalInterferenceSystem {
+private[pmlanalyzer] object TopologicalInterferenceSystem {
 
   def apply(
       platformName: String,

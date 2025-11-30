@@ -30,7 +30,7 @@ final case class ExclusiveRelation[A] private (iniValues: Map[A, Set[A]])(using
     n: Name
 ) extends AntiReflexiveSymmetricEndomorphism[A](iniValues)
 
-object ExclusiveRelation {
+private[pmlanalyzer] object ExclusiveRelation {
   trait GeneralInstances {
 
     /** Relation gathering user defined exclusive transactions

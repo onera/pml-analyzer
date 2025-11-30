@@ -17,22 +17,16 @@
 
 package onera.pmlanalyzer.views.interference.model.specification
 
-import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Provided
 import onera.pmlanalyzer.views.interference.model.relations.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
-import java.io.FileWriter
 import scala.collection.mutable.Set as MSet
 
 /** Trait providing a wide range of modelling features to specify assumption
   */
-trait TableBasedInterferenceSpecification
+private[pmlanalyzer] trait TableBasedInterferenceSpecification
     extends InterferenceSpecification
     with InterfereRelation.Instances
     with NotInterfereRelation.Instances

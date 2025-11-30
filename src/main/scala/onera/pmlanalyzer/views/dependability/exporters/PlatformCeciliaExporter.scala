@@ -33,6 +33,7 @@ import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 import onera.pmlanalyzer.views.dependability.model.{
+  DependabilitySpecification,
   Expr,
   InitiatorId,
   InputDepTarget,
@@ -50,7 +51,7 @@ import onera.pmlanalyzer.views.dependability.model.{
   Virtualizer as DepVirtualizer
 }
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -64,7 +65,7 @@ trait PlatformCeciliaExporter {
     with TypeCeciliaExporter =>
 
   implicit class PlatformExportOps[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering,
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering,
       T <: Platform with DependabilitySpecification.Aux[FM]: Typeable
   ](a: T) {
     def exportAsCeciliaWithFM(): Unit = {
@@ -72,38 +73,8 @@ trait PlatformCeciliaExporter {
     }
   }
 
-  trait DependabilitySpecification {
-    self: Platform =>
-
-    type U
-
-    implicit val toTargetId: PMLTarget => TargetId = mkTargetId
-
-    val depSpecificationName: Symbol
-
-    val failureConditions: Set[(PMLApplication, U, Int)]
-
-    def mkTargetId(t: PMLTarget): TargetId
-
-    def softwareStoresDependency(
-        p: PMLApplication
-    ): (Variable[U], Variable[TargetStatus[U]]) => Expr[TargetStatus[U]]
-
-    def softwareState(
-        p: PMLApplication
-    ): (Variable[U], Variable[TargetStatus[U]]) => Expr[U]
-
-    val targetIsInputDep: Set[PMLTarget]
-  }
-
-  object DependabilitySpecification {
-    type Aux[T] = DependabilitySpecification {
-      type U = T
-    }
-  }
-
   private def platformIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering,
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering,
       T <: Platform with DependabilitySpecification.Aux[FM]: Typeable
   ]: Aux[T, SystemModel] = new CeciliaExporter[T] {
     type R = SystemModel

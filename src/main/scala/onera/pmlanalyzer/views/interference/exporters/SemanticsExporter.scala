@@ -33,7 +33,7 @@ import scala.concurrent.duration.DurationInt
 import scala.io.Source
 import scala.language.postfixOps
 
-object SemanticsExporter {
+private[exporters] object SemanticsExporter {
   trait Ops {
     extension [T <: Platform](self: T) {
 

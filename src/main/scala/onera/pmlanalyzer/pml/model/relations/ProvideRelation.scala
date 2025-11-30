@@ -34,7 +34,7 @@ final case class ProvideRelation[L, R] private (iniValues: Map[L, Set[R]])(using
     n: Name
 ) extends Relation[L, R](iniValues)
 
-object ProvideRelation {
+private[pmlanalyzer] object ProvideRelation {
 
   given (using c: Instances): ProvideRelation[Hardware, Service] =
     c.PLProvideService

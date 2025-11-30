@@ -28,13 +28,13 @@ import onera.pmlanalyzer.views.interference.model.relations.{
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
-private[operators] trait Interfere[L, R] {
+private[pmlanalyzer] trait Interfere[L, R] {
   def interfereWith(l: L, r: R)(using line: Line, file: File): Unit
 
   def notInterfereWith(l: L, r: R)(using line: Line, file: File): Unit
 }
 
-object Interfere {
+private[pmlanalyzer] object Interfere {
 
   /** If an element x of type L and an element y of type R can interfere then
     * the operator can be used as follows:

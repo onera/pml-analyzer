@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model
 import onera.pmlanalyzer.pml.model.utils.Owner
 import sourcecode.{File, Line}
 
-trait SourceCodeTraceable {
+private[pmlanalyzer] trait SourceCodeTraceable private[pml] {
 
   val owner: Owner
 

@@ -35,7 +35,9 @@ import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
   * @tparam R
   *   type of the right set
   */
-abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
+abstract class Relation[L, R] private[pmlanalyzer] (iniValues: Map[L, Set[R]])(
+    using n: Name
+) {
 
   private val modifications: mutable.ArrayBuffer[Change[L, R]] =
     mutable.ArrayBuffer.empty
@@ -199,7 +201,7 @@ abstract class Relation[L, R](iniValues: Map[L, Set[R]])(using n: Name) {
 
 }
 
-object Relation {
+private[pmlanalyzer] object Relation {
 
   final case class Change[L, R](
       l: L,

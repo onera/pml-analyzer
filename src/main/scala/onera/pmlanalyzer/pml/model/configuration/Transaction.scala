@@ -38,7 +38,7 @@ import sourcecode.Name
     * @param sw
     *   the application that can use this transaction
     */
-final class Transaction private (
+private[pmlanalyzer] final class Transaction private (
     val userName: UserTransactionId,
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],

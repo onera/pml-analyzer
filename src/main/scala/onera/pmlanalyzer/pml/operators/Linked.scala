@@ -33,14 +33,14 @@ import scala.reflect.*
   * @tparam R
   *   the right type
   */
-trait Linked[L, R] {
+private[pmlanalyzer] sealed trait Linked[L, R] private {
   def apply(a: L): Set[R]
   def inverse(b: R): Set[L]
 }
 
 /** Extension methods and inferences rules
   */
-object Linked {
+private[pmlanalyzer] object Linked {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS

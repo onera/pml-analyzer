@@ -47,7 +47,7 @@ import scala.language.postfixOps
   * @tparam T
   *   the type of the component (contravariant)
   */
-trait Analyse[-T] {
+private[pmlanalyzer] sealed trait Analyse[-T] {
   def computeInterference(
       x: T,
       maxSize: Int,
@@ -74,7 +74,7 @@ trait Analyse[-T] {
   def getMaxSize(x: T): Int
 }
 
-object Analyse {
+private[pmlanalyzer] object Analyse {
 
   type ConfiguredPlatform = Platform & InterferenceSpecification
 

@@ -22,7 +22,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
 
-trait ApplicativeTableBasedInterferenceSpecification
+private[pmlanalyzer] trait ApplicativeTableBasedInterferenceSpecification
     extends TableBasedInterferenceSpecification
     with ExclusiveRelation.LibraryInstances {
   self: Platform & TransactionLibrary =>

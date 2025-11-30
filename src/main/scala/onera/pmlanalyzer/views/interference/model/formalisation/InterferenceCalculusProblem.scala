@@ -17,14 +17,14 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-trait InterferenceCalculusProblem {
+private[pmlanalyzer] trait InterferenceCalculusProblem {
 
   val graph: MGraph
 
   def instantiate(k: Int, computeFree: Boolean, implm: SolverImplm): Solver
 }
 
-object InterferenceCalculusProblem {
+private[pmlanalyzer] object InterferenceCalculusProblem {
   enum Method {
     case GroupedLitBased, Default
   }

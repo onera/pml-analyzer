@@ -30,7 +30,7 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 
 import java.io.FileWriter
 
-object RelationExporter {
+private[exporters] object RelationExporter {
 
   private def getWriter(name: String): FileWriter = {
     val file = FileManager.exportDirectory.getFile(name)

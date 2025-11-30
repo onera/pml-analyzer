@@ -24,9 +24,11 @@ import onera.pmlanalyzer.pml.model.software.*
 
 import scala.collection.mutable
 
-final case class PMLNodeMap[T <: PMLNode] private (map: mutable.Map[Symbol, T])
+private[pmlanalyzer] final case class PMLNodeMap[T <: PMLNode] private (
+    map: mutable.Map[Symbol, T]
+)
 
-object PMLNodeMap {
+private[pml] object PMLNodeMap {
 
   def empty[T <: PMLNode]: PMLNodeMap[T] = PMLNodeMap(mutable.Map.empty)
 

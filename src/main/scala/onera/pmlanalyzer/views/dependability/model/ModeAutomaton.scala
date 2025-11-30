@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.dependability.model.Direction.{
 }
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -34,7 +34,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   * @tparam T
   *   Possible modes of the automaton
   */
-abstract class ModeAutomaton[T: IsCriticityOrdering: IsFinite]
+abstract class ModeAutomaton[T: IsCriticalityOrdering: IsFinite]
     extends Component {
   val events: Set[Event]
   val transitions: Set[Transition[T]]
@@ -78,7 +78,7 @@ abstract class ModeAutomaton[T: IsCriticityOrdering: IsFinite]
   }
 }
 
-abstract class FMAutomaton[T: IsCriticityOrdering: IsFinite]
+abstract class FMAutomaton[T: IsCriticalityOrdering: IsFinite]
     extends ModeAutomaton[T] {
   val initialState: T
   val eventMap: Map[Symbol, Event]
@@ -88,7 +88,7 @@ abstract class FMAutomaton[T: IsCriticityOrdering: IsFinite]
   val id: AutomatonId
 }
 
-class SimpleFMAutomaton[T: IsCriticityOrdering: IsFinite] private (
+class SimpleFMAutomaton[T: IsCriticalityOrdering: IsFinite] private (
     val id: AutomatonId,
     val initialState: T
 ) extends FMAutomaton[T] {
@@ -111,8 +111,11 @@ class SimpleFMAutomaton[T: IsCriticityOrdering: IsFinite] private (
 }
 
 object SimpleFMAutomaton {
-  def apply[T: IsCriticityOrdering: IsFinite](id: AutomatonId, initialState: T)(
-      implicit owner: Owner
+  def apply[T: IsCriticalityOrdering: IsFinite](
+      id: AutomatonId,
+      initialState: T
+  )(implicit
+      owner: Owner
   ): SimpleFMAutomaton[T] = {
     val r = new SimpleFMAutomaton[T](id, initialState)
     owner.portOwner(r.o.id) = r
@@ -120,7 +123,7 @@ object SimpleFMAutomaton {
   }
 }
 
-class InputFMAutomaton[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+class InputFMAutomaton[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
     val id: AutomatonId,
     val initialState: T
 ) extends FMAutomaton[T] {
@@ -149,7 +152,7 @@ class InputFMAutomaton[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
 }
 
 object InputFMAutomaton {
-  def apply[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+  def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: AutomatonId,
       initialState: T
   )(implicit owner: Owner): InputFMAutomaton[T] = {

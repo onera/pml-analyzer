@@ -22,7 +22,7 @@ import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTargetFolder
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -34,7 +34,7 @@ trait TargetCeciliaExporter {
     with BasicOperationCeciliaExporter =>
 
   implicit def inputDepTargetExporter[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[InputDepTarget[FM], EquipmentModel] =
     new CeciliaExporter[InputDepTarget[FM]] {
       type R = EquipmentModel
@@ -135,7 +135,7 @@ trait TargetCeciliaExporter {
     }
 
   implicit def inputInDepTargetIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[InputInDepTarget[FM], EquipmentModel] =
     new CeciliaExporter[InputInDepTarget[FM]] {
       type R = EquipmentModel

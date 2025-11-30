@@ -28,14 +28,14 @@ import onera.pmlanalyzer.views.dependability.model.{
 }
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
 
 trait AutomatonCeciliaExporter {
   self: TypeCeciliaExporter =>
-  implicit def simpleFMAutomatonIsExportable[T: IsCriticityOrdering: IsFinite]
+  implicit def simpleFMAutomatonIsExportable[T: IsCriticalityOrdering: IsFinite]
       : Aux[SimpleFMAutomaton[T], ComponentModel] =
     new CeciliaExporter[SimpleFMAutomaton[T]] {
       type R = ComponentModel
@@ -79,7 +79,7 @@ trait AutomatonCeciliaExporter {
     }
 
   implicit def inputFMAutomatonIsExportable[
-      T: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      T: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[InputFMAutomaton[T], ComponentModel] =
     new CeciliaExporter[InputFMAutomaton[T]] {
       type R = ComponentModel

@@ -29,7 +29,7 @@ final case class EquivalenceRelation[A] private (iniValues: Map[A, Set[A]])(
     using n: Name
 ) extends ReflexiveSymmetricEndomorphism[A](iniValues)
 
-object EquivalenceRelation {
+private[pmlanalyzer] object EquivalenceRelation {
   trait Instances {
 
     /** Relation gathering user defined equivalent services

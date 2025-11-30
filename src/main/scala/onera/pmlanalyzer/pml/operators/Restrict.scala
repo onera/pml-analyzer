@@ -43,7 +43,7 @@ import scala.reflect.Typeable
   * @tparam R
   *   the right type
   */
-trait Restrict[L, R] {
+private[pmlanalyzer] sealed trait Restrict[L, R] private {
 
   def reachableLinksByIni[U <: Service: Typeable](ini: Initiator)(using
       lU: Linked[U, U],
@@ -195,7 +195,7 @@ trait Restrict[L, R] {
   def apply(b: R): L
 }
 
-object Restrict {
+private[pmlanalyzer] object Restrict {
 
   def apply[L, R](using ev: Restrict[L, R]): Restrict[L, R] = ev
 

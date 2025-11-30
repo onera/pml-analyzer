@@ -28,7 +28,7 @@ import onera.pmlanalyzer.{
   *
 }
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -40,7 +40,7 @@ trait TransporterCeciliaExporter {
     with BasicOperationCeciliaExporter =>
 
   implicit def simpleTransporterIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[SimpleTransporter[FM], EquipmentModel] =
     new CeciliaExporter[SimpleTransporter[FM]] {
       type R = EquipmentModel
@@ -203,7 +203,7 @@ trait TransporterCeciliaExporter {
     }
 
   implicit def VirtualizerIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[Virtualizer[FM], EquipmentModel] =
     new CeciliaExporter[Virtualizer[FM]] {
       type R = EquipmentModel
@@ -376,7 +376,7 @@ trait TransporterCeciliaExporter {
     }
 
   implicit def initiatorIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[Initiator[FM], EquipmentModel] = new CeciliaExporter[Initiator[FM]] {
     type R = EquipmentModel
 

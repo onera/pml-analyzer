@@ -172,7 +172,7 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 /** Static methods of Platform
   * @group utilFun
   */
-object Platform {
+private[pmlanalyzer] object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
 

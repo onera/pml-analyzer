@@ -19,13 +19,10 @@ package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
 import onera.pmlanalyzer.pml.model.software.Data
-import onera.pmlanalyzer.{
-  Target => PMLTarget,
-  *
-}
+import onera.pmlanalyzer.{Target => PMLTarget, *}
 import onera.pmlanalyzer.pml.operators.Used
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite
 }
 import scalaz.Leibniz
@@ -115,10 +112,10 @@ final case class Of[T](m: Variable[Map[TargetId, T]], id: TargetId)
 }
 
 final case class Worst[T](l: Expr[T]*)(implicit
-    ev: IsCriticityOrdering[T],
+    ev: IsCriticalityOrdering[T],
     evF: IsFinite[T]
 ) extends Expr[T] {
-  val ordering: IsCriticityOrdering[T] = ev
+  val ordering: IsCriticalityOrdering[T] = ev
   val finite: IsFinite[T] = evF
   def eval(): Option[T] = {
     val values = for { e <- l; ve <- e.eval() } yield ve
@@ -130,10 +127,10 @@ final case class Worst[T](l: Expr[T]*)(implicit
 }
 
 final case class Best[T](l: Expr[T]*)(implicit
-    evO: IsCriticityOrdering[T],
+    evO: IsCriticalityOrdering[T],
     evF: IsFinite[T]
 ) extends Expr[T] {
-  val ordering: IsCriticityOrdering[T] = evO
+  val ordering: IsCriticalityOrdering[T] = evO
   val finite: IsFinite[T] = evF
   def eval(): Option[T] = {
     val values = for { e <- l; ve <- e.eval() } yield ve

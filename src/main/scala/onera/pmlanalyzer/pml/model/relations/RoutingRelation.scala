@@ -34,7 +34,7 @@ final case class RoutingRelation[L, R] private (iniValues: Map[L, Set[R]])(using
     n: Name
 ) extends Relation[L, R](iniValues)
 
-object RoutingRelation {
+private[pmlanalyzer] object RoutingRelation {
 
   given (using
       c: Instances

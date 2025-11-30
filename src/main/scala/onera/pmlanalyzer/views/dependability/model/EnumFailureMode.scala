@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }

@@ -27,7 +27,7 @@ import onera.pmlanalyzer.views.dependability.model.{
 }
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -38,7 +38,7 @@ trait SoftwareCeciliaExporter {
     with ExprCeciliaExporter =>
 
   implicit def dependencySpecifiedSoftwareIsExportable[
-      FM: IsFinite: IsCriticityOrdering
+      FM: IsFinite: IsCriticalityOrdering
   ]: Aux[Application[FM], EquipmentModel] =
     new CeciliaExporter[Application[FM]] {
       type R = EquipmentModel
@@ -89,7 +89,7 @@ trait SoftwareCeciliaExporter {
       }
     }
 
-  implicit def descriptorIsExportable[FM: IsFinite: IsCriticityOrdering]
+  implicit def descriptorIsExportable[FM: IsFinite: IsCriticalityOrdering]
       : Aux[Descriptor[FM], EquipmentModel] =
     new CeciliaExporter[Descriptor[FM]] {
       type R = EquipmentModel

@@ -39,7 +39,7 @@ import java.io.{File, FileWriter}
 import java.text.NumberFormat
 import java.util.Locale
 
-object GraphExporter {
+private[exporters] object GraphExporter {
 
   private val colorMap = Map(
     0 -> "#8E5A68",

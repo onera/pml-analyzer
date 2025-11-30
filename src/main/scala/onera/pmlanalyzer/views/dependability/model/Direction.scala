@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite
 }
 
@@ -36,6 +36,6 @@ object Direction {
     def name(x: Direction): Symbol = Symbol(x.toString)
   }
 
-  given IsCriticityOrdering[Direction] =
+  given IsCriticalityOrdering[Direction] =
     (x: Direction, y: Direction) => x.id - y.id
 }

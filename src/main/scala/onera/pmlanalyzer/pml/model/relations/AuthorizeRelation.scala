@@ -32,7 +32,7 @@ import onera.pmlanalyzer.pml.model.software.Application
 final case class AuthorizeRelation[L, R] private (iniValues: Map[L, Set[R]])
     extends Relation[L, R](iniValues)
 
-object AuthorizeRelation {
+private[pmlanalyzer] object AuthorizeRelation {
 
   given (using c: Instances): AuthorizeRelation[Application, Service] =
     c.SWAuthorizeService

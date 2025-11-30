@@ -28,7 +28,7 @@ import sourcecode.{File, Line}
 
 /** Extension methods
   */
-object Route {
+private[pmlanalyzer] object Route {
 
   /** Any hardware can route or forbid the transactions passing through him. A
     * routing constraint can be specified as follows.

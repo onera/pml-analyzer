@@ -35,7 +35,7 @@ final case class UseRelation[L, R] private (iniValues: Map[L, Set[R]])(using
     n: Name
 ) extends Relation[L, R](iniValues)
 
-object UseRelation {
+private[pmlanalyzer] object UseRelation {
 
   given (using c: Instances): UseRelation[Initiator, Service] =
     c.InitiatorUseService

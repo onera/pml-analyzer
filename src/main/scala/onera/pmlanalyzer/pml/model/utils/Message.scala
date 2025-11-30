@@ -31,7 +31,7 @@ import scala.collection.mutable
 
 /** Listing all information, warning or error messages displayed to the user
   */
-object Message {
+private[pmlanalyzer] object Message {
 
   inline def impossibleRouteWarning(
       t: Service,

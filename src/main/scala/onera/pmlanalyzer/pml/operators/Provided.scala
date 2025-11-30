@@ -33,7 +33,7 @@ import scala.reflect.*
   * @tparam R
   *   the provided (right) type
   */
-trait Provided[L, R] {
+private[pmlanalyzer] sealed trait Provided[L, R] private {
   def apply(a: L): Set[R]
 
   def owner(b: R): Set[L]
@@ -41,7 +41,7 @@ trait Provided[L, R] {
 
 /** Extension methods and inferences rules
   */
-object Provided {
+private[pmlanalyzer] object Provided {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS

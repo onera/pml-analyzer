@@ -25,7 +25,7 @@ import onera.pmlanalyzer.pml.operators.{Provided, Used}
 import java.io.{FileWriter, Writer}
 import scala.collection.mutable.HashMap as MHashMap
 
-object PMLNodeGraphExporter {
+private[pmlanalyzer] object PMLNodeGraphExporter {
 
   /** Extension methods
     */
@@ -1121,5 +1121,4 @@ object PMLNodeGraphExporter {
       with FullSWExporter {
     val name: Symbol = Symbol("RestrictedHWAndSW")
   }
-
 }

@@ -21,7 +21,7 @@ import onera.pmlanalyzer.views.dependability.exporters.SubComponent
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.Request
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite,
   IsShadowOrdering
 }
@@ -41,7 +41,7 @@ trait Target[FM] extends Component {
 }
 
 class InputDepTarget[
-    FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ] private (val id: TargetId)(implicit ev: Owner)
     extends Target[FM] {
   val fMAutomaton: InputFMAutomaton[FM] =
@@ -61,7 +61,7 @@ class InputDepTarget[
 
 object InputDepTarget {
 
-  def apply[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+  def apply[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TargetId
   )(implicit context: Builder[SubComponent] with Owner): InputDepTarget[FM] = {
     val result = new InputDepTarget(id)
@@ -76,7 +76,7 @@ object InputDepTarget {
   }
 }
 
-class InputInDepTarget[FM: IsCriticityOrdering: IsFinite] private (
+class InputInDepTarget[FM: IsCriticalityOrdering: IsFinite] private (
     val id: TargetId
 )(implicit owner: Owner)
     extends Target[FM] {
@@ -85,8 +85,10 @@ class InputInDepTarget[FM: IsCriticityOrdering: IsFinite] private (
 }
 
 object InputInDepTarget {
-  def apply[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering](id: TargetId)(
-      implicit context: Builder[SubComponent] with Owner
+  def apply[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
+      id: TargetId
+  )(implicit
+      context: Builder[SubComponent] with Owner
   ): InputInDepTarget[FM] = {
     val result = new InputInDepTarget(id)
     context.toBuild.getOrElseUpdate(

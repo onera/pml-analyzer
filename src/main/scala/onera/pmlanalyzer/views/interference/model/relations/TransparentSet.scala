@@ -26,7 +26,7 @@ final case class TransparentSet[T] private (value: MSet[T])(using n: Name) {
   val name: String = n.value
 }
 
-object TransparentSet {
+private[pmlanalyzer] object TransparentSet {
   trait Instances {
 
     /** Set gathering discarded transactions

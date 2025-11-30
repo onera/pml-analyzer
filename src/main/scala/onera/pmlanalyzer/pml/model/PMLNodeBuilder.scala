@@ -27,7 +27,7 @@ import scala.collection.mutable.HashMap as MHashMap
   * @tparam T
   *   the concrete type of built object
   */
-trait PMLNodeBuilder[T <: PMLNode] {
+private[pmlanalyzer] trait PMLNodeBuilder[T <: PMLNode] private[pml] {
 
   def get(name: Symbol)(using _memo: PMLNodeMap[T]): Option[T] =
     _memo.map.get(name)

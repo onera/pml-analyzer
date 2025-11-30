@@ -37,7 +37,7 @@ import scala.reflect.{ClassTag, classTag}
   * @tparam R
   *   the right type
   */
-trait Link[L, R] {
+private[pmlanalyzer] sealed trait Link[L, R] private {
   def link(a: L, b: R)(using line: Line, file: File): Unit
 
   def unlink(a: L, b: R)(using line: Line, file: File): Unit
@@ -45,7 +45,7 @@ trait Link[L, R] {
 
 /** Extension methods and inferences rules of high priority
   */
-object Link {
+private[pmlanalyzer] object Link {
 
   protected sealed trait HardwareLink[-L, -R] {
     def apply(x: L | R): Hardware

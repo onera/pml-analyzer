@@ -22,7 +22,7 @@ import onera.pmlanalyzer.*
 
 import java.io.FileWriter
 
-object RelationExporter {
+private[pmlanalyzer] object RelationExporter {
 
   private def componentStatus(platformName: String): String =
     s"${platformName}ComponentStatusTable.txt"

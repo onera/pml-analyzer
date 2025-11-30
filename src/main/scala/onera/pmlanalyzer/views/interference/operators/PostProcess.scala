@@ -49,7 +49,7 @@ import scala.math.Ordering.Implicits.*
   * @tparam T
   *   the type of the component (contravariant)
   */
-private[operators] trait PostProcess[-T] {
+private[pmlanalyzer] sealed trait PostProcess[-T] {
 
   def interferenceDiff(
       x: T,
@@ -85,7 +85,7 @@ private[operators] trait PostProcess[-T] {
   ): Array[Seq[String]]
 }
 
-object PostProcess {
+private[pmlanalyzer] object PostProcess {
 
   /* ------------------------------------------------------------------------------------------------------------------
    * EXTENSION METHODS

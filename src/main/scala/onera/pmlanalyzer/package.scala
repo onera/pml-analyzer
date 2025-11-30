@@ -23,7 +23,7 @@ package object pmlanalyzer
     with views.dependability.exporters.All
     with views.dependability.operators.All
     with views.interference.exporters.All
-    with views.interference.operators.All{
+    with views.interference.operators.All {
 
   val PMLNodeBuilder: onera.pmlanalyzer.pml.model.PMLNodeBuilder.type =
     onera.pmlanalyzer.pml.model.PMLNodeBuilder
@@ -33,10 +33,12 @@ package object pmlanalyzer
   val Target: onera.pmlanalyzer.pml.model.hardware.Target.type =
     onera.pmlanalyzer.pml.model.hardware.Target
   type Initiator = onera.pmlanalyzer.pml.model.hardware.Initiator
-  val Initiator: onera.pmlanalyzer.pml.model.hardware.Initiator.type = 
+  val Initiator: onera.pmlanalyzer.pml.model.hardware.Initiator.type =
     onera.pmlanalyzer.pml.model.hardware.Initiator
-  type SimpleTransporter = onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
-  val SimpleTransporter: onera.pmlanalyzer.pml.model.hardware.SimpleTransporter.type =
+  type SimpleTransporter =
+    onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
+  val SimpleTransporter
+      : onera.pmlanalyzer.pml.model.hardware.SimpleTransporter.type =
     onera.pmlanalyzer.pml.model.hardware.SimpleTransporter
   type Virtualizer = onera.pmlanalyzer.pml.model.hardware.Virtualizer
   val Virtualizer: onera.pmlanalyzer.pml.model.hardware.Virtualizer.type =
@@ -45,16 +47,19 @@ package object pmlanalyzer
   val Composite: onera.pmlanalyzer.pml.model.hardware.Composite.type =
     onera.pmlanalyzer.pml.model.hardware.Composite
   type Platform = onera.pmlanalyzer.pml.model.hardware.Platform
-  val Platform : onera.pmlanalyzer.pml.model.hardware.Platform.type =
+  val Platform: onera.pmlanalyzer.pml.model.hardware.Platform.type =
     onera.pmlanalyzer.pml.model.hardware.Platform
 
   type Transaction = onera.pmlanalyzer.pml.model.configuration.Transaction
   val Transaction: onera.pmlanalyzer.pml.model.configuration.Transaction.type =
     onera.pmlanalyzer.pml.model.configuration.Transaction
-  type UsedTransaction = onera.pmlanalyzer.pml.model.configuration.UsedTransaction
-  val UsedTransaction: onera.pmlanalyzer.pml.model.configuration.UsedTransaction.type =
+  type UsedTransaction =
     onera.pmlanalyzer.pml.model.configuration.UsedTransaction
-  type TransactionLibrary = onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
+  val UsedTransaction
+      : onera.pmlanalyzer.pml.model.configuration.UsedTransaction.type =
+    onera.pmlanalyzer.pml.model.configuration.UsedTransaction
+  type TransactionLibrary =
+    onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 
   type Service = onera.pmlanalyzer.pml.model.service.Service
   type Load = onera.pmlanalyzer.pml.model.service.Load
@@ -64,7 +69,8 @@ package object pmlanalyzer
   val Store: onera.pmlanalyzer.pml.model.service.Store.type =
     onera.pmlanalyzer.pml.model.service.Store
   type ArtificialService = onera.pmlanalyzer.pml.model.service.ArtificialService
-  val ArtificialService: onera.pmlanalyzer.pml.model.service.ArtificialService.type =
+  val ArtificialService
+      : onera.pmlanalyzer.pml.model.service.ArtificialService.type =
     onera.pmlanalyzer.pml.model.service.ArtificialService
 
   type Application = onera.pmlanalyzer.pml.model.software.Application
@@ -76,18 +82,51 @@ package object pmlanalyzer
 
   type Context = onera.pmlanalyzer.pml.model.utils.Context
   type ReflexiveInfo = onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
-  
-  type InterferenceSpecification = onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-  val InterferenceSpecification: onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.type =
-    onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-  type TableBasedInterferenceSpecification = onera.pmlanalyzer.views.interference.model.specification.TableBasedInterferenceSpecification
-  type PhysicalTableBasedInterferenceSpecification = onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
-  type ApplicativeTableBasedInterferenceSpecification = onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
+  val FileManager: onera.pmlanalyzer.pml.exporters.FileManager.type =
+    onera.pmlanalyzer.pml.exporters.FileManager
 
-  type Method = onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-  val Method: onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.type = 
+  type InterferenceSpecification =
+    onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
+  val InterferenceSpecification
+      : onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.type =
+    onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
+  type TableBasedInterferenceSpecification =
+    onera.pmlanalyzer.views.interference.model.specification.TableBasedInterferenceSpecification
+  type PhysicalTableBasedInterferenceSpecification =
+    onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
+  type ApplicativeTableBasedInterferenceSpecification =
+    onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
+
+  type Method =
     onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-  type SolverImplm =  onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
-  val SolverImplm: onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.type =
+  val Method
+      : onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.type =
+    onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
+  type SolverImplm =
     onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+  val SolverImplm
+      : onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.type =
+    onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
+
+  type BaseEnumeration =
+    onera.pmlanalyzer.views.dependability.model.BaseEnumeration
+  type IsFinite[T] = onera.pmlanalyzer.views.dependability.operators.IsFinite[T]
+  type IsShadowOrdering[T] =
+    onera.pmlanalyzer.views.dependability.operators.IsShadowOrdering[T]
+  type IsCriticalityOrdering[T] =
+    onera.pmlanalyzer.views.dependability.operators.IsCriticalityOrdering[T]
+  type DependabilitySpecification =
+    onera.pmlanalyzer.views.dependability.model.DependabilitySpecification
+  type Request[T] =
+    onera.pmlanalyzer.views.dependability.model.CustomTypes.Request[T]
+  type TargetStatus[T] =
+    onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus[T]
+  type Expr[T] = onera.pmlanalyzer.views.dependability.model.Expr[T]
+  type TargetId = onera.pmlanalyzer.views.dependability.model.TargetId
+  val TargetId: onera.pmlanalyzer.views.dependability.model.TargetId.type =
+    onera.pmlanalyzer.views.dependability.model.TargetId
+  type Variable[T] = onera.pmlanalyzer.views.dependability.model.Variable[T]
+  type Worst[T] = onera.pmlanalyzer.views.dependability.model.Worst[T]
+  val Worst: onera.pmlanalyzer.views.dependability.model.Worst.type =
+    onera.pmlanalyzer.views.dependability.model.Worst
 }

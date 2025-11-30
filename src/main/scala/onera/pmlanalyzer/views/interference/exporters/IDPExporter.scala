@@ -34,7 +34,7 @@ import scalaz.Memo.immutableHashMapMemo
 import java.io.{FileWriter, Writer}
 import scala.collection.mutable.HashMap as MHashMap
 
-object IDPExporter {
+private[exporters] object IDPExporter {
 
   trait Ops {
 

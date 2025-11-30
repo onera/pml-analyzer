@@ -40,7 +40,7 @@ import java.io.{File, FileWriter}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
-enum SolverImplm {
+private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
   case Choco extends SolverImplm
   case GCode extends SolverImplm
@@ -75,7 +75,7 @@ sealed trait Solver {
   def close(): Unit
 }
 
-final class ChocoSolver extends Solver {
+private[pmlanalyzer] final class ChocoSolver extends Solver {
   type BoolLit = BoolVar
   type GraphLit = UndirectedGraphVar
   type Constraint = ChocoConstraint
@@ -239,7 +239,7 @@ final class ChocoSolver extends Solver {
   def close(): Unit = {}
 }
 
-final class MonoSatSolver extends Solver {
+private[pmlanalyzer] final class MonoSatSolver extends Solver {
   type BoolLit = monosat.Lit
   type GraphLit = monosat.Graph
   type Constraint = monosat.Lit
@@ -371,7 +371,7 @@ final class MonoSatSolver extends Solver {
   def close(): Unit = solver.close()
 }
 
-abstract class MiniZinc extends Solver {
+private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   type Expression = String
   type BoolLit = String
   type GraphLit = this.type
@@ -444,7 +444,7 @@ abstract class MiniZinc extends Solver {
   }
 }
 
-final class GCode extends MiniZinc {
+private[pmlanalyzer] final class GCode extends MiniZinc {
 
   val implm: SolverImplm = GCode
 
@@ -453,7 +453,7 @@ final class GCode extends MiniZinc {
 
 }
 
-final class CPSat extends MiniZinc {
+private[pmlanalyzer] final class CPSat extends MiniZinc {
 
   val implm: SolverImplm = CPSat
 
@@ -461,7 +461,7 @@ final class CPSat extends MiniZinc {
     enumerateSolution(toGet, CPSat)
 }
 
-object Solver {
+private[pmlanalyzer] object Solver {
   def apply(implm: SolverImplm): Solver = {
     implm match {
       case SolverImplm.Monosat => MonoSatSolver()

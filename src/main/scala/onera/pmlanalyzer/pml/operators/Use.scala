@@ -31,11 +31,11 @@ import sourcecode.{File, Line}
   * @tparam R
   *   the right type
   */
-trait Use[L, R] {
+private[pmlanalyzer] sealed trait Use[L, R] private {
   def apply(l: L, r: R)(using line: Line, file: File): Unit
 }
 
-object Use {
+private[pmlanalyzer] object Use {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS
