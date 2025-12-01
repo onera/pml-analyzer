@@ -374,9 +374,18 @@ private[pmlanalyzer] final class MonoSatSolver extends Solver {
 private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   type Expression = String
   type BoolLit = String
-  type GraphLit = this.type
+  type GraphLit = Graph
   type Constraint = String
 
+  case class Graph(
+                            nMap: Map[String, (Int,BoolLit)],
+                            eMap:Map[String,(Int,BoolLit)],
+                            pre:Array[Int],
+                            post:Array[Int]
+                          )
+
+
+  private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
 
   // FIXME First step with file, but consider Stream from terminal
@@ -403,7 +412,24 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
         }});\n"
     )
 
-  def graphLit(g: MGraph): GraphLit = ???
+  def graphLit(g: MGraph): GraphLit = graphLitCache.getOrElseUpdate(
+    g,
+    {
+      val nMap =
+        (for {
+          (n,i) <- g.nodes.toSeq.map(_.id.name).sorted.zipWithIndex
+        } yield {
+          n -> (i,s"n$i")
+        }).toMap
+      val eMap =
+        (for {
+          (e,i) <- g.edges.toSeq.sortBy(_.id.name).zipWithIndex
+        } yield {
+          e.id.name -> (i,s"e${nMap(e.from.id.name)}${nMap(e.to.id.name)}")
+        }).toMap
+      ???
+    }
+  )
 
   def boolLit(a: MLit): BoolLit =
     boolLitCache.getOrElseUpdate(
@@ -420,13 +446,17 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   def and(l: Seq[Expr]): Expression =
     l.mkString("(", "/\\", ")")
 
-  def or(l: Seq[Expr]): Expression = ???
+  def or(l: Seq[Expr]): Expression =
+    l.mkString("(", "\\/", ")")
 
-  def implies(l: Expr, r: Expr): Expression = ???
+  def implies(l: Expr, r: Expr): Expression =
+    s"$l -> $r"
 
-  def eq(l: Expr, r: Expr): Expression = ???
+  def eq(l: Expr, r: Expr): Expression =
+    s"$l = $r"
 
-  def not(l: Expr): Expression = ???
+  def not(l: Expr): Expression =
+    s"not $l"
 
   def connected(g: MGraph): Constraint = ???
 
