@@ -32,7 +32,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-trait SoftwareCeciliaExporter {
+private[pmlanalyzer] trait SoftwareCeciliaExporter {
   self: TypeCeciliaExporter
     with BasicOperationCeciliaExporter
     with ExprCeciliaExporter =>

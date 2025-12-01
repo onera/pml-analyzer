@@ -28,7 +28,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
 }
 import onera.pmlanalyzer.views.dependability.model.*
 
-trait TargetCeciliaExporter {
+private[pmlanalyzer] trait TargetCeciliaExporter {
   self: TypeCeciliaExporter
     with AutomatonCeciliaExporter
     with BasicOperationCeciliaExporter =>

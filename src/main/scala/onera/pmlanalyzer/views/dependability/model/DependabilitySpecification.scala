@@ -25,7 +25,7 @@ import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 
-trait DependabilitySpecification {
+private[pmlanalyzer] trait DependabilitySpecification {
   self: Platform =>
 
   type U
@@ -49,7 +49,7 @@ trait DependabilitySpecification {
   val targetIsInputDep: Set[PMLTarget]
 }
 
-object DependabilitySpecification {
+private[pmlanalyzer] object DependabilitySpecification {
   type Aux[T] = DependabilitySpecification {
     type U = T
   }

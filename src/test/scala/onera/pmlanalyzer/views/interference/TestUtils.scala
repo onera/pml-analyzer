@@ -117,13 +117,13 @@ sealed trait MultiTransactionComparison {
   val s: Seq[String]
 }
 
-final case class Missing(s: Seq[String], isFree: Boolean)
+private[pmlanalyzer] final case class Missing(s: Seq[String], isFree: Boolean)
     extends MultiTransactionComparison {
   override def toString: String =
     s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not found"
 }
 
-final case class Unknown(s: Seq[String], isFree: Boolean)
+private[pmlanalyzer] final case class Unknown(s: Seq[String], isFree: Boolean)
     extends MultiTransactionComparison {
   override def toString: String =
     s"${s.size}-${if (isFree) "free" else "itf"} ${s.mkString("||")} not expected"

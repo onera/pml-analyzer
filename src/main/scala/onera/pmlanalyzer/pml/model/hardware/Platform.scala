@@ -50,8 +50,11 @@ import scala.language.implicitConversions
   *   the implicit descriptor of the source file where the platform is defined
   * @group hierarchical_class
   */
-abstract class Platform(val name: Symbol, line: Line, file: File)
-    extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
+private[pmlanalyzer] abstract class Platform(
+    val name: Symbol,
+    line: Line,
+    file: File
+) extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
     with ContainerLike
     with Transform.BasicInstances {
 

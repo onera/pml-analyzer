@@ -154,7 +154,7 @@ private[pmlanalyzer] trait TableBasedInterferenceSpecification
   }
 }
 
-object TableBasedInterferenceSpecification {
+private[pmlanalyzer] object TableBasedInterferenceSpecification {
 
   /** Default implementation of [[TableBasedInterferenceSpecification]]
     */

@@ -26,7 +26,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-trait Target[FM] extends Component {
+private[pmlanalyzer] trait Target[FM] extends Component {
   val id: TargetId
   val storeI: InputPort[List[Request[FM]]] =
     InputPort[List[Request[FM]]](Symbol("storeI"))
@@ -40,7 +40,7 @@ trait Target[FM] extends Component {
     )
 }
 
-class InputDepTarget[
+private[pmlanalyzer] class InputDepTarget[
     FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ] private (val id: TargetId)(implicit ev: Owner)
     extends Target[FM] {
@@ -59,7 +59,7 @@ class InputDepTarget[
   }
 }
 
-object InputDepTarget {
+private[pmlanalyzer] object InputDepTarget {
 
   def apply[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TargetId
@@ -76,7 +76,9 @@ object InputDepTarget {
   }
 }
 
-class InputInDepTarget[FM: IsCriticalityOrdering: IsFinite] private (
+private[pmlanalyzer] class InputInDepTarget[
+    FM: IsCriticalityOrdering: IsFinite
+] private (
     val id: TargetId
 )(implicit owner: Owner)
     extends Target[FM] {
@@ -84,7 +86,7 @@ class InputInDepTarget[FM: IsCriticalityOrdering: IsFinite] private (
     SimpleFMAutomaton[FM](AutomatonId(Symbol("fmAutomaton")), min[FM])
 }
 
-object InputInDepTarget {
+private[pmlanalyzer] object InputInDepTarget {
   def apply[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TargetId
   )(implicit

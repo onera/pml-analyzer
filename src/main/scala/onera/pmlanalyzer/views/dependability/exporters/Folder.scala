@@ -33,14 +33,14 @@ sealed trait Folder {
   override def toString: String = s"Folder(name=${name.name},id=$id)"
 }
 
-object Folder {
+private[pmlanalyzer] object Folder {
 
   private val initialId: Int = 100
   private val foldersIds: mutable.Map[Int, Folder] = mutable.Map.empty
   val date: Long = OS.currentTimeMillis()
 }
 
-object RootFolder extends Folder {
+private[pmlanalyzer] object RootFolder extends Folder {
   lazy val absolutePath: String = ""
   override val name: Symbol = Symbol("")
 }
@@ -57,8 +57,9 @@ sealed trait CeciliaFolder extends Folder {
 
 sealed trait SubFolder[T] extends CeciliaFolder
 
-class FamilyFolder[T](val name: Symbol)(implicit m: ModelDescriptor[T])
-    extends SubFolder[T] {
+private[pmlanalyzer] class FamilyFolder[T](val name: Symbol)(implicit
+    m: ModelDescriptor[T]
+) extends SubFolder[T] {
   val parent: RootFolder.type = RootFolder
   private val elements = scala.collection.mutable.Set.empty[SubFolder[T]]
   def add(a: SubFolder[T]): Unit = elements += a
@@ -81,12 +82,15 @@ class FamilyFolder[T](val name: Symbol)(implicit m: ModelDescriptor[T])
   }
 }
 
-object FamilyFolder {
+private[pmlanalyzer] object FamilyFolder {
   def apply[T](name: Symbol)(implicit m: ModelDescriptor[T]): FamilyFolder[T] =
     m.getFolder(name)
 }
 
-class SubFamilyFolder[T](val name: Symbol, val parent: FamilyFolder[T])(implicit
+private[pmlanalyzer] class SubFamilyFolder[T](
+    val name: Symbol,
+    val parent: FamilyFolder[T]
+)(implicit
     m: ModelDescriptor[T]
 ) extends SubFolder[T] {
   private val elements = scala.collection.mutable.Set.empty[EntityFolder[T]]
@@ -101,13 +105,16 @@ class SubFamilyFolder[T](val name: Symbol, val parent: FamilyFolder[T])(implicit
   }
 }
 
-object SubFamilyFolder {
+private[pmlanalyzer] object SubFamilyFolder {
   def apply[T](name: Symbol, parent: FamilyFolder[T])(implicit
       m: ModelDescriptor[T]
   ): SubFamilyFolder[T] = m.getFolder(name, parent)
 }
 
-final case class EntityFolder[T](name: Symbol, parent: SubFolder[T])(implicit
+private[pmlanalyzer] final case class EntityFolder[T](
+    name: Symbol,
+    parent: SubFolder[T]
+)(implicit
     m: ModelDescriptor[T]
 ) extends SubFolder[T] {
   private val elements = scala.collection.mutable.Set.empty[VersionFolder[T]]
@@ -136,8 +143,8 @@ final case class EntityFolder[T](name: Symbol, parent: SubFolder[T])(implicit
   }
 }
 
-final case class VersionFolder[T](parent: EntityFolder[T])(implicit
-    m: ModelDescriptor[T]
+private[pmlanalyzer] final case class VersionFolder[T](parent: EntityFolder[T])(
+    implicit m: ModelDescriptor[T]
 ) extends CeciliaFolder {
   val name: Symbol = Symbol((parent.getVersionNb + 1).toString)
   override lazy val absolutePath: String =

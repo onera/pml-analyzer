@@ -35,7 +35,7 @@ import scala.collection.mutable.{HashMap as MHashMap, Seq as MSeq, Set as MSet}
   * @tparam R
   *   type of the right set
   */
-abstract class Relation[L, R] private[pmlanalyzer] (iniValues: Map[L, Set[R]])(
+private[pmlanalyzer] abstract class Relation[L, R](iniValues: Map[L, Set[R]])(
     using n: Name
 ) {
 

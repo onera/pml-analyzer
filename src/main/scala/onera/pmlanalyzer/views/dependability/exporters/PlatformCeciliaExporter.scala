@@ -59,7 +59,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
 import scala.reflect.*
 import scala.xml.XML
 
-trait PlatformCeciliaExporter {
+private[pmlanalyzer] trait PlatformCeciliaExporter {
   self: BasicOperationCeciliaExporter
     with SystemCeciliaExporter
     with TypeCeciliaExporter =>

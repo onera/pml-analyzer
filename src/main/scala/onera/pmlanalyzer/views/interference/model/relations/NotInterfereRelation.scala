@@ -23,8 +23,10 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.Name
 
-final case class NotInterfereRelation[L, R] private (iniValues: Map[L, Set[R]])(
-    using n: Name
+private[pmlanalyzer] final case class NotInterfereRelation[L, R] private (
+    iniValues: Map[L, Set[R]]
+)(using
+    n: Name
 ) extends Relation[L, R](iniValues)
 
 private[pmlanalyzer] object NotInterfereRelation {

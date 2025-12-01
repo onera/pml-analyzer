@@ -123,7 +123,7 @@ private[formalisation] final case class MEdgeLit(edge: MEdge, graph: MGraph)
   override def toString: String = s"v_${edge.id.name}"
 }
 
-final case class MLit(id: LitId) extends ALit with Expr {
+private[pmlanalyzer] final case class MLit(id: LitId) extends ALit with Expr {
   def toLit(s: Solver): s.BoolLit = s.boolLit(this)
   def toExpr(s: Solver): s.Expression = s.boolLit(this)
 

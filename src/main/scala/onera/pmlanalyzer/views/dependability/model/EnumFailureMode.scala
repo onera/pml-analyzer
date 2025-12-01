@@ -23,7 +23,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-trait EnumFailureMode[T] {
+private[pmlanalyzer] trait EnumFailureMode[T] {
   self =>
 
   implicit val isFinite: IsFinite[T]

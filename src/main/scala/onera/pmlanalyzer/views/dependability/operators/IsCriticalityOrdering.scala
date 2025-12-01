@@ -20,9 +20,9 @@ package onera.pmlanalyzer.views.dependability.operators
 import onera.pmlanalyzer.allOf
 import onera.pmlanalyzer.views.dependability.model.BaseEnumeration
 
-trait IsCriticalityOrdering[T] extends Ordering[T]
+private[pmlanalyzer] trait IsCriticalityOrdering[T] extends Ordering[T]
 
-object IsCriticalityOrdering {
+private[pmlanalyzer] object IsCriticalityOrdering {
   def apply[T](implicit
       ev: IsCriticalityOrdering[T]
   ): IsCriticalityOrdering[T] = ev

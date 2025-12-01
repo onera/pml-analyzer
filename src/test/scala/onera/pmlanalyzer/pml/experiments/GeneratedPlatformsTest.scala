@@ -43,7 +43,9 @@ import scala.concurrent.{Await, Future, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
+private[pmlanalyzer] class GeneratedPlatformsTest
+    extends AnyFlatSpec
+    with should.Matchers {
 
   def generatePlatformFromConfiguration(
       coreCount: Int,

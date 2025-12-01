@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.*
 
-object CustomTypes {
+private[pmlanalyzer] object CustomTypes {
 
   type Request[T] = Map[(InitiatorId, TargetId), T]
 

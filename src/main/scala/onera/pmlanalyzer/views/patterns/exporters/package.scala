@@ -15,6 +15,13 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.patterns.exporters
+package onera.pmlanalyzer.views.patterns
 
-object allPrinters extends LatexCodePrinter with LatexDiagramPrinter
+import onera.pmlanalyzer.views.patterns.model.PatternAST
+
+package object exporters {
+  trait All
+      extends LatexCodePrinter.Ops
+      with LatexDiagramPrinter.Ops
+      with PatternAST.Ops
+}

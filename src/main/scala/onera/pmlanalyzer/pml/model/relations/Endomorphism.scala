@@ -27,7 +27,7 @@ import sourcecode.{File, Line, Name}
   * @tparam A
   *   the elements type
   */
-abstract class Endomorphism[A] private[pmlanalyzer] (iniValues: Map[A, Set[A]])(
+private[pmlanalyzer] abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(
     using n: Name
 ) extends Relation[A, A](iniValues: Map[A, Set[A]]) {
 

@@ -23,13 +23,13 @@ import onera.pmlanalyzer.views.dependability.model.DependabilitySpecification
 
 import scala.xml.{Elem, XML}
 
-trait CeciliaExporter[T] {
+private[pmlanalyzer] trait CeciliaExporter[T] {
   type R
 
   def toCecilia(x: T): R
 }
 
-trait CeciliaExporterOps {
+private[pmlanalyzer] trait CeciliaExporterOps {
   implicit class CeciliaOps[T, O](x: T) {
     def toCecilia(implicit ev: CeciliaExporter.Aux[T, O]): O = ev.toCecilia(x)
     val ceciliaExportName: String = CeciliaExporter.ceciliaExportName(x)
@@ -46,7 +46,7 @@ trait CeciliaExporterOps {
   }
 }
 
-object CeciliaExporter {
+private[pmlanalyzer] object CeciliaExporter {
 
   type Aux[T, O] = CeciliaExporter[T] {
     type R = O

@@ -404,7 +404,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
   }
 }
 
-object InterferenceSpecification {
+private[pmlanalyzer] object InterferenceSpecification {
   type Path[A] = List[A]
   type AtomicTransaction = Path[Service]
   type PhysicalTransaction = Set[AtomicTransactionId]

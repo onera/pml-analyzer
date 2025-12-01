@@ -29,7 +29,7 @@ enum Direction(id: Int, name: String) extends BaseEnumeration(id, name) {
   case Constant extends Direction(1, "constant")
 }
 
-object Direction {
+private[pmlanalyzer] object Direction {
   given IsFinite[Direction] with {
     val none: Direction = Constant
     def allWithNone: Seq[Direction] = values.toSeq

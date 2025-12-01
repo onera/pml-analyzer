@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
-object PhylogFolder {
+private[pmlanalyzer] object PhylogFolder {
   val genericImageFolder: FamilyFolder[ImageModel] = FamilyFolder(
     Symbol("generic")
   )

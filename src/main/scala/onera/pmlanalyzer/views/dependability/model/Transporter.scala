@@ -25,7 +25,7 @@ import onera.pmlanalyzer.views.dependability.model.CustomTypes.{
 }
 import onera.pmlanalyzer.views.dependability.operators.*
 
-abstract class Transporter[
+private[pmlanalyzer] abstract class Transporter[
     FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ](implicit
     owner: Owner
@@ -38,7 +38,7 @@ abstract class Transporter[
   val storeO: OutputPort[Request[FM]]
 }
 
-abstract class BasicTransporter[
+private[pmlanalyzer] abstract class BasicTransporter[
     FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ](implicit owner: Owner)
     extends Transporter[FM] {
@@ -46,7 +46,7 @@ abstract class BasicTransporter[
   val storeI: InputPort[List[Request[FM]]]
 }
 
-class SimpleTransporter[
+private[pmlanalyzer] class SimpleTransporter[
     FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ] private (
     val id: TransporterId,
@@ -91,7 +91,7 @@ class SimpleTransporter[
     )
 }
 
-object SimpleTransporter {
+private[pmlanalyzer] object SimpleTransporter {
   def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TransporterId,
       reject: ((InitiatorId, TargetId)) => Boolean
@@ -113,7 +113,7 @@ object SimpleTransporter {
 }
 
 //TODO Refactoring with Simple transporter
-class Virtualizer[
+private[pmlanalyzer] class Virtualizer[
     FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ] private (
     val id: TransporterId,
@@ -158,7 +158,7 @@ class Virtualizer[
     )
 }
 
-object Virtualizer {
+private[pmlanalyzer] object Virtualizer {
   def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TransporterId,
       reject: ((InitiatorId, TargetId)) => Boolean
@@ -177,7 +177,9 @@ object Virtualizer {
   }
 }
 
-class Initiator[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering] private (
+private[pmlanalyzer] class Initiator[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
+] private (
     val id: InitiatorId
 )(implicit owner: Owner)
     extends Transporter[FM] {
@@ -221,7 +223,7 @@ class Initiator[FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering] private (
     )
 }
 
-object Initiator {
+private[pmlanalyzer] object Initiator {
   def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: InitiatorId
   )(implicit context: Builder[SubComponent] with Owner): Initiator[T] = {

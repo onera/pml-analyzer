@@ -17,13 +17,18 @@
 
 package onera
 
+/**
+ * The following package contains all types that
+ * an user can import to build its model
+ */
 package object pmlanalyzer
     extends pml.exporters.All
     with pml.operators.All
     with views.dependability.exporters.All
     with views.dependability.operators.All
     with views.interference.exporters.All
-    with views.interference.operators.All {
+    with views.interference.operators.All
+    with views.patterns.exporters.All {
 
   val PMLNodeBuilder: onera.pmlanalyzer.pml.model.PMLNodeBuilder.type =
     onera.pmlanalyzer.pml.model.PMLNodeBuilder
@@ -129,4 +134,11 @@ package object pmlanalyzer
   type Worst[T] = onera.pmlanalyzer.views.dependability.model.Worst[T]
   val Worst: onera.pmlanalyzer.views.dependability.model.Worst.type =
     onera.pmlanalyzer.views.dependability.model.Worst
+
+  type Backing = onera.pmlanalyzer.views.patterns.model.Backing
+  type Claim = onera.pmlanalyzer.views.patterns.model.Claim
+  type Given = onera.pmlanalyzer.views.patterns.model.Given
+  type Defeater = onera.pmlanalyzer.views.patterns.model.Defeater
+  type FinalEvidence = onera.pmlanalyzer.views.patterns.model.FinalEvidence
+  type Strategy = onera.pmlanalyzer.views.patterns.model.Strategy
 }

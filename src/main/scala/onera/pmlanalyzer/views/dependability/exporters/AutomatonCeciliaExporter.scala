@@ -33,7 +33,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
   IsShadowOrdering
 }
 
-trait AutomatonCeciliaExporter {
+private[pmlanalyzer] trait AutomatonCeciliaExporter {
   self: TypeCeciliaExporter =>
   implicit def simpleFMAutomatonIsExportable[T: IsCriticalityOrdering: IsFinite]
       : Aux[SimpleFMAutomaton[T], ComponentModel] =

@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.dependability.operators.{
 }
 import onera.pmlanalyzer.*
 
-trait TypeCeciliaExporter {
+private[pmlanalyzer] trait TypeCeciliaExporter {
   def typeModel[T: IsFinite]: EnumeratedType = {
     EnumeratedType(
       nameOf[T],

@@ -34,8 +34,9 @@ import onera.pmlanalyzer.views.dependability.operators.{
   * @tparam T
   *   Possible modes of the automaton
   */
-abstract class ModeAutomaton[T: IsCriticalityOrdering: IsFinite]
-    extends Component {
+private[pmlanalyzer] abstract class ModeAutomaton[
+    T: IsCriticalityOrdering: IsFinite
+] extends Component {
   val events: Set[Event]
   val transitions: Set[Transition[T]]
   val initialState: T
@@ -78,8 +79,9 @@ abstract class ModeAutomaton[T: IsCriticalityOrdering: IsFinite]
   }
 }
 
-abstract class FMAutomaton[T: IsCriticalityOrdering: IsFinite]
-    extends ModeAutomaton[T] {
+private[pmlanalyzer] abstract class FMAutomaton[
+    T: IsCriticalityOrdering: IsFinite
+] extends ModeAutomaton[T] {
   val initialState: T
   val eventMap: Map[Symbol, Event]
   val o: OutputPort[T]
@@ -88,7 +90,9 @@ abstract class FMAutomaton[T: IsCriticalityOrdering: IsFinite]
   val id: AutomatonId
 }
 
-class SimpleFMAutomaton[T: IsCriticalityOrdering: IsFinite] private (
+private[pmlanalyzer] class SimpleFMAutomaton[
+    T: IsCriticalityOrdering: IsFinite
+] private (
     val id: AutomatonId,
     val initialState: T
 ) extends FMAutomaton[T] {
@@ -110,7 +114,7 @@ class SimpleFMAutomaton[T: IsCriticalityOrdering: IsFinite] private (
   val outputPorts: Set[OutputPort[T]] = Set(o)
 }
 
-object SimpleFMAutomaton {
+private[pmlanalyzer] object SimpleFMAutomaton {
   def apply[T: IsCriticalityOrdering: IsFinite](
       id: AutomatonId,
       initialState: T
@@ -123,7 +127,9 @@ object SimpleFMAutomaton {
   }
 }
 
-class InputFMAutomaton[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
+private[pmlanalyzer] class InputFMAutomaton[
+    T: IsCriticalityOrdering: IsFinite: IsShadowOrdering
+](
     val id: AutomatonId,
     val initialState: T
 ) extends FMAutomaton[T] {
@@ -151,7 +157,7 @@ class InputFMAutomaton[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
   val outputPorts: Set[OutputPort[T]] = Set(o)
 }
 
-object InputFMAutomaton {
+private[pmlanalyzer] object InputFMAutomaton {
   def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: AutomatonId,
       initialState: T

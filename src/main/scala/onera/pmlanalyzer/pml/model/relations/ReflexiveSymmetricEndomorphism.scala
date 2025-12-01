@@ -20,7 +20,7 @@ package onera.pmlanalyzer.pml.model.relations
 import onera.pmlanalyzer.pml.model.utils.Message
 import sourcecode.{File, Line, Name}
 
-abstract class ReflexiveSymmetricEndomorphism[A] private[pmlanalyzer] (
+private[pmlanalyzer] abstract class ReflexiveSymmetricEndomorphism[A](
     iniValues: Map[A, Set[A]]
 )(using
     n: Name

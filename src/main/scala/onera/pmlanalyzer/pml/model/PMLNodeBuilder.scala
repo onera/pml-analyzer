@@ -87,7 +87,7 @@ private[pmlanalyzer] trait PMLNodeBuilder[T <: PMLNode] private[pml] {
     } yield v
 }
 
-object PMLNodeBuilder {
+private[pmlanalyzer] object PMLNodeBuilder {
 
   /** Formatting of object name
    *

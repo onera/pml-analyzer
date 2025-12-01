@@ -17,9 +17,7 @@
 
 package patterns
 
-import onera.pmlanalyzer.views.patterns.exporters.LatexCodePrinter.*
-import onera.pmlanalyzer.views.patterns.exporters.LatexDiagramPrinter.*
-import onera.pmlanalyzer.views.patterns.model.DSLImplicits.*
+import onera.pmlanalyzer.*
 
 import scala.sys.process.Process
 

@@ -26,7 +26,9 @@ import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.Name
 
-final case class ExclusiveRelation[A] private (iniValues: Map[A, Set[A]])(using
+private[pmlanalyzer] final case class ExclusiveRelation[A] private (
+    iniValues: Map[A, Set[A]]
+)(using
     n: Name
 ) extends AntiReflexiveSymmetricEndomorphism[A](iniValues)
 

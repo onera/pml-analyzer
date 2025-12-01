@@ -22,7 +22,9 @@ import sourcecode.Name
 
 import scala.collection.mutable.Set as MSet
 
-final case class TransparentSet[T] private (value: MSet[T])(using n: Name) {
+private[pmlanalyzer] final case class TransparentSet[T] private (
+    value: MSet[T]
+)(using n: Name) {
   val name: String = n.value
 }
 

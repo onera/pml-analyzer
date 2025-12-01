@@ -31,7 +31,9 @@ import sourcecode.Name
   * @tparam R
   *   the right type
   */
-final case class UseRelation[L, R] private (iniValues: Map[L, Set[R]])(using
+private[pmlanalyzer] final case class UseRelation[L, R] private (
+    iniValues: Map[L, Set[R]]
+)(using
     n: Name
 ) extends Relation[L, R](iniValues)
 

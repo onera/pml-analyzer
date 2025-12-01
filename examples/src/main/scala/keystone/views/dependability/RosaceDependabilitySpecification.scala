@@ -1,7 +1,6 @@
 package keystone.views.dependability
 
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.dependability.model.ExprImplicits.*
 import keystone.pml.{KeystonePlatform, RosaceConfiguration}
 
 trait RosaceDependabilitySpecification extends DependabilitySpecification {
