@@ -79,7 +79,9 @@ jobs:
           tar xf MiniZincIDE-2.9.4-bundle-linux-x86_64.tgz
           echo "export PATH=$PWD/MiniZincIDE-2.9.4-bundle-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
           echo "export LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.9.4-bundle-linux-x86_64/lib:LD_LIBRARY_PATH" >> $GITHUB_ENV
-          minizinc -h 
+
+      - name: Test minizinc
+        run: minizinc -h
 
       - name: Set env
         run: echo "LD_LIBRARY_PATH=$PWD/binlib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
