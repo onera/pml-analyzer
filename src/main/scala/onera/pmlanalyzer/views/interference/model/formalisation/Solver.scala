@@ -22,10 +22,18 @@ import fastparse.SingleLineWhitespace.*
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.model.formalisation
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{CPSat, Choco, GCode, Monosat}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  CPSat,
+  Choco,
+  GCode,
+  Monosat
+}
 import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.chocosolver.solver.Model as ChocoModel
-import org.chocosolver.solver.constraints.{Operator, Constraint as ChocoConstraint}
+import org.chocosolver.solver.constraints.{
+  Operator,
+  Constraint as ChocoConstraint
+}
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
 import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
@@ -41,6 +49,14 @@ private[pmlanalyzer] enum SolverImplm {
   case Choco extends SolverImplm
   case GCode extends SolverImplm
   case CPSat extends SolverImplm
+
+  override def toString: String =
+    this match {
+      case Monosat => "monosat"
+      case Choco   => "choco"
+      case GCode   => "gecode"
+      case CPSat   => "cp-sat"
+    }
 }
 
 sealed trait Solver {
@@ -367,7 +383,7 @@ private[pmlanalyzer] final class MonoSatSolver extends Solver {
   def close(): Unit = solver.close()
 }
 
-private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
+private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   type Expression = String
   type BoolLit = String
   type GraphLit = Graph
@@ -383,7 +399,6 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
 
-
   // FIXME First step with file, but consider Stream from terminal
   private val miniZincFile: File =
     FileManager.analysisDirectory.getFile("exportMiniZinc.mzn")
@@ -391,9 +406,9 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
 
   fileWriter.write("include \"connected.mzn\";\n")
 
-  private def formatName(s:String) =
-    s.replaceAll("[<>|]","")
-      .replaceAll("\\$|--","_")
+  private def formatName(s: String) =
+    s.replaceAll("[<>|]", "")
+      .replaceAll("\\$|--", "_")
 
   def assert(lt: Expr | Connected): Unit =
     fileWriter.write(
@@ -529,16 +544,16 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
 
   def close(): Unit = {}
 
-  private def parseValuation[$:P] =
-    P(PostProcess.parseAtomicTransactionId ~/ "=" ~ ("false"|"true").!)
-      .collect({
-        case (id,"true") => id
+  private def parseValuation[$: P] =
+    P(PostProcess.parseAtomicTransactionId ~/ "=" ~ ("false" | "true").!)
+      .collect({ case (id, "true") =>
+        id
       })
 
-  private def parseModel[$:P] =
-    P(parseValuation.rep(min=2) ~ "-".rep(min=2))
+  private def parseModel[$: P] =
+    P(parseValuation.rep(min = 2) ~ "-".rep(min = 2))
 
-  private def parseModels[$:P] =
+  private def parseModels[$: P] =
     P(Start ~ parseModel.rep ~ End)
 
   protected def enumerateSolution(
@@ -546,16 +561,18 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
     val litNames = toGet.map(x => x -> x.toLit(this)).toMap
-    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l,r) => l)
+    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) => l)
     fileWriter.write(s"""output [
          |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)
     fileWriter.flush()
     fileWriter.close()
-    val result = Process(s"minizinc -a --solver $implm ${miniZincFile.getPath}").lazyLines
+    val result = Process(
+      s"minizinc -a --solver $implm ${miniZincFile.getPath}"
+    ).lazyLines
     parse(result.iterator, parseModels(using _)) match {
       case Parsed.Success(res, _) =>
-        mutable.Set(res.map(_.map(mLitNames).toSet):_*)
+        mutable.Set(res.map(_.map(mLitNames).toSet): _*)
       case f: Parsed.Failure =>
         println(f.trace().longAggregateMsg)
         mutable.Set.empty[Set[MLit]]
@@ -563,7 +580,7 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   }
 }
 
-private[pmlanalyzer] final class GCode extends MiniZinc {
+private[pmlanalyzer] final class GCodeSolver extends MiniZincSolver {
 
   val implm: SolverImplm = GCode
 
@@ -572,7 +589,7 @@ private[pmlanalyzer] final class GCode extends MiniZinc {
 
 }
 
-private[pmlanalyzer] final class CPSat extends MiniZinc {
+private[pmlanalyzer] final class CPSatSolver extends MiniZincSolver {
 
   val implm: SolverImplm = CPSat
 
@@ -585,8 +602,8 @@ private[pmlanalyzer] object Solver {
     implm match {
       case SolverImplm.Monosat => MonoSatSolver()
       case SolverImplm.Choco   => ChocoSolver()
-      case SolverImplm.GCode   => GCode()
-      case SolverImplm.CPSat   => CPSat()
+      case SolverImplm.GCode   => GCodeSolver()
+      case SolverImplm.CPSat   => CPSatSolver()
     }
   }
 }
