@@ -74,14 +74,10 @@ jobs:
           cp monosat/build/libmonosat.so binlib
 
       - name: Install MiniZinc
-        run: |
-          curl -L -o MiniZincIDE-2.9.4-bundle-linux-x86_64.tgz https://github.com/MiniZinc/MiniZincIDE/releases/download/2.9.4/MiniZincIDE-2.9.4-bundle-linux-x86_64.tgz
-          tar xf MiniZincIDE-2.9.4-bundle-linux-x86_64.tgz
-          echo "export PATH=$PWD/MiniZincIDE-2.9.4-bundle-linux-x86_64/bin:$PATH" >> $GITHUB_ENV
-          echo "export LD_LIBRARY_PATH=$PWD/MiniZincIDE-2.9.4-bundle-linux-x86_64/lib:LD_LIBRARY_PATH" >> $GITHUB_ENV
+        run: snap install minizinc --classic
 
       - name: Test minizinc
-        run: echo $PATH
+        run: minizinc -h
 
       - name: Set env
         run: echo "LD_LIBRARY_PATH=$PWD/binlib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
