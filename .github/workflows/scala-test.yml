@@ -74,7 +74,7 @@ jobs:
           cp monosat/build/libmonosat.so binlib
 
       - name: Install MiniZinc
-        run: snap install minizinc --classic
+        run: sudo snap install minizinc --classic
 
       - name: Test minizinc
         run: minizinc -h
