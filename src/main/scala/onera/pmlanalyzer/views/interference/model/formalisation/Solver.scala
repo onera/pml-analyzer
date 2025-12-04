@@ -17,20 +17,15 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
+import fastparse.*
+import fastparse.SingleLineWhitespace.*
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.model.formalisation
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
-  CPSat,
-  Choco,
-  GCode,
-  Monosat
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{CPSat, Choco, GCode, Monosat}
+import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.chocosolver.solver.Model as ChocoModel
-import org.chocosolver.solver.constraints.{
-  Operator,
-  Constraint as ChocoConstraint
-}
+import org.chocosolver.solver.constraints.{Operator, Constraint as ChocoConstraint}
 import org.chocosolver.solver.expression.discrete.relational.ReExpression
 import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
@@ -39,6 +34,7 @@ import org.chocosolver.util.objects.setDataStructures.SetType
 import java.io.{File, FileWriter}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
+import scala.sys.process.Process
 
 private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
@@ -387,10 +383,17 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
 
+
   // FIXME First step with file, but consider Stream from terminal
   private val miniZincFile: File =
     FileManager.analysisDirectory.getFile("exportMiniZinc.mzn")
   protected val fileWriter = FileWriter(miniZincFile)
+
+  fileWriter.write("include \"connected.mzn\";\n")
+
+  private def formatName(s:String) =
+    s.replaceAll("[<>|]","")
+      .replaceAll("\\$|--","_")
 
   def assert(lt: Expr | Connected): Unit =
     fileWriter.write(
@@ -417,13 +420,13 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
         (for {
           (n, i) <- g.nodes.toSeq.sortBy(_.id.name).zipWithIndex
         } yield {
-          n -> (i, s"n$i")
+          n -> (i + 1, s"n$i")
         }).toMap
       val eMap =
         (for {
           (e, i) <- g.edges.toSeq.sortBy(_.id.name).zipWithIndex
         } yield {
-          e -> (i, s"e${nMap(e.from)._1}${nMap(e.to)._1}")
+          e -> (i + 1, s"e${nMap(e.from)._1}${nMap(e.to)._1}")
         }).toMap
       val pre =
         for {
@@ -437,10 +440,10 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
 
       fileWriter.write(
         s"""%% Nodes definition
-           |set of int: Node = 0..${nMap.size - 1};
+           |set of int: Node = 1..${nMap.size};
            |${nMap.toSeq
             .sortBy(_._2._1)
-            .map((k, v) => s"Node: ${k.id.name} = ${v._1};")
+            .map((k, v) => s"Node: ${formatName(k.id.name)} = ${v._1};")
             .mkString("\n")}
            |%% Node variables definition
            |${nMap.toSeq
@@ -448,15 +451,15 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
             .map((k, v) => s"var bool: ${v._2};")
             .mkString("\n")}
            |%% Edges definition
-           |set of int: Edge = 0..${eMap.size - 1};
+           |set of int: Edge = 1..${eMap.size};
            |${eMap.toSeq
             .sortBy(_._2._1)
-            .map((k, v) => s"Edge: ${k.id.name} = ${v._1};")
+            .map((k, v) => s"Edge: ${formatName(k.id.name)} = ${v._1};")
             .mkString("\n")}
            |%% Edge variables definition
            |${eMap.toSeq
             .sortBy(_._2._1)
-            .map((k, v) => s"var bool: ${k.id.name} = ${v._2};")
+            .map((k, v) => s"var bool: ${v._2};")
             .mkString("\n")}
            |%% Graph definition
            |array[Edge] of Node: pre = ${pre.mkString("[", ", ", "]")};
@@ -465,7 +468,7 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
             .sortBy(x => nMap(x)._1)
             .map(x => nMap(x)._2)
             .mkString("[", ", ", "]")};
-           |array[Node] of var bool: es = ${eMap.keySet.toSeq
+           |array[Edge] of var bool: es = ${eMap.keySet.toSeq
             .sortBy(x => eMap(x)._1)
             .map(x => eMap(x)._2)
             .mkString("[", ", ", "]")};
@@ -483,8 +486,8 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   def boolLit(a: MLit): BoolLit =
     boolLitCache.getOrElseUpdate(
       a, {
-        fileWriter.write(s"var bool: ${a.id.name};\n")
-        a.id.name
+        fileWriter.write(s"var bool: ${formatName(a.id.name)};\n")
+        formatName(a.id.name)
       }
     )
 
@@ -526,17 +529,37 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
 
   def close(): Unit = {}
 
+  private def parseValuation[$:P] =
+    P(PostProcess.parseAtomicTransactionId ~/ "=" ~ ("false"|"true").!)
+      .collect({
+        case (id,"true") => id
+      })
+
+  private def parseModel[$:P] =
+    P(parseValuation.rep(min=2) ~ "-".rep(min=2))
+
+  private def parseModels[$:P] =
+    P(Start ~ parseModel.rep ~ End)
+
   protected def enumerateSolution(
       toGet: Set[MLit],
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
-    val litNames = toGet.map(_.toLit(this))
+    val litNames = toGet.map(x => x -> x.toLit(this)).toMap
+    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l,r) => l)
     fileWriter.write(s"""output [
-         |${litNames.map(x => s"\"$x = \\($x)\\n,\"").mkString("\n")}
+         |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)
     fileWriter.flush()
     fileWriter.close()
-    ???
+    val result = Process(s"minizinc -a --solver $implm ${miniZincFile.getPath}").lazyLines
+    parse(result.iterator, parseModels(using _)) match {
+      case Parsed.Success(res, _) =>
+        mutable.Set(res.map(_.map(mLitNames).toSet):_*)
+      case f: Parsed.Failure =>
+        println(f.trace().longAggregateMsg)
+        mutable.Set.empty[Set[MLit]]
+    }
   }
 }
 

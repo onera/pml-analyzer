@@ -700,7 +700,7 @@ private[pmlanalyzer] object PostProcess {
     }
   }
 
-  private def parseAtomicTransactionId[$: P] =
+  def parseAtomicTransactionId[$: P] =
     P(
       CharPred(x => !Set('|', '<', '>', ' ', '\n', ',').contains(x))
         .rep(min = 1)
