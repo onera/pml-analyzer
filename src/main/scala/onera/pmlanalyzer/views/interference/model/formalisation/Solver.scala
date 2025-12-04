@@ -377,13 +377,12 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
   type GraphLit = Graph
   type Constraint = String
 
-  case class Graph(
-                            nMap: Map[String, (Int,BoolLit)],
-                            eMap:Map[String,(Int,BoolLit)],
-                            pre:Array[Int],
-                            post:Array[Int]
-                          )
-
+  final case class Graph(
+      nMap: Map[String, (Int, BoolLit)],
+      eMap: Map[String, (Int, BoolLit)],
+      pre: Array[Int],
+      post: Array[Int]
+  )
 
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
@@ -413,23 +412,22 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
     )
 
   def graphLit(g: MGraph): GraphLit = graphLitCache.getOrElseUpdate(
-    g,
-    {
+    g, {
       val nMap =
         (for {
-          (n,i) <- g.nodes.toSeq.sortBy(_.id.name).zipWithIndex
+          (n, i) <- g.nodes.toSeq.sortBy(_.id.name).zipWithIndex
         } yield {
-          n -> (i,s"n$i")
+          n -> (i, s"n$i")
         }).toMap
       val eMap =
         (for {
-          (e,i) <- g.edges.toSeq.sortBy(_.id.name).zipWithIndex
+          (e, i) <- g.edges.toSeq.sortBy(_.id.name).zipWithIndex
         } yield {
-          e -> (i,s"e${nMap(e.from)._1}${nMap(e.to)._1}")
+          e -> (i, s"e${nMap(e.from)._1}${nMap(e.to)._1}")
         }).toMap
       val pre =
         for {
-          (eId,_) <- eMap.toArray.sortBy(_._2._1)
+          (eId, _) <- eMap.toArray.sortBy(_._2._1)
         } yield nMap(eId.from)._1
       val post =
         for {
@@ -440,24 +438,42 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
       fileWriter.write(
         s"""%% Nodes definition
            |set of int: Node = 0..${nMap.size - 1};
-           |${nMap.toSeq.sortBy(_._2._1).map((k,v) => s"Node: ${k.id.name} = ${v._1};").mkString("\n")}
+           |${nMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"Node: ${k.id.name} = ${v._1};")
+            .mkString("\n")}
            |%% Node variables definition
-           |${nMap.toSeq.sortBy(_._2._1).map((k,v) => s"var bool: ${v._2};").mkString("\n")}
+           |${nMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"var bool: ${v._2};")
+            .mkString("\n")}
            |%% Edges definition
            |set of int: Edge = 0..${eMap.size - 1};
-           |${eMap.toSeq.sortBy(_._2._1).map((k,v) => s"Edge: ${k.id.name} = ${v._1};").mkString("\n")}
+           |${eMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"Edge: ${k.id.name} = ${v._1};")
+            .mkString("\n")}
            |%% Edge variables definition
-           |${eMap.toSeq.sortBy(_._2._1).map((k,v) => s"var bool: ${k.id.name} = ${v._2};").mkString("\n")}
+           |${eMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"var bool: ${k.id.name} = ${v._2};")
+            .mkString("\n")}
            |%% Graph definition
-           |array[Edge] of Node: pre = ${pre.mkString("[",", ","]")};
-           |array[Edge] of Node: post = ${post.mkString("[",", ","]")};
-           |array[Node] of var bool: ns = ${nMap.keySet.toSeq.sortBy(x => nMap(x)._1).map(x => nMap(x)._2).mkString("[",", ","]")};
-           |array[Node] of var bool: es = ${eMap.keySet.toSeq.sortBy(x => eMap(x)._1).map(x => eMap(x)._2).mkString("[",", ","]")};
+           |array[Edge] of Node: pre = ${pre.mkString("[", ", ", "]")};
+           |array[Edge] of Node: post = ${post.mkString("[", ", ", "]")};
+           |array[Node] of var bool: ns = ${nMap.keySet.toSeq
+            .sortBy(x => nMap(x)._1)
+            .map(x => nMap(x)._2)
+            .mkString("[", ", ", "]")};
+           |array[Node] of var bool: es = ${eMap.keySet.toSeq
+            .sortBy(x => eMap(x)._1)
+            .map(x => eMap(x)._2)
+            .mkString("[", ", ", "]")};
            |""".stripMargin
-        )
+      )
       Graph(
-        nMap.map((k,v) => k.id.name -> v),
-        eMap.map((k,v) => k.id.name -> v),
+        nMap.map((k, v) => k.id.name -> v),
+        eMap.map((k, v) => k.id.name -> v),
         pre,
         post
       )
@@ -474,23 +490,22 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
 
   def getEdge(g: MGraph, id: String): Option[BoolLit] =
     for {
-      (_,b) <- graphLit(g).eMap.get(id)
+      (_, b) <- graphLit(g).eMap.get(id)
     } yield b
-
 
   def getNode(g: MGraph, id: String): Option[BoolLit] =
     for {
-      (_,b) <- graphLit(g).nMap.get(id)
+      (_, b) <- graphLit(g).nMap.get(id)
     } yield b
 
   def and(l: Seq[Expr]): Expression =
-    if(l.isEmpty)
+    if (l.isEmpty)
       "true"
     else
       l.map(_.toExpr(this)).mkString("((", ") /\\ (", "))")
 
   def or(l: Seq[Expr]): Expression =
-    if(l.isEmpty)
+    if (l.isEmpty)
       "false"
     else
       l.map(_.toExpr(this)).mkString("((", ") \\/ (", "))")
@@ -505,7 +520,7 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
     s"not ${l.toExpr(this)}"
 
   def connected(g: MGraph): Constraint =
-    s"connected(pre,post,ns,es)"
+    "connected(pre,post,ns,es)"
 
   def exportGraph(g: MGraph, file: File): File = ???
 
@@ -516,8 +531,7 @@ private[pmlanalyzer] sealed abstract class MiniZinc extends Solver {
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
     val litNames = toGet.map(_.toLit(this))
-    fileWriter.write(
-      s"""output [
+    fileWriter.write(s"""output [
          |${litNames.map(x => s"\"$x = \\($x)\\n,\"").mkString("\n")}
          |]""".stripMargin)
     fileWriter.flush()

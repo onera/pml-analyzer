@@ -77,7 +77,7 @@ jobs:
         run: sudo snap install minizinc --classic
 
       - name: Test minizinc
-        run: minizinc -h
+        run: minizinc --solvers
 
       - name: Set env
         run: echo "LD_LIBRARY_PATH=$PWD/binlib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
