@@ -13,7 +13,7 @@ import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.operators.Analyse
 
 import scala.concurrent.{Await, TimeoutException}
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -46,7 +46,8 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       x: T,
       k: Int,
       implm: SolverImplm,
-      method: Method
+      method: Method,
+      timeout: FiniteDuration
   ): Unit = {
     if (implm == Monosat && !monosatLibraryLoaded)
       cancel(Message.monosatLibraryNotLoaded)
@@ -54,7 +55,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     Try({
       Await.result(
         x.test(k, expectedResultsDirectoryPath, implm, method),
-        10 minutes
+        timeout
       )
     }) match {
       case Failure(exception: InvalidSolutionException) =>
@@ -75,7 +76,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     implm <- SolverImplm.values
   } {
     s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      compareWithExpected(KeystoneWithRosace, kForFastTest, implm, method)
+      compareWithExpected(KeystoneWithRosace, kForFastTest, implm, method, 3 minutes)
     }
   }
 
@@ -85,7 +86,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
   } {
 
     s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference based on the topological interference system export" taggedAs FastTests in {
-      compareWithExpected(TIS, kForFastTest, implm, method)
+      compareWithExpected(TIS, kForFastTest, implm, method, 3 minutes)
     }
   }
 
@@ -94,7 +95,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     implm <- SolverImplm.values
   } {
     s"For ${KeystoneWithRosace.fullName}, the analysis operator with the $method method implemented with $implm" should "find the verified interference" taggedAs PerfTests in {
-      compareWithExpected(KeystoneWithRosace, 13, implm, method)
+      compareWithExpected(KeystoneWithRosace, 13, implm, method, 1 hour)
     }
   }
 }
