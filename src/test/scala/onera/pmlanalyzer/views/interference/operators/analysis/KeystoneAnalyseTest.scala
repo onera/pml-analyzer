@@ -59,11 +59,13 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       )
     }) match {
       case Failure(exception: InvalidSolutionException) =>
-        cancel(exception.getMessage)
+        exception.printStackTrace()
+        cancel()
       case Failure(exception: TimeoutException) =>
         cancel("[WARNING] timeout during interference computation")
       case Failure(exception) =>
-        fail(exception.getMessage)
+        exception.printStackTrace()
+        fail()
       case Success(diff) =>
         if (diff.exists(_.nonEmpty)) {
           fail()

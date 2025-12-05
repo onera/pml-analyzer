@@ -73,7 +73,8 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           cancel("[WARNING] timeout during interference computation")
         case Failure(exception) =>
           interferenceComputationOK = false
-          fail(exception.getMessage)
+          exception.printStackTrace()
+          fail()
         case Success(diff) =>
           for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)
@@ -103,7 +104,8 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           assume(false, exception.getMessage)
         case Failure(exception) =>
           interferenceComputationOK = false
-          fail(exception.getMessage)
+          exception.printStackTrace()
+          fail()
         case Success(diff) =>
           for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)
