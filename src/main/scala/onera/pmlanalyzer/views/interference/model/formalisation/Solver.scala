@@ -545,16 +545,24 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   def close(): Unit = {}
 
   private def parseValuation[$: P] =
-    P(PostProcess.parseAtomicTransactionId ~/ "=" ~ ("false" | "true").!)
-      .collect({ case (id, "true") =>
-        id
-      })
+    P(
+      PostProcess.parseAtomicTransactionId ~ "=" ~ PostProcess.parseWord.! ~ "\n"
+    )
 
   private def parseModel[$: P] =
-    P(parseValuation.rep(min = 2) ~ "-".rep(min = 2))
+    P(parseValuation.rep(min = 1) ~ "-".rep(min = 2) ~ "\n").map(
+      _.collect { case (id, "true") =>
+        id
+      }
+    )
+
+  private def parseUnsat[$: P] =
+    P("=====" ~ "UNSATISFIABLE" ~ "=====" ~ "\n").map(_ =>
+      Seq.empty[Seq[String]]
+    )
 
   private def parseModels[$: P] =
-    P(Start ~ parseModel.rep ~ End)
+    P(Start ~ (parseModel.rep ~ "=".rep(min = 2) ~ "\n" | parseUnsat) ~ End)
 
   protected def enumerateSolution(
       toGet: Set[MLit],
@@ -570,7 +578,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
     val result = Process(
       s"minizinc -a --solver $implm ${miniZincFile.getPath}"
     ).lazyLines
-    parse(result.iterator, parseModels(using _)) match {
+    parse(result.iterator.map(_ + "\n"), parseModels(using _)) match {
       case Parsed.Success(res, _) =>
         mutable.Set(res.map(_.map(mLitNames).toSet): _*)
       case f: Parsed.Failure =>
@@ -598,6 +606,7 @@ private[pmlanalyzer] final class CPSatSolver extends MiniZincSolver {
 }
 
 private[pmlanalyzer] object Solver {
+
   def apply(implm: SolverImplm): Solver = {
     implm match {
       case SolverImplm.Monosat => MonoSatSolver()

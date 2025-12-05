@@ -572,7 +572,7 @@ private[pmlanalyzer] object PostProcess {
     swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
   }
 
-  private def parseWord[$: P] =
+  def parseWord[$: P] =
     CharsWhile(c => !Set(' ', '\n', ',').contains(c))
 
   private def parsePlatformName[$: P] =
@@ -700,9 +700,9 @@ private[pmlanalyzer] object PostProcess {
     }
   }
 
-  def parseAtomicTransactionId[$: P] =
+  def parseAtomicTransactionId[$: P]: P[String] =
     P(
-      CharPred(x => !Set('|', '<', '>', ' ', '\n', ',').contains(x))
+      CharPred(x => !Set('|', '<', '>', ' ', '\n', ',', '=').contains(x))
         .rep(min = 1)
         .!
     )
