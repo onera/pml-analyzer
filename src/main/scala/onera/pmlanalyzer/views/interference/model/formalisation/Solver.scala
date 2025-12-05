@@ -574,7 +574,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
       case Parsed.Success(res, _) =>
         mutable.Set(res.map(_.map(mLitNames).toSet): _*)
       case f: Parsed.Failure =>
-        println(f.trace().longAggregateMsg)
+        println(f.longMsg)
         mutable.Set.empty[Set[MLit]]
     }
   }
