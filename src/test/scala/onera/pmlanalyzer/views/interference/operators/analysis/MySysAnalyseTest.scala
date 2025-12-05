@@ -96,7 +96,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       Try({
         Await.result(
           TIS.test(4, expectedResultsDirectoryPath, implm, method),
-          2 minutes
+          1 minutes
         )
       }) match {
         case Failure(exception: InvalidSolutionException) =>
