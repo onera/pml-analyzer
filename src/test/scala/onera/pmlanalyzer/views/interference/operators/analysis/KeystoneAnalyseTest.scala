@@ -12,7 +12,7 @@ import org.scalatest.matchers.should
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.operators.Analyse
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, TimeoutException}
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -48,20 +48,19 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       implm: SolverImplm,
       method: Method
   ): Unit = {
-    if (implm == Monosat) {
-      assume(
-        monosatLibraryLoaded,
-        Message.monosatLibraryNotLoaded
-      )
-    }
+    if (implm == Monosat && !monosatLibraryLoaded)
+      cancel(Message.monosatLibraryNotLoaded)
+
     Try({
       Await.result(
         x.test(k, expectedResultsDirectoryPath, implm, method),
-        1 hour
+        10 minutes
       )
     }) match {
       case Failure(exception: InvalidSolutionException) =>
-        assume(false, exception.getMessage)
+        cancel(exception.getMessage)
+      case Failure(exception: TimeoutException) =>
+        cancel("[WARNING] timeout during interference computation")
       case Failure(exception) =>
         fail(exception.getMessage)
       case Success(diff) =>

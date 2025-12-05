@@ -104,7 +104,7 @@ private[pmlanalyzer] object Message {
     s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
-    s"[INFO] $platform MonoSat model successfully built in $time s"
+    s"[INFO] $platform interference problem successfully built in $time s"
 
   inline def startingNonExclusiveTransactionEstimationInfo(
       platform: Any
