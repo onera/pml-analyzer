@@ -78,7 +78,13 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     implm <- SolverImplm.values
   } {
     s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      compareWithExpected(KeystoneWithRosace, kForFastTest, implm, method, 3 minutes)
+      compareWithExpected(
+        KeystoneWithRosace,
+        kForFastTest,
+        implm,
+        method,
+        3 minutes
+      )
     }
   }
 
@@ -87,7 +93,7 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
     implm <- SolverImplm.values
   } {
 
-    s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions, the $method method implemented with $implm" should "find the verified interference based on the topological interference system export" taggedAs FastTests in {
+    s"For ${KeystoneWithRosace.fullName}, the analysis operator limited to $kForFastTest-multi-transactions with the $method method implemented, with $implm, with topological interference system export" should "find the verified interference" taggedAs PerfTests in {
       compareWithExpected(TIS, kForFastTest, implm, method, 3 minutes)
     }
   }
