@@ -26,11 +26,11 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   AtomicTransactionId
 }
 
-trait Transform[L, R] {
+private[pmlanalyzer] sealed trait Transform[L, R] private {
   def apply(l: L): R
 }
 
-object Transform {
+private[pmlanalyzer] object Transform {
 
   trait BasicInstances {
     self: Platform =>

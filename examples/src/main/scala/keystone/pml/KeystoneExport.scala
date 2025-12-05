@@ -17,13 +17,7 @@
 
 package keystone.pml
 
-import keystone.pml.{
-  KeystonePlatform,
-  KeystoneRoutingConstraints,
-  RosaceConfiguration
-}
-import onera.pmlanalyzer.pml.exporters.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 object KeystoneExport extends App {
 

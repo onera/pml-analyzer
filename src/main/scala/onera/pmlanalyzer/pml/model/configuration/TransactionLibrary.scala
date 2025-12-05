@@ -22,13 +22,15 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 /** Base trait for library of transactions
   */
-trait TransactionLibrary extends Transform.TransactionLibraryInstances {
+private[pmlanalyzer] trait TransactionLibrary
+    extends Transform.TransactionLibraryInstances {
   self: Platform =>
 
   /** Map from the user defined transaction to the physical transaction id WARNING:
@@ -91,7 +93,7 @@ trait TransactionLibrary extends Transform.TransactionLibraryInstances {
   }
 }
 
-object TransactionLibrary {
+private[pmlanalyzer] object TransactionLibrary {
 
   /** User id of transactions
     * @param id

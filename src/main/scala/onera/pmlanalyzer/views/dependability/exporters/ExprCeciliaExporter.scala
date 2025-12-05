@@ -19,9 +19,9 @@ package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.model.*
-import onera.pmlanalyzer.views.dependability.operators.allOf
+import onera.pmlanalyzer.*
 
-trait ExprCeciliaExporter {
+private[pmlanalyzer] trait ExprCeciliaExporter {
   self: BasicOperationCeciliaExporter with TypeCeciliaExporter =>
 
   final case class AssertionHelper(

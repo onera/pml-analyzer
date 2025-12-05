@@ -17,9 +17,7 @@
 
 package simpleT1042.pml
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.operators.*
-
+import onera.pmlanalyzer.*
 import scala.language.postfixOps
 
 trait SimpleT1042TransactionLibrary extends TransactionLibrary {

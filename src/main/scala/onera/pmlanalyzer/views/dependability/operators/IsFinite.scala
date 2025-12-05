@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
-trait IsFinite[T] {
+private[pmlanalyzer] trait IsFinite[T] {
   def typeName: Symbol = Symbol(
     all.map(fm => name(fm).name.charAt(0).toTitleCase).mkString("")
   )
@@ -27,7 +27,7 @@ trait IsFinite[T] {
   def all: Seq[T] = allWithNone.filterNot(_ == none)
 }
 
-object IsFinite {
+private[pmlanalyzer] object IsFinite {
   implicit def tupleIsFinite[T, U](implicit
       evT: IsFinite[T],
       evU: IsFinite[U]

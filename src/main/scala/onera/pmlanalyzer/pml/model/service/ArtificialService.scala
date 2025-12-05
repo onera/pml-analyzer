@@ -28,13 +28,16 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class ArtificialService private (val name: Symbol, info: ReflexiveInfo)
-    extends Service(info)
+private[pmlanalyzer] final class ArtificialService private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Service(info)
 
 /** Builder of artificial services
   * @group builder
   */
-object ArtificialService extends BaseServiceBuilder[ArtificialService] {
+private[pmlanalyzer] object ArtificialService
+    extends BaseServiceBuilder[ArtificialService] {
 
   /** Direct builder from name
     * @param name

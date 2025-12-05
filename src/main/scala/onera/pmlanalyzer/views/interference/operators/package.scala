@@ -41,10 +41,13 @@ package onera.pmlanalyzer.views.interference
   *   assumptions (e.g., a
   *   [[pml.model.configuration.TransactionLibrary.Transaction]] is discarded)
   */
-package object operators
-    extends Analyse.Ops
-    with PostProcess.Ops
-    with Interfere.Ops
-    with Exclusive.Ops
-    with Transparent.Ops
-    with Equivalent.Ops
+package object operators {
+
+  trait All
+      extends Analyse.Ops
+      with PostProcess.Ops
+      with Interfere.Ops
+      with Exclusive.Ops
+      with Transparent.Ops
+      with Equivalent.Ops
+}

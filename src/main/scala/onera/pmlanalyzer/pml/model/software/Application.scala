@@ -28,13 +28,16 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group software_class
   */
-final class Application private (val name: Symbol, info: ReflexiveInfo)
-    extends Software(info)
+private[pmlanalyzer] final class Application private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Software(info)
 
 /** Builder of [[Application]]
   * @group builder
   */
-object Application extends BaseSoftwareNodeBuilder[Application] {
+private[pmlanalyzer] object Application
+    extends BaseSoftwareNodeBuilder[Application] {
 
   /** Direct builder from name
     * @param name

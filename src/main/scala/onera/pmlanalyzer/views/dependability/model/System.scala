@@ -21,22 +21,22 @@ import onera.pmlanalyzer.views.dependability.exporters.SubComponent
 
 import scala.collection.mutable
 
-trait Builder[T] {
+private[pmlanalyzer] trait Builder[T] {
   val toBuild: mutable.HashMap[Symbol, () => T] = mutable.HashMap.empty
 }
 
-trait Linker {
+private[pmlanalyzer] trait Linker {
   val links: mutable.HashMap[Variable[_], Set[Variable[_]]] =
     mutable.HashMap.empty
 }
 
-trait Owner {
+private[pmlanalyzer] trait Owner {
   val portOwner: mutable.HashMap[VariableId, Component] = mutable.HashMap.empty
   val componentOwner: mutable.HashMap[Component, Component] =
     mutable.HashMap.empty
 }
 
-class System(val name: Symbol) {
+private[pmlanalyzer] class System(val name: Symbol) {
 
   implicit val context: Builder[SubComponent] with Linker with Owner =
     new Builder[SubComponent] with Linker with Owner {}

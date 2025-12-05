@@ -24,7 +24,7 @@ enum Fire(i: Int, name: String) extends BaseEnumeration(i, name) {
   case Wait extends Fire(2, "wait")
   case No extends Fire(1, "no")
 }
-object Fire {
+private[pmlanalyzer] object Fire {
 
   implicit val isFinite: IsFinite[Fire] = new IsFinite[Fire] {
     val none: Fire = No

@@ -28,11 +28,13 @@ import sourcecode.Name
   * @tparam A
   *   the elements type
   */
-final case class LinkRelation[A] private (iniValues: Map[A, Set[A]])(using
+private[pmlanalyzer] final case class LinkRelation[A] private (
+    iniValues: Map[A, Set[A]]
+)(using
     n: Name
 ) extends Endomorphism[A](iniValues)
 
-object LinkRelation {
+private[pmlanalyzer] object LinkRelation {
 
   given (using c: Instances): LinkRelation[Service] = c.ServiceLinkableToService
 

@@ -32,7 +32,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 }
 import scalaz.Memo.immutableHashMapMemo
 
-final case class DefaultInterferenceCalculusProblem(
+private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
     system: TopologicalInterferenceSystem
 ) extends InterferenceCalculusProblem
     with DefaultDecoder {
@@ -202,5 +202,4 @@ final case class DefaultInterferenceCalculusProblem(
     (nodeCst ++ edgeCst ++ exclusiveCst).foreach(_.assert(s))
     s
   }
-
 }

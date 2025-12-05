@@ -18,8 +18,7 @@
 package simpleKeystone.views.interference
 
 import simpleKeystone.pml.SimpleKeystoneExport.*
-import onera.pmlanalyzer.views.interference.operators.*
-
+import onera.pmlanalyzer.*
 import scala.concurrent.duration.*
 import scala.language.postfixOps
 

@@ -26,7 +26,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
   Transporter
 }
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import scalaz.Memo.immutableHashMapMemo
@@ -34,7 +34,7 @@ import scalaz.Memo.immutableHashMapMemo
 import java.io.{FileWriter, Writer}
 import scala.collection.mutable.HashMap as MHashMap
 
-object IDPExporter {
+private[exporters] object IDPExporter {
 
   trait Ops {
 

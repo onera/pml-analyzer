@@ -37,7 +37,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
     * @param sw
     *   the application that can use this transaction
     */
-final class UsedTransaction private (
+private[pmlanalyzer] final class UsedTransaction private (
     val userName: UserTransactionId,
     iniTgt: Set[(Service, Service)],
     val sw: Set[Application],
@@ -74,7 +74,8 @@ final class UsedTransaction private (
  *
  * @group transaction_class
     */
-object UsedTransaction extends PMLNodeBuilder[UsedTransaction] {
+private[pmlanalyzer] object UsedTransaction
+    extends PMLNodeBuilder[UsedTransaction] {
 
   /** Build a used transaction from its attributes
       * @param name

@@ -19,9 +19,13 @@ package onera.pmlanalyzer.pml.model.utils
 
 import sourcecode.{File, Line}
 
-final case class ReflexiveInfo private (line: Line, file: File, owner: Owner)
+private[pmlanalyzer] final case class ReflexiveInfo private (
+    line: Line,
+    file: File,
+    owner: Owner
+)
 
-object ReflexiveInfo {
+private[pmlanalyzer] object ReflexiveInfo {
 
   def apply(l: Line, f: File, o: Owner) = new ReflexiveInfo(l, f, o)
 

@@ -18,12 +18,7 @@
 package mySys.views.interference
 
 import mySys.pml.MyProcPlatform
-import onera.pmlanalyzer.pml.model.hardware.Initiator
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.*
 
 /** The interference calculus assumptions for the hardware components of the
   * MySys are gathered here. For instance to specify that two service l and r

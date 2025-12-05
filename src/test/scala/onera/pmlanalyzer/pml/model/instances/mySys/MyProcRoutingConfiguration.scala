@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.instances.mySys
 
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 /** Routing constraints considered for simple Keystone
   */

@@ -19,11 +19,11 @@ package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.EquivalenceRelation
 
-private[operators] trait Equivalent[T] {
+private[pmlanalyzer] sealed trait Equivalent[T] {
   def equivalent(l: T, r: T): Unit
 }
 
-object Equivalent {
+private[pmlanalyzer] object Equivalent {
 
   trait Ops {
     extension [T](l: T) {

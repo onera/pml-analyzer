@@ -21,12 +21,12 @@ import onera.pmlanalyzer.views.dependability.operators.IsFinite
 
 import scala.collection.mutable
 
-trait Id {
+private[pmlanalyzer] trait Id {
   val name: Symbol
   override def toString: String = name.name
 }
 
-trait IdBuilder[T <: Id] {
+private[pmlanalyzer] trait IdBuilder[T <: Id] {
   val noneId: T
   val tyypeName: Symbol
   protected val _memo = mutable.HashMap.empty[Symbol, T]
@@ -38,50 +38,53 @@ trait IdBuilder[T <: Id] {
   }
 }
 
-final case class VariableId private (name: Symbol) extends Id
+private[pmlanalyzer] final case class VariableId private (name: Symbol)
+    extends Id
 
-object VariableId extends IdBuilder[VariableId] {
+private[pmlanalyzer] object VariableId extends IdBuilder[VariableId] {
   val noneId = new VariableId(Symbol("none"))
   val tyypeName: Symbol = Symbol("VariableId")
   def apply(name: Symbol): VariableId =
     _memo.getOrElseUpdate(name, new VariableId(name))
 }
 
-class TargetId private (val name: Symbol) extends Id {
+private[pmlanalyzer] class TargetId private (val name: Symbol) extends Id {
   override def toString: String = name.name
 }
 
-object TargetId extends IdBuilder[TargetId] {
+private[pmlanalyzer] object TargetId extends IdBuilder[TargetId] {
   val noneId = new TargetId(Symbol("none"))
   val tyypeName: Symbol = Symbol("TargetId")
   def apply(name: Symbol): TargetId =
     _memo.getOrElseUpdate(name, new TargetId(name))
 }
 
-final case class SoftwareId private (name: Symbol) extends Id {
+private[pmlanalyzer] final case class SoftwareId private (name: Symbol)
+    extends Id {
   override def toString: String = name.name
 }
 
-object SoftwareId extends IdBuilder[SoftwareId] {
+private[pmlanalyzer] object SoftwareId extends IdBuilder[SoftwareId] {
   val noneId = new SoftwareId(Symbol("none"))
   val tyypeName: Symbol = Symbol("SoftwareId")
   def apply(name: Symbol): SoftwareId =
     _memo.getOrElseUpdate(name, new SoftwareId(name))
 }
 
-final case class TransporterId(name: Symbol) extends Id {
+private[pmlanalyzer] final case class TransporterId(name: Symbol) extends Id {
   override def toString: String = name.name
 }
 
-final case class InitiatorId private (name: Symbol) extends Id {
+private[pmlanalyzer] final case class InitiatorId private (name: Symbol)
+    extends Id {
   override def toString: String = name.name
 }
 
-object InitiatorId extends IdBuilder[InitiatorId] {
+private[pmlanalyzer] object InitiatorId extends IdBuilder[InitiatorId] {
   val noneId = new InitiatorId(Symbol("none"))
   val tyypeName: Symbol = Symbol("InitiatorId")
   def apply(name: Symbol): InitiatorId =
     _memo.getOrElseUpdate(name, new InitiatorId(name))
 }
 
-final case class AutomatonId(name: Symbol) extends Id
+private[pmlanalyzer] final case class AutomatonId(name: Symbol) extends Id

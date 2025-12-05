@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-trait Component {
+private[pmlanalyzer] trait Component {
   val id: Id
 
   override def toString: String = id.name.name

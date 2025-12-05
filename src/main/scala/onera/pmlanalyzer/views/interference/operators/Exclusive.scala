@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
 import onera.pmlanalyzer.pml.model.configuration.{
   Transaction,
@@ -24,14 +25,13 @@ import onera.pmlanalyzer.pml.model.configuration.{
 }
 import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
-private[operators] trait Exclusive[T] {
+private[pmlanalyzer] sealed trait Exclusive[T] {
   def apply(l: T, r: T)(using line: Line, file: File): Unit
 }
 
-object Exclusive {
+private[pmlanalyzer] object Exclusive {
 
   /** If an element l of type T can be exclusive with another element r of type
     * T, the following operator can be used {{{l exclusiveWith r}}}

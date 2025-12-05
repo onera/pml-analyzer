@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
-trait IsOptionLike[T] {
+private[pmlanalyzer] trait IsOptionLike[T] {
   def isDefined(x: T): Boolean = x == none
   val none: T
   def toOption(x: T): Option[T] = {
@@ -29,7 +29,7 @@ trait IsOptionLike[T] {
   }
 }
 
-trait IsOptionLikeOps {
+private[pmlanalyzer] trait IsOptionLikeOps {
   implicit class IsOptionLikeOps[T](x: T)(implicit ev: IsOptionLike[T]) {
     def isDefined: Boolean = ev.isDefined(x)
     val none: T = ev.none

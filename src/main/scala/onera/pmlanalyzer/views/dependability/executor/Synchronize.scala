@@ -25,7 +25,7 @@ import onera.pmlanalyzer.views.dependability.model.{
 
 import scala.collection.mutable
 
-object Synchronize {
+private[pmlanalyzer] object Synchronize {
 
   private var counter = -1
 

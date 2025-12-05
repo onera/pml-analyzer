@@ -17,9 +17,7 @@
 
 package mySys.pml
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.operators.*
-
+import onera.pmlanalyzer.*
 import scala.language.postfixOps
 
 /** This trait contains a library of all transactions that can occur on the
@@ -44,7 +42,7 @@ import scala.language.postfixOps
   *   should be a path from an initiator to a target, if several paths are
   *   possible a warning will be raised.
   * @see
-  *   [[onera.pmlanalyzer.pml.operators.Use.Ops]] for read/write operator definitions
+  *   [[onera.pmlanalyzer.Use.Ops]] for read/write operator definitions
   */
 trait MySysTransactionLibrary extends TransactionLibrary {
   self: MyProcPlatform with MySysSoftwareAllocation =>

@@ -20,8 +20,10 @@ package onera.pmlanalyzer.pml.model.relations
 import onera.pmlanalyzer.pml.model.utils.Message
 import sourcecode.{File, Line, Name}
 
-abstract class ReflexiveSymmetricEndomorphism[A](iniValues: Map[A, Set[A]])(
-    using n: Name
+private[pmlanalyzer] abstract class ReflexiveSymmetricEndomorphism[A](
+    iniValues: Map[A, Set[A]]
+)(using
+    n: Name
 ) extends Endomorphism[A](iniValues) {
   override def add(a: A, b: A)(using line: Line, file: File): Unit = {
     super.add(a, b)

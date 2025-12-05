@@ -30,6 +30,8 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group hardware_class
   */
-abstract class Hardware private[hardware] (info: ReflexiveInfo)(using
+private[pmlanalyzer] abstract class Hardware private[hardware] (
+    info: ReflexiveInfo
+)(using
     enclosing: Enclosing
 ) extends PMLNode(info)

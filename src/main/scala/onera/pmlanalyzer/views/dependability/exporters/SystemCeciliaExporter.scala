@@ -24,7 +24,7 @@ import onera.pmlanalyzer.views.dependability.model.{
   Variable
 }
 
-trait SystemCeciliaExporter {
+private[pmlanalyzer] trait SystemCeciliaExporter {
   self: BasicOperationCeciliaExporter & TypeCeciliaExporter =>
 
   implicit def systemIsExportable[T <: System]: Aux[T, SystemModel] =

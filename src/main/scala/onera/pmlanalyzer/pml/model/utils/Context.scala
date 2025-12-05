@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.relations.*
 
 /** Trait gathering all relation instances
  */
-abstract class Context
+private[pmlanalyzer] abstract class Context private
     extends LinkRelation.Instances
     with UseRelation.Instances
     with ProvideRelation.Instances
@@ -29,7 +29,7 @@ abstract class Context
     with RoutingRelation.Instances
     with PMLNodeMap.Instances
 
-object Context {
+private[pmlanalyzer] object Context {
 
   final class EmptyContext
       extends Context

@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.dependability.exporters
 
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.*
 
-object GenericImage {
+private[pmlanalyzer] object GenericImage {
 
   private val load = (x: String) =>
     getClass.getClassLoader.getResourceAsStream(x)

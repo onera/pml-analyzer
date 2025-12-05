@@ -17,4 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-abstract class BaseEnumeration(val id: Int, val name: String)
+private[pmlanalyzer] abstract class BaseEnumeration(
+    val id: Int,
+    val name: String
+)

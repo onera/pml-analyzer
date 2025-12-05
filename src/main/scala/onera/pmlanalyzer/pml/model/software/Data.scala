@@ -28,8 +28,10 @@ import sourcecode.{File, Line, Name}
   *   the name of the data
   * @group software_class
   */
-final class Data private (val name: Symbol, info: ReflexiveInfo)
-    extends Software(info) {
+private[pmlanalyzer] final class Data private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Software(info) {
 
   override def toString: String = name.name
 }
@@ -37,7 +39,7 @@ final class Data private (val name: Symbol, info: ReflexiveInfo)
 /** Builder of [[Data]]
   * @group builder
   */
-object Data extends BaseSoftwareNodeBuilder[Data] {
+private[pmlanalyzer] object Data extends BaseSoftwareNodeBuilder[Data] {
 
   /** Direct builder from name
    * @param name

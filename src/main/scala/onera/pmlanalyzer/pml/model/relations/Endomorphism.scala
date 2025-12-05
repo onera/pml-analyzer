@@ -27,8 +27,9 @@ import sourcecode.{File, Line, Name}
   * @tparam A
   *   the elements type
   */
-abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
-    extends Relation[A, A](iniValues: Map[A, Set[A]]) {
+private[pmlanalyzer] abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(
+    using n: Name
+) extends Relation[A, A](iniValues: Map[A, Set[A]]) {
 
   /** Remove an element from both the input and output set
     *
@@ -60,7 +61,7 @@ abstract class Endomorphism[A](iniValues: Map[A, Set[A]])(using n: Name)
   def inverseClosure(a: A): Set[A] = Endomorphism.closure(a, inverseEdges)
 }
 
-object Endomorphism {
+private[pmlanalyzer] object Endomorphism {
 
   def closure[A, B >: A](from: A, in: B => Option[Set[B]]): Set[B] = {
     def rec(current: B, visited: Set[B]): Set[B] =

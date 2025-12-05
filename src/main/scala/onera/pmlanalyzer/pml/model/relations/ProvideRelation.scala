@@ -30,11 +30,13 @@ import sourcecode.Name
   * @tparam R
   *   the right type
   */
-final case class ProvideRelation[L, R] private (iniValues: Map[L, Set[R]])(using
+private[pmlanalyzer] final case class ProvideRelation[L, R] private (
+    iniValues: Map[L, Set[R]]
+)(using
     n: Name
 ) extends Relation[L, R](iniValues)
 
-object ProvideRelation {
+private[pmlanalyzer] object ProvideRelation {
 
   given (using c: Instances): ProvideRelation[Hardware, Service] =
     c.PLProvideService

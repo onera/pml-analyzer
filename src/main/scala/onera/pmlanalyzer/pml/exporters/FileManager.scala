@@ -22,9 +22,8 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 
 import java.io.File
 import scala.io.{BufferedSource, Source}
-//import scala.reflect.io.Path
 
-object FileManager {
+private[pmlanalyzer] object FileManager {
 
   /** Util case class encoding an output directory used by exporters and solvers
     * @param name

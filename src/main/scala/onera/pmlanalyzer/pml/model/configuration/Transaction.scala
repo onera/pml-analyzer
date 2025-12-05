@@ -22,7 +22,8 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import onera.pmlanalyzer.pml.model.{PMLNode, PMLNodeBuilder, PMLNodeMap}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.DelayedTransform
 import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import sourcecode.Name
 
@@ -37,7 +38,7 @@ import sourcecode.Name
     * @param sw
     *   the application that can use this transaction
     */
-final class Transaction private (
+private[pmlanalyzer] final class Transaction private (
     val userName: UserTransactionId,
     val iniTgt: () => Set[(Service, Service)],
     val sw: () => Set[Application],
@@ -66,7 +67,7 @@ final class Transaction private (
  *
  * @group transaction_class
     */
-object Transaction extends PMLNodeBuilder[Transaction] {
+private[pmlanalyzer] object Transaction extends PMLNodeBuilder[Transaction] {
 
   /** A transaction can be built from an application targeting a load or a
    * store service

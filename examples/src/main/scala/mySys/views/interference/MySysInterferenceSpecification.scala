@@ -23,9 +23,7 @@ import mySys.pml.{
   MySysSoftwareAllocation,
   MySysTransactionLibrary
 }
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.*
 
 /** The interference calculus assumptions for the MySys's applications are
   * gathered here. For instance app22 and app3 cannot execute simultaneously so

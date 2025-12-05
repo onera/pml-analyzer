@@ -19,7 +19,7 @@
 package onera.pmlanalyzer.pml.model.instances.Cyclotron
 
 import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import scala.language.postfixOps
 

@@ -28,13 +28,16 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group transporter_class
   */
-final class SimpleTransporter private (val name: Symbol, info: ReflexiveInfo)
-    extends Transporter(info)
+private[pmlanalyzer] final class SimpleTransporter private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Transporter(info)
 
 /** Builder of simple transporters
   * @group builder
   */
-object SimpleTransporter extends BaseHardwareNodeBuilder[SimpleTransporter] {
+private[pmlanalyzer] object SimpleTransporter
+    extends BaseHardwareNodeBuilder[SimpleTransporter] {
 
   /** Direct builder from name
     * @param name

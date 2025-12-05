@@ -24,7 +24,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
@@ -47,7 +47,7 @@ import scala.language.postfixOps
   * @tparam T
   *   the type of the component (contravariant)
   */
-trait Analyse[-T] {
+private[pmlanalyzer] sealed trait Analyse[-T] {
   def computeInterference(
       x: T,
       maxSize: Int,
@@ -74,7 +74,7 @@ trait Analyse[-T] {
   def getMaxSize(x: T): Int
 }
 
-object Analyse {
+private[pmlanalyzer] object Analyse {
 
   type ConfiguredPlatform = Platform & InterferenceSpecification
 

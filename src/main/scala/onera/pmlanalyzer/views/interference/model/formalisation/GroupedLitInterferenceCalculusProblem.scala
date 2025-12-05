@@ -30,7 +30,7 @@ import scalaz.Memo.immutableHashMapMemo
 
 import scala.collection.immutable.SortedMap
 
-final case class GroupedLitInterferenceCalculusProblem(
+private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
     system: TopologicalInterferenceSystem
 ) extends InterferenceCalculusProblem
     with GroupedLitDecoder {

@@ -22,11 +22,11 @@ import onera.pmlanalyzer.views.interference.model.relations.TransparentSet
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
-private[operators] trait Transparent[T] {
+private[pmlanalyzer] sealed trait Transparent[T] {
   def apply(x: T)(using line: Line, file: File): Unit
 }
 
-object Transparent {
+private[pmlanalyzer] object Transparent {
 
   /** If an element x of type T is transparent then the operator can be used as
     * follows {{{x.isTransparent}}}

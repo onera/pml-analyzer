@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticityOrdering,
+  IsCriticalityOrdering,
   IsFinite
 }
 
@@ -29,13 +29,13 @@ enum Direction(id: Int, name: String) extends BaseEnumeration(id, name) {
   case Constant extends Direction(1, "constant")
 }
 
-object Direction {
+private[pmlanalyzer] object Direction {
   given IsFinite[Direction] with {
     val none: Direction = Constant
     def allWithNone: Seq[Direction] = values.toSeq
     def name(x: Direction): Symbol = Symbol(x.toString)
   }
 
-  given IsCriticityOrdering[Direction] =
+  given IsCriticalityOrdering[Direction] =
     (x: Direction, y: Direction) => x.id - y.id
 }

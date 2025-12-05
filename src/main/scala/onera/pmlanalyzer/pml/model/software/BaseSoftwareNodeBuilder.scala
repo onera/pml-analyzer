@@ -41,7 +41,10 @@ import sourcecode.{File, Line, Name}
   *   the concrete type of built object
   * @group builder
   */
-trait BaseSoftwareNodeBuilder[T <: Software] extends PMLNodeBuilder[T] {
+private[pmlanalyzer] trait BaseSoftwareNodeBuilder[
+    T <: Software
+] private[software]
+    extends PMLNodeBuilder[T] {
 
   /** The builder that must be implemented by specific builder
     * @param name

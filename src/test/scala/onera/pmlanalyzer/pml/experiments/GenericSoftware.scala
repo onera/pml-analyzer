@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 trait GenericSoftware {
   self: GenericPlatform =>

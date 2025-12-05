@@ -17,12 +17,11 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.pml.model.utils.{Context, Owner}
 
 import scala.language.implicitConversions
 
-trait ContainerLike {
+private[pmlanalyzer] trait ContainerLike {
 
   implicit def toSymbol(s: String): Symbol = Symbol(s)
 

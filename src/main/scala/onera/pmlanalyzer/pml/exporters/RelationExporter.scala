@@ -17,18 +17,12 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.configuration.{
-  Transaction,
-  TransactionLibrary
-}
-import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.relations.Relation
-import onera.pmlanalyzer.pml.model.software.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import java.io.FileWriter
 
-object RelationExporter {
+private[pmlanalyzer] object RelationExporter {
 
   private def componentStatus(platformName: String): String =
     s"${platformName}ComponentStatusTable.txt"

@@ -17,7 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.utils
 
-final case class ArbitraryConfiguration(
+private[pmlanalyzer] final case class ArbitraryConfiguration(
     maxTargetLoad: Int = 2,
     maxTargetStore: Int = 2,
     maxVirtualizerLoad: Int = 2,

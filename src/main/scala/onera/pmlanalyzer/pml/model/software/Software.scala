@@ -21,6 +21,8 @@ import onera.pmlanalyzer.pml.model.PMLNode
 import onera.pmlanalyzer.pml.model.utils.ReflexiveInfo
 import sourcecode.Enclosing
 
-abstract class Software private[software] (info: ReflexiveInfo)(using
+private[pmlanalyzer] abstract class Software private[software] (
+    info: ReflexiveInfo
+)(using
     enclosing: Enclosing
 ) extends PMLNode(info)

@@ -17,8 +17,13 @@
 
 package onera.pmlanalyzer.views.dependability
 
-package object operators
-    extends IsFinite.Ops
-    with IsMergeableOps
-    with IsShadowOrderingOps
-    with IsCriticityOrdering.Ops
+import onera.pmlanalyzer.views.dependability.model.Expr
+
+package object operators {
+  trait All
+      extends IsFinite.Ops
+      with IsMergeableOps
+      with IsShadowOrderingOps
+      with IsCriticalityOrdering.Ops
+      with Expr.Ops
+}

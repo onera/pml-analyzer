@@ -25,9 +25,12 @@ package onera.pmlanalyzer.views.interference
   * The available extension methods are provided in [[IDPExporter.Ops]] and
  * [[GraphExporter.Ops]] Example of usages are provided in ???
   */
-package object exporters
-    extends IDPExporter.Ops
-    with GraphExporter.Ops
-    with SemanticsExporter.Ops
-    with RelationExporter.Ops
-    with TopologicalInterferenceSystemExporter.Ops
+package object exporters {
+
+  trait All
+      extends IDPExporter.Ops
+      with GraphExporter.Ops
+      with SemanticsExporter.Ops
+      with RelationExporter.Ops
+      with TopologicalInterferenceSystemExporter.Ops
+}

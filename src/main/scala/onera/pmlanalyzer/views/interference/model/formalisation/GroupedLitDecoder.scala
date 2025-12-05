@@ -25,7 +25,7 @@ import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.{
 }
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-trait GroupedLitDecoder extends Decoder {
+private[pmlanalyzer] trait GroupedLitDecoder extends Decoder {
 
   val system: TopologicalInterferenceSystem
   val groupedLitToTransactions: Map[MLit, Set[PhysicalTransactionId]]

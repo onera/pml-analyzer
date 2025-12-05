@@ -28,13 +28,16 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group initiator_class
   */
-final class Initiator private (val name: Symbol, info: ReflexiveInfo)
-    extends Hardware(info)
+private[pmlanalyzer] final class Initiator private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Hardware(info)
 
 /** Builder of initiators
   * @group builder
   */
-object Initiator extends BaseHardwareNodeBuilder[Initiator] {
+private[pmlanalyzer] object Initiator
+    extends BaseHardwareNodeBuilder[Initiator] {
 
   /** Direct builder from initiator name
     * @param name

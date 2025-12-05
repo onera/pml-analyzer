@@ -28,13 +28,15 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group target_class
   */
-final class Target private (val name: Symbol, info: ReflexiveInfo)
-    extends Hardware(info)
+private[pmlanalyzer] final class Target private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Hardware(info)
 
 /** Builder of targets
   * @group builder
   */
-object Target extends BaseHardwareNodeBuilder[Target] {
+private[pmlanalyzer] object Target extends BaseHardwareNodeBuilder[Target] {
 
   /** Direct builder from name
     * @param name

@@ -3,7 +3,7 @@ package onera.pmlanalyzer.pml.model.hardware
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.service.{Load, Store}
 import onera.pmlanalyzer.pml.model.utils.{Owner, ReflexiveInfo}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should

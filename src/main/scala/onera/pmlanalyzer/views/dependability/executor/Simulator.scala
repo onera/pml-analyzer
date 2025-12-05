@@ -21,7 +21,7 @@ import onera.pmlanalyzer.views.dependability.model.*
 
 import scala.collection.mutable
 
-object Simulator {
+private[pmlanalyzer] object Simulator {
 
   var time: Int = 0
 

@@ -26,7 +26,8 @@ import onera.pmlanalyzer.pml.model.utils.{
   Owner,
   ReflexiveInfo
 }
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
   AtomicTransactionId,
@@ -49,8 +50,11 @@ import scala.language.implicitConversions
   *   the implicit descriptor of the source file where the platform is defined
   * @group hierarchical_class
   */
-abstract class Platform(val name: Symbol, line: Line, file: File)
-    extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
+private[pmlanalyzer] abstract class Platform(
+    val name: Symbol,
+    line: Line,
+    file: File
+) extends PMLNode(ReflexiveInfo(line, file, Owner.empty))
     with ContainerLike
     with Transform.BasicInstances {
 
@@ -171,7 +175,7 @@ abstract class Platform(val name: Symbol, line: Line, file: File)
 /** Static methods of Platform
   * @group utilFun
   */
-object Platform {
+private[pmlanalyzer] object Platform {
 
   private val _memo: MHashMap[Symbol, Platform] = MHashMap.empty
 

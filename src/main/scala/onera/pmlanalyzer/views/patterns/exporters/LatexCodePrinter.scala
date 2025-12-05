@@ -22,108 +22,127 @@ import onera.pmlanalyzer.views.patterns.model.*
 
 import java.io.{File, FileWriter}
 
-trait LatexCodePrinter
+private[pmlanalyzer] trait LatexCodePrinter
 
-object LatexCodePrinter {
-  implicit class LatexCodePrinterConclusion(conclusion: Claim) {
+private[pmlanalyzer] object LatexCodePrinter {
 
-    private val ids = Claim.computeIdIn(conclusion)
+  trait Ops {
+    extension (conclusion: Claim) {
 
-    def printCode(): File = {
-      val file = {
-        for (s <- conclusion.short)
-          yield FileManager.exportDirectory.getFile(s"${s}_text.tex")
-      } getOrElse new File(s"${conclusion.label}_text.tex")
-      val writer = new FileWriter(file)
-      print(conclusion)(writer, 0)
-      writer.close()
-      file
-    }
+      def printCode(): File = {
+        val file = {
+          for (s <- conclusion.short)
+            yield FileManager.exportDirectory.getFile(s"${s}_text.tex")
+        } getOrElse new File(s"${conclusion.label}_text.tex")
+        val writer = new FileWriter(file)
+        print(conclusion)(writer, 0)
+        writer.close()
+        file
+      }
 
-    private def print(
-        s: String
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      addSpacing
-      s.split("""\\\\""").filterNot(_.isEmpty).toList match {
-        case h :: Nil =>
-          printer.write(s"\\textrm{${h.trim}}\\\\\n")
-        case h :: t =>
-          printer.write(s"\\textrm{$h}\\\\\n")
-          t.foreach(e => {
+      private def print(
+          s: String
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        addSpacing
+        s.split("""\\\\""").filterNot(_.isEmpty).toList match {
+          case h :: Nil =>
+            printer.write(s"\\textrm{${h.trim}}\\\\\n")
+          case h :: t =>
+            printer.write(s"\\textrm{$h}\\\\\n")
+            t.foreach(e => {
+              addSpacing
+              printer.write(s"\\textrm{${e.trim}}\\\\\n")
+            })
+          case _ =>
+        }
+      }
+
+      private def addSpacing(implicit
+          printer: FileWriter,
+          spacing: Int
+      ): Unit = {
+        for (_ <- 1 to spacing) printer.write("\t")
+        if (spacing != 0) printer.write(s"\\hspace*{${5 * spacing}pt}")
+      }
+
+      private def print(
+          claim: Claim
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        addSpacing
+        printer.write("\\texttt{Claim:} \\\\\n")
+        print(s"${Claim.computeIdIn(conclusion)(claim)} ${claim.label}")(
+          printer,
+          spacing + 1
+        )
+        print(claim.strategy)
+        print(claim.evidences.toList)
+        claim.evidences foreach {
+          case c: Claim =>
+            printer.write("\n")
+            print(c)
+          case _ =>
+        }
+      }
+
+      private def print(
+          strategy: Strategy
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        addSpacing
+        printer.write("\\texttt{Strategy:} \\\\\n")
+        print(s"${Claim.computeIdIn(conclusion)(strategy)} ${strategy.label}")(
+          printer,
+          spacing + 1
+        )
+        for (b <- strategy.backing) yield print(b)(printer, spacing + 1)
+        for (b <- strategy.defeater) yield print(b)(printer, spacing + 1)
+      }
+
+      private def print(
+          backing: Backing
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        addSpacing
+        printer.write("\\texttt{Backing:} \\\\\n")
+        print(backing.label)(printer, spacing + 1)
+      }
+
+      private def print(
+          defeater: Defeater
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        addSpacing
+        printer.write("\\texttt{Defeaters:} \\\\\n")
+        print(defeater.label)(printer, spacing + 1)
+      }
+
+      private def print(
+          evidences: List[Evidence]
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        evidences collect { case g: Given => g } match {
+          case Nil =>
+          case l =>
             addSpacing
-            printer.write(s"\\textrm{${e.trim}}\\\\\n")
-          })
-        case _ =>
-      }
-    }
-
-    private def addSpacing(implicit printer: FileWriter, spacing: Int): Unit = {
-      for (_ <- 1 to spacing) printer.write("\t")
-      if (spacing != 0) printer.write(s"\\hspace*{${5 * spacing}pt}")
-    }
-
-    private def print(
-        claim: Claim
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      addSpacing
-      printer.write("\\texttt{Claim:} \\\\\n")
-      print(s"${ids(claim)} ${claim.label}")(printer, spacing + 1)
-      print(claim.strategy)
-      print(claim.evidences.toList)
-      claim.evidences foreach {
-        case c: Claim =>
-          printer.write("\n")
-          print(c)
-        case _ =>
-      }
-    }
-
-    private def print(
-        strategy: Strategy
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      addSpacing
-      printer.write("\\texttt{Strategy:} \\\\\n")
-      print(s"${ids(strategy)} ${strategy.label}")(printer, spacing + 1)
-      for (b <- strategy.backing) yield print(b)(printer, spacing + 1)
-      for (b <- strategy.defeater) yield print(b)(printer, spacing + 1)
-    }
-
-    private def print(
-        backing: Backing
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      addSpacing
-      printer.write("\\texttt{Backing:} \\\\\n")
-      print(backing.label)(printer, spacing + 1)
-    }
-
-    private def print(
-        defeater: Defeater
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      addSpacing
-      printer.write("\\texttt{Defeaters:} \\\\\n")
-      print(defeater.label)(printer, spacing + 1)
-    }
-
-    private def print(
-        evidences: List[Evidence]
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      evidences collect { case g: Given => g } match {
-        case Nil =>
-        case l =>
-          addSpacing
-          printer.write("\\texttt{Givens}:\\\\\n")
-          l foreach (g => print(s"${ids(g)} ${g.label}")(printer, spacing + 1))
-      }
-      evidences collect {
-        case f: FinalEvidence => f; case c: Claim => c
-      } match {
-        case Nil =>
-        case l =>
-          addSpacing
-          printer.write("\\texttt{Evidences}:\\\\\n")
-          l foreach (e => {
-            print(s"${ids(e)} ${e.label}")(printer, spacing + 1)
-          })
+            printer.write("\\texttt{Givens}:\\\\\n")
+            l foreach (g =>
+              print(s"${Claim.computeIdIn(conclusion)(g)} ${g.label}")(
+                printer,
+                spacing + 1
+              )
+            )
+        }
+        evidences collect {
+          case f: FinalEvidence => f;
+          case c: Claim         => c
+        } match {
+          case Nil =>
+          case l =>
+            addSpacing
+            printer.write("\\texttt{Evidences}:\\\\\n")
+            l foreach (e => {
+              print(s"${Claim.computeIdIn(conclusion)(e)} ${e.label}")(
+                printer,
+                spacing + 1
+              )
+            })
+        }
       }
     }
   }

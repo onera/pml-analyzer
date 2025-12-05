@@ -20,7 +20,7 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
-trait Decoder {
+private[pmlanalyzer] trait Decoder {
   val system: TopologicalInterferenceSystem
   val variables: Set[MLit]
   val graph: MGraph

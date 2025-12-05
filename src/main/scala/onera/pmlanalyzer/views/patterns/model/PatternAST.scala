@@ -19,27 +19,27 @@ package onera.pmlanalyzer.views.patterns.model
 
 import scala.language.implicitConversions
 
-trait PatternAST {
+private[pmlanalyzer] trait PatternAST {
   val label: String
   val implementation: Option[String]
   val textWidth: Option[Int]
 }
 
-sealed trait Evidence extends PatternAST
+private[pmlanalyzer] sealed trait Evidence extends PatternAST
 
-final case class Backing(
+private[pmlanalyzer] final case class Backing(
     label: String,
     implementation: Option[String] = None,
     textWidth: Option[Int] = None
 ) extends PatternAST
 
-final case class Defeater(
+private[pmlanalyzer] final case class Defeater(
     label: String,
     implementation: Option[String] = None,
     textWidth: Option[Int] = None
 ) extends PatternAST
 
-final case class Strategy(
+private[pmlanalyzer] final case class Strategy(
     label: String,
     backing: Option[Backing] = None,
     defeater: Option[Defeater] = None,
@@ -52,20 +52,20 @@ final case class Strategy(
     copy(defeater = Some(Defeater(s)))
 }
 
-final case class FinalEvidence(
+private[pmlanalyzer] final case class FinalEvidence(
     label: String,
     implementation: Option[String] = None,
     textWidth: Option[Int] = None,
     refOf: Option[Claim] = None
 ) extends Evidence
 
-final case class Given(
+private[pmlanalyzer] final case class Given(
     label: String,
     implementation: Option[String] = None,
     textWidth: Option[Int] = None
 ) extends Evidence
 
-final case class Claim(
+private[pmlanalyzer] final case class Claim(
     label: String,
     short: Option[String],
     implementation: Option[String],
@@ -143,7 +143,7 @@ final case class Claim(
     .flatten
 }
 
-object Claim {
+private[pmlanalyzer] object Claim {
 
   def computeIdIn(c: Claim): Map[PatternAST, String] = {
 
@@ -191,7 +191,7 @@ object Claim {
   }
 }
 
-final case class Builder(
+private[pmlanalyzer] final case class Builder(
     content: String,
     short: Option[String],
     implementation: Option[String],
@@ -223,11 +223,12 @@ final case class Builder(
     copy(implementation = Some(s"\\textcolor{red}{$i}"))
 }
 
-object DSLImplicits {
+private[pmlanalyzer] object PatternAST {
 
-  implicit def toBuilder(s: String): Builder =
-    Builder(s, None, None, None, None)
+  trait Ops {
+    implicit def toBuilder(s: String): Builder =
+      Builder(s, None, None, None, None)
 
-  def conclusion(s: Builder): Builder = s
-
+    def conclusion(s: Builder): Builder = s
+  }
 }

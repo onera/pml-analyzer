@@ -23,11 +23,11 @@ import onera.pmlanalyzer.views.dependability.model.Direction.{
   Reparation
 }
 
-trait Scheduler {
+private[pmlanalyzer] trait Scheduler {
   def schedule(fireable: Iterable[ConcreteEvent]): Iterable[ConcreteEvent]
 }
 
-object WorstCaseSchedule extends Scheduler {
+private[pmlanalyzer] object WorstCaseSchedule extends Scheduler {
   def schedule(fireable: Iterable[ConcreteEvent]): Iterable[ConcreteEvent] = {
     fireable.filter(e => e.owner.direction(e).contains(Degradation)) match {
       case s if s.isEmpty =>

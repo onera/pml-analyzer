@@ -17,10 +17,7 @@
 
 package onera.pmlanalyzer.views.interference.model.specification
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
   AtomicTransactionId,
@@ -30,7 +27,7 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
 
 /** Base trait for all interference specification
   */
-trait InterferenceSpecification {
+private[pmlanalyzer] trait InterferenceSpecification {
   self: Platform =>
 
   /** Map from the physical transaction id and their service sequence
@@ -407,7 +404,7 @@ trait InterferenceSpecification {
   }
 }
 
-object InterferenceSpecification {
+private[pmlanalyzer] object InterferenceSpecification {
   type Path[A] = List[A]
   type AtomicTransaction = Path[Service]
   type PhysicalTransaction = Set[AtomicTransactionId]

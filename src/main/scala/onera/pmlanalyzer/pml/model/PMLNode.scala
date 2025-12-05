@@ -24,8 +24,9 @@ import scala.language.implicitConversions
 
 /** Base class for all PML Node
   */
-abstract class PMLNode(info: ReflexiveInfo)(using _enclosing: Enclosing)
-    extends SourceCodeTraceable {
+private[pmlanalyzer] abstract class PMLNode private[pml] (info: ReflexiveInfo)(
+    using _enclosing: Enclosing
+) extends SourceCodeTraceable {
 
   val owner: Owner = info.owner
 

@@ -17,15 +17,18 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.exporters.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.exporters.SubComponent
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.{
   Request,
   TargetStatus
 }
 import onera.pmlanalyzer.views.dependability.operators.*
 
-abstract class Transporter[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering](
-    implicit owner: Owner
+private[pmlanalyzer] abstract class Transporter[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
+](implicit
+    owner: Owner
 ) extends Component {
   val loadI: InputPort[List[Request[FM]]] =
     InputPort[List[Request[FM]]](Symbol("loadI"))
@@ -35,16 +38,16 @@ abstract class Transporter[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering](
   val storeO: OutputPort[Request[FM]]
 }
 
-abstract class BasicTransporter[
-    FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+private[pmlanalyzer] abstract class BasicTransporter[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ](implicit owner: Owner)
     extends Transporter[FM] {
   val loadO: OutputPort[Request[FM]]
   val storeI: InputPort[List[Request[FM]]]
 }
 
-class SimpleTransporter[
-    FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+private[pmlanalyzer] class SimpleTransporter[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
 ] private (
     val id: TransporterId,
     val reject: ((InitiatorId, TargetId)) => Boolean
@@ -88,8 +91,8 @@ class SimpleTransporter[
     )
 }
 
-object SimpleTransporter {
-  def apply[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+private[pmlanalyzer] object SimpleTransporter {
+  def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TransporterId,
       reject: ((InitiatorId, TargetId)) => Boolean
   )(implicit
@@ -110,7 +113,9 @@ object SimpleTransporter {
 }
 
 //TODO Refactoring with Simple transporter
-class Virtualizer[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering] private (
+private[pmlanalyzer] class Virtualizer[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
+] private (
     val id: TransporterId,
     val reject: ((InitiatorId, TargetId)) => Boolean
 )(implicit owner: Owner)
@@ -153,8 +158,8 @@ class Virtualizer[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering] private (
     )
 }
 
-object Virtualizer {
-  def apply[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+private[pmlanalyzer] object Virtualizer {
+  def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: TransporterId,
       reject: ((InitiatorId, TargetId)) => Boolean
   )(implicit context: Builder[SubComponent] with Owner): Virtualizer[T] = {
@@ -172,7 +177,9 @@ object Virtualizer {
   }
 }
 
-class Initiator[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering] private (
+private[pmlanalyzer] class Initiator[
+    FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
+] private (
     val id: InitiatorId
 )(implicit owner: Owner)
     extends Transporter[FM] {
@@ -216,8 +223,8 @@ class Initiator[FM: IsCriticityOrdering: IsFinite: IsShadowOrdering] private (
     )
 }
 
-object Initiator {
-  def apply[T: IsCriticityOrdering: IsFinite: IsShadowOrdering](
+private[pmlanalyzer] object Initiator {
+  def apply[T: IsCriticalityOrdering: IsFinite: IsShadowOrdering](
       id: InitiatorId
   )(implicit context: Builder[SubComponent] with Owner): Initiator[T] = {
     val result = new Initiator(id)

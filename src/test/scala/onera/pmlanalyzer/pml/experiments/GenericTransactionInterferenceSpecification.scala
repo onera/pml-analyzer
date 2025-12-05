@@ -1,8 +1,7 @@
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators.*
 
 trait GenericTransactionInterferenceSpecification
     extends PhysicalTableBasedInterferenceSpecification {

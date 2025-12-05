@@ -41,7 +41,8 @@ import sourcecode.{File, Line, Name}
   *   the concrete type of built object
   * @group builder
   */
-trait BaseServiceBuilder[T <: Service] extends PMLNodeBuilder[T] {
+private[pmlanalyzer] trait BaseServiceBuilder[T <: Service] private[service]
+    extends PMLNodeBuilder[T] {
 
   /** The builder that must be implemented by specific builder
     * @param name

@@ -28,13 +28,16 @@ import sourcecode.{File, Line}
   * @param name
   *   the name of the node
   */
-final class Virtualizer private (val name: Symbol, info: ReflexiveInfo)
-    extends Transporter(info)
+private[pmlanalyzer] final class Virtualizer private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Transporter(info)
 
 /** Builder of targets
   * @group builder
   */
-object Virtualizer extends BaseHardwareNodeBuilder[Virtualizer] {
+private[pmlanalyzer] object Virtualizer
+    extends BaseHardwareNodeBuilder[Virtualizer] {
 
   /** Direct builder from name
     * @param name

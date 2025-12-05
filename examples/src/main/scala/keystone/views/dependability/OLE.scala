@@ -1,10 +1,6 @@
 package keystone.views.dependability
 
-import onera.pmlanalyzer.views.dependability.model.BaseEnumeration
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsFinite,
-  IsShadowOrdering
-}
+import onera.pmlanalyzer.*
 
 enum OLE(i: Int, n: String) extends BaseEnumeration(i, n) {
 

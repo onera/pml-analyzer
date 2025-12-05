@@ -17,11 +17,15 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.exporters.*
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
-import onera.pmlanalyzer.views.dependability.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.exporters.SubComponent
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticalityOrdering,
+  IsFinite
+}
 
-trait Software[FM] extends Component {
+private[pmlanalyzer] trait Software[FM] extends Component {
   val id: SoftwareId
   val loadI: InputPort[TargetStatus[FM]] =
     InputPort[TargetStatus[FM]](Symbol("loadI"))
@@ -37,7 +41,9 @@ trait Software[FM] extends Component {
   * @tparam FM
   *   type of the failure modes
   */
-class Application[FM: IsCriticityOrdering: IsFinite] private (
+private[pmlanalyzer] class Application[
+    FM: IsCriticalityOrdering: IsFinite
+] private (
     val id: SoftwareId,
     val softwareState: (Variable[FM], Variable[TargetStatus[FM]]) => Expr[FM],
     val stores: (Variable[FM], Variable[TargetStatus[FM]]) => Expr[
@@ -57,8 +63,8 @@ class Application[FM: IsCriticityOrdering: IsFinite] private (
     )
 }
 
-object Application {
-  def apply[FM: IsCriticityOrdering: IsFinite](
+private[pmlanalyzer] object Application {
+  def apply[FM: IsCriticalityOrdering: IsFinite](
       id: SoftwareId,
       softwareState: (Variable[FM], Variable[TargetStatus[FM]]) => Expr[FM],
       stores: (Variable[FM], Variable[TargetStatus[FM]]) => Expr[
@@ -78,7 +84,9 @@ object Application {
   }
 }
 
-class Descriptor[FM: IsCriticityOrdering: IsFinite] private (
+private[pmlanalyzer] class Descriptor[
+    FM: IsCriticalityOrdering: IsFinite
+] private (
     val id: SoftwareId,
     val transferts: List[Copy]
 )(implicit owner: Owner)
@@ -107,8 +115,8 @@ class Descriptor[FM: IsCriticityOrdering: IsFinite] private (
   )
 }
 
-object Descriptor {
-  def apply[FM: IsCriticityOrdering: IsFinite](
+private[pmlanalyzer] object Descriptor {
+  def apply[FM: IsCriticalityOrdering: IsFinite](
       id: SoftwareId,
       transferts: List[Copy]
   )(implicit context: Builder[SubComponent] with Owner): Descriptor[FM] = {
