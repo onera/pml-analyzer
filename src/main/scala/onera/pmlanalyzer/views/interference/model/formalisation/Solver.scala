@@ -437,7 +437,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
   // FIXME First step with file, but consider Stream from terminal
   private val miniZincFile: File =
-    FileManager.analysisDirectory.getFile("exportMiniZinc.mzn")
+    FileManager.getMiniZincFile(this.hashCode())
   protected val fileWriter = FileWriter(miniZincFile)
 
   fileWriter.write("include \"connected.mzn\";\n")
@@ -600,6 +600,8 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   private def parseModels[$: P] =
     P(Start ~ (parseModel.rep ~ "=".rep(min = 2) ~ "\n" | parseUnsat) ~ End)
 
+  // FIXME This can only be called once, since the file will be closed and
+  // deleted afterward, consider enforcing single call (lazy val like)
   protected def enumerateSolution(
       toGet: Set[MLit],
       implm: SolverImplm
@@ -619,9 +621,11 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
     ).lazyLines
     parse(result.iterator.map(_ + "\n"), parseModels(using _)) match {
       case Parsed.Success(res, _) =>
+        miniZincFile.delete()
         mutable.Set(res.map(_.map(mLitNames).toSet): _*)
       case f: Parsed.Failure =>
         println(f.longMsg)
+        miniZincFile.delete()
         mutable.Set.empty[Set[MLit]]
     }
   }
