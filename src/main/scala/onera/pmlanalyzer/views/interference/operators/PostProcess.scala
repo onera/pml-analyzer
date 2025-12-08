@@ -607,7 +607,7 @@ private[pmlanalyzer] object PostProcess {
   private def parseSize[$: P] =
     P(
       "[INFO]" ~/ "size" ~ digit.rep(min = 1).! ~ ":" ~ digit.rep(min = 1).!
-        ~ CharsWhile(c => c != ' ' && c != '\n').? ~ "\n"
+        ~ CharsWhile(_ != '\n') ~ "\n"
     )
       .map((l, r) => l.toInt -> BigInt(r))
 
