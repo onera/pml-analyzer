@@ -52,33 +52,15 @@ private[pmlanalyzer] enum SolverImplm {
   case GCode extends SolverImplm
   case CPSat extends SolverImplm
 
-  private lazy val monosatLibLoaded = {
-    try {
-      System.loadLibrary("monosat")
-      true
-    } catch {
-      case _: UnsatisfiedLinkError => false
-    }
-  }
-
-  private lazy val miniZincInstalled = {
-    try {
-      Process("minizinc --help").!
-      true
-    } catch {
-      case _: IOException => false
-    }
-  }
-
   def checkDependencies(): Option[String] = this match {
     case SolverImplm.Monosat =>
-      if (monosatLibLoaded)
+      if (SolverImplm.monosatLibLoaded)
         None
       else
         Some(Message.monosatLibraryNotLoaded)
     case SolverImplm.Choco => None
     case SolverImplm.GCode | SolverImplm.CPSat =>
-      if (miniZincInstalled)
+      if (SolverImplm.miniZincInstalled)
         None
       else
         Some(Message.minizincNotInstalled)
@@ -91,6 +73,26 @@ private[pmlanalyzer] enum SolverImplm {
       case GCode   => "gecode"
       case CPSat   => "cp-sat"
     }
+}
+
+object SolverImplm {
+  private lazy val monosatLibLoaded = {
+    try {
+      System.loadLibrary("monosat")
+      true
+    } catch {
+      case _: UnsatisfiedLinkError => false
+    }
+  }
+
+  private lazy val miniZincInstalled = {
+    try {
+      Process("minizinc --help").!!
+      true
+    } catch {
+      case _: IOException => false
+    }
+  }
 }
 
 sealed trait Solver {
