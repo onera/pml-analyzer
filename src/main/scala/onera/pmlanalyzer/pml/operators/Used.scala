@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.relations.UseRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.Message.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
@@ -42,11 +42,11 @@ import scala.reflect.*
   * @tparam R
   *   the right type
   */
-trait Used[L, R] {
+private[pmlanalyzer] sealed trait Used[L, R] private {
   def apply(a: L): Set[R]
 }
 
-object Used {
+private[pmlanalyzer] object Used {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS

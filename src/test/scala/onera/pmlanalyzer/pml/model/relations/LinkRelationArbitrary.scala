@@ -22,7 +22,8 @@ import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary.removeNonReac
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.Provided
 import org.scalacheck.{Arbitrary, Gen}
 
 trait LinkRelationArbitrary {

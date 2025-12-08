@@ -17,8 +17,7 @@
 
 package riscv.FU740.pml
 
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Target}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 /**
   * Routing constraints considered for the FU740 SoC

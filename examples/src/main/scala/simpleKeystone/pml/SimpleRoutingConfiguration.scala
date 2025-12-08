@@ -17,7 +17,7 @@
 
 package simpleKeystone.pml
 
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 /** Routing constraints considered for simple Keystone
   */

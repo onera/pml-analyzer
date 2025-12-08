@@ -1,7 +1,7 @@
 package onera.pmlanalyzer.pml.experiments
 
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Target}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 trait GenericRoutingConstraints {
   self: GenericPlatform =>

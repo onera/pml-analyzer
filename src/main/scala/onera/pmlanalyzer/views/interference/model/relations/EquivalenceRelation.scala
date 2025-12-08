@@ -25,11 +25,13 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
 import sourcecode.Name
 
-final case class EquivalenceRelation[A] private (iniValues: Map[A, Set[A]])(
-    using n: Name
+private[pmlanalyzer] final case class EquivalenceRelation[A] private (
+    iniValues: Map[A, Set[A]]
+)(using
+    n: Name
 ) extends ReflexiveSymmetricEndomorphism[A](iniValues)
 
-object EquivalenceRelation {
+private[pmlanalyzer] object EquivalenceRelation {
   trait Instances {
 
     /** Relation gathering user defined equivalent services

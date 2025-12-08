@@ -20,16 +20,27 @@ package onera.pmlanalyzer.views.dependability.exporters
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTransporterFolder
+import onera.pmlanalyzer.{
+  SimpleTransporter => PMLSimpleTransporter,
+  Initiator => PMLInitiator,
+  Target => PMLTarget,
+  Virtualizer => PMLVirtualizer,
+  *
+}
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticalityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 import onera.pmlanalyzer.views.dependability.model.*
-import onera.pmlanalyzer.views.dependability.operators.*
 
-trait TransporterCeciliaExporter {
+private[pmlanalyzer] trait TransporterCeciliaExporter {
   self: TypeCeciliaExporter
     with AutomatonCeciliaExporter
     with BasicOperationCeciliaExporter =>
 
   implicit def simpleTransporterIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[SimpleTransporter[FM], EquipmentModel] =
     new CeciliaExporter[SimpleTransporter[FM]] {
       type R = EquipmentModel
@@ -192,7 +203,7 @@ trait TransporterCeciliaExporter {
     }
 
   implicit def VirtualizerIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[Virtualizer[FM], EquipmentModel] =
     new CeciliaExporter[Virtualizer[FM]] {
       type R = EquipmentModel
@@ -365,7 +376,7 @@ trait TransporterCeciliaExporter {
     }
 
   implicit def initiatorIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[Initiator[FM], EquipmentModel] = new CeciliaExporter[Initiator[FM]] {
     type R = EquipmentModel
 

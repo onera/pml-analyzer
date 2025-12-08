@@ -15,6 +15,18 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.views.patterns.exporters
+package mySys
 
-object allPrinters extends LatexCodePrinter with LatexDiagramPrinter
+/** Package containing an example on a simplification of a TI Keystone platform
+ *
+  * @see
+  *   [[MyProcPlatform]] for examples of [[pml.model.hardware.Hardware]]
+  *   modelling features [[MySysSoftwareAllocation]] for examples of
+  *   [[pml.model.software.Application]] modelling features
+  *   [[MySysTransactionLibrary]] for examples of transaction modelling
+  *   features [[MySysLibraryConfiguration]] for example of transaction library
+  *   configuration [[MySysExport]] for examples of platform instantiation and
+  *   [[pml.exporters]] usage
+  */
+
+package object pml

@@ -27,7 +27,7 @@ package onera.pmlanalyzer.views.dependability.model
   * @tparam T
   *   the type of the owner state
   */
-final case class Transition[T](
+private[pmlanalyzer] final case class Transition[T](
     guard: () => Boolean,
     e: Event,
     computeNewState: () => T

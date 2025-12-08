@@ -24,7 +24,7 @@ import scala.language.postfixOps
  * transaction defined in [[MySysTransactionLibrary]] is used {{{t11 used}}}
  *
  * @see
-  *   [[pml.operators.Use.Ops]] for operator definition
+  *   [[Use.Ops]] for operator definition
   */
 trait MySysLibraryConfiguration
     extends MySysTransactionLibrary

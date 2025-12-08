@@ -23,124 +23,132 @@ import onera.pmlanalyzer.views.patterns.model.*
 import java.io.{File, FileWriter}
 import java.nio.file.Paths
 
-object LatexDiagramPrinter {
-  implicit class LatexDiagramPrinterConclusion(conclusion: Claim) {
+private[pmlanalyzer] object LatexDiagramPrinter {
 
-    private val ids = Claim.computeIdIn(conclusion)
+  private def getSize(textWidth: Option[Int]): String =
+    (for (s <- textWidth) yield s"set width = $s cm,") getOrElse ""
 
-    val file: File = {
-      for (s <- conclusion.short)
-        yield FileManager.exportDirectory.getFile(s"${s}_diagram.tex")
-    } getOrElse new File(s"${conclusion.label}_diagram.tex")
+  private def getImplementation(implementation: Option[String]): String =
+    (for (i <- implementation) yield i) getOrElse ""
 
-    private def getSize(textWidth: Option[Int]): String =
-      (for (s <- textWidth) yield s"set width = $s cm,") getOrElse ""
-
-    private def getImplementation(implementation: Option[String]): String =
-      (for (i <- implementation) yield i) getOrElse ""
-
-    private def writeString(
-        s: String
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      s.split("\n").foreach { chunk =>
-        addSpacing
-        printer.write(chunk + "\n")
-      }
+  private def writeString(
+      s: String
+  )(implicit printer: FileWriter, spacing: Int): Unit = {
+    s.split("\n").foreach { chunk =>
+      addSpacing
+      printer.write(chunk + "\n")
     }
+  }
 
-    def printDiagram(): File = {
-      val writer = new FileWriter(file)
-      writer.write("""
-           |\\ifdefined\\standalone
-           |\\documentclass{standalone}
-           |\\usepackage[utf8]{inputenc}
-           |\\usepackage{tikz}
-           |\\usetikzlibrary{shapes,arrows,backgrounds,positioning,calc, automata, shadows, backgrounds,fit, arrows,graphs, trees, decorations.pathreplacing, patterns}
-           |\\usepackage{forest}
-           |\\usepackage{hyperref}
-           |\\usepackage{varwidth}
-           |\\input{tikzStyle}
-           |
-          |\\begin{document}
+  private def addSpacing(implicit printer: FileWriter, spacing: Int): Unit =
+    (1 to spacing) foreach (_ => printer.write("\t"))
+
+  def getFile(conclusion: Claim): File = {
+    for (s <- conclusion.short)
+      yield FileManager.exportDirectory.getFile(s"${s}_diagram.tex")
+  } getOrElse new File(s"${conclusion.label}_diagram.tex")
+
+  trait Ops {
+    extension (conclusion: Claim) {
+
+      def printDiagram(): File = {
+        val writer = new FileWriter(getFile(conclusion))
+        writer.write("""
+            |\\ifdefined\\standalone
+            |\\documentclass{standalone}
+            |\\usepackage[utf8]{inputenc}
+            |\\usepackage{tikz}
+            |\\usetikzlibrary{shapes,arrows,backgrounds,positioning,calc, automata, shadows, backgrounds,fit, arrows,graphs, trees, decorations.pathreplacing, patterns}
+            |\\usepackage{forest}
+            |\\usepackage{hyperref}
+            |\\usepackage{varwidth}
+            |\\input{tikzStyle}
+            |
+            |\\begin{document}
           """.stripMargin)
-      for (width <- conclusion.width) yield {
-        writer.write(s"\\resizebox{$width px}{!}{")
+        for (width <- conclusion.width) yield {
+          writer.write(s"\\resizebox{$width px}{!}{")
+        }
+        writer.write("\\fi")
+        writer.write(
+          "\\begin{forest}\n\tfor tree = { edge = {latex-}, parent anchor=south, child anchor=north, l sep+=.5em, s sep+= 1em },\n"
+        )
+        print(conclusion)(writer, 1)
+        writer.write("""\end{forest}""")
+        writer.write("\\ifdefined\\standalone")
+        for (_ <- conclusion.width) yield {
+          writer.write("}")
+        }
+        writer.write("\\end{document}\n\\fi")
+        writer.close()
+        getFile(conclusion)
       }
-      writer.write("\\fi")
-      writer.write(
-        "\\begin{forest}\n\tfor tree = { edge = {latex-}, parent anchor=south, child anchor=north, l sep+=.5em, s sep+= 1em },\n"
-      )
-      print(conclusion)(writer, 1)
-      writer.write("""\end{forest}""")
-      writer.write("\\ifdefined\\standalone")
-      for (_ <- conclusion.width) yield {
-        writer.write("}")
+
+      private def print(
+          claim: Claim
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        writeString(
+          s"[{${Claim.computeIdIn(conclusion)(claim)} ${claim.label + getImplementation(claim.implementation)}}, conclusion,  s sep-= 1.25em, calign=first, ${getSize(claim.textWidth)} \n"
+        )
+        for (b <- claim.strategy.defeater) yield print(b)(printer, spacing + 1)
+        print(claim.strategy)(printer, spacing + 1)
+        claim.evidences foreach (e => print(e)(printer, spacing + 2))
+        writeString("]\n")(printer, spacing + 1)
+        for (b <- claim.strategy.backing) yield print(b)(printer, spacing + 1)
+        writeString("]\n")
       }
-      writer.write("\\end{document}\n\\fi")
-      writer.close()
-      file
-    }
 
-    private def addSpacing(implicit printer: FileWriter, spacing: Int): Unit =
-      (1 to spacing) foreach (_ => printer.write("\t"))
-
-    private def print(
-        claim: Claim
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      writeString(
-        s"[{${ids(claim)} ${claim.label + getImplementation(claim.implementation)}}, conclusion,  s sep-= 1.25em, calign=first, ${getSize(claim.textWidth)} \n"
-      )
-      for (b <- claim.strategy.defeater) yield print(b)(printer, spacing + 1)
-      print(claim.strategy)(printer, spacing + 1)
-      claim.evidences foreach (e => print(e)(printer, spacing + 2))
-      writeString("]\n")(printer, spacing + 1)
-      for (b <- claim.strategy.backing) yield print(b)(printer, spacing + 1)
-      writeString("]\n")
-    }
-
-    private def print(
-        strategy: Strategy
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      writeString(
-        s"[{${ids(strategy)} ${strategy.label} ${getImplementation(strategy.implementation)}}, strategy, ${getSize(strategy.textWidth)}\n"
-      )
-    }
-
-    private def print(
-        backing: Backing
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      writeString(s"[{${backing.label}}, backing, no edge]\n")
-    }
-
-    private def print(
-        defeater: Defeater
-    )(implicit printer: FileWriter, spacing: Int): Unit = {
-      writeString(s"[{${defeater.label}}, defeater, no edge]\n")
-    }
-
-    private def print(
-        evidence: Evidence
-    )(implicit printer: FileWriter, spacing: Int): Unit = evidence match {
-      case e @ FinalEvidence(content, implementation, textWidth, None) =>
+      private def print(
+          strategy: Strategy
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
         writeString(
-          s"[{${ids(e)} $content ${getImplementation(implementation)}}, conclusion, ${getSize(textWidth)}] \n"
+          s"[{${Claim.computeIdIn(conclusion)(strategy)} ${strategy.label} ${getImplementation(strategy.implementation)}}, strategy, ${getSize(strategy.textWidth)}\n"
         )
-      case e @ FinalEvidence(content, implementation, textWidth, Some(refOf)) =>
-        val refPrinter = LatexDiagramPrinterConclusion(refOf)
-        val refPath =
-          Paths.get(refPrinter.file.getName).toString.replace(".tex", ".pdf")
-        refPrinter.printDiagram()
-        writeString(
-          s"[{\\href{$refPath}{${ids(e)}} $content  ${getImplementation(implementation)}}, conclusion, ${getSize(textWidth)}] \n"
-        )
-      case g @ Given(content, implementation, textWidth) =>
-        writeString(
-          s"[{${ids(g)} $content  ${getImplementation(implementation)}}, conclusion,  ${getSize(textWidth)}, dashed ] \n"
-        )
-      case c: Claim =>
-        print(c)
+      }
+
+      private def print(
+          backing: Backing
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        writeString(s"[{${backing.label}}, backing, no edge]\n")
+      }
+
+      private def print(
+          defeater: Defeater
+      )(implicit printer: FileWriter, spacing: Int): Unit = {
+        writeString(s"[{${defeater.label}}, defeater, no edge]\n")
+      }
+
+      private def print(
+          evidence: Evidence
+      )(implicit printer: FileWriter, spacing: Int): Unit = evidence match {
+        case e @ FinalEvidence(content, implementation, textWidth, None) =>
+          writeString(
+            s"[{${Claim.computeIdIn(conclusion)(e)} $content ${getImplementation(implementation)}}, conclusion, ${getSize(textWidth)}] \n"
+          )
+        case e @ FinalEvidence(
+              content,
+              implementation,
+              textWidth,
+              Some(refOf)
+            ) =>
+          val refPath =
+            Paths
+              .get(getFile(conclusion).getName)
+              .toString
+              .replace(".tex", ".pdf")
+          refOf.printDiagram()
+          writeString(
+            s"[{\\href{$refPath}{${Claim.computeIdIn(conclusion)(e)}} $content  ${getImplementation(implementation)}}, conclusion, ${getSize(textWidth)}] \n"
+          )
+        case g @ Given(content, implementation, textWidth) =>
+          writeString(
+            s"[{${Claim.computeIdIn(conclusion)(g)} $content  ${getImplementation(implementation)}}, conclusion,  ${getSize(textWidth)}, dashed ] \n"
+          )
+        case c: Claim =>
+          print(c)
+      }
     }
   }
 }
 
-trait LatexDiagramPrinter
+private[pmlanalyzer] trait LatexDiagramPrinter

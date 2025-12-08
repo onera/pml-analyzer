@@ -37,8 +37,11 @@ import sourcecode.{File, Line, Name}
   *   the id of the owner of the composite (the platform or another composite)
   * @group hierarchical_class
   */
-abstract class Composite(n: Symbol, info: ReflexiveInfo, c: Context)
-    extends Hardware(info)
+private[pmlanalyzer] abstract class Composite(
+    n: Symbol,
+    info: ReflexiveInfo,
+    c: Context
+) extends Hardware(info)
     with ContainerLike {
 
   implicit val context: Context = c
@@ -96,7 +99,7 @@ abstract class Composite(n: Symbol, info: ReflexiveInfo, c: Context)
 /** Static methods of Composite
   * @group utilFun
   */
-object Composite extends PMLNodeBuilder[Composite] {
+private[pmlanalyzer] object Composite extends PMLNodeBuilder[Composite] {
 
   /** Reuse same formatting rule as [[BaseHardwareNodeBuilder]]
     * @param name

@@ -19,22 +19,26 @@ package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.views.dependability.executor.Simulator
 
-trait Event {
+private[pmlanalyzer] trait Event {
   val name: Symbol
   override def toString: String = name.name
 }
 
-final case class SynchroEvent(name: Symbol, synchronizedEvents: Set[Event])
-    extends Event
+private[pmlanalyzer] final case class SynchroEvent(
+    name: Symbol,
+    synchronizedEvents: Set[Event]
+) extends Event
 
-trait ConcreteEvent extends Event {
+private[pmlanalyzer] trait ConcreteEvent extends Event {
   val owner: ModeAutomaton[_]
 }
 
-final case class StochasticEvent[T](name: Symbol, owner: ModeAutomaton[T])
-    extends ConcreteEvent
+private[pmlanalyzer] final case class StochasticEvent[T](
+    name: Symbol,
+    owner: ModeAutomaton[T]
+) extends ConcreteEvent
 
-object StochasticEvent {
+private[pmlanalyzer] object StochasticEvent {
   def apply[T](name: Symbol, owner: ModeAutomaton[T]): StochasticEvent[T] = {
     val r = new StochasticEvent[T](name, owner)
     Simulator.addEvent(r)
@@ -42,7 +46,7 @@ object StochasticEvent {
   }
 }
 
-final case class DeterministicEvent[T](
+private[pmlanalyzer] final case class DeterministicEvent[T](
     name: Symbol,
     owner: ModeAutomaton[T],
     delay: Int
@@ -50,7 +54,7 @@ final case class DeterministicEvent[T](
   override def toString: String = name.name
 }
 
-object DeterministicEvent {
+private[pmlanalyzer] object DeterministicEvent {
   def apply[T](
       name: Symbol,
       owner: ModeAutomaton[T],

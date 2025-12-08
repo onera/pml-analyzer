@@ -32,13 +32,13 @@ import sourcecode.{File, Line}
   * @tparam T
   *   the type of the deactivatable component
   */
-trait Deactivate[-T] {
+private[pmlanalyzer] sealed trait Deactivate[-T] private {
   def apply(a: T)(using line: Line, file: File): Unit
 }
 
 /** Extension methods and inferences rules
   */
-object Deactivate {
+private[pmlanalyzer] object Deactivate {
 
   def apply[T](using m: Deactivate[T]): Deactivate[T] = m
 

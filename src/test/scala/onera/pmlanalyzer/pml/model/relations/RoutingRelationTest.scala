@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{*, given}
 import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalacheck.Shrink
 import org.scalatest.flatspec.AnyFlatSpec

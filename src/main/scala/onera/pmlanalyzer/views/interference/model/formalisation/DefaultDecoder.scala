@@ -21,7 +21,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 
-trait DefaultDecoder extends Decoder {
+private[pmlanalyzer] trait DefaultDecoder extends Decoder {
   val transactionVars: Map[MLit, PhysicalTransactionId]
 
   def decodeTrivialSolutions(implm: SolverImplm): Seq[

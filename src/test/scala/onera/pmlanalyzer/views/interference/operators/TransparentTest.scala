@@ -1,10 +1,10 @@
 package onera.pmlanalyzer.views.interference.operators
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators.*
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 

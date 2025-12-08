@@ -18,21 +18,20 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.exporters.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.PerfTests
-import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.model.specification.{
   ApplicativeTableBasedInterferenceSpecification,
   PhysicalTableBasedInterferenceSpecification
 }
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -44,7 +43,9 @@ import scala.concurrent.{Await, Future, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
+private[pmlanalyzer] class GeneratedPlatformsTest
+    extends AnyFlatSpec
+    with should.Matchers {
 
   def generatePlatformFromConfiguration(
       coreCount: Int,
@@ -201,10 +202,10 @@ class GeneratedPlatformsTest extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be possible to compute the interference" taggedAs PerfTests in {
-    assume(
-      InterferenceTestExtension.monosatLibraryLoaded,
-      Message.monosatLibraryNotLoaded
-    )
+    for { m <- Monosat.checkDependencies() } yield {
+      cancel(m)
+    }
+
     val timeout: Duration = (1 days)
     println(timeout)
     for {

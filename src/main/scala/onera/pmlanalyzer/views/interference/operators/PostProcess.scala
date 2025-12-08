@@ -25,7 +25,7 @@ import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransact
 import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
@@ -49,7 +49,7 @@ import scala.math.Ordering.Implicits.*
   * @tparam T
   *   the type of the component (contravariant)
   */
-private[operators] trait PostProcess[-T] {
+private[pmlanalyzer] sealed trait PostProcess[-T] {
 
   def interferenceDiff(
       x: T,
@@ -85,7 +85,7 @@ private[operators] trait PostProcess[-T] {
   ): Array[Seq[String]]
 }
 
-object PostProcess {
+private[pmlanalyzer] object PostProcess {
 
   /* ------------------------------------------------------------------------------------------------------------------
    * EXTENSION METHODS
@@ -572,7 +572,7 @@ object PostProcess {
     swByMultiTransaction.groupMapReduce(s => s)(_ => 1)(_ + _)
   }
 
-  private def parseWord[$: P] =
+  def parseWord[$: P] =
     CharsWhile(c => !Set(' ', '\n', ',').contains(c))
 
   private def parsePlatformName[$: P] =
@@ -607,7 +607,7 @@ object PostProcess {
   private def parseSize[$: P] =
     P(
       "[INFO]" ~/ "size" ~ digit.rep(min = 1).! ~ ":" ~ digit.rep(min = 1).!
-        ~ CharsWhile(c => c != ' ' && c != '\n').? ~ "\n"
+        ~ CharsWhile(_ != '\n').? ~ "\n"
     )
       .map((l, r) => l.toInt -> BigInt(r))
 
@@ -631,7 +631,7 @@ object PostProcess {
   private def parseSizeSection[$: P] =
     P(parseITFHeader ~ parseSizes ~ parseFreeHeader ~ parseSizes)
 
-  private def parseSummaryFile[$: P] =
+  private[pmlanalyzer] def parseSummaryFile[$: P] =
     P(
       Start ~ parseHeader ~ parseSectionSep ~ parseSizeSection
         ~ parseSectionSep ~ parseComputationTimeSection ~ parseSectionSep ~ End
@@ -700,9 +700,9 @@ object PostProcess {
     }
   }
 
-  private def parseAtomicTransactionId[$: P] =
+  def parseAtomicTransactionId[$: P]: P[String] =
     P(
-      CharPred(x => !Set('|', '<', '>', ' ', '\n', ',').contains(x))
+      CharPred(x => !Set('|', '<', '>', ' ', '\n', ',', '=').contains(x))
         .rep(min = 1)
         .!
     )

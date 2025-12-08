@@ -23,7 +23,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
   Target
 }
 import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 final class DDR private (
     val id: Int,

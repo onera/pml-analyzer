@@ -26,6 +26,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
 import onera.pmlanalyzer.pml.model.relations.LinkRelation
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import sourcecode.{File, Line}
+import onera.pmlanalyzer.*
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -36,7 +37,7 @@ import scala.reflect.{ClassTag, classTag}
   * @tparam R
   *   the right type
   */
-trait Link[L, R] {
+private[pmlanalyzer] sealed trait Link[L, R] private {
   def link(a: L, b: R)(using line: Line, file: File): Unit
 
   def unlink(a: L, b: R)(using line: Line, file: File): Unit
@@ -44,7 +45,7 @@ trait Link[L, R] {
 
 /** Extension methods and inferences rules of high priority
   */
-object Link {
+private[pmlanalyzer] object Link {
 
   protected sealed trait HardwareLink[-L, -R] {
     def apply(x: L | R): Hardware

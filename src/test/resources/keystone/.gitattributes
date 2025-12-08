@@ -7,3 +7,5 @@ KeystoneWithRosacePhysicalTransactionTable.txt filter= diff= merge= text
 KeystoneWithRosaceServiceInterfere.txt filter= diff= merge= text
 KeystoneWithRosaceTransactionExclusive.txt filter= diff= merge= text
 KeystoneWithRosaceUserTransactionTable.txt filter= diff= merge= text
+KeystoneWithRosace_itf_calculus_summary_no_semantics.txt filter= diff= merge= text
+KeystoneWithRosace_itf_calculus_summary_with_semantics.txt filter= diff= merge= text

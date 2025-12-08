@@ -31,7 +31,7 @@ import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Used.{checkImpossible, checkMultiPaths}
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.{
   PerfTests,

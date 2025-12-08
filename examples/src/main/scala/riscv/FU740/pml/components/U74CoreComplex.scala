@@ -18,10 +18,7 @@
 package riscv.FU740.pml.components
 
 import generic.cores.{SiFiveS7Core, SiFiveU7Core}
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.*
-import onera.pmlanalyzer.pml.model.utils.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.Name
 
 /** Simple model of the SiFive U74 Core Complex. */

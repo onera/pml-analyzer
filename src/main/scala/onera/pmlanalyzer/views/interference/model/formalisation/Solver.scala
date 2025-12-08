@@ -17,11 +17,19 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
+import fastparse.*
+import fastparse.SingleLineWhitespace.*
 import monosat.Lit
+import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.pml.model.utils.Message
+import onera.pmlanalyzer.views.interference.model.formalisation
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  CPSat,
   Choco,
+  GCode,
   Monosat
 }
+import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.chocosolver.solver.Model as ChocoModel
 import org.chocosolver.solver.constraints.{
   Operator,
@@ -32,13 +40,59 @@ import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
 import org.chocosolver.util.objects.setDataStructures.SetType
 
-import java.io.{File, FileWriter}
+import java.io.{File, FileWriter, IOException}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
+import scala.sys.process.Process
+import scala.util.{Failure, Success, Try}
 
-enum SolverImplm {
+private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
   case Choco extends SolverImplm
+  case GCode extends SolverImplm
+  case CPSat extends SolverImplm
+
+  def checkDependencies(): Option[String] = this match {
+    case SolverImplm.Monosat =>
+      if (SolverImplm.monosatLibLoaded)
+        None
+      else
+        Some(Message.monosatLibraryNotLoaded)
+    case SolverImplm.Choco => None
+    case SolverImplm.GCode | SolverImplm.CPSat =>
+      if (SolverImplm.miniZincInstalled)
+        None
+      else
+        Some(Message.minizincNotInstalled)
+  }
+
+  override def toString: String =
+    this match {
+      case Monosat => "monosat"
+      case Choco   => "choco"
+      case GCode   => "gecode"
+      case CPSat   => "cp-sat"
+    }
+}
+
+object SolverImplm {
+  private lazy val monosatLibLoaded = {
+    try {
+      System.loadLibrary("monosat")
+      true
+    } catch {
+      case _: UnsatisfiedLinkError => false
+    }
+  }
+
+  private lazy val miniZincInstalled = {
+    try {
+      Process("minizinc --help").!!
+      true
+    } catch {
+      case _: IOException => false
+    }
+  }
 }
 
 sealed trait Solver {
@@ -69,7 +123,7 @@ sealed trait Solver {
   def close(): Unit
 }
 
-class ChocoSolver extends Solver {
+private[pmlanalyzer] final class ChocoSolver extends Solver {
   type BoolLit = BoolVar
   type GraphLit = UndirectedGraphVar
   type Constraint = ChocoConstraint
@@ -233,7 +287,7 @@ class ChocoSolver extends Solver {
   def close(): Unit = {}
 }
 
-class MonoSatSolver extends Solver {
+private[pmlanalyzer] final class MonoSatSolver extends Solver {
   type BoolLit = monosat.Lit
   type GraphLit = monosat.Graph
   type Constraint = monosat.Lit
@@ -365,11 +419,243 @@ class MonoSatSolver extends Solver {
   def close(): Unit = solver.close()
 }
 
-object Solver {
+private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
+  type Expression = String
+  type BoolLit = String
+  type GraphLit = Graph
+  type Constraint = String
+
+  final case class Graph(
+      nMap: Map[String, (Int, BoolLit)],
+      eMap: Map[String, (Int, BoolLit)],
+      pre: Array[Int],
+      post: Array[Int]
+  )
+
+  private val graphLitCache = mutable.Map.empty[MGraph, Graph]
+  private val boolLitCache = mutable.Map.empty[MLit, String]
+
+  // FIXME First step with file, but consider Stream from terminal
+  private val miniZincFile: File =
+    FileManager.getMiniZincFile(this.hashCode())
+  protected val fileWriter = FileWriter(miniZincFile)
+
+  fileWriter.write("include \"connected.mzn\";\n")
+
+  private def formatName(s: String) =
+    s.replaceAll("[<>|]", "")
+      .replaceAll("\\$|--", "_")
+
+  def assert(lt: Expr | Connected): Unit =
+    fileWriter.write(
+      s"constraint(${lt match {
+          case e: Expr      => e.toExpr(this)
+          case c: Connected => c.toConstraint(this)
+        }});\n"
+    )
+
+  def assertPB(l: Seq[ALit], c: Comparator, k: Int): Unit =
+    fileWriter.write(
+      s"constraint(${l.map(_.toLit(this)).mkString("(", " + ", ")")}${c match {
+          case Comparator.LT => "<"
+          case Comparator.LE => "<="
+          case Comparator.EQ => "="
+          case Comparator.GE => ">="
+          case Comparator.GT => ">"
+        }} $k);\n"
+    )
+
+  def graphLit(g: MGraph): GraphLit = graphLitCache.getOrElseUpdate(
+    g, {
+      val nMap =
+        (for {
+          (n, i) <- g.nodes.toSeq.sortBy(_.id.name).zipWithIndex
+        } yield {
+          n -> (i + 1, s"n$i")
+        }).toMap
+      val eMap =
+        (for {
+          (e, i) <- g.edges.toSeq.sortBy(_.id.name).zipWithIndex
+        } yield {
+          e -> (i + 1, s"e${nMap(e.from)._1}${nMap(e.to)._1}")
+        }).toMap
+      val pre =
+        for {
+          (eId, _) <- eMap.toArray.sortBy(_._2._1)
+        } yield nMap(eId.from)._1
+      val post =
+        for {
+          (eId, _) <- eMap.toArray.sortBy(_._2._1)
+          (nId, _) <- nMap.get(eId.to)
+        } yield nId
+
+      fileWriter.write(
+        s"""%% Nodes definition
+           |set of int: Node = 1..${nMap.size};
+           |${nMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"Node: ${formatName(k.id.name)} = ${v._1};")
+            .mkString("\n")}
+           |%% Node variables definition
+           |${nMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"var bool: ${v._2};")
+            .mkString("\n")}
+           |%% Edges definition
+           |set of int: Edge = 1..${eMap.size};
+           |${eMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"Edge: ${formatName(k.id.name)} = ${v._1};")
+            .mkString("\n")}
+           |%% Edge variables definition
+           |${eMap.toSeq
+            .sortBy(_._2._1)
+            .map((k, v) => s"var bool: ${v._2};")
+            .mkString("\n")}
+           |%% Graph definition
+           |array[Edge] of Node: pre = ${pre.mkString("[", ", ", "]")};
+           |array[Edge] of Node: post = ${post.mkString("[", ", ", "]")};
+           |array[Node] of var bool: ns = ${nMap.keySet.toSeq
+            .sortBy(x => nMap(x)._1)
+            .map(x => nMap(x)._2)
+            .mkString("[", ", ", "]")};
+           |array[Edge] of var bool: es = ${eMap.keySet.toSeq
+            .sortBy(x => eMap(x)._1)
+            .map(x => eMap(x)._2)
+            .mkString("[", ", ", "]")};
+           |""".stripMargin
+      )
+      Graph(
+        nMap.map((k, v) => k.id.name -> v),
+        eMap.map((k, v) => k.id.name -> v),
+        pre,
+        post
+      )
+    }
+  )
+
+  def boolLit(a: MLit): BoolLit =
+    boolLitCache.getOrElseUpdate(
+      a, {
+        fileWriter.write(s"var bool: ${formatName(a.id.name)};\n")
+        formatName(a.id.name)
+      }
+    )
+
+  def getEdge(g: MGraph, id: String): Option[BoolLit] =
+    for {
+      (_, b) <- graphLit(g).eMap.get(id)
+    } yield b
+
+  def getNode(g: MGraph, id: String): Option[BoolLit] =
+    for {
+      (_, b) <- graphLit(g).nMap.get(id)
+    } yield b
+
+  def and(l: Seq[Expr]): Expression =
+    if (l.isEmpty)
+      "true"
+    else
+      l.map(_.toExpr(this)).mkString("((", ") /\\ (", "))")
+
+  def or(l: Seq[Expr]): Expression =
+    if (l.isEmpty)
+      "false"
+    else
+      l.map(_.toExpr(this)).mkString("((", ") \\/ (", "))")
+
+  def implies(l: Expr, r: Expr): Expression =
+    s"${l.toExpr(this)} -> ${r.toExpr(this)}"
+
+  def eq(l: Expr, r: Expr): Expression =
+    s"${l.toExpr(this)} = ${r.toExpr(this)}"
+
+  def not(l: Expr): Expression =
+    s"not ${l.toExpr(this)}"
+
+  def connected(g: MGraph): Constraint =
+    "connected(pre,post,ns,es)"
+
+  def exportGraph(g: MGraph, file: File): File = ???
+
+  def close(): Unit = {}
+
+  private def parseValuation[$: P] =
+    P(
+      PostProcess.parseAtomicTransactionId ~ "=" ~ PostProcess.parseWord.! ~ "\n"
+    )
+
+  private def parseModel[$: P] =
+    P(parseValuation.rep(min = 1) ~ "-".rep(min = 2) ~ "\n").map(
+      _.collect { case (id, "true") =>
+        id
+      }
+    )
+
+  private def parseUnsat[$: P] =
+    P("=====" ~ "UNSATISFIABLE" ~ "=====" ~ "\n").map(_ =>
+      Seq.empty[Seq[String]]
+    )
+
+  private def parseModels[$: P] =
+    P(Start ~ (parseModel.rep ~ "=".rep(min = 2) ~ "\n" | parseUnsat) ~ End)
+
+  // FIXME This can only be called once, since the file will be closed and
+  // deleted afterward, consider enforcing single call (lazy val like)
+  protected def enumerateSolution(
+      toGet: Set[MLit],
+      implm: SolverImplm
+  ): mutable.Set[Set[MLit]] = {
+    val litNames = toGet.map(x => x -> x.toLit(this)).toMap
+    // FIXME Consider using a BiMap link type to represent bijective relations
+    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) =>
+      throw new Exception(s"$l and $r for same key")
+    )
+    fileWriter.write(s"""output [
+         |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
+         |]""".stripMargin)
+    fileWriter.flush()
+    fileWriter.close()
+    val result = Process(
+      s"minizinc -a --solver $implm ${miniZincFile.getPath}"
+    ).lazyLines
+    parse(result.iterator.map(_ + "\n"), parseModels(using _)) match {
+      case Parsed.Success(res, _) =>
+        miniZincFile.delete()
+        mutable.Set(res.map(_.map(mLitNames).toSet): _*)
+      case f: Parsed.Failure =>
+        println(f.longMsg)
+        miniZincFile.delete()
+        mutable.Set.empty[Set[MLit]]
+    }
+  }
+}
+
+private[pmlanalyzer] final class GCodeSolver extends MiniZincSolver {
+
+  val implm: SolverImplm = GCode
+
+  def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] =
+    enumerateSolution(toGet, GCode)
+
+}
+
+private[pmlanalyzer] final class CPSatSolver extends MiniZincSolver {
+
+  val implm: SolverImplm = CPSat
+
+  def enumerateSolution(toGet: Set[MLit]): mutable.Set[Set[MLit]] =
+    enumerateSolution(toGet, CPSat)
+}
+
+private[pmlanalyzer] object Solver {
+
   def apply(implm: SolverImplm): Solver = {
     implm match {
       case SolverImplm.Monosat => MonoSatSolver()
       case SolverImplm.Choco   => ChocoSolver()
+      case SolverImplm.GCode   => GCodeSolver()
+      case SolverImplm.CPSat   => CPSatSolver()
     }
   }
 }

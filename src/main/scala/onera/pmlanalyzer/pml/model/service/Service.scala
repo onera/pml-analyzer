@@ -29,6 +29,8 @@ import sourcecode.{Enclosing, File, Line}
   *   the node definition
   * @group service_class
   */
-abstract class Service private[service] (info: ReflexiveInfo)(using
+private[pmlanalyzer] abstract class Service private[service] (
+    info: ReflexiveInfo
+)(using
     enclosing: Enclosing
 ) extends PMLNode(info)

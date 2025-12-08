@@ -1,6 +1,6 @@
 package onera.pmlanalyzer.pml.model.instances.keystone
 
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 trait KeystoneRoutingConstraints {
   self: KeystonePlatform =>

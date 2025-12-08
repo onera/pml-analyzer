@@ -25,9 +25,14 @@ import onera.pmlanalyzer.views.dependability.model.{
   VariableId,
   System as DepSystem
 }
-import onera.pmlanalyzer.views.dependability.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticalityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 
-trait BasicOperationCeciliaExporter {
+private[pmlanalyzer] trait BasicOperationCeciliaExporter {
   self: TypeCeciliaExporter =>
 
   def pathName(x: DepSystem, c: Component): List[String] =
@@ -52,7 +57,8 @@ trait BasicOperationCeciliaExporter {
       (0 until n).map(i => Flow(Symbol(s"$v$i"), tyype, orientation)).toList
   }
 
-  def configurableCstModel[T: IsFinite: IsCriticityOrdering]: ComponentModel = {
+  def configurableCstModel[T: IsFinite: IsCriticalityOrdering]
+      : ComponentModel = {
     val tyype = typeModel[T]
     val output = Flow(Symbol("o"), tyype, Out)
     val state = State(Symbol("s"), tyype, min[T].name.name)
@@ -68,7 +74,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  def configurableCstModel[K: IsFinite, V: IsFinite: IsCriticityOrdering]
+  def configurableCstModel[K: IsFinite, V: IsFinite: IsCriticalityOrdering]
       : ComponentModel = {
     val tyype = typeModel[K, V]
     val output = Flow(Symbol("o"), tyype, Out)
@@ -108,7 +114,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  def switchModel[T: IsFinite: IsCriticityOrdering]: ComponentModel = {
+  def switchModel[T: IsFinite: IsCriticalityOrdering]: ComponentModel = {
     val tyype = typeModel[T]
     ComponentModel(
       Symbol("switch"),
@@ -138,7 +144,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  def preModel[T: IsFinite: IsCriticityOrdering]: ComponentModel = {
+  def preModel[T: IsFinite: IsCriticalityOrdering]: ComponentModel = {
     val tyype = typeModel[T]
     ComponentModel(
       Symbol("pre"),
@@ -166,7 +172,7 @@ trait BasicOperationCeciliaExporter {
   private val _bestMemo = collection.mutable.HashMap
     .empty[Set[String], (String, Seq[String], SubComponent)]
 
-  def mkBestSub[T: IsFinite: IsCriticityOrdering](
+  def mkBestSub[T: IsFinite: IsCriticalityOrdering](
       l: Set[String]
   ): (String, Seq[String], SubComponent) = _bestMemo.getOrElseUpdate(
     l, {
@@ -184,7 +190,7 @@ trait BasicOperationCeciliaExporter {
     }
   )
 
-  private final case class BestModelHelper[T: IsFinite: IsCriticityOrdering](
+  private final case class BestModelHelper[T: IsFinite: IsCriticalityOrdering](
       size: Int
   ) {
     val tyype: EnumeratedType = typeModel[T]
@@ -208,7 +214,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  def minOperator[T: IsFinite: IsCriticityOrdering](
+  def minOperator[T: IsFinite: IsCriticalityOrdering](
       size: Int
   ): OperatorModel = {
     val tyype = typeModel[T]
@@ -235,7 +241,7 @@ trait BasicOperationCeciliaExporter {
   private val _worstMemo = collection.mutable.HashMap
     .empty[Set[String], (String, Seq[String], SubComponent)]
 
-  def mkWorstSub[T: IsFinite: IsCriticityOrdering](
+  def mkWorstSub[T: IsFinite: IsCriticalityOrdering](
       l: Set[String]
   ): (String, Seq[String], SubComponent) = _worstMemo.getOrElseUpdate(
     l, {
@@ -253,7 +259,7 @@ trait BasicOperationCeciliaExporter {
     }
   )
 
-  private final case class WorstModelHelper[T: IsFinite: IsCriticityOrdering](
+  private final case class WorstModelHelper[T: IsFinite: IsCriticalityOrdering](
       size: Int
   ) {
     private val tyype = typeModel[T]
@@ -283,7 +289,7 @@ trait BasicOperationCeciliaExporter {
     )
   }
 
-  def maxOperator[T: IsFinite: IsCriticityOrdering](
+  def maxOperator[T: IsFinite: IsCriticalityOrdering](
       size: Int
   ): OperatorModel = {
     val tyype = typeModel[T]

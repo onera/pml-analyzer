@@ -18,11 +18,10 @@
 package mySys.views.interference
 
 import mySys.pml.MySysExport.MySys
-import onera.pmlanalyzer.views.interference.exporters.*
-import onera.pmlanalyzer.views.interference.operators.*
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
+import onera.pmlanalyzer.*
 
 /** Compute the interference of the SimpleKeystone defined in
   * [[pml.examples.mySys.MySysExport]]

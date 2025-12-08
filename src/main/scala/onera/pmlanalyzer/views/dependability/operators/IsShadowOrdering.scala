@@ -17,13 +17,13 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
-trait IsShadowOrdering[T] {
+private[pmlanalyzer] trait IsShadowOrdering[T] {
   def containerShadow(init: T, containerState: T): T
   def corruptingFM(fm: T): Boolean
   def inputShadow(input: T, containerState: T): T
 }
 
-trait IsShadowOrderingOps {
+private[pmlanalyzer] trait IsShadowOrderingOps {
   implicit class IsShadowingOps[T: IsShadowOrdering](a: T) {
     def containerShadow(containerState: T): T =
       IsShadowOrdering[T].containerShadow(a, containerState)
@@ -33,6 +33,6 @@ trait IsShadowOrderingOps {
   }
 }
 
-object IsShadowOrdering {
+private[pmlanalyzer] object IsShadowOrdering {
   def apply[T](implicit ev: IsShadowOrdering[T]): IsShadowOrdering[T] = ev
 }

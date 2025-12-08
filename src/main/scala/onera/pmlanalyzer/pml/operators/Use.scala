@@ -21,6 +21,7 @@ import onera.pmlanalyzer.pml.model.hardware.{Initiator, Target}
 import onera.pmlanalyzer.pml.model.relations.{AuthorizeRelation, UseRelation}
 import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.*
 import sourcecode.{File, Line}
 
 /** Base trait for use operator
@@ -30,11 +31,11 @@ import sourcecode.{File, Line}
   * @tparam R
   *   the right type
   */
-trait Use[L, R] {
+private[pmlanalyzer] sealed trait Use[L, R] private {
   def apply(l: L, r: R)(using line: Line, file: File): Unit
 }
 
-object Use {
+private[pmlanalyzer] object Use {
 
   /** ------------------------------------------------------------------------------------------------------------------
     * EXTENSION METHODS

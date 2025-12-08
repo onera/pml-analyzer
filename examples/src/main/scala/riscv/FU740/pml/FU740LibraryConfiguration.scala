@@ -21,7 +21,7 @@ package riscv.FU740.pml
   * Transaction that are always used.
   * A user transaction is considered during the analyses if identified as so.
   *
-  * @see [[pml.operators.Use.Ops]] for operator definition
+  * @see [[Use.Ops]] for operator definition
   */
 trait FU740LibraryConfiguration
     extends FU740TransactionLibrary

@@ -19,9 +19,7 @@ package riscv.FU740.pml
 
 import generic.cores.{SiFiveS7Core, SiFiveU7Core}
 import riscv.FU740.pml
-import onera.pmlanalyzer.pml.model.hardware.Target
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 import scala.language.postfixOps
 
@@ -35,7 +33,7 @@ import scala.language.postfixOps
   * {{{val ds: Data = Data()}}}
   * Allocating app1 on [[onera.pmlanalyzer.pml.examples.riscv.FU740.pml.FU740Platform.u74_cluster.C0.dtim]]
   * {{{ds hostedBy u74_cluster.C0.dtim}}}
-  * @see [[onera.pmlanalyzer.pml.operators.Use.Ops]] for hostedBy operator definition
+  * @see [[onera.pmlanalyzer.Use.Ops]] for hostedBy operator definition
   */
 trait FU740SoftwareAllocation {
   self: FU740Platform =>

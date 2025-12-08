@@ -1,8 +1,7 @@
 package keystone.views.dependability
 
-import onera.pmlanalyzer.views.dependability.exporters.*
+import onera.pmlanalyzer.*
 import keystone.pml.{KeystonePlatform, RosaceConfiguration}
-import keystone.views.dependability.given
 
 object KeystoneDependabilityExport extends App {
 

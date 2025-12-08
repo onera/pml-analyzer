@@ -20,16 +20,21 @@ package onera.pmlanalyzer.views.dependability.exporters
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTargetFolder
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.views.dependability.operators.{
+  IsCriticalityOrdering,
+  IsFinite,
+  IsShadowOrdering
+}
 import onera.pmlanalyzer.views.dependability.model.*
-import onera.pmlanalyzer.views.dependability.operators.*
 
-trait TargetCeciliaExporter {
+private[pmlanalyzer] trait TargetCeciliaExporter {
   self: TypeCeciliaExporter
     with AutomatonCeciliaExporter
     with BasicOperationCeciliaExporter =>
 
   implicit def inputDepTargetExporter[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[InputDepTarget[FM], EquipmentModel] =
     new CeciliaExporter[InputDepTarget[FM]] {
       type R = EquipmentModel
@@ -130,7 +135,7 @@ trait TargetCeciliaExporter {
     }
 
   implicit def inputInDepTargetIsExportable[
-      FM: IsCriticityOrdering: IsFinite: IsShadowOrdering
+      FM: IsCriticalityOrdering: IsFinite: IsShadowOrdering
   ]: Aux[InputInDepTarget[FM], EquipmentModel] =
     new CeciliaExporter[InputInDepTarget[FM]] {
       type R = EquipmentModel

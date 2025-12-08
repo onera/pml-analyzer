@@ -22,9 +22,8 @@ import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 
 import java.io.File
 import scala.io.{BufferedSource, Source}
-//import scala.reflect.io.Path
 
-object FileManager {
+private[pmlanalyzer] object FileManager {
 
   /** Util case class encoding an output directory used by exporters and solvers
     * @param name
@@ -97,10 +96,20 @@ object FileManager {
 
   val exportDirectory: OutputDirectory = OutputDirectory("export")
 
+  private def implmFileName(implm: Option[SolverImplm]) =
+    (for { i <- implm } yield s"${i}_solver_") getOrElse ""
+
+  private def methodFileName(method: Option[Method]) =
+    (for { m <- method } yield s"${m}_method_") getOrElse ""
+
   def extractResource(name: String): Option[BufferedSource] = {
     val classLoader = getClass.getClassLoader
     val resource = Source.fromInputStream(classLoader.getResourceAsStream(name))
     Option(resource)
+  }
+
+  def getMiniZincFile(solverId: Int): File = {
+    FileManager.analysisDirectory.getFile(s"solver${solverId}_minizinc.mzn")
   }
 
   def getInterferenceAnalysisITFFileName(
@@ -109,8 +118,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}itf_$size.txt"
   }
 
@@ -120,8 +129,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}free_$size.txt"
   }
 
@@ -131,8 +140,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}channel_$size.txt"
   }
 
@@ -141,8 +150,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}itf_calculus_summary.txt"
   }
 
@@ -154,8 +163,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}semantics_reduction.txt"
   }
 
@@ -164,8 +173,8 @@ object FileManager {
       method: Option[Method],
       implm: Option[SolverImplm]
   ): String = {
-    val implmS = (for { i <- implm } yield s"${i}_solver_") getOrElse ""
-    val methodS = (for { m <- method } yield s"${m}_method_") getOrElse ""
+    val implmS = implmFileName(implm)
+    val methodS = methodFileName(method)
     s"${platformName}_$methodS${implmS}graph_reduction.txt"
   }
 

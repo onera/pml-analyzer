@@ -17,8 +17,7 @@
 
 package simpleKeystone.pml
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.Name
 
 /** Simple model of the Keystone platform illustrating the main features of PML.
@@ -42,7 +41,7 @@ import sourcecode.Name
   * possible, for instance you cannot link two [[pml.model.hardware.Target]] or
   * a [[pml.model.hardware.Composite]] to another component.
   * @see
-  *   [[pml.operators.Link.Ops]] for link operator definition
+  *   [[Link.Ops]] for link operator definition
   * @see
   *   [[pml.model.hardware.BaseHardwareNodeBuilder]] for component instantiation
   * @param name

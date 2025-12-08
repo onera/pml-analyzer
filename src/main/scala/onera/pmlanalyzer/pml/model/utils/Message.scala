@@ -31,7 +31,7 @@ import scala.collection.mutable
 
 /** Listing all information, warning or error messages displayed to the user
   */
-object Message {
+private[pmlanalyzer] object Message {
 
   inline def impossibleRouteWarning(
       t: Service,
@@ -104,7 +104,7 @@ object Message {
     s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
-    s"[INFO] $platform MonoSat model successfully built in $time s"
+    s"[INFO] $platform interference problem successfully built in $time s"
 
   inline def startingNonExclusiveTransactionEstimationInfo(
       platform: Any
@@ -177,4 +177,7 @@ object Message {
 
   val monosatLibraryNotLoaded: String =
     "[WARNING] monosat dynamic library cannot be found"
+
+  val minizincNotInstalled: String =
+    "[WARNING] minizinc not found"
 }

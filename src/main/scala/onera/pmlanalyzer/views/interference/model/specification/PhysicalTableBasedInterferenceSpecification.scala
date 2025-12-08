@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.interference.model.specification
 
 import onera.pmlanalyzer.pml.model.hardware.Platform
 
-trait PhysicalTableBasedInterferenceSpecification
+private[pmlanalyzer] trait PhysicalTableBasedInterferenceSpecification
     extends TableBasedInterferenceSpecification {
   self: Platform =>
 }

@@ -17,16 +17,13 @@
 
 package riscv.FU740.views.interference
 
-import riscv.FU740
 import riscv.FU740.pml.{
   FU740LibraryConfiguration,
   FU740Platform,
   FU740SoftwareAllocation,
   FU740TransactionLibrary
 }
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
-import onera.pmlanalyzer.views.interference.operators.*
+import onera.pmlanalyzer.*
 
 /**
   * The interference calculus assumptions for the FU470's applications are gathered here.

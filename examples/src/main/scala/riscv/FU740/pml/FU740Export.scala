@@ -22,9 +22,7 @@ import riscv.FU740.views.interference.{
   FU740InclusiveCacheInterferenceSpecification,
   FU740PhysicalTableBasedInterferenceSpecification
 }
-import onera.pmlanalyzer.pml.exporters.*
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.views.interference.exporters.*
+import onera.pmlanalyzer.*
 
 /**
   * Program entry point to export several version of FU740 platform

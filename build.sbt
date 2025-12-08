@@ -89,7 +89,7 @@ lazy val dockerSettings = Seq(
     val artifactTargetPath = s"/home/user/code/lib/${artifact.name}"
     val base = (Compile / baseDirectory).value
     new Dockerfile {
-      from("ubuntu:latest")
+      from("minizinc/minizinc:latest")
       customInstruction("RUN", "apt-get update && apt-get --fix-missing update && apt-get install -y curl openjdk-17-jdk git graphviz gnupg libgmp3-dev make cmake build-essential zlib1g-dev")
       env("SBT_VERSION", sbtVersion.value)
       customInstruction(
@@ -144,11 +144,6 @@ lazy val docSetting =
 
 lazy val assemblySettings = Seq(
   assembly / assemblyJarName := s"PMLAnalyzer_${version.value}.jar",
-  assembly / assemblyMergeStrategy := {
-    case PathList(ps@_*) if ps.contains("patterns") || ps.contains("examples") => MergeStrategy.discard
-    case x =>
-      (ThisBuild / assemblyMergeStrategy).value(x)
-  }
 )
 
 lazy val compileSettings = Seq(

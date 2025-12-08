@@ -33,7 +33,7 @@ import scala.xml.Elem
 
 sealed trait CeciliaType
 
-object CeciliaBoolean extends CeciliaType {
+private[pmlanalyzer] object CeciliaBoolean extends CeciliaType {
   val name: Symbol = Symbol("bool")
 }
 
@@ -41,19 +41,22 @@ sealed trait Orientation {
   val name: String
 }
 
-case object In extends Orientation {
+private[pmlanalyzer] case object In extends Orientation {
   val name: String = "in"
 }
 
-case object Out extends Orientation {
+private[pmlanalyzer] case object Out extends Orientation {
   val name: String = "out"
 }
 
-case object Local extends Orientation {
+private[pmlanalyzer] case object Local extends Orientation {
   val name: String = "local"
 }
 
-final case class Configuration(name: Symbol, conf: Map[State, String]) {
+private[pmlanalyzer] final case class Configuration(
+    name: Symbol,
+    conf: Map[State, String]
+) {
   def toElem: Elem = {
     <alta.config name={name.name}>
       {conf.map(p => <alta.init name={p._1.name.name} value={p._2}/>)}
@@ -61,7 +64,11 @@ final case class Configuration(name: Symbol, conf: Map[State, String]) {
   }
 }
 
-final case class State(name: Symbol, tyype: CeciliaType, ini: String) {
+private[pmlanalyzer] final case class State(
+    name: Symbol,
+    tyype: CeciliaType,
+    ini: String
+) {
   def toElem: Elem = tyype match {
     case CeciliaBoolean =>
       <alta.state name={name.name} type="bool" value={ini}/>
@@ -78,7 +85,7 @@ final case class State(name: Symbol, tyype: CeciliaType, ini: String) {
   override def toString: String = name.name
 }
 
-final case class Flow(
+private[pmlanalyzer] final case class Flow(
     name: Symbol,
     tyype: CeciliaType,
     orientation: Orientation
@@ -128,7 +135,7 @@ sealed trait Model {
   def toElem: Elem
 }
 
-object Model {
+private[pmlanalyzer] object Model {
 
   def linksToElem(links: List[(Flow, Flow)]): Seq[Elem] = {
     for {
@@ -298,7 +305,7 @@ object Model {
 
 }
 
-class EnumeratedType(
+private[pmlanalyzer] class EnumeratedType(
     val name: Symbol,
     val values: List[Symbol],
     val parent: VersionFolder[EnumeratedType]
@@ -314,7 +321,7 @@ class EnumeratedType(
   }
 }
 
-object EnumeratedType {
+private[pmlanalyzer] object EnumeratedType {
   def apply(
       name: Symbol,
       values: List[Symbol],
@@ -329,7 +336,7 @@ object EnumeratedType {
     )
 }
 
-class RecordType(
+private[pmlanalyzer] class RecordType(
     val name: Symbol,
     val parent: VersionFolder[RecordType],
     val fields: List[Flow]
@@ -354,7 +361,7 @@ class RecordType(
   }
 }
 
-object RecordType {
+private[pmlanalyzer] object RecordType {
   def apply(
       name: Symbol,
       parent: SubFamilyFolder[RecordType],
@@ -382,7 +389,7 @@ sealed trait EventModel {
   val name: Symbol
 }
 
-final case class SynchroEventModel(
+private[pmlanalyzer] final case class SynchroEventModel(
     name: Symbol,
     events: List[EventModel],
     tyype: String
@@ -398,7 +405,7 @@ sealed trait ConcreteEventModel extends EventModel {
   }
 }
 
-final case class DeterministicEventModel(name: Symbol)
+private[pmlanalyzer] final case class DeterministicEventModel(name: Symbol)
     extends ConcreteEventModel {
   val law: Elem = {
     <law type="Dirac">
@@ -407,8 +414,10 @@ final case class DeterministicEventModel(name: Symbol)
   }
 }
 
-final case class StochasticEventModel(name: Symbol, lambda: Double = 10e-4)
-    extends ConcreteEventModel {
+private[pmlanalyzer] final case class StochasticEventModel(
+    name: Symbol,
+    lambda: Double = 10e-4
+) extends ConcreteEventModel {
   val law: Elem = {
     <law type="exponential">
       <parameter.value value={lambda.toString}/>
@@ -416,7 +425,7 @@ final case class StochasticEventModel(name: Symbol, lambda: Double = 10e-4)
   }
 }
 
-final case class ComponentModel(
+private[pmlanalyzer] final case class ComponentModel(
     name: Symbol,
     parent: VersionFolder[ComponentModel],
     icon: ImageModel,
@@ -453,7 +462,7 @@ final case class ComponentModel(
   }
 }
 
-object ComponentModel {
+private[pmlanalyzer] object ComponentModel {
   val _components = collection.mutable.HashMap
     .empty[(Symbol, SubFamilyFolder[ComponentModel]), ComponentModel]
   def apply(
@@ -482,7 +491,7 @@ object ComponentModel {
   }
 }
 
-final case class SubComponent(
+private[pmlanalyzer] final case class SubComponent(
     name: Symbol,
     tyype: BlockModel[_],
     x: Int = 0,
@@ -499,7 +508,7 @@ final case class SubComponent(
   override def toString: String = name.name
 }
 
-class EquipmentModel(
+private[pmlanalyzer] class EquipmentModel(
     val name: Symbol,
     val parent: VersionFolder[EquipmentModel],
     val icon: ImageModel,
@@ -560,7 +569,7 @@ class EquipmentModel(
   }
 }
 
-object EquipmentModel {
+private[pmlanalyzer] object EquipmentModel {
   def apply(
       name: Symbol,
       parent: SubFamilyFolder[EquipmentModel],
@@ -589,7 +598,7 @@ object EquipmentModel {
   }
 }
 
-class SystemModel(
+private[pmlanalyzer] class SystemModel(
     val name: Symbol,
     val parent: VersionFolder[SystemModel],
     val subs: List[SubComponent],
@@ -634,7 +643,7 @@ class SystemModel(
   }
 }
 
-object SystemModel {
+private[pmlanalyzer] object SystemModel {
   def apply(
       name: Symbol,
       parent: SubFamilyFolder[SystemModel],
@@ -651,8 +660,10 @@ object SystemModel {
   }
 }
 
-class ImageModel(val parent: VersionFolder[ImageModel], val stream: InputStream)
-    extends Model {
+private[pmlanalyzer] class ImageModel(
+    val parent: VersionFolder[ImageModel],
+    val stream: InputStream
+) extends Model {
   private val data = Array.ofDim[Byte](stream.available())
   // WARNING CAN FAIL TO LOAD ALL BYTE BEFORE READ
   stream.read(data)
@@ -671,7 +682,7 @@ class ImageModel(val parent: VersionFolder[ImageModel], val stream: InputStream)
   }
 }
 
-object ImageModel {
+private[pmlanalyzer] object ImageModel {
   def apply(
       parent: FamilyFolder[ImageModel],
       name: Symbol,
@@ -685,7 +696,7 @@ object ImageModel {
 
 }
 
-class OperatorModel(
+private[pmlanalyzer] class OperatorModel(
     val parent: VersionFolder[OperatorModel],
     val inputs: List[Flow],
     val output: Flow,
@@ -729,7 +740,7 @@ class OperatorModel(
   }
 }
 
-object OperatorModel {
+private[pmlanalyzer] object OperatorModel {
   def apply(
       parent: FamilyFolder[OperatorModel],
       inputs: List[Flow],
@@ -759,8 +770,10 @@ object OperatorModel {
   }
 }
 
-final case class FailureConditions(fc: Set[(String, String)], size: Int)
-    extends Model {
+private[pmlanalyzer] final case class FailureConditions(
+    fc: Set[(String, String)],
+    size: Int
+) extends Model {
   def fileName(f: String, v: String): String =
     s"${f.replace(".", "_")}_is_$v.seq"
   def toElem: Elem = {

@@ -22,43 +22,49 @@ import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.*
 import java.io.File
 import scala.jdk.CollectionConverters.*
 
-trait ModelElement
+sealed trait ModelElement
 
-object ModelElement {
+private[formalisation] object ModelElement {
   type NodeId = Symbol
   type EdgeId = Symbol
   type LitId = Symbol
-
 }
 
-enum Comparator {
+private[formalisation] enum Comparator {
   case LT, LE, EQ, GE, GT
 }
 
-trait ALit extends ModelElement {
+sealed trait ALit extends ModelElement {
   def toLit(s: Solver): s.BoolLit
 }
 
-trait Expr extends ModelElement {
+sealed trait Expr extends ModelElement {
   def toExpr(s: Solver): s.Expression
 }
 
-trait Assert extends ModelElement {
+sealed trait Assert extends ModelElement {
   def assert(s: Solver): Unit
 }
 
-final case class SimpleAssert(l: Expr) extends Assert {
+private[formalisation] final case class SimpleAssert(l: Expr) extends Assert {
   def assert(s: Solver): Unit = s.assert(l)
 
   override def toString: String = s"assert(\n\t$l\n)"
 }
 
-final case class PB(l: Seq[Expr], comparator: Comparator, k: Int) extends Expr {
+private[formalisation] final case class PB(
+    l: Seq[Expr],
+    comparator: Comparator,
+    k: Int
+) extends Expr {
   def toExpr(s: Solver): s.Expression = ???
 }
 
-final case class AssertPB(l: Set[ALit], comp: Comparator, k: Int)
-    extends Assert {
+private[formalisation] final case class AssertPB(
+    l: Set[ALit],
+    comp: Comparator,
+    k: Int
+) extends Assert {
   def assert(s: Solver): Unit =
     s.assertPB(l.toSeq, comp, k)
 
@@ -70,11 +76,13 @@ final case class AssertPB(l: Set[ALit], comp: Comparator, k: Int)
       |)""".stripMargin
 }
 
-final case class MNode(id: NodeId) extends ModelElement {
+private[formalisation] final case class MNode(id: NodeId) extends ModelElement {
   override def toString: String = id.name
 }
 
-final case class MNodeLit(n: MNode, graph: MGraph) extends ALit with Expr {
+private[formalisation] final case class MNodeLit(n: MNode, graph: MGraph)
+    extends ALit
+    with Expr {
   def toLit(s: Solver): s.BoolLit =
     s.getNode(graph, n.id.name) match {
       case Some(value) => value
@@ -86,16 +94,24 @@ final case class MNodeLit(n: MNode, graph: MGraph) extends ALit with Expr {
   override def toString: String = s"v_${n.id.name}"
 }
 
-final case class MGraph(nodes: Set[MNode], edges: Set[MEdge])
-    extends ModelElement {
+private[formalisation] final case class MGraph(
+    nodes: Set[MNode],
+    edges: Set[MEdge]
+) extends ModelElement {
   def toLit(s: Solver): s.GraphLit = s.graphLit(this)
   def exportGraph(s: Solver, file: File): Unit =
     s.exportGraph(this, file)
 }
 
-final case class MEdge(from: MNode, to: MNode, id: EdgeId) extends ModelElement
+private[formalisation] final case class MEdge(
+    from: MNode,
+    to: MNode,
+    id: EdgeId
+) extends ModelElement
 
-final case class MEdgeLit(edge: MEdge, graph: MGraph) extends ALit with Expr {
+private[formalisation] final case class MEdgeLit(edge: MEdge, graph: MGraph)
+    extends ALit
+    with Expr {
   def toLit(s: Solver): s.BoolLit =
     s.getEdge(graph, edge.id.name) match {
       case Some(value) => value
@@ -107,14 +123,14 @@ final case class MEdgeLit(edge: MEdge, graph: MGraph) extends ALit with Expr {
   override def toString: String = s"v_${edge.id.name}"
 }
 
-final case class MLit(id: LitId) extends ALit with Expr {
+private[pmlanalyzer] final case class MLit(id: LitId) extends ALit with Expr {
   def toLit(s: Solver): s.BoolLit = s.boolLit(this)
   def toExpr(s: Solver): s.Expression = s.boolLit(this)
 
   override def toString: String = id.name
 }
 
-final case class And(l: Seq[Expr]) extends Expr {
+private[formalisation] final case class And(l: Seq[Expr]) extends Expr {
   def toExpr(s: Solver): s.Expression = s.and(l)
 
   override def toString: String =
@@ -122,7 +138,7 @@ final case class And(l: Seq[Expr]) extends Expr {
        |${l.mkString("\t", ",\n\t", "\n)")}""".stripMargin
 }
 
-final case class Or(l: Seq[Expr]) extends Expr {
+private[formalisation] final case class Or(l: Seq[Expr]) extends Expr {
   def toExpr(s: Solver): s.Expression = s.or(l)
 
   override def toString: String =
@@ -130,7 +146,7 @@ final case class Or(l: Seq[Expr]) extends Expr {
        |${l.mkString("\t", ",\n\t", "\n)")}""".stripMargin
 }
 
-final case class Implies(l: Expr, r: Expr) extends Expr {
+private[formalisation] final case class Implies(l: Expr, r: Expr) extends Expr {
   def toExpr(s: Solver): s.Expression = s.implies(l, r)
 
   override def toString: String =
@@ -140,14 +156,14 @@ final case class Implies(l: Expr, r: Expr) extends Expr {
        |)""".stripMargin
 }
 
-final case class Not(l: Expr) extends Expr {
+private[formalisation] final case class Not(l: Expr) extends Expr {
   def toExpr(s: Solver): s.Expression = s.not(l)
 
   override def toString: String =
     s"not($l)"
 }
 
-final case class Equal(l: Expr, r: Expr) extends Expr {
+private[formalisation] final case class Equal(l: Expr, r: Expr) extends Expr {
   def toExpr(s: Solver): s.Expression = s.eq(l, r)
 
   override def toString: String =
@@ -157,6 +173,6 @@ final case class Equal(l: Expr, r: Expr) extends Expr {
        |)""".stripMargin
 }
 
-final case class Connected(graph: MGraph) {
+private[formalisation] final case class Connected(graph: MGraph) {
   def toConstraint(s: Solver): s.Constraint = s.connected(graph)
 }

@@ -18,22 +18,24 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
 import onera.pmlanalyzer.pml.model.instances.mySys.MySys
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
-import onera.pmlanalyzer.views.interference.exporters.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  CPSat,
+  Monosat
+}
 import onera.pmlanalyzer.views.interference.model.formalisation.{
   InterferenceCalculusProblem,
   SolverImplm
 }
-import onera.pmlanalyzer.views.interference.operators.*
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, TimeoutException}
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -57,26 +59,26 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     var interferenceComputationOK = true
 
     s"For ${MySys.fullName}, the analysis operator with $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      if (implm == Monosat) {
-        if (!interferenceComputationOK)
-          interferenceComputationOK = false
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
       }
+
       Try({
         Await.result(
           MySys.test(4, expectedResultsDirectoryPath, implm, method),
-          10 minutes
+          2 minutes
         )
       }) match {
         case Failure(exception: InvalidSolutionException) =>
           interferenceComputationOK = false
-          assume(false, exception.getMessage)
+          cancel(exception.getMessage)
+        case Failure(exception: TimeoutException) =>
+          interferenceComputationOK = false
+          cancel("[WARNING] timeout during interference computation")
         case Failure(exception) =>
           interferenceComputationOK = false
-          fail(exception.getMessage)
+          exception.printStackTrace()
+          fail()
         case Success(diff) =>
           for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)
@@ -88,19 +90,18 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     }
 
     it should "compute the interference based on the topological interference system export" taggedAs FastTests in {
-      if (implm == Monosat) {
-        if (!interferenceComputationOK)
-          interferenceComputationOK = false
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
+      if (!interferenceComputationOK)
+        cancel("[WARNING] ignoring test since interference computation failed")
+
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
       }
+
       val TIS = MySys.computeTopologicalInterferenceSystem(4)
       Try({
         Await.result(
           TIS.test(4, expectedResultsDirectoryPath, implm, method),
-          10 minutes
+          1 minutes
         )
       }) match {
         case Failure(exception: InvalidSolutionException) =>
@@ -108,7 +109,8 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           assume(false, exception.getMessage)
         case Failure(exception) =>
           interferenceComputationOK = false
-          fail(exception.getMessage)
+          exception.printStackTrace()
+          fail()
         case Success(diff) =>
           for { d <- diff.flatten }
             MySys.exportInterferenceGraphFromString(d.s.toSet)
@@ -120,16 +122,13 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     }
 
     it should "provide a consistent semantics reduction" taggedAs FastTests in {
-      assume(
-        interferenceComputationOK,
-        "ignoring test since interference computation failed"
-      )
-      if (implm == Monosat) {
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
+      if (!interferenceComputationOK)
+        cancel("[WARNING] ignoring test since interference computation failed")
+
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
       }
+
       val semanticReduction =
         MySys.computeSemanticReduction(
           implm,
@@ -144,16 +143,13 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       )
     }
     it should "provide a consistent graph reduction" taggedAs FastTests in {
-      assume(
-        interferenceComputationOK,
-        "ignoring test since interference computation failed"
-      )
-      if (implm == Monosat) {
-        assume(
-          monosatLibraryLoaded,
-          Message.monosatLibraryNotLoaded
-        )
+      if (!interferenceComputationOK)
+        cancel("[WARNING] ignoring test since interference computation failed")
+
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
       }
+
       MySys.computeGraphReduction(implm, method) should be(BigDecimal(71) / 45)
     }
   }

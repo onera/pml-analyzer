@@ -17,8 +17,7 @@
 
 package keystone.pml
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 /**
   * Model of the Keystone TCI6630K2L from Texas Instruments. This

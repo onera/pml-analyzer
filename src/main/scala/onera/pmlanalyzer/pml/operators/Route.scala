@@ -18,6 +18,7 @@
 package onera.pmlanalyzer.pml.operators
 
 import onera.pmlanalyzer.pml.model.PMLNodeMap
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.pml.model.relations.RoutingRelation
 import onera.pmlanalyzer.pml.model.service.*
@@ -27,7 +28,7 @@ import sourcecode.{File, Line}
 
 /** Extension methods
   */
-object Route {
+private[pmlanalyzer] object Route {
 
   /** Any hardware can route or forbid the transactions passing through him. A
     * routing constraint can be specified as follows.

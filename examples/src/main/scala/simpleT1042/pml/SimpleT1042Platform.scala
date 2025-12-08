@@ -17,8 +17,7 @@
 
 package simpleT1042.pml
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.Name
 
 class SimpleT1042Platform(name: Symbol) extends Platform(name) {

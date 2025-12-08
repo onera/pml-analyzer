@@ -17,10 +17,7 @@
 
 package generic.cores
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.*
-import onera.pmlanalyzer.pml.model.utils.*
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import sourcecode.Name
 
 /** Simple model of the SiFive S7 Core. */

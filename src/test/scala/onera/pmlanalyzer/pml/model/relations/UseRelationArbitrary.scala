@@ -26,7 +26,8 @@ import onera.pmlanalyzer.pml.model.hardware.{
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.operators.Use
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.targetName

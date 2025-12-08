@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
 import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 
 trait DbusC2D2B8Software {
   self: DbusC2D2B8Platform =>

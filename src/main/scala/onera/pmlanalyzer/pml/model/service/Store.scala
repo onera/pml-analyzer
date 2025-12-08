@@ -28,13 +28,15 @@ import sourcecode.{File, Line}
   *   the name of the node
   * @group service_class
   */
-final class Store private (val name: Symbol, info: ReflexiveInfo)
-    extends Service(info)
+private[pmlanalyzer] final class Store private (
+    val name: Symbol,
+    info: ReflexiveInfo
+) extends Service(info)
 
 /** Builder of stores
   * @group builder
   */
-object Store extends BaseServiceBuilder[Store] {
+private[pmlanalyzer] object Store extends BaseServiceBuilder[Store] {
 
   /** Direct builder from name
     * @param name

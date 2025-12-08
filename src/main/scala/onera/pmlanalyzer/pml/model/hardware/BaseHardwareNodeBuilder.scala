@@ -57,7 +57,8 @@ import sourcecode.{File, Line, Name}
   *   the concrete type of built object
   * @group builder
   */
-trait BaseHardwareNodeBuilder[T <: Hardware] extends PMLNodeBuilder[T] {
+private[hardware] trait BaseHardwareNodeBuilder[T <: Hardware]
+    extends PMLNodeBuilder[T] {
 
   /** The builder that must be implemented by specific builder
     * @param name

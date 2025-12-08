@@ -1,0 +1,18 @@
+Platform Name: KeystoneWithRosace
+Computation Method: Default
+Solver: choco
+File:  D:\kdelmas\svn\phylog\pml-analyzer\src\test\scala\onera\pmlanalyzer\pml\model\instances\keystone\KeystonePlatform
+Date: 2025-12-05T18:50:41.029906100
+------------------------------------------
+Computed ITF
+[INFO] size 2: 367
+[INFO] size 3: 2774
+[INFO] size 4: 14456
+Computed ITF-free
+[INFO] size 2: 827
+[INFO] size 3: 5880
+[INFO] size 4: 21092
+------------------------------------------
+Total: 45396
+Computation time: 5s
+-------------------------------------------

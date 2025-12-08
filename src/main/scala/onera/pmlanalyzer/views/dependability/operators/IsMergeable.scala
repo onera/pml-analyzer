@@ -17,11 +17,11 @@
 
 package onera.pmlanalyzer.views.dependability.operators
 
-trait IsMergeable[C[_, _]] {
+private[pmlanalyzer] trait IsMergeable[C[_, _]] {
   def mergeWith[K, V](first: C[K, V], that: C[K, V], f: (V, V) => V): C[K, V]
 }
 
-trait IsMergeableOps {
+private[pmlanalyzer] trait IsMergeableOps {
   implicit class IsMergeableOps[K, V, C[_, _]](a: C[K, V]) {
     def mergeWith(that: C[K, V], f: (V, V) => V)(implicit
         ev: IsMergeable[C]
@@ -31,7 +31,7 @@ trait IsMergeableOps {
   }
 }
 
-object IsMergeable {
+private[pmlanalyzer] object IsMergeable {
 
   def apply[C[_, _]](implicit ev: IsMergeable[C]): IsMergeable[C] = ev
 
