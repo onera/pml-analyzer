@@ -607,7 +607,7 @@ private[pmlanalyzer] object PostProcess {
   private def parseSize[$: P] =
     P(
       "[INFO]" ~/ "size" ~ digit.rep(min = 1).! ~ ":" ~ digit.rep(min = 1).!
-        ~ CharsWhile(_ != '\n') ~ "\n"
+        ~ CharsWhile(_ != '\n').? ~ "\n"
     )
       .map((l, r) => l.toInt -> BigInt(r))
 
@@ -631,7 +631,7 @@ private[pmlanalyzer] object PostProcess {
   private def parseSizeSection[$: P] =
     P(parseITFHeader ~ parseSizes ~ parseFreeHeader ~ parseSizes)
 
-  private def parseSummaryFile[$: P] =
+  private[pmlanalyzer] def parseSummaryFile[$: P] =
     P(
       Start ~ parseHeader ~ parseSectionSep ~ parseSizeSection
         ~ parseSectionSep ~ parseComputationTimeSection ~ parseSectionSep ~ End

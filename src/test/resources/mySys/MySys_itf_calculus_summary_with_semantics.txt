@@ -1,0 +1,17 @@
+Platform Name: MySys
+Computation Method: Default
+Solver: monosat
+File:  /home/user/code/src/main/scala/mySys/pml/MySysExport
+Date: 2025-12-08T08:26:59.445263883
+------------------------------------------
+Computed ITF
+[INFO] size 2: 12 over 40 (30%)
+[INFO] size 3: 8 over 33 (24%)
+[INFO] size 4: 1 over 4 (25%)
+Computed ITF-free
+[INFO] size 2: 28 over 40 (70%)
+[INFO] size 3: 8 over 33 (24%)
+------------------------------------------
+Total: 57
+Computation time: 0s
+-------------------------------------------
