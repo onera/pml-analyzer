@@ -69,7 +69,7 @@ class PostProcessTest extends AnyFlatSpecLike with should.Matchers {
       )
     )
   } {
-    s"For $platform.fullName, PostProcess parsers" should "parse a summary file without semantics" taggedAs UnitTests in {
+    s"For $platform, PostProcess parsers" should "parse a summary file without semantics" taggedAs UnitTests in {
       val expected = FileManager
         .getInterferenceAnalysisSummaryFileName(platform.fullName, None, None)
         .replace(".txt", "_no_semantics.txt")

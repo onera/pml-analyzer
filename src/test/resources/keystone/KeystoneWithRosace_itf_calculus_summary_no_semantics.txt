@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:404a4bc4952600b0f1d5769c808ba14107dabe50e9867f208ec7493a9d9f90a3
-size 560
+Platform Name: KeystoneWithRosace
+Computation Method: Default
+Solver: choco
+File:  D:\kdelmas\svn\phylog\pml-analyzer\src\test\scala\onera\pmlanalyzer\pml\model\instances\keystone\KeystonePlatform
+Date: 2025-12-05T18:50:41.029906100
+------------------------------------------
+Computed ITF
+[INFO] size 2: 367
+[INFO] size 3: 2774
+[INFO] size 4: 14456
+Computed ITF-free
+[INFO] size 2: 827
+[INFO] size 3: 5880
+[INFO] size 4: 21092
+------------------------------------------
+Total: 45396
+Computation time: 5s
+-------------------------------------------
