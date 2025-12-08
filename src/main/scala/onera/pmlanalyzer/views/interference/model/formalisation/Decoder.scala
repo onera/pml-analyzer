@@ -79,7 +79,7 @@ private[pmlanalyzer] trait Decoder {
                 last <- system.finalUserTransactionExclusiveOpt match {
                   case Some(finalUserTransactionExclusive) =>
                     val x = names.filter(id =>
-                      finalUserTransactionExclusive(id).intersect(p).isEmpty
+                      (finalUserTransactionExclusive(id) - id).intersect(p).isEmpty
                     )
                     x
                   case _ => names

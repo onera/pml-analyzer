@@ -997,7 +997,7 @@ private[pmlanalyzer] object Analyse {
       // \bigwedge_{s \in transactionVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
       val isExclusive = factory.andBDD(
         exclusive.map(p =>
-          symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
+          symbols(p._1).imp(factory.orBDD((p._2 - p._1).map(symbols)).not)
         )
       )
 
@@ -1034,7 +1034,7 @@ private[pmlanalyzer] object Analyse {
     ): Map[Int, BigInt] = {
       val idToTransaction = platform.purifiedTransactions
       val exclusive = idToTransaction.keySet.groupMapReduce(t => t)(t =>
-        idToTransaction.keySet.filter(platform.finalExclusive(t, _))
+        idToTransaction.keySet.filter(t2 => t2 != t && platform.finalExclusive(t, t2))
       )(_ ++ _)
       val allResults = free ++ itf
       val transactionToMultiTransaction = allResults
@@ -1151,7 +1151,7 @@ private[pmlanalyzer] object Analyse {
     val interfereWith: Map[Service, Set[Service]] =
       platform.relationToMap(
         platform.services,
-        (l, r) => platform.finalInterfereWith(l, r)
+        (l, r) => l != r && platform.finalInterfereWith(l, r)
       )
 
     val finalUserTransactionExclusiveOpt =

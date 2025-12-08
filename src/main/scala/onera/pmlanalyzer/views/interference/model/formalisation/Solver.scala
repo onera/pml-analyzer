@@ -434,8 +434,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
-
-  // FIXME First step with file, but consider Stream from terminal
+  
   private val miniZincFile: File =
     FileManager.getMiniZincFile(this.hashCode())
   protected val fileWriter = FileWriter(miniZincFile)
