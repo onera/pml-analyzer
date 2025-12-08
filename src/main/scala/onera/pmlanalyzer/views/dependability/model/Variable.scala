@@ -49,11 +49,16 @@ private[pmlanalyzer] object Expr {
       def fmOf(t: Target[T]): Of[T] = Of(m, t.id)
       def fmOf(
           d: Data
-      )(implicit ev: PMLTarget => TargetId, u: Used[Data, PMLTarget]): Of[T] =
+      )(implicit ev: PMLTarget => TargetId, u: Used[Data, PMLTarget]): Of[T] = {
+        val hosts = d.hostingTargets
+        assert(
+          hosts.size == 1, 
+          s"Not handled: $d is hosted on several target ${hosts.mkString(", ")}")
         Of(
           m,
           ev(d.hostingTargets.head)
-        ) // FIXME ERROR IF SEVERAL TARGET FOR DATA
+        )
+      }
     }
     extension (e: Expr[_]) {
       def ===(that: Expr[_]): Equal = Equal(e, that)
