@@ -202,10 +202,10 @@ private[pmlanalyzer] class GeneratedPlatformsTest
   }
 
   it should "be possible to compute the interference" taggedAs PerfTests in {
-    assume(
-      InterferenceTestExtension.monosatLibraryLoaded,
-      Message.monosatLibraryNotLoaded
-    )
+    for { m <- Monosat.checkDependencies() } yield {
+      cancel(m)
+    }
+
     val timeout: Duration = (1 days)
     println(timeout)
     for {

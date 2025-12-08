@@ -23,7 +23,10 @@ import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
-import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
+import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
+  CPSat,
+  Monosat
+}
 import onera.pmlanalyzer.views.interference.model.formalisation.{
   InterferenceCalculusProblem,
   SolverImplm
@@ -56,8 +59,9 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
     var interferenceComputationOK = true
 
     s"For ${MySys.fullName}, the analysis operator with $method method implemented with $implm" should "find the verified interference" taggedAs FastTests in {
-      if (implm == Monosat && !monosatLibraryLoaded)
-        cancel(Message.monosatLibraryNotLoaded)
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
+      }
 
       Try({
         Await.result(
@@ -89,8 +93,9 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       if (!interferenceComputationOK)
         cancel("[WARNING] ignoring test since interference computation failed")
 
-      if (implm == Monosat && !monosatLibraryLoaded)
-        cancel(Message.monosatLibraryNotLoaded)
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
+      }
 
       val TIS = MySys.computeTopologicalInterferenceSystem(4)
       Try({
@@ -120,8 +125,9 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       if (!interferenceComputationOK)
         cancel("[WARNING] ignoring test since interference computation failed")
 
-      if (implm == Monosat && !monosatLibraryLoaded)
-        cancel(Message.monosatLibraryNotLoaded)
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
+      }
 
       val semanticReduction =
         MySys.computeSemanticReduction(
@@ -140,8 +146,9 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
       if (!interferenceComputationOK)
         cancel("[WARNING] ignoring test since interference computation failed")
 
-      if (implm == Monosat && !monosatLibraryLoaded)
-        cancel(Message.monosatLibraryNotLoaded)
+      for { m <- implm.checkDependencies() } yield {
+        cancel(m)
+      }
 
       MySys.computeGraphReduction(implm, method) should be(BigDecimal(71) / 45)
     }

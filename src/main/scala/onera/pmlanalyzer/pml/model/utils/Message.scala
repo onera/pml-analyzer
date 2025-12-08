@@ -177,4 +177,7 @@ private[pmlanalyzer] object Message {
 
   val monosatLibraryNotLoaded: String =
     "[WARNING] monosat dynamic library cannot be found"
+
+  val minizincNotInstalled: String =
+    "[WARNING] minizinc not found"
 }

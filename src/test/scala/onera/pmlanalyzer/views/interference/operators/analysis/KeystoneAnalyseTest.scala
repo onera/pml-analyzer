@@ -49,8 +49,9 @@ class KeystoneAnalyseTest extends AnyFlatSpec with should.Matchers {
       method: Method,
       timeout: FiniteDuration
   ): Unit = {
-    if (implm == Monosat && !monosatLibraryLoaded)
-      cancel(Message.monosatLibraryNotLoaded)
+    for { m <- implm.checkDependencies() } yield {
+      cancel(m)
+    }
 
     Try({
       Await.result(

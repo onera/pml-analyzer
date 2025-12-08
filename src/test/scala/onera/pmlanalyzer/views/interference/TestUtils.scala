@@ -29,18 +29,14 @@ import scala.io.Source
 import scala.language.postfixOps
 import onera.pmlanalyzer.*
 
+import java.io.IOException
+import scala.sys.process.Process
+
 object InterferenceTestExtension {
 
   object PerfTests extends Tag("PerfTests")
   object UnitTests extends Tag("UnitTests")
   object FastTests extends Tag("FastTests")
-
-  var monosatLibraryLoaded: Boolean = true
-  try {
-    System.loadLibrary("monosat")
-  } catch {
-    case _: UnsatisfiedLinkError => monosatLibraryLoaded = false
-  }
 
   extension [T: Analyse](x: T) {
 

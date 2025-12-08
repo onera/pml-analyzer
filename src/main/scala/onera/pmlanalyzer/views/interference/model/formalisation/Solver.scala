@@ -21,6 +21,7 @@ import fastparse.*
 import fastparse.SingleLineWhitespace.*
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.model.formalisation
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
   CPSat,
@@ -39,16 +40,49 @@ import org.chocosolver.solver.variables.{BoolVar, UndirectedGraphVar}
 import org.chocosolver.util.objects.graphs.UndirectedGraph
 import org.chocosolver.util.objects.setDataStructures.SetType
 
-import java.io.{File, FileWriter}
+import java.io.{File, FileWriter, IOException}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.sys.process.Process
+import scala.util.{Failure, Success, Try}
 
 private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
   case Choco extends SolverImplm
   case GCode extends SolverImplm
   case CPSat extends SolverImplm
+
+  private lazy val monosatLibLoaded = {
+    try {
+      System.loadLibrary("monosat")
+      true
+    } catch {
+      case _: UnsatisfiedLinkError => false
+    }
+  }
+
+  private lazy val miniZincInstalled = {
+    try {
+      Process("minizinc --help").!
+      true
+    } catch {
+      case _: IOException => false
+    }
+  }
+
+  def checkDependencies(): Option[String] = this match {
+    case SolverImplm.Monosat =>
+      if (monosatLibLoaded)
+        None
+      else
+        Some(Message.monosatLibraryNotLoaded)
+    case SolverImplm.Choco => None
+    case SolverImplm.GCode | SolverImplm.CPSat =>
+      if (miniZincInstalled)
+        None
+      else
+        Some(Message.minizincNotInstalled)
+  }
 
   override def toString: String =
     this match {
@@ -569,9 +603,10 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
     val litNames = toGet.map(x => x -> x.toLit(this)).toMap
-    //FIXME Consider using a BiMap link type to represent bijective relations
-    val mLitNames = litNames.groupMapReduce(_._2)(_._1)(
-      (l, r) => throw new Exception(s"$l and $r for same key"))
+    // FIXME Consider using a BiMap link type to represent bijective relations
+    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) =>
+      throw new Exception(s"$l and $r for same key")
+    )
     fileWriter.write(s"""output [
          |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)
