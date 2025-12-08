@@ -569,7 +569,9 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
     val litNames = toGet.map(x => x -> x.toLit(this)).toMap
-    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) => l)
+    //FIXME Consider using a BiMap link type to represent bijective relations
+    val mLitNames = litNames.groupMapReduce(_._2)(_._1)(
+      (l, r) => throw new Exception(s"$l and $r for same key"))
     fileWriter.write(s"""output [
          |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)

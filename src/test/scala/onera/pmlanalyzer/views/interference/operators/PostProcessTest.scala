@@ -22,6 +22,7 @@ import fastparse.SingleLineWhitespace.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.instances.mySys.MySys
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 
@@ -68,7 +69,7 @@ class PostProcessTest extends AnyFlatSpecLike with should.Matchers {
       )
     )
   } {
-    s"For $platform.fullName, PostProcess parsers" should "parse a summary file without semantics" in {
+    s"For $platform.fullName, PostProcess parsers" should "parse a summary file without semantics" taggedAs UnitTests in {
       val expected = FileManager
         .getInterferenceAnalysisSummaryFileName(platform.fullName, None, None)
         .replace(".txt", "_no_semantics.txt")
@@ -83,7 +84,7 @@ class PostProcessTest extends AnyFlatSpecLike with should.Matchers {
       }
     }
 
-    it should "parse a summary file with semantics" in {
+    it should "parse a summary file with semantics" taggedAs UnitTests in {
       val expected = FileManager
         .getInterferenceAnalysisSummaryFileName(platform.fullName, None, None)
         .replace(".txt", "_with_semantics.txt")
