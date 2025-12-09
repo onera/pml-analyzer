@@ -23,22 +23,28 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.Name
 
-private[pmlanalyzer] final case class BasicNotInterfereRelation[L, R] private[pmlanalyzer] (
+private[pmlanalyzer] final case class BasicNotInterfereRelation[
+    L,
+    R
+] private[pmlanalyzer] (
     iniValues: Map[L, Set[R]]
 )(using
     n: Name
 ) extends Relation[L, R](iniValues)
 
-private[pmlanalyzer] final case class NotInterfereEndomorphism[L] private[pmlanalyzer] (
-                                                                                iniValues: Map[L, Set[L]]
-                                                                              )(using
-                                                                                n: Name
-                                                                              ) extends Endomorphism[L](iniValues)
+private[pmlanalyzer] final case class NotInterfereEndomorphism[
+    L
+] private[pmlanalyzer] (
+    iniValues: Map[L, Set[L]]
+)(using
+    n: Name
+) extends Endomorphism[L](iniValues)
 
 private[pmlanalyzer] object NotInterfereRelation {
-  
-  type NotInterfereRelation[L,R] = BasicNotInterfereRelation[L,R] | NotInterfereEndomorphism[L]
-  
+
+  type NotInterfereRelation[L, R] = BasicNotInterfereRelation[L, R] |
+    NotInterfereEndomorphism[L]
+
   trait Instances {
 
     /** Relation gathering user defined service non-interference caused by a
@@ -52,10 +58,10 @@ private[pmlanalyzer] object NotInterfereRelation {
     /** Relation gathering user defined service non-interferences
       * @group interfere_relation
       */
-    final implicit val serviceNotInterfere
-        : NotInterfereEndomorphism[Service] = NotInterfereEndomorphism(
-      Map.empty
-    )
+    final implicit val serviceNotInterfere: NotInterfereEndomorphism[Service] =
+      NotInterfereEndomorphism(
+        Map.empty
+      )
 
     /** Relation gathering user defined non-interfering hardware
       * @group interfere_relation

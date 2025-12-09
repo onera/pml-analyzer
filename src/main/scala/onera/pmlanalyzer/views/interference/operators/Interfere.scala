@@ -22,7 +22,14 @@ import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.{Provided, Transform}
 import onera.pmlanalyzer.views.interference.model.relations.InterfereRelation.InterfereRelation
-import onera.pmlanalyzer.views.interference.model.relations.{BasicInterfereRelation, BasicNotInterfereRelation, InterfereEndomorphism, InterfereRelation, NotInterfereEndomorphism, NotInterfereRelation}
+import onera.pmlanalyzer.views.interference.model.relations.{
+  BasicInterfereRelation,
+  BasicNotInterfereRelation,
+  InterfereEndomorphism,
+  InterfereRelation,
+  NotInterfereEndomorphism,
+  NotInterfereRelation
+}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
@@ -90,8 +97,8 @@ private[pmlanalyzer] object Interfere {
   }
 
   given [L, R](using
-               a: BasicInterfereRelation[L, R],
-               n: BasicNotInterfereRelation[L, R]
+      a: BasicInterfereRelation[L, R],
+      n: BasicNotInterfereRelation[L, R]
   ): Interfere[L, R] with {
     def interfereWith(l: L, r: R)(using line: Line, file: File): Unit =
       a.add(l, r)
@@ -101,9 +108,9 @@ private[pmlanalyzer] object Interfere {
   }
 
   given [L](using
-               a: InterfereEndomorphism[L],
-               n: NotInterfereEndomorphism[L]
-              ): Interfere[L, L] with {
+      a: InterfereEndomorphism[L],
+      n: NotInterfereEndomorphism[L]
+  ): Interfere[L, L] with {
     def interfereWith(l: L, r: L)(using line: Line, file: File): Unit =
       a.add(l, r)
 

@@ -22,17 +22,23 @@ import onera.pmlanalyzer.pml.model.relations.{Endomorphism, Relation}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
-private[pmlanalyzer] final case class BasicInterfereRelation[L, R] private[pmlanalyzer] (
+private[pmlanalyzer] final case class BasicInterfereRelation[
+    L,
+    R
+] private[pmlanalyzer] (
     iniValues: Map[L, Set[R]]
 ) extends Relation[L, R](iniValues)
 
-private[pmlanalyzer] final case class InterfereEndomorphism[L] private[pmlanalyzer](
-                                                                                         iniValues: Map[L, Set[L]]
-                                                                                       ) extends Endomorphism[L](iniValues)
+private[pmlanalyzer] final case class InterfereEndomorphism[
+    L
+] private[pmlanalyzer] (
+    iniValues: Map[L, Set[L]]
+) extends Endomorphism[L](iniValues)
 
 private[pmlanalyzer] object InterfereRelation {
 
-  type InterfereRelation[L,R] = BasicInterfereRelation[L,R] | InterfereEndomorphism[L]
+  type InterfereRelation[L, R] = BasicInterfereRelation[L, R] |
+    InterfereEndomorphism[L]
 
   trait Instances {
 
@@ -53,8 +59,7 @@ private[pmlanalyzer] object InterfereRelation {
     /** Relation gathering user defined interfering hardware
       * @group interfere_relation
       */
-    final implicit val hardwareInterfere
-        : InterfereEndomorphism[Hardware] =
+    final implicit val hardwareInterfere: InterfereEndomorphism[Hardware] =
       InterfereEndomorphism(Map.empty)
   }
 }

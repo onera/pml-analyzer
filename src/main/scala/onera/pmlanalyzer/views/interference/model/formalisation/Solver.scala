@@ -434,7 +434,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
-  
+
   private val miniZincProblem = mutable.ListBuffer.empty[String]
 
   private def formatName(s: String) =
@@ -442,7 +442,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
       .replaceAll("\\$|--", "_")
 
   def assert(lt: Expr | Connected): Unit =
-    miniZincProblem += 
+    miniZincProblem +=
       s"constraint(${lt match {
           case e: Expr      => e.toExpr(this)
           case c: Connected => c.toConstraint(this)
@@ -595,7 +595,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
   private def parseModels[$: P] =
     P(Start ~ (parseModel.rep ~ "=".rep(min = 2) ~ "\n" | parseUnsat) ~ End)
-  
+
   protected def enumerateSolution(
       toGet: Set[MLit],
       implm: SolverImplm
@@ -607,7 +607,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
     fileWriter.write("include \"connected.mzn\";\n")
     miniZincProblem.foreach(fileWriter.write)
-    
+
     val litNames = toGet.map(x => x -> x.toLit(this)).toMap
     // FIXME Consider using a BiMap link type to represent bijective relations
     val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) =>

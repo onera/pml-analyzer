@@ -553,7 +553,7 @@ private[pmlanalyzer] object PostProcess {
       }
     }
   }
-  
+
   private def SWInvolvedInITF(
       x: ConfiguredPlatform,
       file: File

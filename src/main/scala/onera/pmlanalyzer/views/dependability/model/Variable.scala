@@ -52,8 +52,9 @@ private[pmlanalyzer] object Expr {
       )(implicit ev: PMLTarget => TargetId, u: Used[Data, PMLTarget]): Of[T] = {
         val hosts = d.hostingTargets
         assert(
-          hosts.size == 1, 
-          s"Not handled: $d is hosted on several target ${hosts.mkString(", ")}")
+          hosts.size == 1,
+          s"Not handled: $d is hosted on several target ${hosts.mkString(", ")}"
+        )
         Of(
           m,
           ev(d.hostingTargets.head)
