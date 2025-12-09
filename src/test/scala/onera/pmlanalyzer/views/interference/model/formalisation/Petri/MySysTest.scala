@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.pml.examples.mySys.MySysExport.MySys
+import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 
 class MySysTest extends AnyFlatSpec with should.Matchers {
 

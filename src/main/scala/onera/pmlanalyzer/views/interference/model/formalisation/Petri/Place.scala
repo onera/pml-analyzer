@@ -34,4 +34,4 @@ enum PlaceType:
   *  The name of the place
   */
 
-case class Place(name: String)
+private[pmlanalyzer] final case class Place(name: String)

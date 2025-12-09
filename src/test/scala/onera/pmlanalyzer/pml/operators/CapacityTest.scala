@@ -17,34 +17,13 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import sourcecode.{File, Line}
-import onera.pmlanalyzer.pml.operators.*
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.pml.model.relations.{
-  CapacityRelation,
-  DemandRelation,
-  ProvideRelation
-}
-
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification
-}
-import onera.pmlanalyzer.pml.model.configuration.Transaction
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.relations.*
-import sourcecode.Name
-import org.scalatest.flatspec.AnyFlatSpec
+import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
+import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
-
-import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
+import sourcecode.{File, Line, Name}
 
 import scala.language.postfixOps
 
@@ -52,8 +31,6 @@ class CapacityTest extends AnyFlatSpecLike with should.Matchers {
   object CapacityTestPlatform
       extends Platform(Symbol("CapacityTestPlatform"))
       with PhysicalTableBasedInterferenceSpecification
-      with CapacityRelation.Instances
-      with TransactionLibraryInstances
       with TransactionLibrary {
     val tr1Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr1"))
     val tr2Id: AtomicTransactionId = AtomicTransactionId(Symbol("tr2"))
@@ -103,14 +80,14 @@ class CapacityTest extends AnyFlatSpecLike with should.Matchers {
   "A Service" should "have a capacity" taggedAs UnitTests in {
     for { s <- t1.services } yield s hasCapacity 3
     for { s <- t1.services } {
-      capacityOfService(s) shouldBe 3
+      context.capacityOfService(s) shouldBe 3
     }
   }
 
   "A Hardware component" should "admit a capacity" taggedAs UnitTests in {
     t2 hasCapacity 2
     for { s <- t2.services } {
-      capacityOfService(s) shouldBe 2
+      context.capacityOfService(s) shouldBe 2
     }
   }
 }

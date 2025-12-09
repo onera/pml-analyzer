@@ -1,30 +1,15 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification
-}
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
-import onera.pmlanalyzer.views.interference.operators.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.PhysicalTransactionId
 import sourcecode.Name
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should
 import sourcecode.Name
-
 import scala.language.postfixOps
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 
 class ExclusiveTest extends AnyFlatSpecLike with should.Matchers {
 

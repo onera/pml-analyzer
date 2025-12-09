@@ -17,18 +17,18 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.operators.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.hardware.Hardware
 import onera.pmlanalyzer.pml.model.relations.CapacityRelation
 
 import sourcecode.{File, Line}
 
-private[operators] trait Capacity[L, R] {
+private[operators] trait Capacity[-L, -R] {
   def apply(l: L, r: R)(using line: Line, file: File): Unit
 }
 
-object Capacity {
+private[pmlanalyzer] object Capacity {
 
   /** If an element l of type T can be exclusive with another element r of type
    * T, the following operator can be used {{{l exclusiveWith r}}}
@@ -56,8 +56,8 @@ object Capacity {
    * We can generate a proof that a capacity of type R is assignable to a type L
    * If we can find a relation containing syper types of L and R
    */
-  given [CL, CR, L <: CL, R <: CR](using
-      dr: CapacityRelation[CL, CR]
+  given [L, R](using
+      dr: CapacityRelation[L, R]
   ): Capacity[L, R] with {
     def apply(l: L, r: R)(using line: Line, file: File): Unit = dr.add(l, r)
   }

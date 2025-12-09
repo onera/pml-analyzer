@@ -19,6 +19,7 @@
 package onera.pmlanalyzer.pml.operators
 
 import sourcecode.{File, Line}
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.software.Application
@@ -26,11 +27,11 @@ import onera.pmlanalyzer.pml.model.relations.DemandRelation
 
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 
-private[operators] trait Demand[L, R] {
+private[operators] trait Demand[-L, -R] {
   def apply(l: L, r: R)(using line: Line, file: File): Unit
 }
 
-object Demand {
+private[pmlanalyzer] object Demand {
 
   /** If an element l of type T can be exclusive with another element r of type
     * T, the following operator can be used {{{l exclusiveWith r}}}
@@ -90,10 +91,7 @@ object Demand {
    * We can generate a proof that a demand of type R is assignable to a type L
    * If we can find a relation containing super types of L and R
    */
-  given [CL, CR, L <: CL, R <: CR](using dr: DemandRelation[CL, CR]): Demand[
-    L,
-    R
-  ] with {
+  given [L, R](using dr: DemandRelation[L, R]): Demand[L, R] with {
     def apply(l: L, r: R)(using line: Line, file: File): Unit = dr.add(l, r)
   }
 }
