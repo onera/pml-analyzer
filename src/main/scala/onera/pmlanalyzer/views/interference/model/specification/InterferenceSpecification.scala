@@ -115,7 +115,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: AtomicTransactionId,
       r: AtomicTransactionId
   ): Boolean = {
-    antiReflexive(l, r) && symmetric[AtomicTransactionId](
+    reflexive(l, r) || symmetric[AtomicTransactionId](
       exclusiveWith
     )(l, r)
   }
@@ -133,7 +133,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: PhysicalTransactionId,
       r: PhysicalTransactionId
   ): Boolean =
-    antiReflexive(l, r) &&
+    reflexive(l, r) ||
       symmetric((le: PhysicalTransactionId, re: PhysicalTransactionId) =>
         purifiedTransactions(le).exists(t =>
           purifiedTransactions(re).exists(tp => finalExclusive(t, tp))
@@ -318,7 +318,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
   def relationToMap[T](
       all: => Set[T],
       r: (T, T) => Boolean
-  ): Map[T, Set[T]] =
+  ): Map[T, Set[T]] = 
     all.groupMapReduce(t => t)(t => all.filter(r(t, _)))(_ ++ _)
 
   private def reflexive[T](l: T, r: T): Boolean = l == r

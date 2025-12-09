@@ -996,9 +996,12 @@ private[pmlanalyzer] object Analyse {
       // when a transaction s is selected then other transactions that are exclusive with it are not selected
       // \bigwedge_{s \in transactionVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
       val isExclusive = factory.andBDD(
-        exclusive.map(p =>
-          symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
-        )
+        for {
+          (k,v) <- exclusive
+          l = symbols(k)
+          r = (v - k).map(symbols)
+        } yield
+          l.imp(factory.orBDD(r).not)
       )
 
       (2 to max)
