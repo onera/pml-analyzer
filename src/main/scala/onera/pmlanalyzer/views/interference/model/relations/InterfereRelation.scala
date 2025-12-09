@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.pml.model.relations.{ReflexiveSymmetricEndomorphism, Relation}
+import onera.pmlanalyzer.pml.model.relations.{Endomorphism, Relation}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
@@ -28,7 +28,7 @@ private[pmlanalyzer] final case class BasicInterfereRelation[L, R] private[pmlan
 
 private[pmlanalyzer] final case class InterfereEndomorphism[L] private[pmlanalyzer](
                                                                                          iniValues: Map[L, Set[L]]
-                                                                                       ) extends ReflexiveSymmetricEndomorphism[L](iniValues)
+                                                                                       ) extends Endomorphism[L](iniValues)
 
 private[pmlanalyzer] object InterfereRelation {
 

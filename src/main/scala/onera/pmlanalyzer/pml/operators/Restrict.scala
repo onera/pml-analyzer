@@ -260,7 +260,7 @@ private[pmlanalyzer] object Restrict {
             val initialGraph = serviceGraph()
             val exclusiveServices = services
               .map(s =>
-                s -> services.filter(s2 => s != s2 && spec.finalInterfereWith(s, s2))
+                s -> services.filter(s2 => spec.finalInterfereWith(s, s2))
               )
               .toMap
             val newNodes = services.flatMap(s =>
@@ -296,7 +296,7 @@ private[pmlanalyzer] object Restrict {
             val initialGraph = self.context.ServiceLinkableToService.edges
             val exclusiveServices = services
               .map(s =>
-                s -> services.filter(s2 => s != s2 && spec.finalInterfereWith(s, s2))
+                s -> services.filter(s2 => spec.finalInterfereWith(s, s2))
               )
               .toMap
             val newNodes = services.flatMap(s =>

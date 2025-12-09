@@ -18,7 +18,7 @@
 package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.pml.model.relations.{AntiReflexiveSymmetricEndomorphism, Relation}
+import onera.pmlanalyzer.pml.model.relations.{Endomorphism, Relation}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.Name
@@ -33,7 +33,7 @@ private[pmlanalyzer] final case class NotInterfereEndomorphism[L] private[pmlana
                                                                                 iniValues: Map[L, Set[L]]
                                                                               )(using
                                                                                 n: Name
-                                                                              ) extends AntiReflexiveSymmetricEndomorphism[L](iniValues)
+                                                                              ) extends Endomorphism[L](iniValues)
 
 private[pmlanalyzer] object NotInterfereRelation {
   

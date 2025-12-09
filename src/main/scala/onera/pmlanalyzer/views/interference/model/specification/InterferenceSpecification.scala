@@ -100,7 +100,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
     *   true if they cannot work simultaneously
     */
   final def finalInterfereWith(l: Hardware, r: Hardware): Boolean =
-    reflexive(l, r) && symmetric[Hardware](interfereWith)(l, r)
+    antiReflexive(l, r) && symmetric[Hardware](interfereWith)(l, r)
 
   /** Check whether two atomic transaction will not occur simultaneously
     * @group exclusive_predicate
@@ -115,7 +115,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: AtomicTransactionId,
       r: AtomicTransactionId
   ): Boolean = {
-    reflexive(l, r) && symmetric[AtomicTransactionId](
+    antiReflexive(l, r) && symmetric[AtomicTransactionId](
       exclusiveWith
     )(l, r)
   }
@@ -133,7 +133,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: PhysicalTransactionId,
       r: PhysicalTransactionId
   ): Boolean =
-    reflexive(l, r) &&
+    antiReflexive(l, r) &&
       symmetric((le: PhysicalTransactionId, re: PhysicalTransactionId) =>
         purifiedTransactions(le).exists(t =>
           purifiedTransactions(re).exists(tp => finalExclusive(t, tp))
@@ -232,7 +232,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       .exists(ls =>
         r.flatMap(purifiedTransactions)
           .flatMap(purifiedAtomicTransactions)
-          .exists(rs => finalInterfereWith(ls, rs))
+          .exists(rs => ls == rs || finalInterfereWith(ls, rs))
       )
 
   /** Provide the map encoding of channelNonEmpty
@@ -257,12 +257,12 @@ private[pmlanalyzer] trait InterferenceSpecification {
     *   true if they interfere
     */
   final def finalInterfereWith(l: Service, r: Service): Boolean = {
-    reflexive(l, r) && (
+    antiReflexive(l, r) && (
       symmetric[Service](interfereWith)(l, r) ||
         (l.hardwareOwner.nonEmpty &&
           r.hardwareOwner.nonEmpty &&
           l.hardwareOwner.exists(ol =>
-            r.hardwareOwner.exists(or => ol != or && finalInterfereWith(ol, or))
+            r.hardwareOwner.exists(or => finalInterfereWith(ol, or))
           ) // service owner are exclusive
         )
     )
