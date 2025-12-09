@@ -21,7 +21,7 @@ import fastparse.*
 import fastparse.SingleLineWhitespace.*
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.utils.Message
+import onera.pmlanalyzer.pml.model.utils.{InjectiveMap, Message}
 import onera.pmlanalyzer.views.interference.model.formalisation
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
   CPSat,
@@ -44,7 +44,6 @@ import java.io.{File, FileWriter, IOException}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.sys.process.Process
-import scala.util.{Failure, Success, Try}
 
 private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
@@ -608,11 +607,9 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
     fileWriter.write("include \"connected.mzn\";\n")
     miniZincProblem.foreach(fileWriter.write)
 
-    val litNames = toGet.map(x => x -> x.toLit(this)).toMap
-    // FIXME Consider using a BiMap link type to represent bijective relations
-    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) =>
-      throw new Exception(s"$l and $r for same key")
-    )
+    val litNames = InjectiveMap(toGet.map(x => x -> x.toLit(this)))
+    val mLitNames = litNames.inverse()
+
     fileWriter.write(s"""output [
          |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)

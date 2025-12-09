@@ -22,6 +22,7 @@ import onera.pmlanalyzer.pml.model.*
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.{
   Context,
+  InjectiveMap,
   Message,
   Owner,
   ReflexiveInfo
@@ -88,10 +89,13 @@ private[pmlanalyzer] abstract class Platform(
     * @group transaction
     */
   final lazy val atomicTransactionsByName
-      : Map[AtomicTransactionId, AtomicTransaction] =
-    this.issuedAtomicTransactions.groupMapReduce(atomicTransactionId)(t => t)(
-      (l, _) => l
+      : InjectiveMap[AtomicTransactionId, AtomicTransaction] = {
+    InjectiveMap(
+      for { at <- this.issuedAtomicTransactions } yield atomicTransactionId(
+        at
+      ) -> at
     )
+  }
 
   /** Set of physical atomic transactions WARNING: this lazy variable MUST NOT be
     * called during platform object initialisation
@@ -152,8 +156,8 @@ private[pmlanalyzer] abstract class Platform(
     * @group transaction
     */
   final lazy val atomicTransactionsName
-      : Map[AtomicTransaction, AtomicTransactionId] =
-    atomicTransactionsByName.groupMapReduce(_._2)(_._1)((l, _) => l)
+      : InjectiveMap[AtomicTransaction, AtomicTransactionId] =
+    atomicTransactionsByName.inverse()
 
   /** Build the transaction id as "at_1|...|at_n"
     *

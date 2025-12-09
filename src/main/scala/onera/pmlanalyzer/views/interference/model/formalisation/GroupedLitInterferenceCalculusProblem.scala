@@ -19,6 +19,7 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.utils.InjectiveMap
 import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.EQ
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{
   EdgeId,
@@ -105,7 +106,10 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
     .values
     .flatMap(ss => ss.map(_ -> ss))
     .groupMapReduce(_._1)(x => addLit(groupedTransactionsLitId(x._2.toSet).id))(
-      (l, _) => l
+      (l, r) => {
+        assert(l == r)
+        l
+      }
     )
 
   val groupedLitToTransactions: Map[MLit, Set[PhysicalTransactionId]] =
@@ -113,10 +117,15 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
       .groupMap(_._2)(_._1)
       .transform((_, v) => v.toSet)
 
-  val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]] = transactionToGroupedLit
-    .groupMapReduce(_._2)(kv => reducedNodePath(kv._1).map(_.toSet.flatten))(
-      (l, _) => l
-    )
+  val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]] = {
+    transactionToGroupedLit
+      .groupMapReduce(_._2)(kv => reducedNodePath(kv._1).map(_.toSet.flatten))(
+        (l, r) => {
+          assert(l == r)
+          l
+        }
+      )
+  }
 
   // Add an undirected edge for any set containing two nodes
   private val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo {

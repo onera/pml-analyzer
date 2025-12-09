@@ -19,6 +19,7 @@ package onera.pmlanalyzer.views.interference.model.formalisation
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.pml.model.utils.InjectiveMap
 import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.EQ
 import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{
   EdgeId,
@@ -54,9 +55,11 @@ private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
   }
 
   private val transactionVar =
-    (for {
-      id <- system.idToTransaction.keySet
-    } yield id -> MLit(id.id)).toMap
+    InjectiveMap(
+      for {
+        id <- system.idToTransaction.keySet
+      } yield id -> MLit(id.id)
+    )
 
   // Add constraint C^1_{\Sys} i.e. transactions should not be exclusive
   private val exclusiveCst =
@@ -150,7 +153,7 @@ private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
     )
 
   val transactionVars: Map[MLit, PhysicalTransactionId] =
-    transactionVar.toSeq.groupMapReduce(_._2)(_._1)((l, _) => l)
+    transactionVar.inverse()
   val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.toSeq
     .flatMap((k, v) => v.map(k -> _))
     .groupMapReduce(_._2)((k, _) => Set(k))(_ ++ _)

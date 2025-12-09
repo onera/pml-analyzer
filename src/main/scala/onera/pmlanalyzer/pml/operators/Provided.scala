@@ -121,8 +121,9 @@ private[pmlanalyzer] object Provided {
       def transporters(using ev: Provided[L, Hardware]): Set[Transporter] =
         ev(self).collect({ case x: Transporter => x })
     }
-    
-    extension[P <: Platform](self:P) {
+
+    extension [P <: Platform](self: P) {
+
       /** Provide all the physical elements declared inside the composite
        *
        * @return
@@ -227,7 +228,10 @@ private[pmlanalyzer] object Provided {
       } yield p
   }
 
-  given [C <: Composite : Typeable](using owner:Owner, context:Context): Provided[C, Hardware] with {
+  given [C <: Composite: Typeable](using
+      owner: Owner,
+      context: Context
+  ): Provided[C, Hardware] with {
 
     def apply(a: C): Set[Hardware] = {
       import a.*
@@ -236,7 +240,9 @@ private[pmlanalyzer] object Provided {
 
     def owner(b: Hardware): Set[C] =
       for {
-        p <- Composite.all(owner,context.memoComposite,context.memoComposite).collect { case p: C => p }
+        p <- Composite
+          .all(owner, context.memoComposite, context.memoComposite)
+          .collect { case p: C => p }
         if {
           import p.*
           p.hardware.contains(b)
