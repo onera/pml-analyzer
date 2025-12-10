@@ -163,10 +163,12 @@ private[pmlanalyzer] trait InterferenceSpecification {
   private final def purify(t: AtomicTransactionId): AtomicTransaction =
     atomicTransactionsByName.get(t) match {
       case Some(h :: tail) =>
-        val bothInterfereAndNotInterfere = transactionInterfereWith(t).intersect(transactionNotInterfereWith(t))
+        val bothInterfereAndNotInterfere =
+          transactionInterfereWith(t).intersect(transactionNotInterfereWith(t))
         require(
-          bothInterfereAndNotInterfere.isEmpty, 
-          s"[ERROR] services ${bothInterfereAndNotInterfere.mkString(",")} are both declared as interfering and not interfering with $t")
+          bothInterfereAndNotInterfere.isEmpty,
+          s"[ERROR] services ${bothInterfereAndNotInterfere.mkString(",")} are both declared as interfering and not interfering with $t"
+        )
         (h +: (transactionInterfereWith(t).toList.sortBy(_.name.name) ++ tail))
           .filterNot(transactionNotInterfereWith(t))
       case _ => Nil
@@ -322,7 +324,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
   def relationToMap[T](
       all: => Set[T],
       r: (T, T) => Boolean
-  ): Map[T, Set[T]] = 
+  ): Map[T, Set[T]] =
     all.groupMapReduce(t => t)(t => all.filter(r(t, _)))(_ ++ _)
 
   private def reflexive[T](l: T, r: T): Boolean = l == r

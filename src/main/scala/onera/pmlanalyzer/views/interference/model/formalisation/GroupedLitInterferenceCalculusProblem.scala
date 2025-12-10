@@ -58,9 +58,7 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
                   !system.exclusiveWithATr(t).contains(t2) &&
                   system
                     .atomicTransactions(t2)
-                    .exists(s2 =>
-                      system.interfereWith(s2).contains(s)
-                    )
+                    .exists(s2 => system.interfereWith(s2).contains(s))
               )
             )
         )

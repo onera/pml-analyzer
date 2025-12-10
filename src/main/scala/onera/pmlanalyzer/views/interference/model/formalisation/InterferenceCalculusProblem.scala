@@ -17,7 +17,10 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{EdgeId, NodeId}
+import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{
+  EdgeId,
+  NodeId
+}
 import scalaz.Memo.immutableHashMapMemo
 
 private[pmlanalyzer] trait InterferenceCalculusProblem {
@@ -44,19 +47,23 @@ private[pmlanalyzer] trait InterferenceCalculusProblem {
   }
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
-  protected val serviceToNodes: Map[Symbol, Set[MNode]] = system.interfereWith.transform((k, v) =>
-    require(v.nonEmpty, s"[ERROR] Service $k should at least interfere with itself")
-    //build all pairs of interfering services
-    val allPairs =
-      for {
-        s <- v - k
-      } yield addNode(Set(k,s))
-    //if k is not interfering with other services, then create a singleton
-    if (allPairs.isEmpty)
-      Set(addNode(Set(k)))
-    else
-      allPairs.toSet
-  )
+  protected val serviceToNodes: Map[Symbol, Set[MNode]] =
+    system.interfereWith.transform((k, v) =>
+      require(
+        v.nonEmpty,
+        s"[ERROR] Service $k should at least interfere with itself"
+      )
+      // build all pairs of interfering services
+      val allPairs =
+        for {
+          s <- v - k
+        } yield addNode(Set(k, s))
+      // if k is not interfering with other services, then create a singleton
+      if (allPairs.isEmpty)
+        Set(addNode(Set(k)))
+      else
+        allPairs.toSet
+    )
 }
 
 private[pmlanalyzer] object InterferenceCalculusProblem {
