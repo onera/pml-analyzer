@@ -134,10 +134,7 @@ class MySysAnalyseTest extends AnyFlatSpec with should.Matchers {
           implm,
           method
         )
-      assume(
-        semanticReduction != -1,
-        "[ERROR] cannot compute semantic reduction"
-      )
+
       semanticReduction should be(
         BigDecimal(37) / 17
       )

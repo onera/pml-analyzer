@@ -38,10 +38,10 @@ private[pmlanalyzer] trait ApplicativeTableBasedInterferenceSpecification
     relationToMap(
       transactionByUserName.keySet,
       (l, r) =>
-        l != r && (
+        l == r || (
           transactionId(transactionByUserName(l)) == transactionId(
             transactionByUserName(r)
-          )
+          ) || userTransactionExclusive(l).contains(r)
             || exclusive(transactionId(transactionByUserName(l)))
               .contains(transactionId(transactionByUserName(r)))
             || transactionSW(l)

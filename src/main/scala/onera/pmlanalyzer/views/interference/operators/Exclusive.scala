@@ -27,7 +27,7 @@ import onera.pmlanalyzer.pml.operators.Transform
 import onera.pmlanalyzer.views.interference.model.relations.ExclusiveRelation
 import sourcecode.{File, Line}
 
-private[pmlanalyzer] sealed trait Exclusive[T] {
+private[pmlanalyzer] sealed trait Exclusive[-T] {
   def apply(l: T, r: T)(using line: Line, file: File): Unit
 }
 

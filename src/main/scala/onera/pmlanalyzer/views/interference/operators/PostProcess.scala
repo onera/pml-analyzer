@@ -554,8 +554,6 @@ private[pmlanalyzer] object PostProcess {
     }
   }
 
-  // FIXME If using a transaction library, the ids are UserTransaction and not PhysicalTransaction, need to know the difference
-  // to retrieve the transactions used by a sw
   private def SWInvolvedInITF(
       x: ConfiguredPlatform,
       file: File

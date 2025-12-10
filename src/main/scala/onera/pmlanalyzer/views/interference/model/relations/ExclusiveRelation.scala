@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
-  AntiReflexiveSymmetricEndomorphism,
+  ReflexiveSymmetricEndomorphism,
   Endomorphism
 }
 import onera.pmlanalyzer.pml.model.software.Application
@@ -30,7 +30,7 @@ private[pmlanalyzer] final case class ExclusiveRelation[A] private (
     iniValues: Map[A, Set[A]]
 )(using
     n: Name
-) extends AntiReflexiveSymmetricEndomorphism[A](iniValues)
+) extends ReflexiveSymmetricEndomorphism[A](iniValues)
 
 private[pmlanalyzer] object ExclusiveRelation {
   trait GeneralInstances {
