@@ -17,42 +17,17 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.InjectiveMap
 import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.EQ
-import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{
-  EdgeId,
-  NodeId
-}
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
-  AtomicTransaction,
-  AtomicTransactionId,
   PhysicalTransaction,
   PhysicalTransactionId
 }
-import scalaz.Memo.immutableHashMapMemo
 
 private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
     system: TopologicalInterferenceSystem
 ) extends InterferenceCalculusProblem
     with DefaultDecoder {
-
-  private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
-    List(l, r).map(_.id.name).sorted.mkString("--")
-  )
-
-  private def nodeId(s: Set[Symbol]): NodeId = Symbol(
-    s.toList.map(_.name).sorted.mkString("<", "$", ">")
-  )
-
-  private val addNode: Set[Symbol] => MNode = immutableHashMapMemo { ss =>
-    MNode(nodeId(ss))
-  }
-
-  private val addEdge: Set[MNode] => MEdge = immutableHashMapMemo { l =>
-    MEdge(l.head, l.last, undirectedEdgeId(l.head, l.last))
-  }
 
   private val transactionVar =
     InjectiveMap(
@@ -76,12 +51,6 @@ private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
 
   // association of the simple transaction path to its formatted name
   private val initialPathT = system.idToTransaction
-
-  // the nodes of the service graph are the services grouped by exclusivity pairs
-  private val serviceToNodes = system.interfereWith.transform((k, v) =>
-    require(v.nonEmpty, s"[ERROR] Service $k should at least interfere with itself")
-    v.map(k2 => addNode(Set(k, k2)))
-  )
 
   private val trToNode =
     (for {
