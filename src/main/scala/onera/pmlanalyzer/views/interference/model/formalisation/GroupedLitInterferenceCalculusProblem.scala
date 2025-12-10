@@ -78,7 +78,7 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
                   system
                     .atomicTransactions(t2)
                     .exists(s2 =>
-                      s2 == s || system.interfereWith(s2).contains(s)
+                      system.interfereWith(s2).contains(s)
                     )
               )
             )
@@ -88,10 +88,8 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
   private val serviceToNodes = system.interfereWith.transform((k, v) =>
-    if (v.isEmpty)
-      Set(addNode(Set(k)))
-    else
-      v.map(k2 => addNode(Set(k, k2)))
+    require(v.nonEmpty, s"[ERROR] Service $k should at least interfere with itself")
+    v.map(k2 => addNode(Set(k, k2)))
   )
 
   val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.keySet

@@ -79,10 +79,8 @@ private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
 
   // the nodes of the service graph are the services grouped by exclusivity pairs
   private val serviceToNodes = system.interfereWith.transform((k, v) =>
-    if (v.isEmpty)
-      Set(addNode(Set(k)))
-    else
-      v.map(k2 => addNode(Set(k, k2)))
+    require(v.nonEmpty, s"[ERROR] Service $k should at least interfere with itself")
+    v.map(k2 => addNode(Set(k, k2)))
   )
 
   private val trToNode =
@@ -95,7 +93,7 @@ private[pmlanalyzer] final case class DefaultInterferenceCalculusProblem(
         at2 <- initialPathT(t2) -- system.exclusiveWithATr(at) - at
         s <- system.atomicTransactions(at)
         s2 <- system.atomicTransactions(at2)
-        if s == s2 || system.interfereWith(s2).contains(s)
+        if system.interfereWith(s2).contains(s)
         n <- serviceToNodes(s)
       } yield n)
     }).toMap
