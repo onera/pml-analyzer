@@ -56,6 +56,10 @@ class TopologicalInterferenceSystemExporterTest
         )
       }
     }
+    
+    it should "export in JSON format" taggedAs FastTests in {
+      platform.exportTopologicalInterferenceSystemAsJSON()
+    }
 
     it should "be consistent with expected tables" taggedAs FastTests in {
       val expectedTIS =

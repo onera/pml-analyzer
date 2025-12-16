@@ -25,12 +25,10 @@ import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.PerfTests
+import onera.pmlanalyzer.views.interference.model.formalisation.DefaultInterferenceCalculusProblem
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
-import onera.pmlanalyzer.views.interference.model.specification.{
-  ApplicativeTableBasedInterferenceSpecification,
-  PhysicalTableBasedInterferenceSpecification
-}
+import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, PhysicalTableBasedInterferenceSpecification}
 import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -172,6 +170,52 @@ private[pmlanalyzer] class GeneratedPlatformsTest
     p.computeAllInterference(
       timeout
     )
+  }
+  
+  "Generated architectures" should "exportable as CP data" taggedAs PerfTests in {
+    val cores = Seq(2, 4, 8, 16)
+    val dsps = Seq(0,2,4)
+    for {
+      coreCount <- cores
+      dspCount <- dsps
+
+      clusterCount <- {
+        for {i <- 0 to log2(coreCount)} yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      if clusterCount != coreCount
+      ddrPartitions <- {
+        for {i <- 0 to Math.min(log2(clusterCount), 1)} yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      coresPerBankPerPartition <- {
+        for {
+          i <- 0 to log2(
+            (clusterCount / ddrPartitions) * (coreCount / clusterCount)
+          )
+        } yield {
+          Math.pow(2.0, i).toInt
+        }
+      }
+      withDMA <- Seq(false,true)
+      if (0 < coreCount + dspCount)
+    } yield {
+      println(
+        s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
+          if withDMA then "" else "_noDMA"
+        }"
+      )
+      generatePlatformFromConfiguration(
+        coreCount = coreCount,
+        clusterCount = clusterCount,
+        dspCount = dspCount,
+        ddrPartitions = ddrPartitions,
+        coresPerBankPerPartition = coresPerBankPerPartition,
+        withDMA = withDMA
+      ).exportTopologicalInterferenceSystemAsJSON()
+    }
   }
 
   "Generated architectures" should "be analysable to compute their semantics" taggedAs PerfTests in {
