@@ -61,7 +61,6 @@ object PlatformArbitrary {
           with InitiatorArbitrary
           with VirtualizerArbitrary
           with TransporterArbitrary
-//          with TransactionArbitrary
           with TransactionArbitrary
           with LinkRelationArbitrary
           with UseRelationArbitrary

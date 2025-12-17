@@ -173,23 +173,23 @@ private[pmlanalyzer] class GeneratedPlatformsTest
   }
   
   "Generated architectures" should "exportable as CP data" taggedAs PerfTests in {
-    val cores = Seq(2, 4, 8, 16)
-    val dsps = Seq(0,2,4)
+    val cores = Seq(4, 8, 16)
+    val dsps = Seq(2,4)
     for {
-      coreCount <- cores
-      dspCount <- dsps
+      coreCount <- cores.par
+      dspCount <- dsps.par
 
       clusterCount <- {
         for {i <- 0 to log2(coreCount)} yield {
           Math.pow(2.0, i).toInt
         }
-      }
+      }.par
       if clusterCount != coreCount
       ddrPartitions <- {
         for {i <- 0 to Math.min(log2(clusterCount), 1)} yield {
           Math.pow(2.0, i).toInt
         }
-      }
+      }.par
       coresPerBankPerPartition <- {
         for {
           i <- 0 to log2(
@@ -198,8 +198,8 @@ private[pmlanalyzer] class GeneratedPlatformsTest
         } yield {
           Math.pow(2.0, i).toInt
         }
-      }
-      withDMA <- Seq(false,true)
+      }.par
+      withDMA <- Seq(false,true).par
       if (0 < coreCount + dspCount)
     } yield {
       println(
@@ -207,14 +207,16 @@ private[pmlanalyzer] class GeneratedPlatformsTest
           if withDMA then "" else "_noDMA"
         }"
       )
-      generatePlatformFromConfiguration(
+      val p = generatePlatformFromConfiguration(
         coreCount = coreCount,
         clusterCount = clusterCount,
         dspCount = dspCount,
         ddrPartitions = ddrPartitions,
         coresPerBankPerPartition = coresPerBankPerPartition,
         withDMA = withDMA
-      ).exportTopologicalInterferenceSystemAsJSON()
+      )
+      p.exportTopologicalInterferenceSystemAsJSON()
+      p.exportSemanticsSize()
     }
   }
 

@@ -187,7 +187,7 @@ private[pmlanalyzer] object Platform {
    * Clear the map of platforms
    * @note should not be used except for tests
    */
-  private[model] def clear(): Unit = _memo.clear()
+  private[pmlanalyzer] def clear(): Unit = _memo.clear()
 
   def get(id: Symbol): Option[Platform] = _memo.get(id)
 
