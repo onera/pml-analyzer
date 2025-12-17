@@ -52,14 +52,29 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         val system = self.computeTopologicalInterferenceSystem(2)
         val transaction = system.idToTransaction.keySet.toSeq.sortBy(_.id.name).zipWithIndex.toMap
         val problem = DefaultInterferenceCalculusProblem(system)
-        val exclusive = system.exclusiveWithTr.toSeq
-          .sortBy(x => transaction(x._1))
-          .map(_._2)
-          .map(_.map(transaction))
+        val exclusive = for{
+          (t,id) <- transaction.toSeq.sortBy(_._1)
+          s = system.exclusiveWithTr(t) - t
+        } yield {
+          id -> s.map(transaction).toSeq.sorted
+        }
         val nodes = problem.graph.nodes.zipWithIndex.toMap
-        val edges = problem.graph.edges.map(e => Set(nodes(e.from), nodes(e.to)))
-        val names = transaction.toSeq.sortBy(_._2).map(x => s"\"${x._1}\"")
-        val trToNodes = {
+        val edges =
+          for {
+            e <- problem.graph.edges
+          } yield
+            Set(nodes(e.from), nodes(e.to))
+        val names = for {
+          (t,i) <- transaction.toSeq.sortBy(_._2)
+        } yield i ->  s"\"$t\""
+        val nodeToTrs =
+          for {
+            (n,trs) <- problem.nodeToTransaction.toSeq.sortBy(x => nodes(x._1))
+          } yield {
+            nodes(n) -> trs.map(transaction).toSeq.sorted
+          }
+
+        {
           problem.nodeToTransaction.toSeq
             .flatMap((k, v) => v.map(k -> _))
             .groupMapReduce(x => transaction(x._2))(x => Set(nodes(x._1)))((l, r) => l ++ r)
@@ -70,16 +85,16 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         writer.write(
           s"""{
              |\t"exclusive": [
-             |${exclusive.map(s=> s.mkString("[", ", ", "]")).mkString("\t\t",",\n\t\t","")}
+             |${exclusive.map((k,v)=> s"[$k, ${v.mkString("[", ", ", "]")}]").mkString("\t\t",",\n\t\t","")}
              |\t],
              |\t"edges": [
-             |${edges.map(s => s.mkString("[", ", ", "]")).mkString("\t\t", ",\n\t\t", "")}
+             |${edges.map(v=> v.toSeq.sorted.mkString("[", ", ", "]")).toSeq.sorted.mkString("\t\t", ",\n\t\t", "")}
              |\t],
-             |\t"nodesOf": [
-             |${edges.map(s => s.mkString("[", ", ", "]")).mkString("\t\t", ",\n\t\t", "")}
+             |\t"transactionsOf": [
+             |${nodeToTrs.map((k,v)=> s"[$k, ${v.mkString("[", ", ", "]")}]").mkString("\t\t", ",\n\t\t", "")}
              |\t],
              |\t"names": [
-             |${names.mkString("\t\t", ",\n\t\t", "")}
+             |${names.map((k,v)=> s"[$k, $v]").mkString("\t\t", ",\n\t\t", "")}
              |\t]
              |} """.stripMargin
         )
