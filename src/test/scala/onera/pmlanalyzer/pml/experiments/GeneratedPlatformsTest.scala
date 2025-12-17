@@ -28,7 +28,10 @@ import onera.pmlanalyzer.views.interference.InterferenceTestExtension.PerfTests
 import onera.pmlanalyzer.views.interference.model.formalisation.DefaultInterferenceCalculusProblem
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, PhysicalTableBasedInterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  PhysicalTableBasedInterferenceSpecification
+}
 import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -171,22 +174,20 @@ private[pmlanalyzer] class GeneratedPlatformsTest
       timeout
     )
   }
-  
+
   "Generated architectures" should "exportable as CP data" taggedAs PerfTests in {
-    val cores = Seq(4, 8, 16)
-    val dsps = Seq(2,4)
     for {
-      coreCount <- cores.par
-      dspCount <- dsps.par
+      coreCount <- Seq(4, 8, 16).par
+      dspCount <- Seq(2, 4).par
 
       clusterCount <- {
-        for {i <- 0 to log2(coreCount)} yield {
+        for { i <- 0 to log2(coreCount) } yield {
           Math.pow(2.0, i).toInt
         }
       }.par
       if clusterCount != coreCount
       ddrPartitions <- {
-        for {i <- 0 to Math.min(log2(clusterCount), 1)} yield {
+        for { i <- 0 to Math.min(log2(clusterCount), 1) } yield {
           Math.pow(2.0, i).toInt
         }
       }.par
@@ -199,13 +200,13 @@ private[pmlanalyzer] class GeneratedPlatformsTest
           Math.pow(2.0, i).toInt
         }
       }.par
-      withDMA <- Seq(false,true).par
+      withDMA <- Seq(false, true).par
       if (0 < coreCount + dspCount)
     } yield {
       println(
         s"[TEST] generating: GenericSample_${coreCount}Cores_${clusterCount}Cl_${dspCount}Dsp_${ddrPartitions}Prt_${coresPerBankPerPartition}CorePerBank${
-          if withDMA then "" else "_noDMA"
-        }"
+            if withDMA then "" else "_noDMA"
+          }"
       )
       val p = generatePlatformFromConfiguration(
         coreCount = coreCount,

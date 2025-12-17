@@ -19,7 +19,10 @@ package onera.pmlanalyzer.views.interference.exporters
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.views.interference.model.specification.{ApplicativeTableBasedInterferenceSpecification, InterferenceSpecification}
+import onera.pmlanalyzer.views.interference.model.specification.{
+  ApplicativeTableBasedInterferenceSpecification,
+  InterferenceSpecification
+}
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.DefaultInterferenceCalculusProblem
 
@@ -50,10 +53,13 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         val file = FileManager.exportDirectory.getFile(s"${self.fullName}.json")
         val writer = new FileWriter(file)
         val system = self.computeTopologicalInterferenceSystem(2)
-        val transaction = system.idToTransaction.keySet.toSeq.sortBy(_.id.name).zipWithIndex.toMap
+        val transaction = system.idToTransaction.keySet.toSeq
+          .sortBy(_.id.name)
+          .zipWithIndex
+          .toMap
         val problem = DefaultInterferenceCalculusProblem(system)
-        val exclusive = for{
-          (t,id) <- transaction.toSeq.sortBy(_._1)
+        val exclusive = for {
+          (t, id) <- transaction.toSeq.sortBy(_._1)
           s = system.exclusiveWithTr(t) - t
         } yield {
           id -> s.map(transaction).toSeq.sorted
@@ -62,14 +68,13 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         val edges =
           for {
             e <- problem.graph.edges
-          } yield
-            Set(nodes(e.from), nodes(e.to))
+          } yield Set(nodes(e.from), nodes(e.to))
         val names = for {
-          (t,i) <- transaction.toSeq.sortBy(_._2)
-        } yield i ->  s"\"$t\""
+          (t, i) <- transaction.toSeq.sortBy(_._2)
+        } yield i -> s"\"$t\""
         val nodeToTrs =
           for {
-            (n,trs) <- problem.nodeToTransaction.toSeq.sortBy(x => nodes(x._1))
+            (n, trs) <- problem.nodeToTransaction.toSeq.sortBy(x => nodes(x._1))
           } yield {
             nodes(n) -> trs.map(transaction).toSeq.sorted
           }
@@ -77,7 +82,9 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         {
           problem.nodeToTransaction.toSeq
             .flatMap((k, v) => v.map(k -> _))
-            .groupMapReduce(x => transaction(x._2))(x => Set(nodes(x._1)))((l, r) => l ++ r)
+            .groupMapReduce(x => transaction(x._2))(x => Set(nodes(x._1)))(
+              (l, r) => l ++ r
+            )
             .toSeq
             .sortBy(_._1)
             .map(_._2)
@@ -85,16 +92,26 @@ private[exporters] object TopologicalInterferenceSystemExporter {
         writer.write(
           s"""{
              |\t"exclusive": [
-             |${exclusive.map((k,v)=> s"[$k, ${v.mkString("[", ", ", "]")}]").mkString("\t\t",",\n\t\t","")}
+             |${exclusive
+              .map((k, v) => s"[$k, ${v.mkString("[", ", ", "]")}]")
+              .mkString("\t\t", ",\n\t\t", "")}
              |\t],
              |\t"edges": [
-             |${edges.map(v=> v.toSeq.sorted.mkString("[", ", ", "]")).toSeq.sorted.mkString("\t\t", ",\n\t\t", "")}
+             |${edges
+              .map(v => v.toSeq.sorted.mkString("[", ", ", "]"))
+              .toSeq
+              .sorted
+              .mkString("\t\t", ",\n\t\t", "")}
              |\t],
              |\t"transactionsOf": [
-             |${nodeToTrs.map((k,v)=> s"[$k, ${v.mkString("[", ", ", "]")}]").mkString("\t\t", ",\n\t\t", "")}
+             |${nodeToTrs
+              .map((k, v) => s"[$k, ${v.mkString("[", ", ", "]")}]")
+              .mkString("\t\t", ",\n\t\t", "")}
              |\t],
              |\t"names": [
-             |${names.map((k,v)=> s"[$k, $v]").mkString("\t\t", ",\n\t\t", "")}
+             |${names
+              .map((k, v) => s"[$k, $v]")
+              .mkString("\t\t", ",\n\t\t", "")}
              |\t]
              |} """.stripMargin
         )

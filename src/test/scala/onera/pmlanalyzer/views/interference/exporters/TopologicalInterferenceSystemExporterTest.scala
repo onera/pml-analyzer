@@ -56,7 +56,7 @@ class TopologicalInterferenceSystemExporterTest
         )
       }
     }
-    
+
     it should "export in JSON format" taggedAs FastTests in {
       platform.exportTopologicalInterferenceSystemAsJSON()
     }

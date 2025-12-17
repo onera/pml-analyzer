@@ -177,7 +177,8 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       ddr <- ddrs
       (bank, j) <- ddr.banks.zipWithIndex
     } yield {
-      val dma_wr_bank = Transaction(s"dma_wr_bank${ddr.id}_BK$j",app_dma write bank)
+      val dma_wr_bank =
+        Transaction(s"dma_wr_bank${ddr.id}_BK$j", app_dma write bank)
       Transaction(
         s"t_dma_st_DDR${ddr.id}_BK${j}",
         dma_rd_eth,
@@ -190,7 +191,8 @@ trait GenericTransactionLibrary(withDMA: Boolean = true)
       cluster <- group.clusters.flatten
       sram <- cluster.SRAM
     } yield {
-      val dma_wr_sram = Transaction(s"dma_wr_sram${sram.name}", app_dma write sram)
+      val dma_wr_sram =
+        Transaction(s"dma_wr_sram${sram.name}", app_dma write sram)
       Transaction(
         s"t_dma_rd_G${group.id}_Cl${cluster.id}_SRAM${sram.name}",
         dma_rd_eth,
