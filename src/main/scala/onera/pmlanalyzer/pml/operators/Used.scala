@@ -17,13 +17,10 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.PMLNodeMap
-import onera.pmlanalyzer.pml.model.hardware.{Initiator, Platform, Target}
-import onera.pmlanalyzer.pml.model.relations.UseRelation
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
-import onera.pmlanalyzer.pml.model.utils.Message.*
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.PMLNodeMap
+import onera.pmlanalyzer.pml.model.relations.UseRelation
+import onera.pmlanalyzer.pml.model.utils.Message.*
 import onera.pmlanalyzer.pml.operators.DelayedTransform.TransactionParam
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.{
   AtomicTransaction,
@@ -31,7 +28,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   Path
 }
 import scalaz.Memo.immutableHashMapMemo
-
 import scala.collection.mutable
 import scala.reflect.*
 

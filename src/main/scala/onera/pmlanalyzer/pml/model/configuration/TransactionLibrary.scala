@@ -18,13 +18,10 @@
 
 package onera.pmlanalyzer.pml.model.configuration
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
-import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.pml.model.software.Application
-import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.*
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.pml.operators.Transform
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
 /** Base trait for library of transactions

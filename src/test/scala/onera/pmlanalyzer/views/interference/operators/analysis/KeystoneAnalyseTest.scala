@@ -1,19 +1,18 @@
 package onera.pmlanalyzer.views.interference.operators.analysis
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.*
+import onera.pmlanalyzer.views.interference.operators.Analyse
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.operators.Analyse
-
-import scala.concurrent.{Await, TimeoutException}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.{Await, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 

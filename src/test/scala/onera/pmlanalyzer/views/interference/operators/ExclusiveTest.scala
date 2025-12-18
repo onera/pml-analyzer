@@ -1,8 +1,5 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests

@@ -17,15 +17,10 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTargetFolder
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
-}
 import onera.pmlanalyzer.views.dependability.model.*
 
 private[pmlanalyzer] trait TargetCeciliaExporter {

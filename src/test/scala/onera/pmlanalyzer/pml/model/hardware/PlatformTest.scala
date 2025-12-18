@@ -17,11 +17,10 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
-import onera.pmlanalyzer.pml.model.PMLNodeBuilder
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.*
-import onera.pmlanalyzer.pml.model.software.*
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.PMLNodeBuilder
+import onera.pmlanalyzer.pml.model.service.{LoadArbitrary, StoreArbitrary}
+import onera.pmlanalyzer.pml.model.software.ApplicationArbitrary
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.flatspec.AnyFlatSpec

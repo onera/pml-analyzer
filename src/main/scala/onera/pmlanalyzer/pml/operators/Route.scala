@@ -17,11 +17,9 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.pml.model.PMLNodeMap
 import onera.pmlanalyzer.pml.model.relations.RoutingRelation
-import onera.pmlanalyzer.pml.model.service.*
 import onera.pmlanalyzer.pml.model.utils.Message.uselessRoutingConstraintWarning
 import onera.pmlanalyzer.pml.model.utils.{Context, Owner}
 import sourcecode.{File, Line}

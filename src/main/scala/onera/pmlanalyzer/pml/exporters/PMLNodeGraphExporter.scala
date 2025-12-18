@@ -45,7 +45,6 @@ private[pmlanalyzer] object PMLNodeGraphExporter {
       def graphExportName(exporter: PlatformExporter): String =
         platform.fullName + exporter.name.name + "." + exporter.extension.name
 
-      // TODO inconsistency with the platform naming format
       /** For a software the name of the export file will be
         * platform_nameSoftware_name.exporter_extension
         * @param sw

@@ -17,10 +17,6 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.configuration.Transaction
-import onera.pmlanalyzer.pml.model.hardware.Initiator
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.*
 
 private[pmlanalyzer] sealed trait DelayedTransform[L, R] private {

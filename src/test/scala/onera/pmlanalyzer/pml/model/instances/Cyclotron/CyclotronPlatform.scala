@@ -18,7 +18,6 @@
 
 package onera.pmlanalyzer.pml.model.instances.Cyclotron
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
 import sourcecode.{File, Line, Name}
 

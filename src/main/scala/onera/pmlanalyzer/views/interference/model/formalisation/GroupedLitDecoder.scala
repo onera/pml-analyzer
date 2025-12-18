@@ -82,8 +82,7 @@ private[pmlanalyzer] trait GroupedLitDecoder extends Decoder {
           Implies(
             kv._2,
             And(
-              system
-                .exclusiveWithTr(kv._1)
+              (system.exclusiveWithTr(kv._1) - kv._1)
                 .intersect(trVariables.keySet)
                 .map(trVariables)
                 .map(Not.apply)

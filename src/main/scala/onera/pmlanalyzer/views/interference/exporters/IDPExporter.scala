@@ -17,20 +17,12 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
-import onera.pmlanalyzer.pml.model.hardware.{
-  Initiator,
-  Platform,
-  Target,
-  Transporter
-}
-import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.exporters.FileManager
+import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import scalaz.Memo.immutableHashMapMemo
-
 import java.io.{FileWriter, Writer}
 import scala.collection.mutable.HashMap as MHashMap
 

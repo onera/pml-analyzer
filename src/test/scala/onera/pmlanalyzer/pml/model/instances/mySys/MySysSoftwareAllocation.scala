@@ -17,9 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.instances.mySys
 
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
-
 import scala.language.postfixOps
 
 /** Definition and allocation of software and data to hardware for simple

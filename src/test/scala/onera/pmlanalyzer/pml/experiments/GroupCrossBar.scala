@@ -17,8 +17,6 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.{Composite, SimpleTransporter}
-import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.*
 
 final class GroupCrossBar private (

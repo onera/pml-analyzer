@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.pml.exporters
 
-import onera.pmlanalyzer.pml.model.relations.Relation
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.relations.Relation
 
 import java.io.FileWriter
 

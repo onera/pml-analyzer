@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.hardware.{
   Hardware,
@@ -27,9 +28,7 @@ import onera.pmlanalyzer.pml.model.hardware.{
   Target as PMLTarget,
   Transporter as PMLTransporter
 }
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 import onera.pmlanalyzer.views.dependability.model.{

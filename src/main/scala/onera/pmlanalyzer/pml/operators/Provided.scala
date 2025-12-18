@@ -17,13 +17,9 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.ProvideRelation
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Data
-import onera.pmlanalyzer.pml.model.utils.Owner
 import onera.pmlanalyzer.*
-
+import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import scala.reflect.*
 
 /** Base trait for provide operator
@@ -109,8 +105,7 @@ private[pmlanalyzer] object Provided {
 
     /** Extension methods
       */
-    extension [L <: Platform](self: L) {
-
+    extension [L](self: L) {
       def initiators(using ev: Provided[L, Hardware]): Set[Initiator] =
         ev(self).collect({ case x: Initiator => x })
 
@@ -121,12 +116,15 @@ private[pmlanalyzer] object Provided {
 
       def transporters(using ev: Provided[L, Hardware]): Set[Transporter] =
         ev(self).collect({ case x: Transporter => x })
+    }
+
+    extension [P <: Platform](self: P) {
 
       /** Provide all the physical elements declared inside the composite
-        *
-        * @return
-        *   set of declared component
-        */
+       *
+       * @return
+       *   set of declared component
+       */
       def directHardware: Set[Hardware] = {
         import self.*
         Initiator.allDirect ++ Target.allDirect ++ Virtualizer.allDirect ++ SimpleTransporter.allDirect ++ Composite.allDirect
@@ -134,7 +132,7 @@ private[pmlanalyzer] object Provided {
     }
 
     /** Extension methods for iterable
-      */
+     */
     extension [L](self: Iterable[L]) {
       def loads(using ev: Provided[L, Load]): Set[Load] =
         self.flatMap(ev.apply).toSet
@@ -219,6 +217,28 @@ private[pmlanalyzer] object Provided {
     def owner(b: Hardware): Set[L] =
       for {
         p <- Platform.all.collect { case p: L => p }
+        if {
+          import p.*
+          p.hardware.contains(b)
+        }
+      } yield p
+  }
+
+  given [C <: Composite: Typeable](using
+      owner: Owner,
+      context: Context
+  ): Provided[C, Hardware] with {
+
+    def apply(a: C): Set[Hardware] = {
+      import a.*
+      Initiator.all ++ Target.all ++ Virtualizer.all ++ SimpleTransporter.all
+    }
+
+    def owner(b: Hardware): Set[C] =
+      for {
+        p <- Composite
+          .all(owner, context.memoComposite, context.memoComposite)
+          .collect { case p: C => p }
         if {
           import p.*
           p.hardware.contains(b)

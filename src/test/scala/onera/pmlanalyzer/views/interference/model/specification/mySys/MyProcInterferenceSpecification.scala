@@ -17,10 +17,8 @@
 
 package onera.pmlanalyzer.views.interference.model.specification.mySys
 
-import onera.pmlanalyzer.pml.model.hardware.Initiator
-import onera.pmlanalyzer.pml.model.instances.mySys.MyProcPlatform
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.instances.mySys.MyProcPlatform
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import onera.pmlanalyzer.views.interference.model.specification.PhysicalTableBasedInterferenceSpecification
 

@@ -17,19 +17,14 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.relations.{
   AuthorizeRelation,
   LinkRelation,
   RoutingRelation,
   UseRelation
 }
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-
 import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap
@@ -260,7 +255,7 @@ private[pmlanalyzer] object Restrict {
             val initialGraph = serviceGraph()
             val exclusiveServices = services
               .map(s =>
-                s -> services.filter(s2 => spec.finalInterfereWith(s, s2))
+                s -> (services - s).filter(s2 => spec.finalInterfereWith(s, s2))
               )
               .toMap
             val newNodes = services.flatMap(s =>
@@ -296,7 +291,7 @@ private[pmlanalyzer] object Restrict {
             val initialGraph = self.context.ServiceLinkableToService.edges
             val exclusiveServices = services
               .map(s =>
-                s -> services.filter(s2 => spec.finalInterfereWith(s, s2))
+                s -> (services - s).filter(s2 => spec.finalInterfereWith(s, s2))
               )
               .toMap
             val newNodes = services.flatMap(s =>

@@ -17,8 +17,6 @@
 
 package onera.pmlanalyzer.pml.model.instances.mySys
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.*
 import sourcecode.{File, Line, Name}
 

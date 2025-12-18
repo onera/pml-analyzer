@@ -28,7 +28,7 @@ import scala.language.postfixOps
 trait FU740PhysicalTableBasedInterferenceSpecification
     extends PhysicalTableBasedInterferenceSpecification {
   self: FU740Platform with FU740LibraryConfiguration =>
-
+  
   /* All services from a single component interfere with each other.
    */
   for {
@@ -57,9 +57,7 @@ trait FU740PhysicalTableBasedInterferenceSpecification
   for {
     t <- atomicTransactions
     c <- u74_cluster.cores
-    u <- uart.hardware.collect({ case x: Target =>
-      x
-    }) /* FIXME Should has an extension to collect targets ? */
+    u <- uart.targets
     if t.useInitiator(c)
     if t.useTarget(u)
 

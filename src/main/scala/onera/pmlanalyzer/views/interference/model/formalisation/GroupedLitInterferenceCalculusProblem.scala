@@ -17,14 +17,8 @@
 
 package onera.pmlanalyzer.views.interference.model.formalisation
 
-import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.formalisation.Comparator.EQ
-import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.{
-  EdgeId,
-  LitId,
-  NodeId
-}
+import onera.pmlanalyzer.views.interference.model.formalisation.ModelElement.LitId
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.*
 import scalaz.Memo.immutableHashMapMemo
 
@@ -34,18 +28,6 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
     system: TopologicalInterferenceSystem
 ) extends InterferenceCalculusProblem
     with GroupedLitDecoder {
-
-  private def undirectedEdgeId(l: MNode, r: MNode): EdgeId = Symbol(
-    List(l, r).map(_.id.name).sorted.mkString("--")
-  )
-
-  private def nodeId(s: Set[Symbol]): NodeId = Symbol(
-    s.toList.map(_.name).sorted.mkString("<", "$", ">")
-  )
-
-  private val addNode: Set[Symbol] => MNode = immutableHashMapMemo { ss =>
-    MNode(nodeId(ss))
-  }
 
   private val addEdge: ((MNode, MNode)) => MEdge = immutableHashMapMemo {
     (l, r) =>
@@ -76,22 +58,12 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
                   !system.exclusiveWithATr(t).contains(t2) &&
                   system
                     .atomicTransactions(t2)
-                    .exists(s2 =>
-                      s2 == s || system.interfereWith(s2).contains(s)
-                    )
+                    .exists(s2 => system.interfereWith(s2).contains(s))
               )
             )
         )
       )
       .toMap
-
-  // the nodes of the service graph are the services grouped by exclusivity pairs
-  private val serviceToNodes = system.interfereWith.transform((k, v) =>
-    if (v.isEmpty)
-      Set(addNode(Set(k)))
-    else
-      v.map(k2 => addNode(Set(k, k2)))
-  )
 
   val nodeToServices: Map[MNode, Set[Symbol]] = serviceToNodes.keySet
     .flatMap(k => serviceToNodes(k).map(_ -> k))
@@ -105,7 +77,10 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
     .values
     .flatMap(ss => ss.map(_ -> ss))
     .groupMapReduce(_._1)(x => addLit(groupedTransactionsLitId(x._2.toSet).id))(
-      (l, _) => l
+      (l, r) => {
+        assert(l == r)
+        l
+      }
     )
 
   val groupedLitToTransactions: Map[MLit, Set[PhysicalTransactionId]] =
@@ -113,10 +88,15 @@ private[pmlanalyzer] final case class GroupedLitInterferenceCalculusProblem(
       .groupMap(_._2)(_._1)
       .transform((_, v) => v.toSet)
 
-  val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]] = transactionToGroupedLit
-    .groupMapReduce(_._2)(kv => reducedNodePath(kv._1).map(_.toSet.flatten))(
-      (l, _) => l
-    )
+  val groupedLitToNodeSet: Map[MLit, Set[Set[MNode]]] = {
+    transactionToGroupedLit
+      .groupMapReduce(_._2)(kv => reducedNodePath(kv._1).map(_.toSet.flatten))(
+        (l, r) => {
+          assert(l == r)
+          l
+        }
+      )
+  }
 
   // Add an undirected edge for any set containing two nodes
   private val addUndirectedEdgeI: Set[MNode] => MEdge = immutableHashMapMemo {

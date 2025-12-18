@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.automatonFamilyFolder
@@ -25,12 +26,6 @@ import onera.pmlanalyzer.views.dependability.model.{
   Fire,
   InputFMAutomaton,
   SimpleFMAutomaton
-}
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
 }
 
 private[pmlanalyzer] trait AutomatonCeciliaExporter {

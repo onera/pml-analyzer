@@ -17,18 +17,14 @@
 
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.{Provided, Transform}
-import onera.pmlanalyzer.views.interference.model.relations.{
-  InterfereRelation,
-  NotInterfereRelation
-}
+import onera.pmlanalyzer.views.interference.model.relations.InterfereRelation.InterfereRelation
+import onera.pmlanalyzer.views.interference.model.relations.*
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 import sourcecode.{File, Line}
 
-private[pmlanalyzer] trait Interfere[L, R] {
+private[pmlanalyzer] trait Interfere[-L, -R] {
   def interfereWith(l: L, r: R)(using line: Line, file: File): Unit
 
   def notInterfereWith(l: L, r: R)(using line: Line, file: File): Unit
@@ -92,8 +88,8 @@ private[pmlanalyzer] object Interfere {
   }
 
   given [L, R](using
-      a: InterfereRelation[L, R],
-      n: NotInterfereRelation[L, R]
+      a: BasicInterfereRelation[L, R],
+      n: BasicNotInterfereRelation[L, R]
   ): Interfere[L, R] with {
     def interfereWith(l: L, r: R)(using line: Line, file: File): Unit =
       a.add(l, r)
@@ -102,14 +98,15 @@ private[pmlanalyzer] object Interfere {
       n.add(l, r)
   }
 
-  given [LS <: Service, RS <: Service](using
-      ev: Interfere[Service, Service]
-  ): Interfere[LS, RS] with {
-    def interfereWith(l: LS, r: RS)(using line: Line, file: File): Unit =
-      ev.interfereWith(l, r)
+  given [L](using
+      a: InterfereEndomorphism[L],
+      n: NotInterfereEndomorphism[L]
+  ): Interfere[L, L] with {
+    def interfereWith(l: L, r: L)(using line: Line, file: File): Unit =
+      a.add(l, r)
 
-    def notInterfereWith(l: LS, r: RS)(using line: Line, file: File): Unit =
-      ev.notInterfereWith(l, r)
+    def notInterfereWith(l: L, r: L)(using line: Line, file: File): Unit =
+      n.add(l, r)
   }
 
   given [R <: Service](using
@@ -173,15 +170,4 @@ private[pmlanalyzer] object Interfere {
       for { id <- transformation(l) }
         ev.notInterfereWith(id, r)
   }
-
-  given [LH <: Hardware, RH <: Hardware](using
-      ev: Interfere[Hardware, Hardware]
-  ): Interfere[LH, RH] with {
-    def interfereWith(lh: LH, rh: RH)(using line: Line, file: File): Unit =
-      ev.interfereWith(lh, rh)
-
-    def notInterfereWith(lh: LH, rh: RH)(using line: Line, file: File): Unit =
-      ev.notInterfereWith(lh, rh)
-  }
-
 }

@@ -19,7 +19,7 @@ package onera.pmlanalyzer.views.interference.operators
 
 import onera.pmlanalyzer.views.interference.model.relations.EquivalenceRelation
 
-private[pmlanalyzer] sealed trait Equivalent[T] {
+private[pmlanalyzer] sealed trait Equivalent[-T] {
   def equivalent(l: T, r: T): Unit
 }
 

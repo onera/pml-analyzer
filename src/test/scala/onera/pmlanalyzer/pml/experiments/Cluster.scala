@@ -17,11 +17,9 @@
 
 package onera.pmlanalyzer.pml.experiments
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.ProvideRelation
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.relations.ProvideRelation
+import onera.pmlanalyzer.pml.model.utils.{Context, ReflexiveInfo}
 
 sealed abstract class Cluster(n: Symbol, clusterInfo: ReflexiveInfo, c: Context)
     extends Composite(n, clusterInfo, c) {
