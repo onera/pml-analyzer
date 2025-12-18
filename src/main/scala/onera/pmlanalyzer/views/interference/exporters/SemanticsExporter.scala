@@ -17,16 +17,14 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
-import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Platform}
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.operators.Provided
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.Monosat
 import onera.pmlanalyzer.views.interference.operators.Analyse
-
 import java.io.{File, FileWriter}
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

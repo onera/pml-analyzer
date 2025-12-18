@@ -267,8 +267,13 @@ private[pmlanalyzer] trait InterferenceSpecification {
       symmetric[Service](interfereWith)(l, r) ||
         (l.hardwareOwner.nonEmpty &&
           r.hardwareOwner.nonEmpty &&
-          l.hardwareOwner.exists(ol =>
-            r.hardwareOwner.exists(or => ol != or && finalInterfereWith(ol, or))
+          l.hardwareOwner.exists(ownerLeft =>
+            r.hardwareOwner.exists(ownerRight =>
+              ownerLeft != ownerRight && finalInterfereWith(
+                ownerLeft,
+                ownerRight
+              )
+            )
           ) // service owner are exclusive
         )
     )

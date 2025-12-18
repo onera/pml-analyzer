@@ -18,11 +18,11 @@
 
 package onera.pmlanalyzer.pml.experiments
 
+import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.PerfTests
 import onera.pmlanalyzer.views.interference.model.formalisation.DefaultInterferenceCalculusProblem
@@ -35,7 +35,6 @@ import onera.pmlanalyzer.views.interference.model.specification.{
 import onera.pmlanalyzer.views.interference.operators.PostProcess
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-
 import java.io.FileWriter
 import scala.collection.parallel.CollectionConverters.*
 import scala.concurrent.ExecutionContext.Implicits.*

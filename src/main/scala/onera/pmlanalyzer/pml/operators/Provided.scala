@@ -17,13 +17,9 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.relations.ProvideRelation
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Data
-import onera.pmlanalyzer.pml.model.utils.Owner
 import onera.pmlanalyzer.*
-
+import onera.pmlanalyzer.pml.model.utils.Owner
+import onera.pmlanalyzer.pml.model.relations.ProvideRelation
 import scala.reflect.*
 
 /** Base trait for provide operator

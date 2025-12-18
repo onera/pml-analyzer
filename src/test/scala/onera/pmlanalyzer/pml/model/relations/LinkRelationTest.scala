@@ -17,14 +17,12 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.hardware.PlatformArbitrary.{
   PopulatedPlatform,
   given
 }
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Linked
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
 import org.scalatest.flatspec.AnyFlatSpec

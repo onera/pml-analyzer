@@ -17,16 +17,9 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.{
-  Hardware,
-  Initiator,
-  Target,
-  Transporter
-}
-import onera.pmlanalyzer.pml.model.relations.LinkRelation
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import sourcecode.{File, Line}
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.relations.LinkRelation
+import sourcecode.{File, Line}
 
 import scala.reflect.{ClassTag, classTag}
 

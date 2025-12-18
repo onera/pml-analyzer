@@ -17,19 +17,14 @@
 
 package onera.pmlanalyzer.pml.operators
 
-import onera.pmlanalyzer.pml.model.hardware.{Hardware, Initiator, Platform}
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.relations.{
   AuthorizeRelation,
   LinkRelation,
   RoutingRelation,
   UseRelation
 }
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.pml.model.service.{Load, Service, Store}
-import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
-
 import scala.collection.immutable.{AbstractSet, SortedSet}
 import scala.collection.mutable
 import scala.collection.mutable.HashMap as MHashMap

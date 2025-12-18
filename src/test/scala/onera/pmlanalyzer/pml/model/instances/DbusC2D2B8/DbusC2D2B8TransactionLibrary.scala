@@ -18,9 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
-import onera.pmlanalyzer.pml.model.configuration.*
 import onera.pmlanalyzer.*
-
 import scala.language.postfixOps
 
 trait DbusC2D2B8TransactionLibrary extends TransactionLibrary {

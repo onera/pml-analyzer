@@ -1,6 +1,5 @@
 package onera.pmlanalyzer.pml.model.instances.keystone
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
 
 /**

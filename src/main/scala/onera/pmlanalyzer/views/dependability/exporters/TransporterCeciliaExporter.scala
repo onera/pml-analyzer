@@ -20,19 +20,14 @@ package onera.pmlanalyzer.views.dependability.exporters
 import onera.pmlanalyzer.views.dependability.exporters.CeciliaExporter.Aux
 import onera.pmlanalyzer.views.dependability.exporters.GenericImage.*
 import onera.pmlanalyzer.views.dependability.exporters.PhylogFolder.phylogTransporterFolder
+import onera.pmlanalyzer.views.dependability.model.*
 import onera.pmlanalyzer.{
-  SimpleTransporter => PMLSimpleTransporter,
-  Initiator => PMLInitiator,
-  Target => PMLTarget,
-  Virtualizer => PMLVirtualizer,
+  Initiator as PMLInitiator,
+  SimpleTransporter as PMLSimpleTransporter,
+  Target as PMLTarget,
+  Virtualizer as PMLVirtualizer,
   *
 }
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
-}
-import onera.pmlanalyzer.views.dependability.model.*
 
 private[pmlanalyzer] trait TransporterCeciliaExporter {
   self: TypeCeciliaExporter

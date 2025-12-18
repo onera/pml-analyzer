@@ -1,13 +1,10 @@
 package onera.pmlanalyzer.views.interference.model.specification.keystone
 
-import onera.pmlanalyzer.pml.model.hardware.Hardware
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.instances.keystone.{
   KeystonePlatform,
   RosaceConfiguration
 }
-import onera.pmlanalyzer.pml.model.service.Service
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification
 
 trait RosaceInterferenceSpecification
     extends InterferenceSpecification.Default {

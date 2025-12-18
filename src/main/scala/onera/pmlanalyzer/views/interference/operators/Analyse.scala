@@ -18,13 +18,13 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import com.github.javabdd.BDD
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default

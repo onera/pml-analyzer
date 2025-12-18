@@ -17,13 +17,9 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
-import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.exporters.SubComponent
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite
-}
+import onera.pmlanalyzer.views.dependability.model.CustomTypes.TargetStatus
 
 private[pmlanalyzer] trait Software[FM] extends Component {
   val id: SoftwareId

@@ -19,8 +19,8 @@ package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.relations.{
-  ReflexiveSymmetricEndomorphism,
-  Endomorphism
+  Endomorphism,
+  ReflexiveSymmetricEndomorphism
 }
 import onera.pmlanalyzer.pml.model.software.Application
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId

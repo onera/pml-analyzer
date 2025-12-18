@@ -17,14 +17,13 @@
 
 package onera.pmlanalyzer.views.interference.model.specification.mySys
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.instances.mySys.{
   MyProcPlatform,
   MySysLibraryConfiguration,
   MySysSoftwareAllocation,
   MySysTransactionLibrary
 }
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 
 /** The interference calculus assumptions for the MySys's applications are
   * gathered here. For instance app22 and app3 cannot execute simultaneously so

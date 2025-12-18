@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.pml.model.hardware
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.PMLNodeSetArbitrary
 import onera.pmlanalyzer.pml.model.configuration.{
   TransactionArbitrary,
@@ -28,10 +29,12 @@ import onera.pmlanalyzer.pml.model.relations.{
   RoutingRelationArbitrary,
   UseRelationArbitrary
 }
-import onera.pmlanalyzer.pml.model.service.*
-import onera.pmlanalyzer.pml.model.software.*
+import onera.pmlanalyzer.pml.model.service.{LoadArbitrary, StoreArbitrary}
+import onera.pmlanalyzer.pml.model.software.{
+  ApplicationArbitrary,
+  DataArbitrary
+}
 import onera.pmlanalyzer.pml.model.utils.ArbitraryConfiguration
-import onera.pmlanalyzer.*
 import org.scalacheck.{Arbitrary, Gen}
 import sourcecode.{File, Line}
 

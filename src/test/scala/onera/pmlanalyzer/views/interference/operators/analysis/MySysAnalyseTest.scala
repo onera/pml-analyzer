@@ -17,8 +17,8 @@
 
 package onera.pmlanalyzer.views.interference.operators.analysis
 
-import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 import onera.pmlanalyzer.*
+import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 import onera.pmlanalyzer.pml.model.utils.Message
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.*
@@ -34,9 +34,8 @@ import onera.pmlanalyzer.views.interference.model.formalisation.{
 import org.chocosolver.solver.exception.InvalidSolutionException
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-
-import scala.concurrent.{Await, TimeoutException}
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, TimeoutException}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 

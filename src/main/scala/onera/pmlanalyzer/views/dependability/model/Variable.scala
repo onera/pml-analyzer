@@ -19,14 +19,13 @@ package onera.pmlanalyzer.views.dependability.model
 
 import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
 import onera.pmlanalyzer.pml.model.software.Data
-import onera.pmlanalyzer.{Target => PMLTarget, *}
 import onera.pmlanalyzer.pml.operators.Used
 import onera.pmlanalyzer.views.dependability.operators.{
   IsCriticalityOrdering,
   IsFinite
 }
+import onera.pmlanalyzer.{Target as PMLTarget, *}
 import scalaz.Leibniz
-
 import scala.language.implicitConversions
 
 sealed trait Expr[+T] {
