@@ -100,7 +100,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
     *   true if they cannot work simultaneously
     */
   final def finalInterfereWith(l: Hardware, r: Hardware): Boolean =
-    antiReflexive(l, r) && symmetric[Hardware](interfereWith)(l, r)
+    reflexive(l, r) || symmetric[Hardware](interfereWith)(l, r)
 
   /** Check whether two atomic transaction will not occur simultaneously
     * @group exclusive_predicate
@@ -115,7 +115,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: AtomicTransactionId,
       r: AtomicTransactionId
   ): Boolean = {
-    antiReflexive(l, r) && symmetric[AtomicTransactionId](
+    reflexive(l, r) || symmetric[AtomicTransactionId](
       exclusiveWith
     )(l, r)
   }
@@ -133,7 +133,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       l: PhysicalTransactionId,
       r: PhysicalTransactionId
   ): Boolean =
-    antiReflexive(l, r) &&
+    reflexive(l, r) ||
       symmetric((le: PhysicalTransactionId, re: PhysicalTransactionId) =>
         purifiedTransactions(le).exists(t =>
           purifiedTransactions(re).exists(tp => finalExclusive(t, tp))
@@ -163,6 +163,12 @@ private[pmlanalyzer] trait InterferenceSpecification {
   private final def purify(t: AtomicTransactionId): AtomicTransaction =
     atomicTransactionsByName.get(t) match {
       case Some(h :: tail) =>
+        val bothInterfereAndNotInterfere =
+          transactionInterfereWith(t).intersect(transactionNotInterfereWith(t))
+        require(
+          bothInterfereAndNotInterfere.isEmpty,
+          s"[ERROR] services ${bothInterfereAndNotInterfere.mkString(",")} are both declared as interfering and not interfering with $t"
+        )
         (h +: (transactionInterfereWith(t).toList.sortBy(_.name.name) ++ tail))
           .filterNot(transactionNotInterfereWith(t))
       case _ => Nil
@@ -232,7 +238,7 @@ private[pmlanalyzer] trait InterferenceSpecification {
       .exists(ls =>
         r.flatMap(purifiedTransactions)
           .flatMap(purifiedAtomicTransactions)
-          .exists(rs => ls == rs || finalInterfereWith(ls, rs))
+          .exists(rs => finalInterfereWith(ls, rs))
       )
 
   /** Provide the map encoding of channelNonEmpty
@@ -257,12 +263,17 @@ private[pmlanalyzer] trait InterferenceSpecification {
     *   true if they interfere
     */
   final def finalInterfereWith(l: Service, r: Service): Boolean = {
-    antiReflexive(l, r) && (
+    reflexive(l, r) || (
       symmetric[Service](interfereWith)(l, r) ||
         (l.hardwareOwner.nonEmpty &&
           r.hardwareOwner.nonEmpty &&
-          l.hardwareOwner.exists(ol =>
-            r.hardwareOwner.exists(or => finalInterfereWith(ol, or))
+          l.hardwareOwner.exists(ownerLeft =>
+            r.hardwareOwner.exists(ownerRight =>
+              ownerLeft != ownerRight && finalInterfereWith(
+                ownerLeft,
+                ownerRight
+              )
+            )
           ) // service owner are exclusive
         )
     )

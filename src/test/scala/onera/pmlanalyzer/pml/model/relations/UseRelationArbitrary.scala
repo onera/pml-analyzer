@@ -17,16 +17,9 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.{
-  Hardware,
-  Initiator,
-  Platform,
-  Target
-}
-import onera.pmlanalyzer.pml.model.service.Service
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Use
 import org.scalacheck.{Arbitrary, Gen}
 

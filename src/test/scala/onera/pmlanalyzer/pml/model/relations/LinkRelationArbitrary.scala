@@ -17,12 +17,10 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.*
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.model.relations.LinkRelationArbitrary.removeNonReachableFrom
-import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.GenExtension.*
 import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Provided
 import org.scalacheck.{Arbitrary, Gen}
 

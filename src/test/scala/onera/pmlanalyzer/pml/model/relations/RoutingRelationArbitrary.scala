@@ -17,11 +17,9 @@
 
 package onera.pmlanalyzer.pml.model.relations
 
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.service.*
-import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
 import onera.pmlanalyzer.*
-import onera.pmlanalyzer.pml.operators.{Used, Provided}
+import onera.pmlanalyzer.pml.model.utils.{All, ArbitraryConfiguration}
+import onera.pmlanalyzer.pml.operators.{Provided, Used}
 import org.scalacheck.{Arbitrary, Gen}
 
 trait RoutingRelationArbitrary {

@@ -34,6 +34,7 @@ package object pmlanalyzer
     onera.pmlanalyzer.pml.model.PMLNodeBuilder
 
   type Hardware = onera.pmlanalyzer.pml.model.hardware.Hardware
+  type Transporter = onera.pmlanalyzer.pml.model.hardware.Transporter
   type Target = onera.pmlanalyzer.pml.model.hardware.Target
   val Target: onera.pmlanalyzer.pml.model.hardware.Target.type =
     onera.pmlanalyzer.pml.model.hardware.Target

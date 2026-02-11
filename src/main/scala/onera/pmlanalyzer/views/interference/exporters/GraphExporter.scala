@@ -17,12 +17,11 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.PMLNodeGraphExporter.DOTServiceOnly
 import onera.pmlanalyzer.pml.exporters.{FileManager, PMLNodeGraphExporter}
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
-import onera.pmlanalyzer.pml.model.hardware.Platform
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm
@@ -34,7 +33,6 @@ import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpec
   multiTransactionId
 }
 import onera.pmlanalyzer.views.interference.operators.Analyse
-
 import java.io.{File, FileWriter}
 import java.text.NumberFormat
 import java.util.Locale

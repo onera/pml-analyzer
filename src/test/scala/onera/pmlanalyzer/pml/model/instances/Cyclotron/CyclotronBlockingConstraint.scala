@@ -18,9 +18,7 @@
 
 package onera.pmlanalyzer.pml.model.instances.Cyclotron
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
-
 import scala.language.postfixOps
 
 /* There is no path from the DMA to the group. The constraints is null, but

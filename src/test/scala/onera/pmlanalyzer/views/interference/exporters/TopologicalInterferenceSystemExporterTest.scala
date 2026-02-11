@@ -17,13 +17,12 @@
 
 package onera.pmlanalyzer.views.interference.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.instances.keystone.KeystoneWithRosace
 import onera.pmlanalyzer.pml.model.instances.mySys.MySys
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.FastTests
 import onera.pmlanalyzer.views.interference.model.formalisation.TopologicalInterferenceSystem
-import onera.pmlanalyzer.views.interference.model.specification.ApplicativeTableBasedInterferenceSpecification
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -55,6 +54,10 @@ class TopologicalInterferenceSystemExporterTest
           )
         )
       }
+    }
+
+    it should "export in JSON format" taggedAs FastTests in {
+      platform.exportTopologicalInterferenceSystemAsJSON()
     }
 
     it should "be consistent with expected tables" taggedAs FastTests in {

@@ -17,6 +17,7 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.model.{
   Component,
   Direction,
@@ -24,12 +25,6 @@ import onera.pmlanalyzer.views.dependability.model.{
   Variable,
   VariableId,
   System as DepSystem
-}
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
 }
 
 private[pmlanalyzer] trait BasicOperationCeciliaExporter {

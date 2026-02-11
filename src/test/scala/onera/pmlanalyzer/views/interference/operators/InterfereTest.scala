@@ -1,8 +1,5 @@
 package onera.pmlanalyzer.views.interference.operators
 
-import onera.pmlanalyzer.pml.model.configuration.*
-import onera.pmlanalyzer.pml.model.hardware.*
-import onera.pmlanalyzer.pml.model.software.{Application, Data}
 import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.operators.Transform.TransactionLibraryInstances
 import onera.pmlanalyzer.views.interference.InterferenceTestExtension.UnitTests
@@ -76,6 +73,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
       for {
         l <- a.services
         r <- b.services
+        if r != l
       } {
         l notInterfereWith r
         serviceNotInterfere(l) should contain(r)
@@ -131,9 +129,9 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
     for {
       a <- InterfereTestPlatform.hardware
       b <- InterfereTestPlatform.hardware
+      if b != a
     } {
       a notInterfereWith b
-      // hardwareInterfere(a) should not contain (b)
       hardwareNotInterfere(a) should contain(b)
     }
     InterfereTestPlatform.hardware.size should be(6)
@@ -161,6 +159,7 @@ class InterfereTest extends AnyFlatSpecLike with should.Matchers {
       for {
         b1 <- a.services
         b2 <- a.services
+        if b2 != b1
       } {
         serviceNotInterfere(b1) should contain(b2)
       }

@@ -17,9 +17,9 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
+import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
+import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
 import onera.pmlanalyzer.pml.model.hardware.{Platform, Target as PMLTarget}
-import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
-import onera.pmlanalyzer.pml.model.hardware.Target as PMLTarget
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication
 import onera.pmlanalyzer.pml.model.software.Application as PMLApplication

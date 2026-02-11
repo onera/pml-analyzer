@@ -21,7 +21,7 @@ import fastparse.*
 import fastparse.SingleLineWhitespace.*
 import monosat.Lit
 import onera.pmlanalyzer.pml.exporters.FileManager
-import onera.pmlanalyzer.pml.model.utils.Message
+import onera.pmlanalyzer.pml.model.utils.{InjectiveMap, Message}
 import onera.pmlanalyzer.views.interference.model.formalisation
 import onera.pmlanalyzer.views.interference.model.formalisation.SolverImplm.{
   CPSat,
@@ -44,7 +44,6 @@ import java.io.{File, FileWriter, IOException}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.sys.process.Process
-import scala.util.{Failure, Success, Try}
 
 private[pmlanalyzer] enum SolverImplm {
   case Monosat extends SolverImplm
@@ -435,27 +434,21 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   private val graphLitCache = mutable.Map.empty[MGraph, Graph]
   private val boolLitCache = mutable.Map.empty[MLit, String]
 
-  // FIXME First step with file, but consider Stream from terminal
-  private val miniZincFile: File =
-    FileManager.getMiniZincFile(this.hashCode())
-  protected val fileWriter = FileWriter(miniZincFile)
-
-  fileWriter.write("include \"connected.mzn\";\n")
+  private val miniZincProblem = mutable.ListBuffer.empty[String]
 
   private def formatName(s: String) =
     s.replaceAll("[<>|]", "")
       .replaceAll("\\$|--", "_")
 
   def assert(lt: Expr | Connected): Unit =
-    fileWriter.write(
+    miniZincProblem +=
       s"constraint(${lt match {
           case e: Expr      => e.toExpr(this)
           case c: Connected => c.toConstraint(this)
         }});\n"
-    )
 
   def assertPB(l: Seq[ALit], c: Comparator, k: Int): Unit =
-    fileWriter.write(
+    miniZincProblem +=
       s"constraint(${l.map(_.toLit(this)).mkString("(", " + ", ")")}${c match {
           case Comparator.LT => "<"
           case Comparator.LE => "<="
@@ -463,7 +456,6 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
           case Comparator.GE => ">="
           case Comparator.GT => ">"
         }} $k);\n"
-    )
 
   def graphLit(g: MGraph): GraphLit = graphLitCache.getOrElseUpdate(
     g, {
@@ -489,7 +481,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
           (nId, _) <- nMap.get(eId.to)
         } yield nId
 
-      fileWriter.write(
+      miniZincProblem +=
         s"""%% Nodes definition
            |set of int: Node = 1..${nMap.size};
            |${nMap.toSeq
@@ -524,7 +516,6 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
             .map(x => eMap(x)._2)
             .mkString("[", ", ", "]")};
            |""".stripMargin
-      )
       Graph(
         nMap.map((k, v) => k.id.name -> v),
         eMap.map((k, v) => k.id.name -> v),
@@ -537,7 +528,7 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   def boolLit(a: MLit): BoolLit =
     boolLitCache.getOrElseUpdate(
       a, {
-        fileWriter.write(s"var bool: ${formatName(a.id.name)};\n")
+        miniZincProblem += s"var bool: ${formatName(a.id.name)};\n"
         formatName(a.id.name)
       }
     )
@@ -578,7 +569,11 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
 
   def exportGraph(g: MGraph, file: File): File = ???
 
-  def close(): Unit = {}
+  def close(): Unit = {
+    miniZincProblem.clear()
+    boolLitCache.clear()
+    graphLitCache.clear()
+  }
 
   private def parseValuation[$: P] =
     P(
@@ -600,17 +595,21 @@ private[pmlanalyzer] sealed abstract class MiniZincSolver extends Solver {
   private def parseModels[$: P] =
     P(Start ~ (parseModel.rep ~ "=".rep(min = 2) ~ "\n" | parseUnsat) ~ End)
 
-  // FIXME This can only be called once, since the file will be closed and
-  // deleted afterward, consider enforcing single call (lazy val like)
   protected def enumerateSolution(
       toGet: Set[MLit],
       implm: SolverImplm
   ): mutable.Set[Set[MLit]] = {
-    val litNames = toGet.map(x => x -> x.toLit(this)).toMap
-    // FIXME Consider using a BiMap link type to represent bijective relations
-    val mLitNames = litNames.groupMapReduce(_._2)(_._1)((l, r) =>
-      throw new Exception(s"$l and $r for same key")
-    )
+
+    val miniZincFile: File =
+      FileManager.getMiniZincFile(this.hashCode())
+    val fileWriter = FileWriter(miniZincFile)
+
+    fileWriter.write("include \"connected.mzn\";\n")
+    miniZincProblem.foreach(fileWriter.write)
+
+    val litNames = InjectiveMap(toGet.map(x => x -> x.toLit(this)))
+    val mLitNames = litNames.inverse()
+
     fileWriter.write(s"""output [
          |${litNames.values.map(x => s"\"$x = \\($x)\\n\"").mkString(",\n")}
          |]""".stripMargin)

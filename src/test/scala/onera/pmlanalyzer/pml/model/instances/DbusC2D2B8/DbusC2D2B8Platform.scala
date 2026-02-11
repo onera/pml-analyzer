@@ -18,7 +18,6 @@
 
 package onera.pmlanalyzer.pml.model.instances.DbusC2D2B8
 
-import onera.pmlanalyzer.pml.model.hardware.*
 import onera.pmlanalyzer.*
 import sourcecode.Name
 

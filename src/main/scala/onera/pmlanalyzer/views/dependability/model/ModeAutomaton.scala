@@ -17,16 +17,11 @@
 
 package onera.pmlanalyzer.views.dependability.model
 
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.dependability.model.Direction.{
   Constant,
   Degradation,
   Reparation
-}
-import onera.pmlanalyzer.*
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
 }
 
 /** Base trait for all automaton-like component

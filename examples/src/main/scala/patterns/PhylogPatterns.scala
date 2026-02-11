@@ -113,7 +113,6 @@ object PhylogPatterns extends App {
   EH.printDiagram()
   EH.printCode()
 
-  // TODO short must be derived from variable name and purify from LaTeX forbidden characters (_,$)
   val EHSplit = conclusion(
     "Mitigation means commensurate with the safety objectives" short "EHSplit" width patternWidth size 8
   ).strategy(

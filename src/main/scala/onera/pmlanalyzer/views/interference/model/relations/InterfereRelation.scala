@@ -18,17 +18,31 @@
 package onera.pmlanalyzer.views.interference.model.relations
 
 import onera.pmlanalyzer.pml.model.hardware.Hardware
-import onera.pmlanalyzer.pml.model.relations.Relation
+import onera.pmlanalyzer.pml.model.relations.{
+  ReflexiveSymmetricEndomorphism,
+  Relation
+}
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.views.interference.model.specification.InterferenceSpecification.AtomicTransactionId
 
-private[pmlanalyzer] final case class InterfereRelation[L, R] private (
+private[pmlanalyzer] final case class BasicInterfereRelation[
+    L,
+    R
+] private[pmlanalyzer] (
     iniValues: Map[L, Set[R]]
 ) extends Relation[L, R](iniValues)
 
-//FIXME TO ENSURE CORRECTNESS THE INTERFERE ENDOMORPHISMS SHOULD BE ANTI-REFLEXIVE AND SYMMETRIC TO BE
-//  CONSISTENT WITH INTERFERENCE SPECIFICATION BASE TRAIT
+private[pmlanalyzer] final case class InterfereEndomorphism[
+    L
+] private[pmlanalyzer] (
+    iniValues: Map[L, Set[L]]
+) extends ReflexiveSymmetricEndomorphism[L](iniValues)
+
 private[pmlanalyzer] object InterfereRelation {
+
+  type InterfereRelation[L, R] = BasicInterfereRelation[L, R] |
+    InterfereEndomorphism[L]
+
   trait Instances {
 
     /** Relation gathering user defined service interferences caused by a
@@ -36,21 +50,19 @@ private[pmlanalyzer] object InterfereRelation {
       * @group interfere_relation
       */
     final implicit val physicalTransactionIdInterfereWithService
-        : InterfereRelation[AtomicTransactionId, Service] =
-      InterfereRelation(
-        Map.empty
-      )
+        : BasicInterfereRelation[AtomicTransactionId, Service] =
+      BasicInterfereRelation(Map.empty)
 
     /** Relation gathering user defined service interferences
       * @group interfere_relation
       */
-    final implicit val serviceInterfere: InterfereRelation[Service, Service] =
-      InterfereRelation(Map.empty)
+    final implicit val serviceInterfere: InterfereEndomorphism[Service] =
+      InterfereEndomorphism(Map.empty)
 
     /** Relation gathering user defined interfering hardware
       * @group interfere_relation
       */
-    final implicit val hardwareInterfere
-        : InterfereRelation[Hardware, Hardware] = InterfereRelation(Map.empty)
+    final implicit val hardwareInterfere: InterfereEndomorphism[Hardware] =
+      InterfereEndomorphism(Map.empty)
   }
 }

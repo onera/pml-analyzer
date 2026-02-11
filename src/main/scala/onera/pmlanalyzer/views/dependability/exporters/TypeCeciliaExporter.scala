@@ -17,11 +17,6 @@
 
 package onera.pmlanalyzer.views.dependability.exporters
 
-import onera.pmlanalyzer.views.dependability.operators.{
-  IsCriticalityOrdering,
-  IsFinite,
-  IsShadowOrdering
-}
 import onera.pmlanalyzer.*
 
 private[pmlanalyzer] trait TypeCeciliaExporter {

@@ -18,13 +18,13 @@
 package onera.pmlanalyzer.views.interference.operators
 
 import com.github.javabdd.BDD
+import onera.pmlanalyzer.*
 import onera.pmlanalyzer.pml.exporters.FileManager
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary
 import onera.pmlanalyzer.pml.model.configuration.TransactionLibrary.UserTransactionId
 import onera.pmlanalyzer.pml.model.hardware.Platform
 import onera.pmlanalyzer.pml.model.service.Service
 import onera.pmlanalyzer.pml.model.utils.Message
-import onera.pmlanalyzer.*
 import onera.pmlanalyzer.views.interference.model.formalisation.*
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method
 import onera.pmlanalyzer.views.interference.model.formalisation.InterferenceCalculusProblem.Method.Default
@@ -996,9 +996,11 @@ private[pmlanalyzer] object Analyse {
       // when a transaction s is selected then other transactions that are exclusive with it are not selected
       // \bigwedge_{s \in transactionVar} bdd(s) \Rightarrow not \bigvee_{s' \in exclusive(s)} bdd(s')
       val isExclusive = factory.andBDD(
-        exclusive.map(p =>
-          symbols(p._1).imp(factory.orBDD(p._2.map(symbols)).not)
-        )
+        for {
+          (k, v) <- exclusive
+          l = symbols(k)
+          r = (v - k).map(symbols)
+        } yield l.imp(factory.orBDD(r).not)
       )
 
       (2 to max)
