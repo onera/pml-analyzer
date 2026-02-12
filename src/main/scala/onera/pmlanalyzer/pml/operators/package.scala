@@ -42,7 +42,6 @@ package onera.pmlanalyzer.pml
   *   [[Route.Ops]] for route (e.g. useLink/cannotUseLink) keywords
   */
 package object operators {
-
   trait All
       extends Link.Ops
       with Linked.Ops
@@ -52,4 +51,6 @@ package object operators {
       with Used.Ops
       with Restrict.Ops
       with Route.Ops
+      with Capacity.Ops
+      with Demand.Ops
 }

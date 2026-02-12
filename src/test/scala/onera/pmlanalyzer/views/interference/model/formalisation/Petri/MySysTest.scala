@@ -15,32 +15,28 @@
  *  if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  ******************************************************************************/
 
-package onera.pmlanalyzer.pml.model.utils
-import onera.pmlanalyzer.pml.model.PMLNodeMap
-import onera.pmlanalyzer.pml.model.relations.*
+package onera.pmlanalyzer.views.interference.model.formalisation.Petri
 
-/** Trait gathering all relation instances
- */
-private[pmlanalyzer] abstract class Context private
-    extends LinkRelation.Instances
-    with UseRelation.Instances
-    with ProvideRelation.Instances
-    with AuthorizeRelation.Instances
-    with RoutingRelation.Instances
-    with PMLNodeMap.Instances
-    with CapacityRelation.Instances
-    with DemandRelation.Instances
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should
+import onera.pmlanalyzer.pml.model.instances.mySys.MySys
 
-private[pmlanalyzer] object Context {
+class MySysTest extends AnyFlatSpec with should.Matchers {
 
-  final class EmptyContext
-      extends Context
-      with LinkRelation.EmptyInstances
-      with UseRelation.EmptyInstances
-      with ProvideRelation.EmptyInstances
-      with AuthorizeRelation.EmptyInstances
-      with RoutingRelation.EmptyInstances
-      with PMLNodeMap.EmptyInstances
-      with CapacityRelation.EmptyInstances
-      with DemandRelation.EmptyInstances
+  import MySys.*
+
+  "MySys" should "be transformable into PetriNet" in {
+    for {
+      (sId, tIds) <- transactionByUserName
+    } {
+      println(s"$sId contains:")
+      for {
+        tId <- tIds
+        sPath <- purifiedAtomicTransactions.get(tId)
+        tName <- transactionUserName.getOrElse(Set(tId), Set(tId))
+      } {
+        println(s"$tName: ${sPath.mkString("::")}")
+      }
+    }
+  }
 }
