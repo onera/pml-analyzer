@@ -64,6 +64,7 @@ jobs:
       - if: ${{ steps.cache-monosat.outputs.cache-hit != 'true' }}
         name: Moving monosat.jar and monosat.so
         run: |
+          mkdir lib
           cp monosat/build/monosat.jar lib
           mkdir binlib
           cp monosat/build/libmonosat.so binlib
