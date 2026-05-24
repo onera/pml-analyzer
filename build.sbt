@@ -144,6 +144,12 @@ lazy val docSetting =
 
 lazy val assemblySettings = Seq(
   assembly / assemblyJarName := s"PMLAnalyzer_${version.value}.jar",
+  assembly / assemblyMergeStrategy := {
+    case x if x.endsWith("module-info.class") => MergeStrategy.discard
+    case x =>
+      val oldStrategy = (assembly / assemblyMergeStrategy ).value
+      oldStrategy(x)
+  }
 )
 
 lazy val compileSettings = Seq(
