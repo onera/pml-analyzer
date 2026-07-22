@@ -53,10 +53,10 @@ lazy val modelCode =
   taskKey[Seq[(File, String)]]("files to be embedded in docker")
 
 modelCode := Seq(
-    (examples / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
-    (examples / Compile / scalaSource).value / "keystone" -> "src/main/scala/keystone",
-    (examples / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
-    (examples / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
+    (experiments / Compile / scalaSource).value / "generic" -> "src/main/scala/generic",
+    (experiments / Compile / scalaSource).value / "keystone" -> "src/main/scala/keystone",
+    (experiments / Compile / scalaSource).value / "riscv" -> "src/main/scala/riscv",
+    (experiments / Compile / scalaSource).value / "mySys" -> "src/main/scala/mySys",
     (PMLAnalyzer / Compile / baseDirectory).value / "src" / "test" -> "src/test"
   )
 
@@ -208,11 +208,11 @@ lazy val publishSettings = Seq(
   versionScheme := Some("early-semver")
 )
 
-lazy val examples = (project in file("examples"))
+lazy val experiments = (project in file("experiments"))
   .dependsOn(PMLAnalyzer)
   .settings(
     compileSettings,
-    name := "examples",
+    name := "experiments",
     publish / skip := true
   )
 

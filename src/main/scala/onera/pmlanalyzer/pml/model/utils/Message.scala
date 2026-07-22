@@ -94,7 +94,7 @@ private[pmlanalyzer] object Message {
        |${path.mkString("[WARNING] ", "\n[WARNING] -> ", "")}""".stripMargin
 
   inline def successfulExportInfo(name: Any, time: Any): String =
-    s"[INFO] $name exported successfully in $time s"
+    s"[INFO] $name exported successfully in $time ms"
 
   inline def analysisResultFoundInfo(
       folder: Any,
@@ -104,7 +104,7 @@ private[pmlanalyzer] object Message {
     s"[INFO] $folder already contains result files for $analysis of $platform, computation discarded"
 
   inline def successfulModelBuildInfo(platform: Any, time: Any): String =
-    s"[INFO] $platform interference problem successfully built in $time s"
+    s"[INFO] $platform interference problem successfully built in $time ms"
 
   inline def startingNonExclusiveTransactionEstimationInfo(
       platform: Any
@@ -118,10 +118,10 @@ private[pmlanalyzer] object Message {
     s"[INFO] $platform estimation of number of non exclusive transactions completed in $time s"
 
   inline def iterationCompletedInfo(i: Any, n: Any, time: Any): String =
-    s"[INFO] Iteration $i / $n completed in $time s"
+    s"[INFO] Iteration $i / $n completed in $time ms"
 
   inline def analysisCompletedInfo(analysis: Any, time: Any): String =
-    s"[INFO] $analysis completed in $time s"
+    s"[INFO] $analysis completed in $time ms"
 
   inline def iterationResultsInfo(
       isFree: Boolean,

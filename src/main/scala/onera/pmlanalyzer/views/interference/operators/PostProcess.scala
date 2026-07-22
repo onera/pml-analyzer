@@ -228,6 +228,14 @@ private[pmlanalyzer] object PostProcess {
           PostProcess.sortMultiPathByITFImpact(self, max, implm, method),
           Duration.Inf
         )
+
+      def parseSummaryFile(
+          method: Option[Method],
+          implm: Option[SolverImplm]
+      )(using
+          ev: PostProcess[T]
+      ): Option[(Map[Int, BigInt], Map[Int, BigInt], Double)] =
+        PostProcess.parseSummaryFile(self.fullName, method, implm)
     }
   }
 
@@ -606,8 +614,7 @@ private[pmlanalyzer] object PostProcess {
     P(
       "[INFO]" ~/ "size" ~ digit.rep(min = 1).! ~ ":" ~ digit.rep(min = 1).!
         ~ CharsWhile(_ != '\n').? ~ "\n"
-    )
-      .map((l, r) => l.toInt -> BigInt(r))
+    ).map((l, r) => l.toInt -> BigInt(r))
 
   private def parseTotal[$: P] =
     P("Total" ~ ":" ~ digit.rep(min = 1) ~ "\n")
@@ -616,7 +623,7 @@ private[pmlanalyzer] object PostProcess {
     P(
       "Computation" ~ "time" ~ ":" ~ digit
         .rep(min = 1)
-        .! ~ ("." ~ digit.rep(min = 1).!).? ~ "s" ~ "\n"
+        .! ~ ("." ~ digit.rep(min = 1).!).? ~ "ms" ~ "\n"
     )
       .map((l, r) => s"$l${r.getOrElse("")}".toDouble)
 
@@ -624,7 +631,10 @@ private[pmlanalyzer] object PostProcess {
     P(parseTotal ~ parseComputationTime)
 
   private def parseSizes[$: P] =
-    P(parseSize.rep).map(_.toMap)
+    P("\n" | parseSize.rep).map {
+      case m: Seq[(Int, BigInt)] => m.toMap
+      case _                     => Map.empty[Int, BigInt]
+    }
 
   private def parseSizeSection[$: P] =
     P(parseITFHeader ~ parseSizes ~ parseFreeHeader ~ parseSizes)

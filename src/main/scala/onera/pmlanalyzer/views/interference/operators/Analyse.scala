@@ -645,7 +645,7 @@ private[pmlanalyzer] object Analyse {
             Message.successfulModelBuildInfo(
               platform.name,
               ((System
-                .currentTimeMillis() millis) - generateModelStart).toSeconds
+                .currentTimeMillis() millis) - generateModelStart).toMillis
             )
           )
 
@@ -668,7 +668,7 @@ private[pmlanalyzer] object Analyse {
             Message.successfulNonExclusiveMultiTransactionEstimationInfo(
               platform.name,
               ((System
-                .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toSeconds
+                .currentTimeMillis() millis) - estimateNonExclusiveMultiTransactionsStart).toMillis
             )
           )
           for {
@@ -685,7 +685,7 @@ private[pmlanalyzer] object Analyse {
               1,
               sizes.max,
               ((System
-                .currentTimeMillis() millis) - assessmentStartDate).toSeconds
+                .currentTimeMillis() millis) - assessmentStartDate).toMillis
             )
           )
           for {
@@ -725,7 +725,7 @@ private[pmlanalyzer] object Analyse {
                 size,
                 sizes.max,
                 ((System
-                  .currentTimeMillis() millis) - iterationStartDate).toSeconds
+                  .currentTimeMillis() millis) - iterationStartDate).toMillis
               )
             )
             for {
@@ -762,7 +762,7 @@ private[pmlanalyzer] object Analyse {
           }
           val computationTime =
             ((System
-              .currentTimeMillis() millis) - assessmentStartDate).toSeconds
+              .currentTimeMillis() millis) - assessmentStartDate).toMillis
           for { cW <- channelWriters }
             updateChannelFile(cW, channels)
 
@@ -857,7 +857,7 @@ private[pmlanalyzer] object Analyse {
       writer write
         s"""------------------------------------------
            |Total: $size
-           |Computation time: ${computationTime}s
+           |Computation time: ${computationTime}ms
            |-------------------------------------------
            |""".stripMargin
 
