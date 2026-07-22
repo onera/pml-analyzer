@@ -91,7 +91,7 @@ object GeneratedPlatformsTest extends App {
   }
 
   val log2 = (x: Int) => (Math.log10(x) / Math.log10(2.0)).toInt
-  private val cores = Seq(4, 8, 16)
+  private val cores = Seq(8)
   private val dsps = Seq(0)
   private lazy val platforms: Seq[
     Platform & TransactionLibrary &
